@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 export const useDrawCanvas = (
   videoRef: React.MutableRefObject<HTMLVideoElement | undefined> | React.RefObject<HTMLVideoElement>,
@@ -10,41 +10,39 @@ export const useDrawCanvas = (
   onVideoVideoEnd?: () => void,
   additionalVideoRefs?: React.RefObject<HTMLVideoElement>[],
 ) => {
-  const video = videoRef?.current
-  const canvas = canvasRef?.current
-  const isElementReady = video && canvas
+  const isElementReady = videoRef?.current && canvasRef?.current
   const isVideoPlaying = useRef(false)
 
-  const drawImage = useCallback(() => {
+  const drawImage = () => {
     isVideoPlaying.current = false
-    const context = canvas?.getContext('2d')
-    if (!canvas || !video || !context) return
+    const context = canvasRef?.current?.getContext('2d')
+    if (!canvasRef?.current || !videoRef?.current || !context) return
     context.clearRect(0, 0, width, height)
-    context.drawImage(video, 0, 0, width, height)
+    context.drawImage(videoRef?.current, 0, 0, width, height)
     additionalVideoRefs?.forEach((ref) => {
       const additionalVideo = ref.current
       if (!additionalVideo) return
       context.drawImage(additionalVideo, 0, 0, width, height)
     })
     onVideoStartCallback?.()
-  }, [canvas, video, height, width, additionalVideoRefs, onVideoStartCallback])
+  }
 
-  useLayoutEffect(() => {
-    if (isElementReady) {
-      video.onpause = () => {
-        cancelAnimationFrame(intervalRef.current)
-        isVideoPlaying.current = false
-      }
-      video.onended = () => {
-        cancelAnimationFrame(intervalRef.current)
-        onVideoVideoEnd?.()
-        isVideoPlaying.current = false
-      }
-      video.onplay = () => {
-        onVideoStartCallback?.()
-      }
+  useEffect(() => {
+    if (!videoRef?.current) return
+    const video = videoRef.current
+    video.onpause = () => {
+      cancelAnimationFrame(intervalRef.current)
+      isVideoPlaying.current = false
     }
-  }, [isElementReady, intervalRef, onVideoStartCallback, onVideoVideoEnd, video])
+    video.onended = () => {
+      cancelAnimationFrame(intervalRef.current)
+      onVideoVideoEnd?.()
+      isVideoPlaying.current = false
+    }
+    video.onplay = () => {
+      onVideoStartCallback?.()
+    }
+  }, [isElementReady, intervalRef, onVideoStartCallback, onVideoVideoEnd, videoRef])
 
-  return { drawImage: isElementReady ? drawImage : null, isVideoPlaying }
+  return { drawImage, isVideoPlaying }
 }

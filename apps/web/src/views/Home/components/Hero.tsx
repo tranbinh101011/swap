@@ -6,7 +6,7 @@ import { AdPanel } from 'components/AdPanel'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import useTheme from 'hooks/useTheme'
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { styled } from 'styled-components'
 import { useAccount } from 'wagmi'
 import { useDrawCanvas } from '../hooks/useDrawCanvas'
@@ -129,6 +129,7 @@ const Hero = () => {
   const internalRef = useRef(0)
   const seqInternalRef = useRef(0)
   const { isIOS } = useIsIOS()
+
   const { drawImage, isVideoPlaying } = useDrawCanvas(
     videoRef,
     canvasRef,
@@ -152,7 +153,8 @@ const Hero = () => {
     [starVideoRef, cakeVideoRef, rock01VideoRef, rock02VideoRef, rock03VideoRef],
   )
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    videoRef.current?.play()
     starVideoRef.current?.play()
     cakeVideoRef.current?.play()
     rock01VideoRef.current?.play()
@@ -285,22 +287,22 @@ const Hero = () => {
               />
               {!(isIOS || isMobile) && (
                 <VideoWrapper>
-                  <CakeVideo ref={videoRef} width={width} autoPlay muted playsInline>
+                  <CakeVideo ref={videoRef} width={width} autoPlay muted playsInline preload="auto">
                     <source src={`${ASSET_CDN}/web/landing/bunnyv2.webm`} type="video/webm" />
                   </CakeVideo>
-                  <CakeVideo ref={starVideoRef} width={width} autoPlay loop muted playsInline>
+                  <CakeVideo ref={starVideoRef} width={width} autoPlay loop muted playsInline preload="auto">
                     <source src={`${ASSET_CDN}/web/landing/star.webm`} type="video/webm" />
                   </CakeVideo>
                   <CakeVideo ref={cakeVideoRef} width={width} autoPlay loop muted playsInline>
                     <source src={`${ASSET_CDN}/web/landing/hero-cake.webm`} type="video/webm" />
                   </CakeVideo>
-                  <CakeVideo ref={rock01VideoRef} width={width} autoPlay loop muted playsInline>
+                  <CakeVideo ref={rock01VideoRef} width={width} autoPlay loop muted playsInline preload="auto">
                     <source src={`${ASSET_CDN}/web/landing/rock01.webm`} type="video/webm" />
                   </CakeVideo>
-                  <CakeVideo ref={rock02VideoRef} width={width} autoPlay loop muted playsInline>
+                  <CakeVideo ref={rock02VideoRef} width={width} autoPlay loop muted playsInline preload="auto">
                     <source src={`${ASSET_CDN}/web/landing/rock02.webm`} type="video/webm" />
                   </CakeVideo>
-                  <CakeVideo ref={rock03VideoRef} width={width} autoPlay loop muted playsInline>
+                  <CakeVideo ref={rock03VideoRef} width={width} autoPlay loop muted playsInline preload="auto">
                     <source src={`${ASSET_CDN}/web/landing/rock03.webm`} type="video/webm" />
                   </CakeVideo>
                 </VideoWrapper>
