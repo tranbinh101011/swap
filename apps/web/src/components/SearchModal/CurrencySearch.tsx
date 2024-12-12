@@ -1,6 +1,5 @@
 import { useDebounce, useSortedTokensByQuery } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { UsdvWidget } from '@pancakeswap/widgets-internal'
 /* eslint-disable no-restricted-syntax */
 import { Currency, Token } from '@pancakeswap/sdk'
 import { WrappedTokenInfo, createFilterToken } from '@pancakeswap/token-lists'
@@ -12,7 +11,6 @@ import { isAddress } from 'viem'
 
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { useUsdvMintAvailable } from 'hooks/useUsdvMintAvailable'
 import { useAllLists, useInactiveListUrls } from 'state/lists/hooks'
 import { safeGetAddress } from 'utils'
 
@@ -100,10 +98,6 @@ function CurrencySearch({
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
-  const usdvMintAvailable = useUsdvMintAvailable({
-    chainId,
-    tokenSymbol: debouncedQuery,
-  })
 
   const [invertSearchOrder] = useState<boolean>(false)
 
@@ -267,7 +261,6 @@ function CurrencySearch({
             commonBasesType={commonBasesType}
           />
         )}
-        {usdvMintAvailable ? <UsdvWidget.MintLink mt="0.625rem" /> : null}
       </AutoColumn>
       {getCurrencyListRows()}
     </>
