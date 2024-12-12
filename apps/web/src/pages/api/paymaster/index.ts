@@ -19,22 +19,24 @@ const handler: NextApiHandler = async (req, res) => {
   }
 
   try {
-    let isTransactionWhitelisted = PAYMASTER_CONTRACT_WHITELIST.includes(call.address.toLowerCase())
-
-    try {
-      // Check calldata for ERC20 approve
-      const decodedCalldata = decodeFunctionData({ data: call.calldata, abi: erc20Abi })
-      if (decodedCalldata.functionName === 'approve') isTransactionWhitelisted = true
-    } catch (e) {
-      // do nothing. must be another type of transaction if decoding failed
-    }
-
-    if (!isTransactionWhitelisted) {
-      return res.status(400).json({ error: 'Transaction type not whitelisted for Paymaster' })
-    }
-
     const gasTokenInfo = paymasterInfo[gasTokenAddress]
     const isSponsored = gasTokenInfo?.discount === 'FREE'
+
+    if (isSponsored) {
+      let isTransactionWhitelisted = PAYMASTER_CONTRACT_WHITELIST.includes(call.address.toLowerCase())
+
+      try {
+        // Check calldata for ERC20 approve
+        const decodedCalldata = decodeFunctionData({ data: call.calldata, abi: erc20Abi })
+        if (decodedCalldata.functionName === 'approve') isTransactionWhitelisted = true
+      } catch {
+        // do nothing. must be another type of transaction if decoding failed
+      }
+
+      if (!isTransactionWhitelisted) {
+        return res.status(400).json({ error: 'Transaction type not whitelisted for Paymaster' })
+      }
+    }
 
     const PAYMASTER_URL = isSponsored ? ZYFI_SPONSORED_PAYMASTER_URL : ZYFI_PAYMASTER_URL
     const gas = calculateGasMargin(BigInt(call.gas), 2000n)

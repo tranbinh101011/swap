@@ -7,11 +7,12 @@ import addresses from 'config/constants/contracts'
 import { getAddressFromMap } from 'utils/addressHelpers'
 import { Address, Hex } from 'viem'
 
-// export const DEFAULT_PAYMASTER_TOKEN = Native.onChain(ChainId.ZKSYNC)
+export const DEFAULT_PAYMASTER_TOKEN = Native.onChain(ChainId.ZKSYNC)
 
 export const paymasterTokens: Currency[] = [
-  // DEFAULT_PAYMASTER_TOKEN,
-  Native.onChain(ChainId.ZKSYNC),
+  DEFAULT_PAYMASTER_TOKEN,
+  zksyncTokens.zk,
+  zksyncTokens.cake,
   zksyncTokens.wbtc,
   zksyncTokens.dai,
   zksyncTokens.usdc,
@@ -26,78 +27,63 @@ export const paymasterTokens: Currency[] = [
   zksyncTokens.weth,
   zksyncTokens.wethe,
   zksyncTokens.hold,
-  zksyncTokens.zk,
 ]
-
-export const DEFAULT_PAYMASTER_TOKEN = paymasterTokens[4]
 
 export const paymasterInfo: {
   [gasTokenAddress: Address]: { discount: `-${number}%` | 'FREE'; discountLabel?: string }
 } = {
+  [zksyncTokens.zk.address]: {
+    discount: '-40%',
+  },
   [zksyncTokens.wbtc.address]: {
-    discount: 'FREE', // Example: -20%, FREE
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.dai.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.usdc.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.usdcNative.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.usdt.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.grai.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.tes.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.busd.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.reth.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.wstETH.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.meow.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.weth.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.wethe.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
   [zksyncTokens.hold.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+    discount: '-20%',
   },
-  [zksyncTokens.zk.address]: {
-    discount: 'FREE',
-    discountLabel: 'FREE SWAP',
+  [zksyncTokens.cake.address]: {
+    discount: '-20%',
   },
 }
 
 /**
- * Contracts that the paymaster is allowed to interact with.
+ * Contracts that the paymaster is allowed to interact with if transaction is sponsored.
  * In addition, ERC20 Approve transactions are allowed.
  */
 export const PAYMASTER_CONTRACT_WHITELIST = [

@@ -27,8 +27,8 @@ import { warningSeverity } from 'utils/exchange'
 import { PancakeSwapXTag } from 'components/PancakeSwapXTag'
 import { paymasterInfo } from 'config/paymaster'
 import { usePaymaster } from 'hooks/usePaymaster'
-import { InterfaceOrder, isXOrder } from 'views/Swap/utils'
 import { isAddressEqual } from 'utils'
+import { InterfaceOrder, isXOrder } from 'views/Swap/utils'
 import FormattedPriceImpact from '../../components/FormattedPriceImpact'
 import { StyledBalanceMaxMini, SwapCallbackError } from '../../components/styleds'
 import { SlippageAdjustedAmounts, formatExecutionPrice } from '../utils/exchange'
@@ -265,7 +265,9 @@ export const SwapModalFooterV2 = memo(function SwapModalFooterV2({
         {isPaymasterAvailable && isPaymasterTokenActive && (
           <RowBetween mt="8px">
             <RowFixed>
-              <Text fontSize="14px">{t('Gas Token')}</Text>
+              <Text color="textSubtle" fontSize="14px">
+                {t('Gas Token')}
+              </Text>
               {gasTokenInfo && gasTokenInfo.discount && (
                 <Badge
                   ref={targetRef}

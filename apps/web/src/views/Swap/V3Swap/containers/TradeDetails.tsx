@@ -5,9 +5,9 @@ import { memo, useMemo } from 'react'
 import { TradeSummary } from 'views/Swap/components/AdvancedSwapDetails'
 import { AdvancedDetailsFooter } from 'views/Swap/components/AdvancedSwapDetailsDropdown'
 
+import { PriceOrder } from '@pancakeswap/price-api-sdk'
 import { GasTokenSelector } from 'components/Paymaster/GasTokenSelector'
 import { usePaymaster } from 'hooks/usePaymaster'
-import { PriceOrder } from '@pancakeswap/price-api-sdk'
 import { isClassicOrder, isXOrder } from 'views/Swap/utils'
 import { RoutesBreakdown, XRoutesBreakdown } from '../components'
 import { useIsWrapping, useSlippageAdjustedAmounts } from '../hooks'
@@ -53,7 +53,9 @@ export const TradeDetails = memo(function TradeDetails({ loaded, order }: Props)
           priceImpactWithoutFee={priceImpactWithoutFee ?? undefined}
           realizedLPFee={lpFeeAmount ?? undefined}
           hasStablePair={hasStablePool}
-          gasTokenSelector={isPaymasterAvailable && inputAmount && <GasTokenSelector currency={inputAmount.currency} />}
+          gasTokenSelector={
+            isPaymasterAvailable && inputAmount && <GasTokenSelector inputCurrency={inputAmount.currency} />
+          }
         />
         {isXOrder(order) ? <XRoutesBreakdown /> : <RoutesBreakdown routes={order?.trade?.routes} />}
       </AutoColumn>

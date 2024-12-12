@@ -13,24 +13,29 @@ export const PanelWrapper = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.cardBorder};
 `
 interface ButtonAndDetailsPanelProps {
+  shouldRenderDetails?: boolean
+
   swapCommitButton: React.ReactNode
   pricingAndSlippage: React.ReactNode
   tradeDetails: React.ReactNode
-  shouldRenderDetails?: boolean
   mevSlot?: React.ReactNode
+
+  gasTokenSelector?: React.ReactNode
 }
 
 export const ButtonAndDetailsPanel: React.FC<ButtonAndDetailsPanelProps> = ({
+  shouldRenderDetails,
   swapCommitButton,
   pricingAndSlippage,
   tradeDetails,
-  shouldRenderDetails,
   mevSlot,
+  gasTokenSelector,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   return (
     <PanelWrapper>
       {swapCommitButton}
+      {gasTokenSelector}
       {shouldRenderDetails && (
         <SwapUIV2.Collapse
           isOpen={isOpen}

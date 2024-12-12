@@ -15,7 +15,7 @@ import {
 } from '@pancakeswap/uikit'
 import { formatAmount, formatFraction } from '@pancakeswap/utils/formatFractions'
 import { useUserSlippage } from '@pancakeswap/utils/user'
-import React, { memo, useState } from 'react'
+import { memo, useState } from 'react'
 
 import { NumberDisplay } from '@pancakeswap/widgets-internal'
 import { RowBetween, RowFixed } from 'components/Layout/Row'
@@ -44,7 +44,6 @@ export const TradeSummary = memo(function TradeSummary({
   slippageAdjustedAmounts,
   priceImpactWithoutFee,
   realizedLPFee,
-  gasTokenSelector,
   isX = false,
   loading = false,
 }: {
@@ -55,7 +54,6 @@ export const TradeSummary = memo(function TradeSummary({
   slippageAdjustedAmounts: SlippageAdjustedAmounts
   priceImpactWithoutFee?: Percent | null
   realizedLPFee?: CurrencyAmount<Currency> | null
-  gasTokenSelector?: React.ReactNode
   isX?: boolean
   loading?: boolean
 }) {
@@ -66,7 +64,6 @@ export const TradeSummary = memo(function TradeSummary({
 
   return (
     <AutoColumn px="4px">
-      {gasTokenSelector}
       <RowBetween>
         <RowFixed>
           <QuestionHelperV2
