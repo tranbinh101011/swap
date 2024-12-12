@@ -2,7 +2,7 @@ import React from "react";
 import Svg from "../Svg";
 import { SvgProps } from "../types";
 
-export const WalletFilledV2Icon: React.FC<React.PropsWithChildren<SvgProps>> = (props) => {
+const WalletFilledV2Icon: React.FC<React.PropsWithChildren<SvgProps>> = (props) => {
   return (
     <Svg viewBox="0 0 18 18" {...props}>
       <path
@@ -12,3 +12,5 @@ export const WalletFilledV2Icon: React.FC<React.PropsWithChildren<SvgProps>> = (
     </Svg>
   );
 };
+
+export default WalletFilledV2Icon;

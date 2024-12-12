@@ -2,7 +2,7 @@ import React from "react";
 import Svg from "../Svg";
 import { SvgProps } from "../types";
 
-export const ShieldIcon: React.FC<React.PropsWithChildren<SvgProps>> = (props) => (
+const ShieldIcon: React.FC<React.PropsWithChildren<SvgProps>> = (props) => (
   <Svg viewBox="0 0 24 24" {...props}>
     <mask id="ShieldIcon" height="24" maskUnits="userSpaceOnUse" width="24" x="0" y="0">
       <path d="m0 0h24v24h-24z" fill="#d9d9d9" />
@@ -15,3 +15,5 @@ export const ShieldIcon: React.FC<React.PropsWithChildren<SvgProps>> = (props) =
     </g>
   </Svg>
 );
+
+export default ShieldIcon;
