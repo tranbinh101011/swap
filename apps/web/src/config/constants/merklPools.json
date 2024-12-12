@@ -1,1 +1,7 @@
-[]
+[
+  {
+    "chainId": 42161,
+    "address": "0xE4BfcC208f3447cc5D2f5CCB40C52778d4bE2004",
+    "link": "https://merkl.angle.money/arbitrum/pool/2/0xE4BfcC208f3447cc5D2f5CCB40C52778d4bE2004"
+  }
+]
