@@ -100,7 +100,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
         return !!getTrustWalletProvider()
       },
       deepLink: 'https://link.trustwallet.com/open_url?coin_id=20000714&url=https://pancakeswap.finance/',
-      downloadLink: 'https://chrome.google.com/webstore/detail/trust-wallet/egjidjbpglichdcondbcbdnbeeppgdph',
+      downloadLink: 'https://trustwallet.com/browser-extension',
       guide: {
         desktop: 'https://trustwallet.com/browser-extension',
         mobile: 'https://trustwallet.com/',
@@ -115,7 +115,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       get installed() {
         return typeof window !== 'undefined' && Boolean(window.okxwallet)
       },
-      downloadLink: 'https://chromewebstore.google.com/detail/okx-wallet/mcohilncbfahbmgdjkbpemcciiolgcge',
+      downloadLink: 'https://www.okx.com/download',
       deepLink:
         'https://www.okx.com/download?deeplink=okx%3A%2F%2Fwallet%2Fdapp%2Furl%3FdappUrl%3Dhttps%253A%252F%252Fpancakeswap.finance',
       guide: {
@@ -180,7 +180,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
         desktop: 'https://rabby.io/',
       },
       downloadLink: {
-        desktop: 'https://chrome.google.com/webstore/detail/rabby/acmacodkjbdgmoleebolmdjonilkdbch',
+        desktop: 'https://rabby.io/',
       },
     },
     {
@@ -211,8 +211,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       get installed() {
         return typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isSafePal)
       },
-      downloadLink:
-        'https://chrome.google.com/webstore/detail/safepal-extension-wallet/lgmpcpglpngdoalbgeoldeajfclnhafa',
+      downloadLink: 'https://safepal.com/en/extension',
       qrCode,
     },
     {
