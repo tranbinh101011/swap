@@ -214,7 +214,7 @@ export function useV3PoolsWithTicks(
   const poolsWithTicks = useQuery({
     queryKey: ['v3_pool_ticks', key],
 
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!pools) {
         throw new Error('Invalid pools to get ticks')
       }
@@ -223,7 +223,7 @@ export function useV3PoolsWithTicks(
       const poolTicks = await Promise.all(
         pools.map(async (pool) => {
           const { token0 } = pool
-          return getPoolTicks(token0.chainId, SmartRouter.getPoolAddress(pool)).then((data) => {
+          return getPoolTicks(token0.chainId, SmartRouter.getPoolAddress(pool), undefined, signal).then((data) => {
             return data.map(
               ({ tick, liquidityNet, liquidityGross }) =>
                 new Tick({ index: Number(tick), liquidityNet, liquidityGross }),
