@@ -49,6 +49,7 @@
     "@pancakeswap/achievements": "workspace:*",
     "@pancakeswap/blog": "workspace:*",
     "@pancakeswap/chains": "workspace:*",
+    "@pancakeswap/canonical-bridge": "workspace:*",
     "@pancakeswap/farms": "workspace:*",
     "@pancakeswap/gauges": "workspace:*",
     "@pancakeswap/hooks": "workspace:*",

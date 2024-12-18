@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/js-cookie": "^3.0.2",
     "styled-components": "6.0.7",
-    "@types/react": "^18.2.21"
+    "@types/react": "^18.2.21",
+    "@babel/core": "^7.23.9"
   }
 }

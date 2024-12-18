@@ -142,37 +142,37 @@ const config: (
     },
     {
       label: t('Bridge'),
-      href: 'https://bridge.pancakeswap.finance',
+      href: '/bridge',
       icon: BridgeIcon,
       type: DropdownMenuItemType.EXTERNAL_LINK,
       image: '/images/decorations/pe2.png',
-      items: [
-        {
-          label: t('Stargate'),
-          href: 'https://bridge.pancakeswap.finance/stargate',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-        {
-          label: t('Axelar'),
-          href: 'https://bridge.pancakeswap.finance/axelar',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-        {
-          label: t('Celer'),
-          href: 'https://cbridge.celer.network/1/12360001/',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-        {
-          label: t('Wormhole'),
-          href: 'https://bridge.pancakeswap.finance/wormhole',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-        {
-          label: t('Aptos'),
-          href: 'https://docs.pancakeswap.finance/readme/get-started-aptos/aptos-coin-guide',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-      ].map((item) => addMenuItemSupported(item, chainId)),
+      // items: [
+      //   {
+      //     label: t('Stargate'),
+      //     href: 'https://bridge.pancakeswap.finance/stargate',
+      //     type: DropdownMenuItemType.EXTERNAL_LINK,
+      //   },
+      //   {
+      //     label: t('Axelar'),
+      //     href: 'https://bridge.pancakeswap.finance/axelar',
+      //     type: DropdownMenuItemType.EXTERNAL_LINK,
+      //   },
+      //   {
+      //     label: t('Celer'),
+      //     href: 'https://cbridge.celer.network/1/12360001/',
+      //     type: DropdownMenuItemType.EXTERNAL_LINK,
+      //   },
+      //   {
+      //     label: t('Wormhole'),
+      //     href: 'https://bridge.pancakeswap.finance/wormhole',
+      //     type: DropdownMenuItemType.EXTERNAL_LINK,
+      //   },
+      //   {
+      //     label: t('Aptos'),
+      //     href: 'https://docs.pancakeswap.finance/readme/get-started-aptos/aptos-coin-guide',
+      //     type: DropdownMenuItemType.EXTERNAL_LINK,
+      //   },
+      // ].map((item) => addMenuItemSupported(item, chainId)),
     },
     {
       label: t('Play'),

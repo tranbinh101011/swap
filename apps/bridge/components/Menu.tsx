@@ -29,24 +29,6 @@ const StyledMenuItem = styled('div')<{ $isActive?: boolean }>`
 const MenuConfig = [
   { title: 'CAKE', href: '/' },
   {
-    title: 'EVMs',
-    href: '/axelar',
-    items: [
-      {
-        label: 'Axelar',
-        href: '/axelar',
-      },
-      {
-        label: 'Stargate',
-        href: '/stargate',
-      },
-      {
-        label: 'Wormhole',
-        href: '/wormhole',
-      },
-    ],
-  },
-  {
     title: 'Aptos',
     href: '/',
     items: [
@@ -66,6 +48,10 @@ const MenuConfig = [
         type: DropdownMenuItemType.EXTERNAL_LINK,
       },
     ],
+  },
+  {
+    title: 'EVMs',
+    href: '/axelar',
   },
 ]
 
