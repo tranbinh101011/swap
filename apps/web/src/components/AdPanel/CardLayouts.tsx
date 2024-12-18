@@ -54,13 +54,9 @@ const AdSlides = memo(({ forceMobile, isDismissible = true }: AdPlayerProps) => 
     resetAllExpanded()
   }, [route, resetAllExpanded])
 
-  const handlePause = () => {
-    pauseAni()
-  }
-
-  const handleResume = () => {
+  const handleResume = useCallback(() => {
     if (!isAnySlideExpanded) resumeAni()
-  }
+  }, [isAnySlideExpanded, resumeAni])
 
   useEffect(() => {
     if (swiperRef.current) {
@@ -94,7 +90,7 @@ const AdSlides = memo(({ forceMobile, isDismissible = true }: AdPlayerProps) => 
       pagination={{ clickable: true, enabled: !isAnySlideExpanded }}
       $showPagination={!isAnySlideExpanded}
       modules={[Autoplay, Pagination, EffectFade]}
-      onAutoplayPause={handlePause}
+      onAutoplayPause={pauseAni}
       onAutoplayResume={handleResume}
       loop
       observer

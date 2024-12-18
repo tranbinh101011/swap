@@ -32,7 +32,7 @@ export const StyledSwiper = styled(Swiper)<{ $showPagination?: boolean }>`
   .swiper-pagination-bullet {
     display: ${({ $showPagination = true }) => ($showPagination ? 'block' : 'none')};
     position: relative;
-    background-color: ${({ theme }) => theme.colors.inputSecondary};
+    background-color: ${({ theme }) => (theme.isDark ? '#55496E' : '#D7CAEC')};
     margin: 0 !important;
     flex-grow: 1;
     border-radius: 4px;
