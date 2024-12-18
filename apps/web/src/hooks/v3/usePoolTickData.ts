@@ -29,13 +29,19 @@ function useTicksFromSubgraph(
 }
 
 // Fetches all ticks for a given pool
-export function useAllV3Ticks(
-  currencyA: Currency | undefined | null,
-  currencyB: Currency | undefined | null,
-  feeAmount: FeeAmount | undefined,
-  activeTick: number | undefined,
+export function useAllV3Ticks({
+  currencyA,
+  currencyB,
+  feeAmount,
+  activeTick,
   enabled = true,
-): {
+}: {
+  currencyA?: Currency | null
+  currencyB?: Currency | null
+  feeAmount?: FeeAmount
+  activeTick?: number
+  enabled?: boolean
+}): {
   isLoading: boolean
   error: unknown
   ticks: TickData[] | undefined
@@ -64,7 +70,7 @@ export function usePoolActiveLiquidity(
   // Find nearest valid tick for pool in case tick is not initialized.
   const activeTick = useMemo(() => getActiveTick(pool[1]?.tickCurrent, feeAmount), [pool, feeAmount])
 
-  const { isLoading, error, ticks } = useAllV3Ticks(currencyA, currencyB, activeTick, feeAmount)
+  const { isLoading, error, ticks } = useAllV3Ticks({ currencyA, currencyB, feeAmount, activeTick })
 
   return useMemo(() => {
     if (

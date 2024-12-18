@@ -120,7 +120,13 @@ function FarmV3ApyButton_({
     [sqrtRatioX96],
   )
   const activeTick = useMemo(() => getActiveTick(tickCurrent, feeAmount), [tickCurrent, feeAmount])
-  const { ticks: data } = useAllV3Ticks(baseCurrency, quoteCurrency, feeAmount, activeTick, roiModal.isOpen)
+  const { ticks: data } = useAllV3Ticks({
+    currencyA: baseCurrency,
+    currencyB: quoteCurrency,
+    feeAmount,
+    activeTick,
+    enabled: roiModal.isOpen,
+  })
 
   const cakePrice = useCakePrice()
 

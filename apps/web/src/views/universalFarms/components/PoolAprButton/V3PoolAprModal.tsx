@@ -53,13 +53,13 @@ const AprModal: React.FC<V3PoolAprModalProps> = ({ modal, poolInfo, userPosition
     [sqrtRatioX96],
   )
   const activeTick = useMemo(() => getActiveTick(tickCurrent, poolInfo.feeTier), [tickCurrent, poolInfo.feeTier])
-  const { ticks: ticksData } = useAllV3Ticks(
-    poolInfo.token0,
-    poolInfo.token1,
-    poolInfo.feeTier,
+  const { ticks: ticksData } = useAllV3Ticks({
+    currencyA: poolInfo.token0,
+    currencyB: poolInfo.token1,
+    feeAmount: poolInfo.feeTier,
     activeTick,
-    modal.isOpen,
-  )
+    enabled: modal.isOpen,
+  })
   const prices = usePairTokensPrice(poolInfo?.lpAddress, priceTimeWindow, poolInfo?.chainId, modal.isOpen)
   const depositUsdAsBN = useMemo(
     () =>

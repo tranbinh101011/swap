@@ -114,7 +114,7 @@ export function AprCalculator({
     [sqrtRatioX96],
   )
   const activeTick = useMemo(() => getActiveTick(tickCurrent, feeAmount), [tickCurrent, feeAmount])
-  const { ticks: data } = useAllV3Ticks(baseCurrency, quoteCurrency, activeTick, feeAmount)
+  const { ticks: data } = useAllV3Ticks({ currencyA: baseCurrency, currencyB: quoteCurrency, feeAmount, activeTick })
   const volume24H = usePoolAvgTradingVolume({
     address: poolAddress,
     chainId: pool?.token0.chainId,
