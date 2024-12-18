@@ -27,9 +27,11 @@ const sentryWebpackPluginOptions =
         // recommended:
         //   release, url, org, project, authToken, configFile, stripPrefix,
         //   urlPrefix, include, ignore
-        silent: false, // Logging when deploying to check if there is any problem
+        silent: true, // Logging when deploying to check if there is any problem
         validate: true,
         hideSourceMaps: false,
+        tryRun: true,
+        disable: true
         // https://github.com/getsentry/sentry-webpack-plugin#options.
       }
     : {
