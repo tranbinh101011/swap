@@ -25,6 +25,7 @@ import GlobalStyle from './GlobalStyle'
 export interface CanonicalBridgeProps {
   connectWalletButton: CanonicalBridgeProviderProps['connectWalletButton']
   supportedChainIds: number[]
+  rpcConfig: Record<number, string[]>
 }
 
 export const CanonicalBridge = (props: CanonicalBridgeProps) => {
@@ -63,7 +64,8 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
     return chains
       .filter((e) => supportedChainIds.includes(e.id))
       .filter((e) => !(connector?.id === 'BinanceW3WSDK' && e.id === 1101))
-  }, [connector?.id, supportedChainIds])
+      .map((chain) => ({ ...chain, rpcUrl: props.rpcConfig?.[chain.id]?.[0] ?? chain.rpcUrl }))
+  }, [supportedChainIds, connector?.id, props.rpcConfig])
 
   return (
     <BridgeWalletProvider>
