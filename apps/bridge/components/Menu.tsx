@@ -51,7 +51,7 @@ const MenuConfig = [
   },
   {
     title: 'EVMs',
-    href: '/axelar',
+    href: 'https://pancakeswap.finance/bridge',
   },
 ]
 
