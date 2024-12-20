@@ -32,7 +32,7 @@
     "@pancakeswap/localization": "workspace:*"
   },
   "dependencies": {
-    "@bnb-chain/canonical-bridge-widget": "0.5.14-alpha.5",
+    "@bnb-chain/canonical-bridge-widget": "0.5.15",
     "axios": "~1.6.8",
     "polished": "^4.2.2"
   },
