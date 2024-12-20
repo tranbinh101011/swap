@@ -1,5 +1,12 @@
 # @pancakeswap/widgets-internal
 
+## 0.3.17
+
+### Patch Changes
+
+- 7e7a185: Remove usdv widget
+  - @pancakeswap/farms@1.0.84
+
 ## 0.3.16
 
 ### Patch Changes

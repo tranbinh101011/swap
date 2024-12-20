@@ -1,5 +1,11 @@
 # @pancakeswap/gauges
 
+## 2.0.4
+
+### Patch Changes
+
+- e02271e: Updated new GAUGES_CALC_ADDRESS
+
 ## 2.0.3
 
 ### Patch Changes

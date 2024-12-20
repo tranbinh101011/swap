@@ -1,5 +1,13 @@
 # @pancakeswap/smart-router
 
+## 7.0.2
+
+### Patch Changes
+
+- 8578d8f: Fix error throws when adjusting token output by gas cost
+- Updated dependencies [e02271e]
+  - @pancakeswap/gauges@2.0.4
+
 ## 7.0.1
 
 ### Patch Changes
