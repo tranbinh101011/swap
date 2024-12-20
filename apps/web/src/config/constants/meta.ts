@@ -25,6 +25,7 @@ const getPathList = memoize((t: ContextApi['t']): PathList => {
       '/remove': { basePath: true, title: t('Remove Liquidity'), image: `${ASSET_CDN}/web/og/liquidity.jpg` },
       '/liquidity': { title: t('Liquidity'), image: `${ASSET_CDN}/web/og/liquidity.jpg` },
       '/find': { title: t('Import Pool') },
+      '/bridge': { title: t('Bridge'), image: `${ASSET_CDN}/web/og/bridge.png` },
       '/competition': { title: t('Trading Battle') },
       '/prediction': { title: t('Prediction'), image: `${ASSET_CDN}/web/og/prediction.jpg` },
       '/prediction/leaderboard': { title: t('Leaderboard'), image: `${ASSET_CDN}/web/og/liquidity.jpg` },
