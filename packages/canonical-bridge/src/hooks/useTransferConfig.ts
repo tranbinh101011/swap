@@ -5,7 +5,7 @@ import axios from 'axios'
 import { env } from '../configs/env'
 import layerZeroConfig from '../token-config/mainnet/layerZero/config.json'
 import mesonConfig from '../token-config/mainnet/meson/config.json'
-import stargateConfig from '../token-config/mainnet/stargate/config.json'
+// import stargateConfig from '../token-config/mainnet/stargate/config.json'
 
 export function useTransferConfig() {
   const [transferConfig, setTransferConfig] = useState<ITransferConfig>()
@@ -149,18 +149,18 @@ export function useTransferConfig() {
             ['SWAP', 'SWAP.e'],
           ],
         },
-        stargate: {
-          config: stargateConfig,
-          exclude: {
-            chains: [],
-            tokens: {},
-          },
-          bridgedTokenGroups: [
-            ['ETH', 'mETH'],
-            ['USDT', 'm.USDT'],
-            ['USDC', 'USDC.e'],
-          ],
-        },
+        // stargate: {
+        //   config: stargateConfig,
+        //   exclude: {
+        //     chains: [],
+        //     tokens: {},
+        //   },
+        //   bridgedTokenGroups: [
+        //     ['ETH', 'mETH'],
+        //     ['USDT', 'm.USDT'],
+        //     ['USDC', 'USDC.e'],
+        //   ],
+        // },
         layerZero: {
           config: layerZeroConfig,
           exclude: {
