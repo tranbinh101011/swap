@@ -1,18 +1,37 @@
 import { GelatoLimitOrders, Order } from '@gelatonetwork/limit-orders-lib'
 import { SLOW_INTERVAL } from 'config/constants'
-import { useMemo } from 'react'
 
 import useGelatoLimitOrdersLib from 'hooks/limitOrders/useGelatoLimitOrdersLib'
 import { getLSOrders, hashOrder, hashOrderSet, saveOrder, saveOrders } from 'utils/localStorageOrders'
 
 import { useQuery } from '@tanstack/react-query'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { usePublicClient } from 'wagmi'
+import { gelatoLimitABI } from 'config/abi/gelatoLimit'
+import { useMemo } from 'react'
 import orderBy from 'lodash/orderBy'
-import { LimitOrderStatus, ORDER_CATEGORY } from '../types'
+import { ExistingOrder, LimitOrderStatus, ORDER_CATEGORY } from '../types'
 
+export const EXISTING_ORDERS_QUERY_KEY = ['limitOrders', 'gelato', 'existingOrders']
 export const OPEN_ORDERS_QUERY_KEY = ['limitOrders', 'gelato', 'openOrders']
 export const EXECUTED_CANCELLED_ORDERS_QUERY_KEY = ['limitOrders', 'gelato', 'cancelledExecutedOrders']
 export const EXECUTED_EXPIRED_ORDERS_QUERY_KEY = ['limitOrders', 'gelato', 'expiredExecutedOrders']
+
+type DepositLog = {
+  key: string
+  transactionHash: string
+  caller: string
+  amount: string
+  blockNumber: number
+  data: {
+    module: string
+    inputToken: string
+    owner: string
+    witness: string
+    data: string
+    secret: string
+  }
+}
 
 function newOrdersFirst(a: Order, b: Order) {
   return Number(b.updatedAt) - Number(a.updatedAt)
@@ -67,6 +86,67 @@ async function syncOrderToLocalStorage({
       console.error('Error fetching order from subgraph', graphOrderPromiseResult.reason)
     }
   })
+}
+
+const useExistingOrders = (turnOn: boolean): ExistingOrder[] => {
+  const { account, chainId } = useAccountActiveChain()
+
+  const gelatoLimitOrders = useGelatoLimitOrdersLib()
+
+  const provider = usePublicClient({ chainId })
+
+  const startFetch = turnOn && gelatoLimitOrders && account && chainId && provider
+
+  const { data } = useQuery({
+    queryKey: [...EXISTING_ORDERS_QUERY_KEY, account],
+
+    queryFn: async () => {
+      if (!gelatoLimitOrders || !account || !chainId || !provider) {
+        throw new Error('Missing gelatoLimitOrders, account or chainId')
+      }
+
+      try {
+        const response = await fetch(`https://proofs.pancakeswap.com/gelato/v1/${account}.log`)
+
+        if (response.status === 404) {
+          return undefined
+        }
+
+        const logs: DepositLog[] = await response.json()
+
+        const existRoles = await provider.multicall({
+          contracts: logs.map((log) => {
+            return {
+              abi: gelatoLimitABI,
+              address: gelatoLimitOrders.contract.address,
+              functionName: 'existOrder',
+              args: [log.data.module, log.data.inputToken, log.data.owner, log.data.witness, log.data.data],
+            }
+          }) as any[],
+        })
+
+        return logs
+          .filter((_, index) => existRoles[index]?.status === 'success' && existRoles[index]?.result)
+          .map((log) => ({
+            transactionHash: log.transactionHash,
+            module: log.data.module,
+            inputToken: log.data.inputToken,
+            owner: log.data.owner,
+            witness: log.data.witness,
+            data: log.data.data,
+          }))
+      } catch (e) {
+        console.error('Error fetching logs or querying existOrder', e)
+        return undefined
+      }
+    },
+    enabled: Boolean(startFetch),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  })
+
+  return useMemo(() => data ?? [], [data])
 }
 
 const useOpenOrders = (turnOn: boolean): Order[] => {
@@ -215,6 +295,7 @@ export default function useGelatoLimitOrdersHistory(orderCategory: ORDER_CATEGOR
   const historyOrders = useHistoryOrders(orderCategory === ORDER_CATEGORY.History)
   const openOrders = useOpenOrders(orderCategory === ORDER_CATEGORY.Open)
   const expiredOrders = useExpiredOrders(orderCategory === ORDER_CATEGORY.Expired)
+  const existingOrders = useExistingOrders(orderCategory === ORDER_CATEGORY.Existing)
 
   const orders = useMemo(() => {
     switch (orderCategory as ORDER_CATEGORY) {
@@ -224,13 +305,19 @@ export default function useGelatoLimitOrdersHistory(orderCategory: ORDER_CATEGOR
         return historyOrders
       case ORDER_CATEGORY.Expired:
         return expiredOrders
+      case ORDER_CATEGORY.Existing:
+        return existingOrders
       default:
         return []
     }
-  }, [orderCategory, openOrders, historyOrders, expiredOrders])
+  }, [orderCategory, openOrders, historyOrders, expiredOrders, existingOrders])
 
-  return useMemo(
-    () => (Array.isArray(orders) ? orderBy(orders, (order) => parseInt(order.createdAt), 'desc') : orders),
-    [orders],
-  )
+  return useMemo(() => {
+    if (orderCategory === ORDER_CATEGORY.Existing) {
+      return orders
+    }
+    return Array.isArray(orders)
+      ? (orderBy(orders, (order: Order) => parseInt(order.createdAt), 'desc') as Order[])
+      : orders
+  }, [orders, orderCategory])
 }
