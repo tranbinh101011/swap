@@ -11,6 +11,11 @@
   },
   {
     "chainId": 56,
+    "address": "0xd5a79aB649E0a5F20e995026d034a0bF28B8aACa",
+    "link": "https://merkl.angle.money/bnb%20smart%20chain/pool/2/0xd5a79aB649E0a5F20e995026d034a0bF28B8aACa"
+  },
+  {
+    "chainId": 56,
     "address": "0x9d84f1d12FdC6c977BF451e70689F45107b79b77",
     "link": "https://merkl.angle.money/bnb%20smart%20chain/pool/2/0x9d84f1d12FdC6c977BF451e70689F45107b79b77"
   },
