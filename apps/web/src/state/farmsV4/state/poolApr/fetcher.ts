@@ -163,12 +163,14 @@ export const DEFAULT_V2_CAKE_APR_BOOST_MULTIPLIER = {
   [ChainId.BSC]: 2.5,
   [ChainId.ZKSYNC]: 2.5,
   [ChainId.ARBITRUM_ONE]: 2.5,
+  [ChainId.BASE]: 2.5,
 }
 export const DEFAULT_V3_CAKE_APR_BOOST_MULTIPLIER = {
   [ChainId.ETHEREUM]: 2,
   [ChainId.BSC]: 2,
   [ChainId.ZKSYNC]: 2,
   [ChainId.ARBITRUM_ONE]: 2,
+  [ChainId.BASE]: 2,
 }
 export const getV2PoolCakeApr = async (
   pool: V2PoolInfo | StablePoolInfo,
