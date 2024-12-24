@@ -23,4 +23,10 @@ export const CROSS_CHAIN_CONFIG: Record<
     layerZeroFee: 2373941681319489n,
     layerZeroFeeBufferTimes: 10,
   },
+  [ChainId.BASE]: {
+    eid: 30184,
+    dstGas: 850000n,
+    name: 'Base',
+    layerZeroFee: 2373941681319489n,
+  },
 }

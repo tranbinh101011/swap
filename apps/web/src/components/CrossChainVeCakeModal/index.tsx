@@ -3,6 +3,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import {
   ArrowUpIcon,
   AtomBox,
+  BaseIcon,
   Box,
   Button,
   CheckmarkCircleFillIcon,
@@ -55,6 +56,7 @@ const ChainLogoMap = {
   [ChainId.ETHEREUM]: <EthereumIcon width={16} />,
   [ChainId.ARBITRUM_ONE]: <ArbitrumIcon width={20} height={20} />,
   [ChainId.ZKSYNC]: <ZKsyncIcon width={16} />,
+  [ChainId.BASE]: <BaseIcon width={16} />,
 }
 
 const StyleUl = styled.ul`
@@ -131,6 +133,11 @@ const OtherChainsConfig = [
     chainName: 'ZKsync',
     chainId: ChainId.ZKSYNC,
     Icon: <ZKsyncIcon width={16} />,
+  },
+  {
+    chainName: 'Base',
+    chainId: ChainId.BASE,
+    Icon: <BaseIcon width={16} />,
   },
 ] as const
 
