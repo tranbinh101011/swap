@@ -14,6 +14,7 @@ import PriceChartContainer from '../Swap/components/Chart/PriceChartContainer'
 import { StyledSwapContainer } from '../Swap/styles'
 import { SwapFeaturesContext } from '../Swap/SwapFeaturesContext'
 import { V4SwapForm } from './V4Swap'
+import { XmasEffect } from './V4Swap/XmasEffect'
 
 const Wrapper = styled(Box)`
   width: 100%;
@@ -118,6 +119,8 @@ export default function V4Swap() {
           height="100%"
           width={isChartDisplayed && !isMobile ? 'auto' : '100%'}
           mt={isChartExpanded && !isMobile ? '42px' : undefined}
+          position="relative"
+          zIndex={1}
         >
           <StyledSwapContainer
             justifyContent="center"
@@ -133,6 +136,7 @@ export default function V4Swap() {
       </Flex>
 
       <AdPanel.MobileCard />
+      <XmasEffect />
     </Page>
   )
 }
