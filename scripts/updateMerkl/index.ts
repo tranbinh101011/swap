@@ -52,11 +52,11 @@ const fetchAllMerklConfig = async (): Promise<MerklConfigResponse> => {
   return response.json() as Promise<MerklConfigResponse>
 }
 
-const parseMerklConfig = (merklConfig: MerklConfig[]): MerklConfigPool[] => {
-  const pools = merklConfig.reduce((acc, config) => {
-    const _pools = Object.values(config.pools).filter(
-      (pool) => Object.keys(pool.aprs).length > 1 && pool.ammName.toLowerCase().startsWith('pancakeswap'),
-    )
+const parseMerklConfig = (merklConfigResponse: MerklConfigResponse): MerklConfigPool[] => {
+  const pools = Object.entries(merklConfigResponse).reduce((acc, [chainId, config]) => {
+    const _pools = Object.values(config.pools)
+      .filter((pool) => Object.keys(pool.aprs).length > 1 && pool.ammName.toLowerCase().startsWith('pancakeswap'))
+      .map((pool) => ({ ...pool, chainId: Number(chainId) }))
     return [...acc, ..._pools]
   }, [] as MerklPool[])
 
@@ -72,7 +72,7 @@ const run = async () => {
   const merklConfig = await fetchAllMerklConfig()
   console.info('Fetched merkl config!', Object.keys(merklConfig).length)
   console.info('Parsing merkl config...')
-  const merklPools = parseMerklConfig(Object.values(merklConfig))
+  const merklPools = parseMerklConfig(merklConfig)
   console.info('Writing merkl config...')
 
   fs.writeFile(`apps/web/src/config/constants/merklPools.json`, JSON.stringify(merklPools, null, 2) + os.EOL, (err) => {
