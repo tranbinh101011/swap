@@ -217,7 +217,7 @@ export const getMerklApr = async (result: any, chainId: number) => {
 }
 
 export const getAllNetworkMerklApr = async (signal?: AbortSignal) => {
-  const resp = await fetch(`https://api.angle.money/v2/merkl?AMMs=pancakeswapv3`, { signal })
+  const resp = await fetch(`https://api.angle.money/v2/merkl`, { signal })
   if (resp.ok) {
     const result = await resp.json()
     const aprs = await Promise.all(supportedChainIdV4.map((chainId) => getMerklApr(result, chainId)))
