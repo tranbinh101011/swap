@@ -11,6 +11,12 @@ import { Countdown } from './Countdown'
 import { Step1 } from './Step1'
 import { Step2 } from './Step2'
 import { Step3 } from './Step3'
+import {
+  TradingCompetitionAiTech,
+  TradingCompetitionApt,
+  TradingCompetitionBfg,
+  TradingCompetitionVinu,
+} from './TradingCompetition'
 
 const Container = styled(Flex).withConfig({ shouldForwardProp: (prop) => !['$background'].includes(prop) })<{
   $background?: string
@@ -115,6 +121,30 @@ const CONFIG: BannerConfig[] = [
     stripeImage: `${ASSET_CDN}/web/banners/pcsx/pcsx-bg-medium.png`,
     stripeImageWidth: '92px',
     stripeImageAlt: 'PCSX',
+  },
+  {
+    component: TradingCompetitionAiTech,
+    stripeImage: `${ASSET_CDN}/web/promotions/aitech_competition.png`,
+    stripeImageWidth: '92px',
+    stripeImageAlt: 'aitech_competition',
+  },
+  {
+    component: TradingCompetitionBfg,
+    stripeImage: `${ASSET_CDN}/web/promotions/bfg_competition.png`,
+    stripeImageWidth: '92px',
+    stripeImageAlt: 'bfg_competition',
+  },
+  {
+    component: TradingCompetitionApt,
+    stripeImage: `${ASSET_CDN}/web/promotions/apt_competition.png`,
+    stripeImageWidth: '92px',
+    stripeImageAlt: 'apt_competition',
+  },
+  {
+    component: TradingCompetitionVinu,
+    stripeImage: `${ASSET_CDN}/web/promotions/vinu_competition.png`,
+    stripeImageWidth: '92px',
+    stripeImageAlt: 'vinu_competition',
   },
 ]
 

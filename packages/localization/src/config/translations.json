@@ -3670,5 +3670,7 @@
   "Select your stake and withdraw": "Select your stake and withdraw",
   "Learn more here": "Learn more here",
   "No Existing Orders": "No Existing Orders",
-  "Existing Orders": "Existing Orders"
+  "Existing Orders": "Existing Orders",
+  "Swap %token% to win a share of": "Swap %token% to win a share of",
+  "with daily prizes and leaderboard rewards!": "with daily prizes and leaderboard rewards!"
 }

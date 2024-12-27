@@ -1,12 +1,11 @@
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useMemo } from 'react'
 import { AdCakeStaking } from './Ads/AdCakeStaking'
-import { AdMevProtection } from './Ads/AdMevProtection'
 import { AdOptionsTrading } from './Ads/AdOptionsTrading'
 import { AdPCSX } from './Ads/AdPCSX'
 import { AdRocker } from './Ads/AdRocker'
 import { AdSpringboard } from './Ads/AdSpringboard'
-import { AdTelegramBot } from './Ads/AdTelegramBot'
+import { AdTradingCompetitionAiTech, AdTradingCompetitionApt } from './Ads/AdTradingCompetition'
 import { ExpandableAd } from './Expandable/ExpandableAd'
 import { shouldRenderOnPages } from './renderConditions'
 
@@ -42,13 +41,21 @@ export const useAdConfig = () => {
         component: <AdSpringboard />,
       },
       {
-        id: 'ad-mev',
-        component: <AdMevProtection />,
+        id: 'ad-aitech-tc',
+        component: <AdTradingCompetitionAiTech />,
       },
       {
-        id: 'prediction-telegram-bot',
-        component: <AdTelegramBot />,
+        id: 'ad-apt-tc',
+        component: <AdTradingCompetitionApt />,
       },
+      // {
+      //   id: 'ad-mev',
+      //   component: <AdMevProtection />,
+      // },
+      // {
+      //   id: 'prediction-telegram-bot',
+      //   component: <AdTelegramBot />,
+      // },
       {
         id: 'pcsx',
         component: <AdPCSX />,
