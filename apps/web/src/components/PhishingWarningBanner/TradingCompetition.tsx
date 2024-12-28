@@ -10,6 +10,7 @@ export const tradingCompetitionConfig = {
     learnMoreUrl:
       'https://blog.pancakeswap.finance/articles/pancake-swap-x-solidus-ai-tech-trading-competition-50-000-in-rewards?utm_source=Website&utm_medium=infostripe&utm_campaign=AITECH&utm_id=TradingCompetition',
     reward: '50,000',
+    unit: '$',
   },
   bfg: {
     imgUrl: 'bfg_competition',
@@ -18,6 +19,7 @@ export const tradingCompetitionConfig = {
     learnMoreUrl:
       'https://blog.pancakeswap.finance/articles/pancake-swap-x-bet-fury-trading-competition-50-000-in-rewards?utm_source=Website&utm_medium=infostripe&utm_campaign=BFG&utm_id=TradingCompetition',
     reward: '50,000',
+    unit: '$',
   },
   apt: {
     imgUrl: 'apt_competition',
@@ -25,6 +27,7 @@ export const tradingCompetitionConfig = {
     learnMoreUrl:
       'https://blog.pancakeswap.finance/articles/aptos-pancake-swap-trading-competition-win-from-8-000-apt?utm_source=Website&utm_medium=infostripe&utm_campaign=APT&utm_id=TradingCompetition',
     reward: '8,000',
+    unit: 'APT',
   },
   vinu: {
     imgUrl: 'vinu_competition',
@@ -33,19 +36,22 @@ export const tradingCompetitionConfig = {
     learnMoreUrl:
       'https://blog.pancakeswap.finance/articles/pancake-swap-x-vita-inu-trading-competition-100-000-in-rewards?utm_source=Website&utm_medium=infostripe&utm_campaign=VINU&utm_id=TradingCompetition',
     reward: '100,000',
+    unit: '$',
   },
 }
 
 export const TradingCompetition: React.FC<{ token: 'aitech' | 'bfg' | 'apt' | 'vinu' }> = ({ token }) => {
   const { t } = useTranslation()
 
+  const { unit, reward } = tradingCompetitionConfig[token]
+
   return (
     <Box mr={['6px']}>
       <Text bold as="span" color="#FFFFFF" fontSize={['12px', '12px', '14px']}>
-        {t('Swap %token% to win a share of', { token })}
+        {t('Swap %token% to win a share of', { token: token.toUpperCase() })}{' '}
       </Text>
       <Text bold as="span" color="#FCC631" fontSize={['12px', '12px', '14px']}>
-        ${tradingCompetitionConfig[token].reward}
+        {unit === '$' ? `$${reward}` : `${reward}${unit}`}
       </Text>
       <Text bold as="span" color="#FFFFFF" fontSize={['12px', '12px', '14px']}>
         {t('with daily prizes and leaderboard rewards!')}

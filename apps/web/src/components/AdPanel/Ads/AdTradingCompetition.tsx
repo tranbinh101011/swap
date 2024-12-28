@@ -11,11 +11,13 @@ import { getImageUrl } from '../utils'
 export const AdTradingCompetition = (props: AdPlayerProps & { token: 'aitech' | 'apt' | 'vinu' | 'bfg' }) => {
   const { t } = useTranslation()
   const { token, ...rest } = props
+  const { unit, reward } = tradingCompetitionConfig[token]
 
   return (
     <AdCard imageUrl={getImageUrl(tradingCompetitionConfig[token].imgUrl)} {...rest}>
       <BodyText mb="0">
-        {t('Swap %token% to win a share of', { token: token.toUpperCase() })}${tradingCompetitionConfig[token].reward}
+        {t('Swap %token% to win a share of', { token: token.toUpperCase() })}{' '}
+        {unit === '$' ? `$${reward}` : `${reward}${unit}`}{' '}
         <Link fontSize="inherit" href={tradingCompetitionConfig[token].swapUrl} color="secondary" bold>
           {t('Swap Now')}
         </Link>
