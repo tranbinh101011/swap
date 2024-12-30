@@ -38,6 +38,7 @@ import { formatFiatNumber } from '@pancakeswap/utils/formatFiatNumber'
 import { useTotalPriceUSD } from 'hooks/useTotalPriceUSD'
 import { useLPApr } from 'state/swap/useLPApr'
 import { formatAmount } from 'utils/formatInfoNumbers'
+import { MerklSection } from 'components/Merkl/MerklSection'
 
 export const BodyWrapper = styled(Card)`
   border-radius: 24px;
@@ -233,6 +234,15 @@ export default function PoolV2Page() {
                   </AutoRow>
                 </LightGreyCard>
               </Box>
+            </Flex>
+            <Flex width="100%">
+              <MerklSection
+                disabled={!pair || !positionDetails}
+                notEnoughLiquidity={totalUSDValue < 20}
+                poolAddress={pair?.liquidityToken?.address}
+                chainId={chainId}
+                outRange={false}
+              />
             </Flex>
             <Flex
               flexDirection={isMobile ? 'column' : 'row'}

@@ -49,7 +49,6 @@ export const AprTooltipContent: React.FC<PropsWithChildren<AprTooltipContentProp
   merklApr,
   merklLink,
   showDesc = true,
-  expired,
   children,
 }) => {
   const { t } = useTranslation()
@@ -77,7 +76,7 @@ export const AprTooltipContent: React.FC<PropsWithChildren<AprTooltipContentProp
         <li>
           {t('LP Fee APR')}:&nbsp;&nbsp;<b>{displayApr(lpFeeApr)}</b>
         </li>
-        {merklApr && !expired ? (
+        {merklApr ? (
           <StyledLi>
             <Text lineHeight={1.5}>
               {t('Merkl APR')}:&nbsp;&nbsp;<b>{displayApr(merklApr)}</b>

@@ -1,5 +1,20 @@
 [
   {
+    "chainId": 56,
+    "address": "0xeD000AB362Ef11E962658Fc04c1A7D667a647213",
+    "link": "https://merkl.angle.money/bnb%20smart%20chain/pool/1/0xeD000AB362Ef11E962658Fc04c1A7D667a647213"
+  },
+  {
+    "chainId": 56,
+    "address": "0xd5a79aB649E0a5F20e995026d034a0bF28B8aACa",
+    "link": "https://merkl.angle.money/bnb%20smart%20chain/pool/2/0xd5a79aB649E0a5F20e995026d034a0bF28B8aACa"
+  },
+  {
+    "chainId": 42161,
+    "address": "0xE4BfcC208f3447cc5D2f5CCB40C52778d4bE2004",
+    "link": "https://merkl.angle.money/arbitrum/pool/2/0xE4BfcC208f3447cc5D2f5CCB40C52778d4bE2004"
+  },
+  {
     "chainId": 1,
     "address": "0x7B94A5622035207d3f527d236d47B7714Ee0acBa",
     "link": "https://merkl.angle.money/ethereum/pool/2/0x7B94A5622035207d3f527d236d47B7714Ee0acBa"
@@ -11,17 +26,7 @@
   },
   {
     "chainId": 56,
-    "address": "0xd5a79aB649E0a5F20e995026d034a0bF28B8aACa",
-    "link": "https://merkl.angle.money/bnb%20smart%20chain/pool/2/0xd5a79aB649E0a5F20e995026d034a0bF28B8aACa"
-  },
-  {
-    "chainId": 56,
     "address": "0x9d84f1d12FdC6c977BF451e70689F45107b79b77",
     "link": "https://merkl.angle.money/bnb%20smart%20chain/pool/2/0x9d84f1d12FdC6c977BF451e70689F45107b79b77"
-  },
-  {
-    "chainId": 42161,
-    "address": "0xE4BfcC208f3447cc5D2f5CCB40C52778d4bE2004",
-    "link": "https://merkl.angle.money/arbitrum/pool/2/0xE4BfcC208f3447cc5D2f5CCB40C52778d4bE2004"
   }
 ]

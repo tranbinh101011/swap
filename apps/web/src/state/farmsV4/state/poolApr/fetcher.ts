@@ -200,14 +200,13 @@ export const getV2PoolCakeApr = async (
 
 export const getMerklApr = async (result: any, chainId: number) => {
   try {
-    if (!result[chainId] || !result[chainId].pools) return {}
-    return Object.keys(result[chainId].pools).reduce((acc, poolId) => {
-      const key = `${chainId}:${safeGetAddress(poolId)}`
-      if (!result[chainId].pools[poolId].aprs || !Object.keys(result[chainId].pools[poolId].aprs).length) return acc
+    const opportunities = result?.filter((opportunity) => opportunity?.chainId === chainId)
+    if (!opportunities || opportunities?.length === 0) return {}
+    return opportunities.reduce((acc, opportunity) => {
+      const key = `${chainId}:${safeGetAddress(opportunity.identifier)}`
 
-      const apr = result[chainId].pools[poolId].aprs?.['Average APR (rewards / pool TVL)'] ?? '0'
       // eslint-disable-next-line no-param-reassign
-      acc[key] = apr / 100
+      acc[key] = (opportunity.apr ?? 0) / 100
       return acc
     }, {} as MerklApr)
   } catch (error) {
@@ -217,10 +216,20 @@ export const getMerklApr = async (result: any, chainId: number) => {
 }
 
 export const getAllNetworkMerklApr = async (signal?: AbortSignal) => {
-  const resp = await fetch(`https://api.angle.money/v2/merkl`, { signal })
+  const resp = await fetch(
+    `https://api.merkl.xyz/v4/opportunities/?chainId=${supportedChainIdV4.join(
+      ',',
+    )}&test=false&status=LIVE&items=1000&action=POOL,HOLD`,
+    { signal },
+  )
   if (resp.ok) {
     const result = await resp.json()
-    const aprs = await Promise.all(supportedChainIdV4.map((chainId) => getMerklApr(result, chainId)))
+    const pancakeResult = result?.filter(
+      (opportunity) =>
+        opportunity?.tokens?.[0].name?.toLowerCase().startsWith('pancake') ||
+        opportunity?.protocol?.id?.toLowerCase().startsWith('pancakeswap'),
+    )
+    const aprs = await Promise.all(supportedChainIdV4.map((chainId) => getMerklApr(pancakeResult, chainId)))
     return aprs.reduce((acc, apr) => Object.assign(acc, apr), {})
   }
   throw resp

@@ -61,6 +61,7 @@ export function MerklSection({
 }: {
   poolAddress?: `0x${string}`
   chainId?: ChainId
+  tokenId?: bigint
   notEnoughLiquidity: boolean
   outRange: boolean
   disabled: boolean
@@ -74,7 +75,7 @@ export function MerklSection({
   if (!rewardsPerToken.length || (!hasMerkl && rewardsPerToken.every((r) => r.equalTo('0')))) return null
 
   return (
-    <Column justifyContent="space-between" gap="8px" width="100%" ml={['0px', '0px', '16px', '16px']} mt="24px">
+    <Column justifyContent="space-between" gap="8px" width="100%">
       <AutoRow justifyContent="space-between">
         <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
           {t('Merkl Rewards')}

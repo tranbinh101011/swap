@@ -789,24 +789,25 @@ export default function PoolPage() {
                     tickAtLimit={tickAtLimit}
                   />
                 </Box>
-
-                <MerklSection
-                  disabled={!isOwnNFT}
-                  outRange={!inRange}
-                  notEnoughLiquidity={Boolean(
-                    fiatValueOfLiquidity
-                      ? fiatValueOfLiquidity.lessThan(
-                          // NOTE: if Liquidity is lessage 20$, can't participate in Merkl
-                          new Fraction(
-                            BigInt(20) * fiatValueOfLiquidity.decimalScale * fiatValueOfLiquidity.denominator,
-                            fiatValueOfLiquidity?.denominator,
-                          ),
-                        )
-                      : false,
-                  )}
-                  poolAddress={poolAddress}
-                  chainId={pool?.chainId}
-                />
+                <Flex ml={['0px', '0px', '16px', '16px']} mt="24px">
+                  <MerklSection
+                    disabled={!isOwnNFT}
+                    outRange={!inRange}
+                    notEnoughLiquidity={Boolean(
+                      fiatValueOfLiquidity
+                        ? fiatValueOfLiquidity.lessThan(
+                            // NOTE: if Liquidity is lessage 20$, can't participate in Merkl
+                            new Fraction(
+                              BigInt(20) * fiatValueOfLiquidity.decimalScale * fiatValueOfLiquidity.denominator,
+                              fiatValueOfLiquidity?.denominator,
+                            ),
+                          )
+                        : false,
+                    )}
+                    poolAddress={poolAddress}
+                    chainId={pool?.chainId}
+                  />
+                </Flex>
               </Flex>
               {positionDetails && currency0 && currency1 && (
                 <PositionHistory
