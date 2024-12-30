@@ -125,7 +125,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
     },
     {
       id: 'BinanceW3W',
-      title: 'Binance Web3 Wallet',
+      title: 'Binance Wallet',
       icon: `${ASSET_CDN}/web/wallets/binance-w3w.png`,
       connectorId: isBinanceWeb3WalletInstalled() ? ConnectorNames.Injected : ConnectorNames.BinanceW3W,
       get installed() {

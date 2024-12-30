@@ -31,7 +31,7 @@ export function useDataDogRUM() {
   useEffect(() => {
     // @ts-ignore
     if (ready && window?.ethereum?.isBinance) {
-      datadogRum.setGlobalContextProperty('wallet', 'Binance Web3 Wallet')
+      datadogRum.setGlobalContextProperty('wallet', 'Binance Wallet')
     }
 
     return () => {
