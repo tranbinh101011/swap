@@ -10,7 +10,7 @@ export const tradingCompetitionConfig = {
     learnMoreUrl:
       'https://blog.pancakeswap.finance/articles/pancake-swap-x-solidus-ai-tech-trading-competition-50-000-in-rewards?utm_source=Website&utm_medium=infostripe&utm_campaign=AITECH&utm_id=TradingCompetition',
     reward: '50,000',
-    unit: '$',
+    unit: 'AITECH',
   },
   bfg: {
     imgUrl: 'bfg_competition',
