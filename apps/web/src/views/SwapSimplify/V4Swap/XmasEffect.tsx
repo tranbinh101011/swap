@@ -1,8 +1,8 @@
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { memo } from 'react'
-import { keyframes, styled } from 'styled-components'
+import { css, keyframes, styled } from 'styled-components'
 
-export const SnowflakesWrapper = styled.div`
+export const SnowflakesWrapper = styled.div<{ $itemCount: number }>`
   position: absolute;
   left: 0;
   bottom: 0;
@@ -11,6 +11,7 @@ export const SnowflakesWrapper = styled.div`
   pointer-events: none;
   user-select: none;
   z-index: 0;
+  ${({ $itemCount }) => generateRandomOpacityStyles($itemCount)};
 `
 
 const XmaxBg = styled.div`
@@ -81,11 +82,11 @@ export const Snowflake = styled.div`
   color: #fff;
   font-size: 1em;
   font-family: Arial;
-  text-shadow: 0 0 1px #000;
+  text-shadow: ${({ theme }) => (theme.isDark ? '0 0 1px #000' : 'none')};
   user-select: none;
   cursor: default;
   will-change: transform;
-  animation: ${snowflakeAnimation} 10s linear infinite;
+  animation: ${snowflakeAnimation} 15s linear infinite;
 
   &:nth-of-type(1) {
     left: 1%;
@@ -128,10 +129,24 @@ export const Snowflake = styled.div`
     animation-delay: 3s, 1.5s;
   }
 `
+const generateRandomOpacityStyles = (count = 11) => {
+  let styles = ''
+  for (let i = 1; i <= count; i++) {
+    const randomOpacity = (Math.random() * (0.8 - 0.2) + 0.2).toFixed(2)
+    styles += `
+      :nth-child(${i}) {
+        opacity: ${randomOpacity};
+      }
+    `
+  }
+  return css`
+    ${styles}
+  `
+}
 
 export const XmasEffect: React.FC = memo(() => {
   return (
-    <SnowflakesWrapper aria-hidden="true">
+    <SnowflakesWrapper aria-hidden="true" $itemCount={11}>
       {Array.from({ length: 10 }).map((_, index) => (
         // eslint-disable-next-line react/no-array-index-key
         <Snowflake key={`SnowFlakeElements${index}`}>❄️</Snowflake>
