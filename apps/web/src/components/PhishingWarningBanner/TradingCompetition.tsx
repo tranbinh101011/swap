@@ -10,7 +10,7 @@ export const tradingCompetitionConfig = {
     learnMoreUrl:
       'https://blog.pancakeswap.finance/articles/pancake-swap-x-solidus-ai-tech-trading-competition-50-000-in-rewards?utm_source=Website&utm_medium=infostripe&utm_campaign=AITECH&utm_id=TradingCompetition',
     reward: '50,000',
-    unit: 'AITECH',
+    unit: '$',
   },
   bfg: {
     imgUrl: 'bfg_competition',
@@ -51,7 +51,7 @@ export const TradingCompetition: React.FC<{ token: 'aitech' | 'bfg' | 'apt' | 'v
         {t('Swap %token% to win a share of', { token: token.toUpperCase() })}{' '}
       </Text>
       <Text bold as="span" color="#FCC631" fontSize={['12px', '12px', '14px']}>
-        {unit === '$' ? `$${reward}` : `${reward}${unit}`}
+        {unit === '$' ? `$${reward}` : `${reward} ${unit}`},
       </Text>
       <Text bold as="span" color="#FFFFFF" fontSize={['12px', '12px', '14px']}>
         {t('with daily prizes and leaderboard rewards!')}
