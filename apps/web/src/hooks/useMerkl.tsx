@@ -19,6 +19,7 @@ import { useWalletClient } from 'wagmi'
 import { useMasterchefV3 } from 'hooks/useContract'
 import { isAddressEqual } from 'utils'
 import { useCurrentBlockTimestamp as useBlockTimestamp } from 'state/block/hooks'
+import { supportedChainIdV4 } from '@pancakeswap/farms'
 
 export const MERKL_API_V4 = 'https://api.merkl.xyz/v4'
 
@@ -41,12 +42,12 @@ export function useMerklInfo(poolAddress?: string): {
   const lists = useAllLists()
 
   const { data, isPending, refetch } = useQuery({
-    queryKey: [`fetchMerkl-${chainId}`],
+    queryKey: [`fetchMerklPools`],
     queryFn: async () => {
-      if (!chainId) return undefined
-
       const responsev4 = await fetch(
-        `${MERKL_API_V4}/opportunities?chainId=${chainId}&test=false&items=1000&action=POOL,HOLD`,
+        `${MERKL_API_V4}/opportunities?${supportedChainIdV4.join(
+          ',',
+        )}&test=false&items=1000&action=POOL,HOLD&status=LIVE`,
       )
 
       if (!responsev4.ok) {
@@ -57,7 +58,7 @@ export function useMerklInfo(poolAddress?: string): {
 
       const opportunities = merklDataV4?.filter(
         (opportunity) =>
-          opportunity?.tokens?.[0]?.symbol?.toLowerCase().startsWith('Cake-LP') ||
+          opportunity?.tokens?.[0]?.symbol?.toLowerCase().startsWith('cake-lp') ||
           opportunity?.protocol?.id?.toLowerCase().startsWith('pancakeswap'),
       )
 
@@ -76,7 +77,7 @@ export function useMerklInfo(poolAddress?: string): {
 
       return { pools }
     },
-    enabled: Boolean(chainId && poolAddress),
+    enabled: Boolean(poolAddress),
     staleTime: FAST_INTERVAL,
     retryDelay: (attemptIndex) => Math.min(2000 * 2 ** attemptIndex, 30000),
   })
@@ -96,7 +97,7 @@ export function useMerklInfo(poolAddress?: string): {
 
       if (!merklDataV4) return undefined
 
-      return merklDataV4?.[0] || {}
+      return merklDataV4
     },
     enabled: Boolean(data && chainId && account && poolAddress),
     staleTime: FAST_INTERVAL,
@@ -104,7 +105,9 @@ export function useMerklInfo(poolAddress?: string): {
   })
 
   return useMemo(() => {
-    if (!data || !currentTimestamp)
+    const pool = data?.pools?.filter((opportunity) => isAddressEqual(opportunity.identifier, poolAddress))?.[0]
+
+    if (!pool || !currentTimestamp)
       return {
         rewardsPerToken: [],
         rewardTokenAddresses: [],
@@ -114,14 +117,10 @@ export function useMerklInfo(poolAddress?: string): {
         isPending,
       }
 
-    const { pools } = data
-
-    const hasLive = pools.some((pool) => {
-      const hasMeanAPR = pool.status === 'LIVE' && pool.apr > 0
-
-      if (!hasMeanAPR) return false
-
-      const hasLiveDistribution = Boolean(
+    const hasLive =
+      pool.status === 'LIVE' &&
+      pool.apr > 0 &&
+      Boolean(
         pool.campaigns?.some((campaign) => {
           const { startTimestamp, endTimestamp, whitelist, blacklist } = campaign
           const startTimestampNumber = Number(startTimestamp)
@@ -144,14 +143,19 @@ export function useMerklInfo(poolAddress?: string): {
         }),
       )
 
-      return hasLiveDistribution
-    })
+    const rewardAddresses = (
+      pool.rewardsRecord?.breakdowns?.flatMap((breakdown) => breakdown.token.address) || []
+    ).filter((address, index, allAddresses) => allAddresses.indexOf(address) === index)
 
-    const rewardsPerTokenObject = userData?.rewards?.filter((reward) => {
-      const { amount, claimed } = reward || {}
-      const unclaimed = BigInt(amount || 0) - BigInt(claimed || 0)
-      return unclaimed > 0
-    })
+    const chainUserData = userData?.filter((chainUserReward) => chainUserReward?.chain?.id === pool.chainId)?.[0]
+
+    const rewardsPerTokenObject = chainUserData?.rewards
+      ?.filter((reward) => rewardAddresses.some((rewardAddress) => isAddressEqual(reward.token.address, rewardAddress)))
+      .filter((reward) => {
+        const { amount, claimed } = reward || {}
+        const unclaimed = BigInt(amount || 0) - BigInt(claimed || 0)
+        return unclaimed > 0
+      })
 
     const transactionData = rewardsPerTokenObject?.reduce((acc, reward) => {
       // eslint-disable-next-line no-param-reassign
@@ -183,31 +187,31 @@ export function useMerklInfo(poolAddress?: string): {
 
     const { rewardsPerToken = [], rewardTokenAddresses = [], ...rest } = rewardResult
 
-    const rewardCurrencies = (rewardTokenAddresses as string[])
-      .reduce<TokenInfo[]>((result, address) => {
-        Object.values(lists).find((list) => {
-          const token: TokenInfo | undefined = list?.current?.tokens.find((t) => isAddressEqual(t.address, address))
+    const rewardCurrencies = rewardsPerToken.length
+      ? rewardsPerToken
+      : (rewardTokenAddresses as string[])
+          .reduce<TokenInfo[]>((result, address) => {
+            Object.values(lists).find((list) => {
+              const token: TokenInfo | undefined = list?.current?.tokens.find((t) => isAddressEqual(t.address, address))
 
-          if (token) return result.push(token)
+              if (token) return result.push(token)
 
-          return false
-        })
+              return false
+            })
 
-        return result
-      }, [])
-      .map((info) => {
-        const t = new Token(chainId as number, info.address, info.decimals, info.symbol)
+            return result
+          }, [])
+          .map((info) => {
+            const t = new Token(chainId as number, info.address, info.decimals, info.symbol)
 
-        return CurrencyAmount.fromRawAmount(t, '0')
-      })
+            return CurrencyAmount.fromRawAmount(t, '0')
+          })
 
-    const merklApr = data?.pools?.find((pool) => isAddressEqual(pool.identifier, poolAddress))?.apr as
-      | number
-      | undefined
+    const merklApr = pool?.apr as number | undefined
 
     return {
       ...rest,
-      rewardsPerToken: rewardsPerToken.length ? rewardsPerToken : rewardCurrencies,
+      rewardsPerToken: rewardCurrencies,
       refreshData: refetch,
       merklApr,
     }

@@ -61,7 +61,6 @@ export function MerklSection({
 }: {
   poolAddress?: `0x${string}`
   chainId?: ChainId
-  tokenId?: bigint
   notEnoughLiquidity: boolean
   outRange: boolean
   disabled: boolean

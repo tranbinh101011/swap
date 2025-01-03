@@ -35,9 +35,15 @@ const fetchAllMerklConfig = async (): Promise<any[]> => {
 
 const parseMerklConfig = (merklConfigResponse: any[]): MerklConfigPool[] => {
   return merklConfigResponse
+    .sort((a, b) => {
+      if (a.chainId === b.chainId) {
+        return a.id - b.id
+      }
+      return a.chainId - b.chainId
+    })
     .filter(
       (opportunity) =>
-        (opportunity?.tokens?.[0].name?.toLowerCase().startsWith('pancake') ||
+        (opportunity?.tokens?.[0]?.symbol?.toLowerCase().startsWith('cake-lp') ||
           opportunity?.protocol?.id?.toLowerCase().startsWith('pancakeswap')) &&
         opportunity?.apr > 0,
     )
