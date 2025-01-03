@@ -36,3 +36,7 @@ export const AdTradingCompetitionAiTech = (props: AdPlayerProps) => {
 export const AdTradingCompetitionApt = (props: AdPlayerProps) => {
   return <AdTradingCompetition token="apt" {...props} />
 }
+
+export const AdTradingCompetitionBfg = (props: AdPlayerProps) => {
+  return <AdTradingCompetition token="bfg" {...props} />
+}

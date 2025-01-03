@@ -5,7 +5,7 @@ import { AdOptionsTrading } from './Ads/AdOptionsTrading'
 import { AdPCSX } from './Ads/AdPCSX'
 import { AdRocker } from './Ads/AdRocker'
 import { AdSpringboard } from './Ads/AdSpringboard'
-import { AdTradingCompetitionAiTech, AdTradingCompetitionApt } from './Ads/AdTradingCompetition'
+import { AdTradingCompetitionApt, AdTradingCompetitionBfg } from './Ads/AdTradingCompetition'
 import { ExpandableAd } from './Expandable/ExpandableAd'
 import { shouldRenderOnPages } from './renderConditions'
 
@@ -41,8 +41,8 @@ export const useAdConfig = () => {
         component: <AdSpringboard />,
       },
       {
-        id: 'ad-aitech-tc',
-        component: <AdTradingCompetitionAiTech />,
+        id: 'ad-bfg-tc',
+        component: <AdTradingCompetitionBfg />,
       },
       {
         id: 'ad-apt-tc',
