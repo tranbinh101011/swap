@@ -4,17 +4,12 @@ import { useMemo } from 'react'
 import { multiChainId } from 'state/info/constant'
 import { useChainNameByQuery } from 'state/info/hooks'
 import { Block } from 'state/info/types'
-import { getChainName } from 'state/info/utils'
-import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
-import { v3InfoClients } from 'utils/graphql'
-import { useBlocksFromTimestamps } from 'views/Info/hooks/useBlocksFromTimestamps'
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
 import { useExplorerChainNameByQuery } from 'state/info/api/hooks'
 import { components } from 'state/info/api/schema'
 import { getPercentChange } from 'views/V3Info/utils/data'
-import { SUBGRAPH_START_BLOCK } from '../constants'
 import { fetchPoolChartData } from '../data/pool/chartData'
 import { fetchedPoolData } from '../data/pool/poolData'
 import { PoolTickData, fetchTicksSurroundingPrice } from '../data/pool/tickData'
@@ -206,40 +201,6 @@ const tokenDataFetcher = (dataClient: GraphQLClient, tokenAddresses: string[], b
     addressGroup.push(tokenAddresses.slice(i * graphPerPage, (i + 1) * graphPerPage))
   }
   return Promise.all(addressGroup.map((d) => fetchedTokenDatas(dataClient, d, blocks)))
-}
-
-/**
- * @deprecated
- */
-export const useTokensData = (addresses: string[], targetChainId?: ChainId): TokenData[] | undefined => {
-  const chainName = useChainNameByQuery()
-  const chainId = targetChainId ?? multiChainId[chainName]
-  const [t24, t48, t7d] = getDeltaTimestamps()
-  const { blocks } = useBlocksFromTimestamps([t24, t48, t7d], undefined, getChainName(chainId))
-
-  const { data } = useQuery({
-    queryKey: [`v3/info/token/tokensData/${targetChainId}/${addresses?.join()}`, chainId],
-
-    queryFn: () =>
-      tokenDataFetcher(
-        v3InfoClients[chainId], // TODO:  v3InfoClients[chainId],
-        addresses,
-        blocks?.filter((d) => d.number >= SUBGRAPH_START_BLOCK[chainId]),
-      ),
-
-    enabled: Boolean(chainId && blocks && addresses && addresses?.length > 0 && blocks?.length > 0),
-    ...QUERY_SETTINGS_IMMUTABLE,
-  })
-  const allTokensData = useMemo(() => {
-    if (data) {
-      return data.reduce((acc, d) => {
-        return { ...acc, ...d.data }
-      }, {})
-    }
-    return undefined
-  }, [data])
-
-  return useMemo(() => (allTokensData ? Object.values(allTokensData) : undefined), [allTokensData])
 }
 
 export const useTokenData = (address: string): TokenData | undefined => {

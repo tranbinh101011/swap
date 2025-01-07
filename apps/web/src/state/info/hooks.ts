@@ -6,13 +6,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { STABLE_SUPPORTED_CHAIN_IDS } from '@pancakeswap/stable-swap-sdk'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import { fetchAllTokenData, fetchAllTokenDataByAddresses } from 'state/info/queries/tokens/tokenData'
+import { fetchAllTokenDataByAddresses } from 'state/info/queries/tokens/tokenData'
 import { Block, Transaction, TransactionType, TvlChartEntry, VolumeChartEntry } from 'state/info/types'
 import { getAprsForStableFarm } from 'utils/getAprsForStableFarm'
-import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
 import { getLpFeesAndApr } from 'utils/getLpFeesAndApr'
 import { getPercentChange } from 'utils/infoDataHelpers'
-import { useBlocksFromTimestamps } from 'views/Info/hooks/useBlocksFromTimestamps'
 import { explorerApiClient } from './api/client'
 import { useExplorerChainNameByQuery } from './api/hooks'
 import { operations } from './api/schema'
@@ -561,40 +559,6 @@ export const usePoolTransactionsQuery = (address: string): Transaction[] | undef
 
 // Tokens hooks
 
-export const useAllTokenHighLight = ({
-  enable,
-  targetChainName,
-}: {
-  enable?: boolean
-  targetChainName?: MultiChainNameExtend
-}): TokenData[] => {
-  const chainNameByQuery = useChainNameByQuery()
-  const chainName = targetChainName ?? chainNameByQuery
-  const [t24h, t48h, t7d, t14d] = getDeltaTimestamps()
-  const { blocks } = useBlocksFromTimestamps([t24h, t48h, t7d, t14d], undefined, chainName)
-  const type = checkIsStableSwap() ? 'stableSwap' : 'swap'
-  const { data, isPending } = useQuery({
-    queryKey: [`info/token/data/${type}`, chainName],
-    queryFn: () => fetchAllTokenData(chainName, blocks ?? []),
-    enabled: Boolean(enable && blocks && chainName),
-    ...QUERY_SETTINGS_IMMUTABLE,
-    ...QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH,
-  })
-
-  const tokensWithData = useMemo(() => {
-    return data
-      ? Object.keys(data)
-          .map((k) => {
-            return data?.[k]?.data
-          })
-          .filter((d) => d && d.exists)
-      : []
-  }, [data])
-  return useMemo(() => {
-    return isPending ? [] : tokensWithData ?? []
-  }, [isPending, tokensWithData])
-}
-
 export const useAllTokenDataQuery = (): {
   [address: string]: { data?: TokenData }
 } => {
@@ -676,42 +640,6 @@ const fetcher = (addresses: string[], chainName: MultiChainName, blocks: Block[]
     addressGroup.push(addresses.slice(i * graphPerPage, (i + 1) * graphPerPage))
   }
   return Promise.all(addressGroup.map((d) => fetchAllTokenDataByAddresses(chainName, blocks, d)))
-}
-
-/**
- * @deprecated
- */
-export const useTokenDatasQuery = (addresses?: string[], withSettings = true): TokenData[] | undefined => {
-  const name = addresses?.join('')
-  const chainName = useChainNameByQuery()
-  const [t24h, t48h, t7d, t14d] = getDeltaTimestamps()
-  const { blocks } = useBlocksFromTimestamps([t24h, t48h, t7d, t14d])
-  const type = checkIsStableSwap() ? 'stableSwap' : 'swap'
-  const { data, isPending } = useQuery({
-    queryKey: [`info/token/data/${name}/${type}`, chainName],
-    queryFn: () => fetcher(addresses || [], chainName, blocks ?? []),
-    enabled: Boolean(blocks && chainName),
-    ...QUERY_SETTINGS_IMMUTABLE,
-    ...(withSettings ? QUERY_SETTINGS_INTERVAL_REFETCH : QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH),
-  })
-  const allData = useMemo(() => {
-    return data && data.length > 0
-      ? data.reduce((a, b) => {
-          return { ...a, ...b }
-        }, {})
-      : {}
-  }, [data])
-
-  const tokensWithData = useMemo(() => {
-    if (!addresses && allData) {
-      return undefined
-    }
-    return addresses?.map((a) => allData?.[a]?.data)?.filter((d) => d && d.exists)
-  }, [addresses, allData])
-
-  return useMemo(() => {
-    return isPending ? [] : tokensWithData ?? undefined
-  }, [isPending, tokensWithData])
 }
 
 export const useTokenDataQuery = (address: string | undefined): TokenData | undefined => {

@@ -17,15 +17,3 @@ export function getTokenInfoPath(
     multiChainPaths[chainId ?? '']
   }/tokens/${address}?chain=${CHAIN_QUERY_NAME[chainId ?? '']}${stableSwapPath.replace('?', '&')}`
 }
-
-// TODO: refactor
-export function getChainName(chainId: ChainId) {
-  switch (chainId) {
-    case ChainId.BSC:
-      return 'BSC'
-    case ChainId.ETHEREUM:
-      return 'ETH'
-    default:
-      return 'BSC'
-  }
-}

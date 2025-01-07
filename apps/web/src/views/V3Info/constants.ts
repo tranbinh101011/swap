@@ -54,17 +54,6 @@ export const ONE_HOUR_SECONDS = 3600
 export const ONE_DAY_SECONDS = 86400
 export const MAX_UINT128 = 2n ** 128n - 1n
 
-export const SUBGRAPH_START_BLOCK = {
-  [ChainId.BSC]: 26956207,
-  [ChainId.ETHEREUM]: 16950686,
-  [ChainId.POLYGON_ZKEVM]: 750149,
-  [ChainId.ZKSYNC]: 8639214,
-  [ChainId.ARBITRUM_ONE]: 101028949,
-  [ChainId.LINEA]: 1444,
-  [ChainId.BASE]: 2912007,
-  [ChainId.OPBNB]: 1721753,
-}
-
 export const NODE_REAL_ADDRESS_LIMIT = 50
 
 export const DURATION_INTERVAL = {
