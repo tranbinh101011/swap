@@ -3672,5 +3672,11 @@
   "No Existing Orders": "No Existing Orders",
   "Existing Orders": "Existing Orders",
   "Swap %token% to win a share of": "Swap %token% to win a share of",
-  "with daily prizes and leaderboard rewards!": "with daily prizes and leaderboard rewards!"
+  "with daily prizes and leaderboard rewards!": "with daily prizes and leaderboard rewards!",
+  "Network unstable. Please refresh to continue.": "Network unstable. Please refresh to continue.",
+  "Your voting power is determined by your veCAKE balance at the snapshot block, which represents how much weight your vote carries.": "Your voting power is determined by your veCAKE balance at the snapshot block, which represents how much weight your vote carries.",
+  "Please fix form errors.": "Please fix form errors.",
+  "Title is required": "Title is required",
+  "Content is required": "Content is required",
+  "Please provide valid choices": "Please provide valid choices"
 }

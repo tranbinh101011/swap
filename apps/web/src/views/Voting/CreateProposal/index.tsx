@@ -1,3 +1,6 @@
+import { Suspense, useEffect, useMemo } from 'react'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
+
 import { useTranslation } from '@pancakeswap/localization'
 import {
   AutoRenewIcon,
@@ -12,163 +15,185 @@ import {
   Input,
   ReactMarkdown,
   ScanLink,
+  Spinner,
   Text,
+  TooltipText,
   useModal,
   useToast,
+  useTooltip,
 } from '@pancakeswap/uikit'
+import { formatNumber } from '@pancakeswap/utils/formatNumber'
 import truncateHash from '@pancakeswap/utils/truncateHash'
 import snapshot from '@snapshot-labs/snapshot.js'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import Container from 'components/Layout/Container'
-import isEmpty from 'lodash/isEmpty'
-import times from 'lodash/times'
+import { useAtomValue } from 'jotai'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
 import { useInitialBlock } from 'state/block/hooks'
 import { ProposalTypeName } from 'state/types'
-import { getBlockExploreLink } from 'utils'
+import styled from 'styled-components'
 import { DatePicker, DatePickerPortal, TimePicker } from 'views/Voting/components/DatePicker'
 import { useAccount, useWalletClient } from 'wagmi'
+import { spaceAtom } from '../atom/spaceAtom'
 import Layout from '../components/Layout'
 import VoteDetailsModal from '../components/VoteDetailsModal'
-import { ADMINS, PANCAKE_SPACE, VOTE_THRESHOLD } from '../config'
-import Choices, { ChoiceIdValue, MINIMUM_CHOICES, makeChoice } from './Choices'
-import { combineDateAndTime, getFormErrors } from './helpers'
+import { PANCAKE_SPACE, VOTE_THRESHOLD } from '../config'
+import useGetVotingPower from '../hooks/useGetVotingPower'
+import Choices, { MINIMUM_CHOICES, makeChoice } from './Choices'
+import { combineDateAndTime, getFormErrors } from './helpers' // You can adapt or remove this
 import { FormErrors, Label, SecondaryLabel } from './styles'
-import { FormState } from './types'
 
-const hub = 'https://hub.snapshot.org'
-const client = new snapshot.Client712(hub)
-
+// Dynamically import EasyMde for SSR
 const EasyMde = dynamic(() => import('components/EasyMde'), {
   ssr: false,
 })
 
+const hub = 'https://hub.snapshot.org'
+const client = new snapshot.Client712(hub)
+
+function getEndTime(startTime: Date | null, period?: number) {
+  if (!startTime) return null
+  return period ? new Date(startTime.getTime() + period * 1000) : null
+}
+
 const CreateProposal = () => {
-  const [state, setState] = useState<FormState>(() => ({
-    name: '',
-    body: '',
-    choices: times(MINIMUM_CHOICES).map(makeChoice),
-    startDate: null,
-    startTime: null,
-    endDate: null,
-    endTime: null,
-    snapshot: 0,
-  }))
-  const [isLoading, setIsLoading] = useState(false)
-  const [fieldsState, setFieldsState] = useState<{ [key: string]: boolean }>({})
   const { t } = useTranslation()
-  const { address: account } = useAccount()
-  const initialBlock = useInitialBlock()
-  const { push } = useRouter()
+  const space = useAtomValue(spaceAtom)
   const { toastSuccess, toastError } = useToast()
-  const [onPresentVoteDetailsModal] = useModal(<VoteDetailsModal block={state.snapshot} />)
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const { name, body, choices, startDate, startTime, endDate, endTime, snapshot } = state
-  const formErrors = getFormErrors(state, t)
 
+  const { address: account } = useAccount()
   const { data: signer } = useWalletClient()
+  const initialBlock = useInitialBlock()
+  const { delay, period } = space?.voting || {}
+  const created = useMemo(() => Math.floor(Date.now() / 1000), []) // current timestamp in seconds
+  const { push } = useRouter()
 
-  const handleSubmit = async (evt: FormEvent<HTMLFormElement>) => {
-    evt.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      name: '',
+      body: '',
+      // Pre-fill the choices array with the minimum required
+      choices: Array.from({ length: MINIMUM_CHOICES }).map(() => makeChoice()),
+      startDate: delay ? new Date((created + delay) * 1000) : null,
+      startTime: delay ? new Date((created + delay) * 1000) : null,
+      endDate: period ? getEndTime(delay ? new Date((created + delay) * 1000) : null, period) : null,
+      endTime: period ? getEndTime(delay ? new Date((created + delay) * 1000) : null, period) : null,
+      snapshot: 0,
+    },
+  })
 
+  const { total, isLoading } = useGetVotingPower(watch('snapshot'))
+  const enoughVotingPower = total >= VOTE_THRESHOLD
+
+  const {
+    fields: choiceFields,
+    replace: replaceChoices,
+    // If you want to let users add more choices, you can do:
+    // append, remove, etc.
+  } = useFieldArray({
+    control,
+    name: 'choices',
+  })
+
+  const startDate_ = watch('startDate')
+  const startTime_ = watch('startTime')
+
+  useEffect(() => {
+    if (period && startDate_ && startTime_) {
+      const combinedStart = combineDateAndTime(startDate_, startTime_)
+      if (combinedStart) {
+        const date = new Date(combinedStart * 1000)
+        const newEnd = new Date(date.getTime() + period * 1000)
+        setValue('endDate', newEnd)
+        setValue('endTime', newEnd)
+      }
+    }
+  }, [startDate_, startTime_, period, setValue])
+
+  useEffect(() => {
+    if (initialBlock > 0) {
+      setValue('snapshot', Number(initialBlock))
+    }
+  }, [initialBlock, setValue])
+
+  const [onPresentVoteDetailsModal] = useModal(<VoteDetailsModal block={watch('snapshot')} />)
+
+  const votingPowerTooltipContent = t(
+    'Your voting power is determined by your veCAKE balance at the snapshot block, which represents how much weight your vote carries.',
+  )
+  const {
+    targetRef: votingPowerTargetRef,
+    tooltip: votingPowerTooltip,
+    tooltipVisible: votingPowerTooltipVisible,
+  } = useTooltip(<Text>{votingPowerTooltipContent}</Text>, {
+    placement: 'top',
+  })
+
+  const onSubmit = async (data: any) => {
     if (!account) return
 
-    try {
-      setIsLoading(true)
+    const formErrors = getFormErrors(data, t)
+    if (Object.keys(formErrors).length > 0) {
+      toastError(t('Error'), t('Please fix form errors.'))
+      return
+    }
 
+    try {
       const web3 = {
-        getSigner: () => {
-          return {
-            _signTypedData: (domain, types, message) =>
-              signer?.signTypedData({
-                account,
-                domain,
-                types,
-                message,
-                primaryType: 'Proposal',
-              }),
-          }
-        },
+        getSigner: () => ({
+          _signTypedData: (domain: any, types: any, message: any) =>
+            signer?.signTypedData({
+              account,
+              domain,
+              types,
+              message,
+              primaryType: 'Proposal',
+            }),
+        }),
       }
 
-      const data: any = await client.proposal(web3 as any, account, {
+      const { name, body, choices, startDate, startTime, endDate, endTime, snapshot: snapshotNum } = data
+
+      // Combine date/time into seconds
+      const start = combineDateAndTime(startDate, startTime) || 0
+      const end = combineDateAndTime(endDate, endTime) || 0
+
+      const resData: any = await client.proposal(web3 as any, account, {
         space: PANCAKE_SPACE,
-        type: ProposalTypeName.SINGLE_CHOICE, // TODO
+        type: ProposalTypeName.SINGLE_CHOICE, // Keep or adapt to your type
         title: name,
         body,
-        start: combineDateAndTime(startDate, startTime) || 0,
-        end: combineDateAndTime(endDate, endTime) || 0,
-        choices: choices
-          .filter((choice) => choice.value)
-          .map((choice) => {
-            return choice.value
-          }),
-        snapshot,
+        timestamp: created,
+        start,
+        end,
+        choices: choices.filter((choice: any) => choice.value).map((choice: any) => choice.value),
+        snapshot: snapshotNum,
         discussion: '',
         plugins: JSON.stringify({}),
         app: 'snapshot',
       })
 
       // Redirect user to newly created proposal page
-      push(`/voting/proposal/${data.id}`)
+      push(`/voting/proposal/${resData.id}`)
       toastSuccess(t('Proposal created!'))
     } catch (error) {
       toastError(t('Error'), (error as Error)?.message)
       console.error(error)
-      setIsLoading(false)
     }
   }
 
-  const updateValue = (key: string, value: string | ChoiceIdValue[] | Date) => {
-    setState((prevState) => ({
-      ...prevState,
-      [key]: value,
-    }))
-
-    // Keep track of what fields the user has attempted to edit
-    setFieldsState((prevFieldsState) => ({
-      ...prevFieldsState,
-      [key]: true,
-    }))
+  if (!space) {
+    return <Box>{t('Network unstable. Please refresh to continue.')}</Box>
   }
-
-  const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
-    const { name: inputName, value } = evt.currentTarget
-    updateValue(inputName, value)
-  }
-
-  const handleEasyMdeChange = (value: string) => {
-    updateValue('body', value)
-  }
-
-  const handleChoiceChange = (newChoices: ChoiceIdValue[]) => {
-    updateValue('choices', newChoices)
-  }
-
-  const handleDateChange = (key: string) => (value: Date) => {
-    updateValue(key, value)
-  }
-
-  const options = useMemo(() => {
-    return {
-      hideIcons:
-        account && ADMINS.includes(account.toLowerCase())
-          ? []
-          : ['guide', 'fullscreen', 'preview', 'side-by-side', 'image'],
-    }
-  }, [account])
-
-  useEffect(() => {
-    if (initialBlock > 0) {
-      setState((prevState) => ({
-        ...prevState,
-        snapshot: Number(initialBlock),
-      }))
-    }
-  }, [initialBlock, setState])
 
   return (
     <Container py="40px">
@@ -179,30 +204,43 @@ const CreateProposal = () => {
           <Text>{t('Make a Proposal')}</Text>
         </Breadcrumbs>
       </Box>
-      <form onSubmit={handleSubmit}>
+      {/* Use react-hook-form's handleSubmit */}
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Layout>
+          {/* Left side */}
           <Box>
             <Box mb="24px">
               <Label htmlFor="name">{t('Title')}</Label>
-              <Input id="name" name="name" value={name} scale="lg" onChange={handleChange} required />
-              {formErrors.name && fieldsState.name && <FormErrors errors={formErrors.name} />}
+              <Input
+                id="name"
+                // register returns an object of onChange, onBlur, ref, etc.
+                // Provide valiions inline or via a validation resolver.
+                // e.g. required: t('Title is required')
+                {...register('name', { required: t('Title is required') as string })}
+                scale="lg"
+              />
+              {errors.name && <FormErrors errors={[errors.name.message as string]} />}
             </Box>
             <Box mb="24px">
               <Label htmlFor="body">{t('Content')}</Label>
               <Text color="textSubtle" mb="8px">
                 {t('Tip: write in Markdown!')}
               </Text>
-              <EasyMde
-                id="body"
+
+              <Controller
+                control={control}
                 name="body"
-                onTextChange={handleEasyMdeChange}
-                value={body}
-                options={options}
-                required
+                rules={{ required: t('Content is required') as string }}
+                render={({ field: { onChange, onBlur, value, name } }) => (
+                  <EasyMde id="body" name={name} value={value} onTextChange={onChange} onBlur={onBlur} />
+                )}
               />
-              {formErrors.body && fieldsState.body && <FormErrors errors={formErrors.body} />}
+              {errors.body && <FormErrors errors={[errors.body.message as string]} />}
             </Box>
-            {body && (
+
+            {/* Markdown Preview */}
+            {/* You can simply watch('body') to get the field’s current value */}
+            {watch('body') && (
               <Box mb="24px">
                 <Card>
                   <CardHeader>
@@ -211,14 +249,25 @@ const CreateProposal = () => {
                     </Heading>
                   </CardHeader>
                   <CardBody p="0" px="24px">
-                    <ReactMarkdown>{body}</ReactMarkdown>
+                    <ReactMarkdown>{watch('body')}</ReactMarkdown>
                   </CardBody>
                 </Card>
               </Box>
             )}
-            <Choices choices={choices} onChange={handleChoiceChange} />
-            {formErrors.choices && fieldsState.choices && <FormErrors errors={formErrors.choices} />}
+
+            {/* Choices (using a field array) */}
+            <Controller
+              control={control}
+              name="choices"
+              render={({ field }) => (
+                <Choices choices={field.value} onChange={(newChoices) => replaceChoices(newChoices)} />
+              )}
+            />
+            {/* If you want to show any errors for choices: */}
+            {errors.choices && <FormErrors errors={[t('Please provide valid choices')]} />}
           </Box>
+
+          {/* Right side */}
           <Box>
             <Card>
               <CardHeader>
@@ -229,77 +278,124 @@ const CreateProposal = () => {
               <CardBody>
                 <Box mb="24px">
                   <SecondaryLabel>{t('Start Date')}</SecondaryLabel>
-                  <DatePicker
+                  <Controller
+                    control={control}
                     name="startDate"
-                    onChange={handleDateChange('startDate')}
-                    selected={startDate}
-                    placeholderText="YYYY/MM/DD"
+                    // If you want to disable the datepicker by default if `delay` is set:
+                    render={({ field }) => (
+                      <DatePicker
+                        disabled={Boolean(delay)}
+                        placeholderText="YYYY/MM/DD"
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                      />
+                    )}
                   />
-                  {formErrors.startDate && fieldsState.startDate && <FormErrors errors={formErrors.startDate} />}
+                  {errors.startDate && <FormErrors errors={[errors.startDate.message as string]} />}
                 </Box>
+
                 <Box mb="24px">
                   <SecondaryLabel>{t('Start Time')}</SecondaryLabel>
-                  <TimePicker
+                  <Controller
+                    control={control}
                     name="startTime"
-                    onChange={handleDateChange('startTime')}
-                    selected={startTime}
-                    placeholderText="00:00"
+                    render={({ field }) => (
+                      <TimePicker
+                        disabled={Boolean(delay)}
+                        placeholderText="00:00"
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                      />
+                    )}
                   />
-                  {formErrors.startTime && fieldsState.startTime && <FormErrors errors={formErrors.startTime} />}
+                  {errors.startTime && <FormErrors errors={[errors.startTime.message as string]} />}
                 </Box>
+
                 <Box mb="24px">
                   <SecondaryLabel>{t('End Date')}</SecondaryLabel>
-                  <DatePicker
+                  <Controller
+                    control={control}
                     name="endDate"
-                    onChange={handleDateChange('endDate')}
-                    selected={endDate}
-                    placeholderText="YYYY/MM/DD"
+                    render={({ field }) => (
+                      <DatePicker
+                        disabled={Boolean(period)}
+                        placeholderText="YYYY/MM/DD"
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                      />
+                    )}
                   />
-                  {formErrors.endDate && fieldsState.endDate && <FormErrors errors={formErrors.endDate} />}
+                  {errors.endDate && <FormErrors errors={[errors.endDate.message as string]} />}
                 </Box>
+
                 <Box mb="24px">
                   <SecondaryLabel>{t('End Time')}</SecondaryLabel>
-                  <TimePicker
+                  <Controller
+                    control={control}
                     name="endTime"
-                    onChange={handleDateChange('endTime')}
-                    selected={endTime}
-                    placeholderText="00:00"
+                    render={({ field }) => (
+                      <TimePicker
+                        disabled={Boolean(period)}
+                        placeholderText="00:00"
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                      />
+                    )}
                   />
-                  {formErrors.endTime && fieldsState.endTime && <FormErrors errors={formErrors.endTime} />}
+                  {errors.endTime && <FormErrors errors={[errors.endTime.message as string]} />}
                 </Box>
+
                 {account && (
                   <Flex alignItems="center" mb="8px">
                     <Text color="textSubtle" mr="16px">
                       {t('Creator')}
                     </Text>
-                    <ScanLink useBscCoinFallback href={getBlockExploreLink(account, 'address')}>
+                    <ScanLink useBscCoinFallback href={`https://bscscan.com/address/${account}`}>
                       {truncateHash(account)}
                     </ScanLink>
                   </Flex>
                 )}
+
+                <Flex alignItems="center" mb="8px">
+                  <Text color="textSubtle" mr="16px">
+                    {t('Voting Power')}
+                  </Text>
+                  <Box ml="8px">
+                    <TooltipText ref={votingPowerTargetRef}>
+                      {isLoading ? '-' : formatNumber(total ?? 0, { maxDecimalDisplayDigits: 2 })}
+                    </TooltipText>
+                    {votingPowerTooltipVisible && votingPowerTooltip}
+                  </Box>
+                </Flex>
+
+                {/* Snapshot */}
                 <Flex alignItems="center" mb="16px">
                   <Text color="textSubtle" mr="16px">
                     {t('Snapshot')}
                   </Text>
-                  <ScanLink useBscCoinFallback href={getBlockExploreLink(snapshot, 'block')}>
-                    {snapshot}
+                  <ScanLink useBscCoinFallback href={`https://bscscan.com/block/${watch('snapshot')}`}>
+                    {watch('snapshot')}
                   </ScanLink>
                 </Flex>
+
                 {account ? (
                   <>
                     <Button
                       type="submit"
                       width="100%"
-                      isLoading={isLoading}
-                      endIcon={isLoading ? <AutoRenewIcon spin color="currentColor" /> : null}
-                      disabled={!isEmpty(formErrors)}
+                      disabled={isSubmitting || !enoughVotingPower || isLoading}
+                      endIcon={isSubmitting ? <AutoRenewIcon spin color="currentColor" /> : null}
                       mb="16px"
                     >
                       {t('Publish')}
                     </Button>
-                    <Text color="failure" as="p" mb="4px">
-                      {t('You need at least %count% voting power to publish a proposal.', { count: VOTE_THRESHOLD })}{' '}
-                    </Text>
+                    {!enoughVotingPower && (
+                      <Text color="failure" as="p" mb="4px">
+                        {t('You need at least %count% voting power to publish a proposal.', {
+                          count: VOTE_THRESHOLD,
+                        })}
+                      </Text>
+                    )}
                     <Button scale="sm" type="button" variant="text" onClick={onPresentVoteDetailsModal} p={0}>
                       {t('Check voting power')}
                     </Button>
@@ -317,4 +413,28 @@ const CreateProposal = () => {
   )
 }
 
-export default CreateProposal
+const Wrapped = () => {
+  return (
+    <Suspense fallback={<SpinnerPage />}>
+      <CreateProposal />
+    </Suspense>
+  )
+}
+
+const FullScreenBox = styled(Box)`
+  width: 100%;
+  height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+export const SpinnerPage = () => {
+  return (
+    <FullScreenBox>
+      <Spinner />
+    </FullScreenBox>
+  )
+}
+
+export default Wrapped
