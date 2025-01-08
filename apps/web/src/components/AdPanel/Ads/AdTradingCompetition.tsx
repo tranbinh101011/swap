@@ -40,3 +40,7 @@ export const AdTradingCompetitionApt = (props: AdPlayerProps) => {
 export const AdTradingCompetitionBfg = (props: AdPlayerProps) => {
   return <AdTradingCompetition token="bfg" {...props} />
 }
+
+export const AdTradingCompetitionVinu = (props: AdPlayerProps) => {
+  return <AdTradingCompetition token="vinu" {...props} />
+}

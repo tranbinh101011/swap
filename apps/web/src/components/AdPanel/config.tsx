@@ -5,7 +5,7 @@ import { AdOptionsTrading } from './Ads/AdOptionsTrading'
 import { AdPCSX } from './Ads/AdPCSX'
 import { AdRocker } from './Ads/AdRocker'
 import { AdSpringboard } from './Ads/AdSpringboard'
-import { AdTradingCompetitionApt, AdTradingCompetitionBfg } from './Ads/AdTradingCompetition'
+import { AdTradingCompetitionBfg, AdTradingCompetitionVinu } from './Ads/AdTradingCompetition'
 import { ExpandableAd } from './Expandable/ExpandableAd'
 import { shouldRenderOnPages } from './renderConditions'
 
@@ -41,13 +41,14 @@ export const useAdConfig = () => {
         component: <AdSpringboard />,
       },
       {
+        id: 'ad-vinu-tc',
+        component: <AdTradingCompetitionVinu />,
+      },
+      {
         id: 'ad-bfg-tc',
         component: <AdTradingCompetitionBfg />,
       },
-      {
-        id: 'ad-apt-tc',
-        component: <AdTradingCompetitionApt />,
-      },
+
       // {
       //   id: 'ad-mev',
       //   component: <AdMevProtection />,
