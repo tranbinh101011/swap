@@ -33,9 +33,9 @@ const XmaxTree = styled.div`
   }
 
   left: 1%;
-  width: 16vw;
-  height: 19.2vw;
-  background: url('${ASSET_CDN}/web/swap/xmas/xmas-tree-${({ theme }) => (theme.isDark ? 'dark' : 'light')}.png')
+  width: 26vw;
+  height: 15vw;
+  background: url('${ASSET_CDN}/web/swap/new-year/new-year-${({ theme }) => (theme.isDark ? 'dark' : 'light')}.png')
     no-repeat center center fixed;
   background-size: cover;
 `
