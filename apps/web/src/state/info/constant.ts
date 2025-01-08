@@ -69,7 +69,7 @@ export const infoChainNameToExplorerChainName = {
   BSC: 'bsc',
   ETH: 'ethereum',
   POLYGON_ZKEVM: 'polygon-zkevm',
-  ZKSYNC: 'zkync',
+  ZKSYNC: 'zksync',
   ARB: 'arbitrum',
   LINEA: 'linea',
   BASE: 'base',

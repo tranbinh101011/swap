@@ -12,7 +12,7 @@ type MerklConfigPool = {
 export const chainIdToChainName = {
   1: 'ethereum',
   56: 'bnb smart chain',
-  324: 'zkync',
+  324: 'zksync',
   1101: 'polygon zkevm',
   8453: 'base',
   42161: 'arbitrum',
