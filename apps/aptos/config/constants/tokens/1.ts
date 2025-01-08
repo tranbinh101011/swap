@@ -155,4 +155,30 @@ export const mainnetTokens = {
     'Staked Aptos Coin',
     'https://stake.amnis.finance/',
   ),
+  aBTC: new Coin(
+    ChainId.MAINNET,
+    '0x4e1854f6d332c9525e258fb6e66f84b6af8aba687bbcb832a24768c4e175feec::abtc::ABTC',
+    8,
+    'aBTC',
+    'Aptos Bitcoin',
+    'https://www.echo-protocol.xyz/',
+  ),
+
+  MOOMOO: new Coin(
+    ChainId.MAINNET,
+    '0xc5fbbcc4637aeebb4e732767abee8a21f2b0776f73b73e16ce13e7d31d6700da::MOOMOO::MOOMOO',
+    8,
+    'MOOMOO',
+    'MOOMOO Token',
+    'https://www.moo.meme/',
+  ),
+
+  MOD: new Coin(
+    ChainId.MAINNET,
+    '0x6f986d146e4a90b828d8c12c14b6f4e003fdff11a8eecceceb63744363eaac01::mod_coin::MOD',
+    8,
+    'MOD',
+    'MOD Token',
+    'https://www.thala.fi/',
+  ),
 }
