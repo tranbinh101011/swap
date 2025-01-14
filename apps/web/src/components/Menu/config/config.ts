@@ -164,7 +164,6 @@ const config: (
       ],
       items: [
         {
-          status: { text: t('New'), color: 'success' },
           label: t('Springboard'),
           href: 'https://springboard.pancakeswap.finance',
           type: DropdownMenuItemType.EXTERNAL_LINK,
@@ -201,6 +200,7 @@ const config: (
           label: t('IFO'),
           href: '/ifo',
           image: '/images/ifos/ifo-bunny.png',
+          status: { text: t('SOON'), color: 'warning' },
           overrideSubNavItems: [
             {
               label: t('Latest'),

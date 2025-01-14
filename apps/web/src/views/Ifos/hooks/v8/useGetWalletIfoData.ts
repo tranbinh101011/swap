@@ -1,20 +1,18 @@
-import { Ifo, PoolIds, ifoV8ABI } from '@pancakeswap/ifos'
+import { Ifo, PoolIds } from '@pancakeswap/ifos'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import BigNumber from 'bignumber.js'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useERC20, useIfoV8Contract } from 'hooks/useContract'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useAppDispatch } from 'state'
-import { fetchCakeVaultUserData } from 'state/pools'
-import { publicClient } from 'utils/wagmi'
-import { Address } from 'viem'
 import { useAccount } from 'wagmi'
 
-import { useActiveChainId } from 'hooks/useActiveChainId'
-
+import { useAppDispatch } from 'state'
+import { fetchCakeVaultUserData } from 'state/pools'
 import { WalletIfoData, WalletIfoState } from '../../types'
 import useIfoAllowance from '../useIfoAllowance'
 import { useIfoCredit } from '../useIfoCredit'
 import { useIfoSourceChain } from '../useIfoSourceChain'
+import { fetchIfoData } from './fetchIfoData'
 
 const initialState = {
   isInitialized: false,
@@ -30,6 +28,8 @@ const initialState = {
     isVestingInitialized: false,
     vestingId: '0',
     vestingComputeReleasableAmount: BIG_ZERO,
+    isQualifiedNFT: false,
+    isQualifiedPoints: false,
   },
   poolUnlimited: {
     amountTokenCommittedInLP: BIG_ZERO,
@@ -46,27 +46,23 @@ const initialState = {
   },
 }
 
-/**
- * Gets all data from an IFO related to a wallet
- */
 const useGetWalletIfoData = (ifo: Ifo): WalletIfoData => {
   const { chainId: currentChainId } = useActiveChainId()
   const [state, setState] = useState<WalletIfoState>(initialState)
   const dispatch = useAppDispatch()
-  const { chainId } = ifo
+  const { chainId, version, address } = ifo
   const creditAmount = useIfoCredit({ chainId, ifoAddress: ifo.address })
   const credit = useMemo(
-    () => (creditAmount && BigNumber(creditAmount.quotient.toString())) ?? BIG_ZERO,
+    () => (creditAmount && new BigNumber(creditAmount.quotient.toString())) ?? BIG_ZERO,
     [creditAmount],
   )
   const sourceChain = useIfoSourceChain(chainId)
 
-  const { address, currency, version } = ifo
-
   const { address: account } = useAccount()
-  const contract = useIfoV8Contract(address, { chainId })
-  const currencyContract = useERC20(currency.address, { chainId })
-  const allowance = useIfoAllowance(currencyContract, address)
+
+  const contract = useIfoV8Contract(ifo.address, { chainId })
+  const currencyContract = useERC20(ifo.currency.address, { chainId })
+  const allowance = useIfoAllowance(currencyContract, ifo.address)
 
   const setPendingTx = (status: boolean, poolId: PoolIds) =>
     setState((prevState) => ({
@@ -87,174 +83,6 @@ const useGetWalletIfoData = (ifo: Ifo): WalletIfoData => {
     }))
   }
 
-  const fetchIfoData = useCallback(async () => {
-    if (!account) {
-      return
-    }
-    const client = publicClient({ chainId })
-
-    const [userInfo, amounts] = await client.multicall({
-      contracts: [
-        {
-          address,
-          abi: ifoV8ABI,
-          functionName: 'viewUserInfo',
-          args: [account, [0, 1]],
-        },
-        {
-          address,
-          abi: ifoV8ABI,
-          functionName: 'viewUserOfferingAndRefundingAmountsForPools',
-          args: [account, [0, 1]],
-        },
-      ],
-      allowFailure: false,
-    })
-
-    let basicId: Address | null = null
-    let unlimitedId: Address | null = null
-    if (version >= 3.2) {
-      const [basicIdDataResult, unlimitedIdDataResult] = await client.multicall({
-        contracts: [
-          {
-            address,
-            abi: ifoV8ABI,
-            functionName: 'computeVestingScheduleIdForAddressAndPid',
-            args: [account, 0],
-          },
-          {
-            address,
-            abi: ifoV8ABI,
-            functionName: 'computeVestingScheduleIdForAddressAndPid',
-            args: [account, 1],
-          },
-        ],
-      })
-
-      basicId = basicIdDataResult.result ?? null
-      unlimitedId = unlimitedIdDataResult.result ?? null
-    }
-
-    basicId = basicId || '0x'
-    unlimitedId = unlimitedId || '0x'
-
-    let [
-      isQualifiedNFT,
-      isQualifiedPoints,
-      basicSchedule,
-      unlimitedSchedule,
-      basicReleasableAmount,
-      unlimitedReleasableAmount,
-    ]: [boolean | undefined, boolean | undefined, any | null, any | null, any | null, any | null] = [
-      false,
-      false,
-      null,
-      null,
-      null,
-      null,
-    ]
-
-    if (version >= 3.1) {
-      const [
-        isQualifiedNFTResult,
-        isQualifiedPointsResult,
-        basicScheduleResult,
-        unlimitedScheduleResult,
-        basicReleasableAmountResult,
-        unlimitedReleasableAmountResult,
-      ] = await client.multicall({
-        contracts: [
-          {
-            address,
-            abi: ifoV8ABI,
-            functionName: 'isQualifiedNFT',
-            args: [account],
-          },
-          {
-            abi: ifoV8ABI,
-            address,
-            functionName: 'isQualifiedPoints',
-            args: [account],
-          },
-          {
-            abi: ifoV8ABI,
-            address,
-            functionName: 'getVestingSchedule',
-            args: [basicId],
-          },
-          {
-            abi: ifoV8ABI,
-            address,
-            functionName: 'getVestingSchedule',
-            args: [unlimitedId],
-          },
-          {
-            abi: ifoV8ABI,
-            address,
-            functionName: 'computeReleasableAmount',
-            args: [basicId],
-          },
-          {
-            abi: ifoV8ABI,
-            address,
-            functionName: 'computeReleasableAmount',
-            args: [unlimitedId],
-          },
-        ],
-        allowFailure: true,
-      })
-
-      isQualifiedNFT = isQualifiedNFTResult.result
-      isQualifiedPoints = isQualifiedPointsResult.result
-      basicSchedule = basicScheduleResult.result
-      unlimitedSchedule = unlimitedScheduleResult.result
-      basicReleasableAmount = basicReleasableAmountResult.result
-      unlimitedReleasableAmount = unlimitedReleasableAmountResult.result
-    }
-
-    dispatch(fetchCakeVaultUserData({ account, chainId: sourceChain }))
-
-    setState(
-      (prevState) =>
-        ({
-          ...prevState,
-          isInitialized: true,
-          poolBasic: {
-            ...prevState.poolBasic,
-            amountTokenCommittedInLP: new BigNumber(userInfo[0][0].toString()),
-            offeringAmountInToken: new BigNumber(amounts[0][0].toString()),
-            refundingAmountInLP: new BigNumber(amounts[0][1].toString()),
-            taxAmountInLP: new BigNumber(amounts[0][2].toString()),
-            hasClaimed: userInfo[1][0],
-            isQualifiedNFT,
-            isQualifiedPoints,
-            vestingReleased: basicSchedule ? new BigNumber(basicSchedule.released.toString()) : BIG_ZERO,
-            vestingAmountTotal: basicSchedule ? new BigNumber(basicSchedule.amountTotal.toString()) : BIG_ZERO,
-            isVestingInitialized: basicSchedule ? basicSchedule.isVestingInitialized : false,
-            vestingId: basicId ? basicId.toString() : '0',
-            vestingComputeReleasableAmount: basicReleasableAmount
-              ? new BigNumber(basicReleasableAmount.toString())
-              : BIG_ZERO,
-          },
-          poolUnlimited: {
-            ...prevState.poolUnlimited,
-            amountTokenCommittedInLP: new BigNumber(userInfo[0][1].toString()),
-            offeringAmountInToken: new BigNumber(amounts[1][0].toString()),
-            refundingAmountInLP: new BigNumber(amounts[1][1].toString()),
-            taxAmountInLP: new BigNumber(amounts[1][2].toString()),
-            hasClaimed: userInfo[1][1],
-            vestingReleased: unlimitedSchedule ? new BigNumber(unlimitedSchedule.released.toString()) : BIG_ZERO,
-            vestingAmountTotal: unlimitedSchedule ? new BigNumber(unlimitedSchedule.amountTotal.toString()) : BIG_ZERO,
-            isVestingInitialized: unlimitedSchedule ? unlimitedSchedule.isVestingInitialized : false,
-            vestingId: unlimitedId ? unlimitedId.toString() : '0',
-            vestingComputeReleasableAmount: unlimitedReleasableAmount
-              ? new BigNumber(unlimitedReleasableAmount.toString())
-              : BIG_ZERO,
-          },
-        } as any),
-    )
-  }, [account, address, dispatch, version, chainId, sourceChain])
-
   const resetIfoData = useCallback(() => {
     setState({ ...initialState })
   }, [])
@@ -266,7 +94,35 @@ const useGetWalletIfoData = (ifo: Ifo): WalletIfoData => {
     creditLeft: BigNumber.maximum(BIG_ZERO, creditLeftWithNegative),
   }
 
-  useEffect(() => resetIfoData(), [currentChainId, account, resetIfoData])
+  useEffect(() => {
+    if (account) {
+      fetchIfoData(account, ifo, ifo.version, chainId).then(({ basicPoolData, unlimitedPoolData }) => {
+        setState((prevState) => ({
+          ...prevState,
+          isInitialized: true,
+          poolBasic: { ...prevState.poolBasic, ...basicPoolData },
+          poolUnlimited: { ...prevState.poolUnlimited, ...unlimitedPoolData },
+        }))
+      })
+    }
+  }, [account, chainId, dispatch, ifo, sourceChain])
+
+  useEffect(() => {
+    resetIfoData()
+  }, [currentChainId, account, resetIfoData])
+  const fetch = useCallback(async () => {
+    if (!account) {
+      return
+    }
+    const data = await fetchIfoData(account, ifo, version, chainId)
+    dispatch(fetchCakeVaultUserData({ account, chainId: sourceChain }))
+    setState((prevState) => ({
+      ...prevState,
+      isInitialized: true,
+      poolBasic: { ...prevState.poolBasic, ...data.basicPoolData },
+      poolUnlimited: { ...prevState.poolUnlimited, ...data.unlimitedPoolData },
+    }))
+  }, [account, address, dispatch, version, chainId, sourceChain])
 
   return {
     ...state,
@@ -274,8 +130,8 @@ const useGetWalletIfoData = (ifo: Ifo): WalletIfoData => {
     contract,
     setPendingTx,
     setIsClaimed,
-    fetchIfoData,
     resetIfoData,
+    fetchIfoData: fetch,
     ifoCredit,
     version: 8,
   }

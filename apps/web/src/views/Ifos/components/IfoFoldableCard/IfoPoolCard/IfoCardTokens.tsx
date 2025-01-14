@@ -1,6 +1,6 @@
 import { Ifo, PoolIds, cakeBnbLpToken } from '@pancakeswap/ifos'
 import { useTranslation } from '@pancakeswap/localization'
-import { Token } from '@pancakeswap/sdk'
+import { ChainId, Token } from '@pancakeswap/sdk'
 import { bscTokens } from '@pancakeswap/tokens'
 import {
   AutoRenewIcon,
@@ -229,9 +229,9 @@ const IfoCardTokens: React.FC<React.PropsWithChildren<IfoCardTokensProps>> = ({
       hasProfile
     ) {
       // If Cross-Chain IFO
-      // if (ifo.chainId !== ChainId.BSC) {
-      message = <CrossChainVeCakeTips ifoChainId={ifo.chainId} />
-      // }
+      if (ifo.chainId !== ChainId.BSC) {
+        message = <CrossChainVeCakeTips ifoChainId={ifo.chainId} />
+      }
       // Phase this out later, as it applies at the same time
       // else message = <ICakeTips ifoId={ifo.id} ifoChainId={ifo.chainId} ifoAddress={ifo.address} />
     }

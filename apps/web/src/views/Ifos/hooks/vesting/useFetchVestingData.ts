@@ -1,93 +1,71 @@
-import { useMemo } from 'react'
-import { useAccount } from 'wagmi'
-import { Ifo, PoolIds } from '@pancakeswap/ifos'
-import BigNumber from 'bignumber.js'
+import { PoolIds, UserVestingData } from '@pancakeswap/ifos'
 import { useQuery } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
+import { useAccount } from 'wagmi'
 
-import { useIfoConfigsAcrossChains } from 'hooks/useIfoConfig'
 import { FAST_INTERVAL } from 'config/constants'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useIfoConfigsAcrossChains } from 'hooks/useIfoConfig'
 
-import { fetchUserWalletIfoData } from './fetchUserWalletIfoData'
+import { fetchUserWalletIfoData, VestingData } from './fetchUserWalletIfoData'
+
+const POOLS = [PoolIds.poolBasic, PoolIds.poolUnlimited]
+
+const isPoolEligible = (poolId: PoolIds, userVestingData: UserVestingData) => {
+  const poolData = userVestingData[poolId]
+  const currentTimeStamp = Date.now()
+  if (!poolData) return false
+
+  if (poolData.offeringAmountInToken.gt(0) || poolData.vestingComputeReleasableAmount.gt(0)) {
+    return true
+  }
+
+  const vestingStartTime = new BigNumber(userVestingData.vestingStartTime)
+  const vestingEndTime = vestingStartTime.plus(poolData.vestingInformationDuration).times(1000)
+
+  return vestingEndTime.gte(currentTimeStamp)
+}
+
+const isEligibleVestingData = (ifo: VestingData) => {
+  const { userVestingData } = ifo
+  return POOLS.some((poolId) => isPoolEligible(poolId, userVestingData))
+}
 
 const useFetchVestingData = () => {
   const { address: account } = useAccount()
+
   const { chainId } = useActiveChainId()
   const configs = useIfoConfigsAcrossChains()
-  const allVestingIfo = useMemo<Ifo[]>(
-    () => configs?.filter((ifo) => ifo.version >= 3.2 && ifo.vestingTitle) || [],
-    [configs],
-  )
 
-  const { data: vestingData, refetch } = useQuery({
+  // Filter IFOs that are version >= 3.2 and have a vesting title
+  const allVestingIfo = configs?.filter((ifo) => ifo.version >= 3.2 && ifo.vestingTitle) || []
+
+  const { data: vestingData, refetch } = useQuery<VestingData>({
     queryKey: ['vestingData', account],
-
     queryFn: async () => {
-      const allData = await Promise.all(
-        allVestingIfo.map(async (ifo) => {
-          const response = await fetchUserWalletIfoData(ifo, account)
-          return response
-        }),
-      )
+      const allDataSettled = await Promise.allSettled(allVestingIfo.map((ifo) => fetchUserWalletIfoData(ifo, account)))
+      const allData = allDataSettled
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => (result as PromiseFulfilledResult<VestingData>).value)
 
-      const currentTimeStamp = Date.now()
+      const filteredData = allData.filter((x) => x.ifo.isActive).filter(isEligibleVestingData)
 
-      return allData.filter(
-        // eslint-disable-next-line array-callback-return, consistent-return
-        (ifo) => {
-          const { userVestingData } = ifo
-          if (
-            userVestingData[PoolIds.poolBasic].offeringAmountInToken.gt(0) ||
-            userVestingData[PoolIds.poolUnlimited].offeringAmountInToken.gt(0)
-          ) {
-            if (
-              userVestingData[PoolIds.poolBasic].vestingComputeReleasableAmount.gt(0) ||
-              userVestingData[PoolIds.poolUnlimited].vestingComputeReleasableAmount.gt(0)
-            ) {
-              return ifo
-            }
-            const vestingStartTime = new BigNumber(userVestingData.vestingStartTime)
-            const isPoolUnlimitedLive = vestingStartTime
-              .plus(userVestingData[PoolIds.poolUnlimited].vestingInformationDuration)
-              .times(1000)
-              .gte(currentTimeStamp)
-            if (isPoolUnlimitedLive) return ifo
-            const isPoolBasicLive = vestingStartTime
-              .plus(userVestingData[PoolIds.poolBasic].vestingInformationDuration)
-              .times(1000)
-              .gte(currentTimeStamp)
-            if (isPoolBasicLive) return ifo
-            return false
-          }
-          return false
-        },
-      )
+      const sortedData = filteredData.toSorted((a, b) => {
+        if (a.ifo.chainId === chainId && b.ifo.chainId !== chainId) return -1
+        if (a.ifo.chainId !== chainId && b.ifo.chainId === chainId) return 1
+        return 0
+      })
+
+      return sortedData[0]
     },
-
     enabled: Boolean(account),
     refetchOnWindowFocus: false,
     refetchInterval: FAST_INTERVAL,
     staleTime: FAST_INTERVAL,
   })
 
-  // Sort by active chain
-  const data = useMemo(
-    () =>
-      vestingData &&
-      vestingData.toSorted((a, b) => {
-        if (a.ifo.chainId === chainId && b.ifo.chainId !== chainId) {
-          return -1
-        }
-        if (a.ifo.chainId !== chainId && b.ifo.chainId === chainId) {
-          return 1
-        }
-        return 0
-      }),
-    [chainId, vestingData],
-  )
-
   return {
-    data: data || [],
+    data: vestingData || null,
     fetchUserVestingData: refetch,
   }
 }

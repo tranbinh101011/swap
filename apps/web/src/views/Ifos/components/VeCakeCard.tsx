@@ -1,24 +1,24 @@
-import { Ifo } from '@pancakeswap/widgets-internal'
 import { ChainId } from '@pancakeswap/chains'
-import { Button } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
-import Link from 'next/link'
-import { SpaceProps } from 'styled-system'
-import { useAccount } from 'wagmi'
-import { Address } from 'viem'
-import { useMemo } from 'react'
-import BigNumber from 'bignumber.js'
 import { CAKE } from '@pancakeswap/tokens'
+import { Button } from '@pancakeswap/uikit'
 import { formatBigInt } from '@pancakeswap/utils/formatBalance'
+import { Ifo } from '@pancakeswap/widgets-internal'
+import BigNumber from 'bignumber.js'
+import Link from 'next/link'
+import { useMemo } from 'react'
+import { SpaceProps } from 'styled-system'
+import { Address } from 'viem'
+import { useAccount } from 'wagmi'
 
-import { useCakePrice } from 'hooks/useCakePrice'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useCakePrice } from 'hooks/useCakePrice'
 
 // TODO should be common hooks
-import { useCakeLockStatus } from 'views/CakeStaking/hooks/useVeCakeUserInfo'
 import { useIsMigratedToVeCake } from 'views/CakeStaking/hooks/useIsMigratedToVeCake'
 import { useIsUserDelegated } from 'views/CakeStaking/hooks/useIsUserDelegated'
+import { useCakeLockStatus } from 'views/CakeStaking/hooks/useVeCakeUserInfo'
 
 import { useUserIfoInfo } from '../hooks/useUserIfoInfo'
 
@@ -70,7 +70,7 @@ export function VeCakeCard({ ifoAddress }: Props) {
     return nativeUnlockTime
   }, [hasProxyCakeButNoNativeVeCake, nativeUnlockTime, proxyUnlockTime])
 
-  const { snapshotTime, credit, veCake } = useUserIfoInfo({ ifoAddress, chainId })
+  const { snapshotTime, credit, veCake, ratio } = useUserIfoInfo({ ifoAddress, chainId })
   const creditBN = useMemo(
     () => credit && new BigNumber(credit.numerator.toString()).div(credit.decimalScale.toString()),
     [credit],
@@ -88,7 +88,7 @@ export function VeCakeCard({ ifoAddress }: Props) {
   return (
     <Ifo.VeCakeCard header={header}>
       <Ifo.MyVeCake amount={veCake} />
-      <Ifo.ICakeInfo mt="1.5rem" snapshot={snapshotTime} />
+      <Ifo.ICakeInfo mt="1.5rem" snapshot={snapshotTime} ratio={ratio} />
 
       {isConnected && hasICake && totalLockCake ? (
         <Ifo.LockInfoCard mt="1.5rem" amount={totalLockCake} unlockAt={unlockAt} usdPrice={cakePrice} />

@@ -5,22 +5,24 @@ import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 import { Address } from 'viem'
-import { useAccount } from 'wagmi'
 
 import { getViemClients } from 'utils/viem'
+import { useAccount } from 'wagmi'
 
 type ICakeRatioParams = {
   chainId?: ChainId
 }
 
 export function useICakeRatio({ chainId }: ICakeRatioParams) {
+  const { address: account } = useAccount()
   const { data } = useQuery({
-    queryKey: [chainId, 'current-ifo-ratio'],
+    queryKey: [chainId, account, 'current-ifo-ratio'],
 
     queryFn: () =>
       getCurrentIfoRatio({
         chainId,
         provider: getViemClients,
+        account,
       }),
 
     enabled: Boolean(chainId),

@@ -17,6 +17,7 @@ interface Props {
   claimableAmount: string
   isVestingInitialized: boolean
   fetchUserVestingData: () => void
+  enabled: boolean
 }
 
 const ClaimButton: React.FC<React.PropsWithChildren<Props>> = ({
@@ -25,6 +26,7 @@ const ClaimButton: React.FC<React.PropsWithChildren<Props>> = ({
   claimableAmount,
   isVestingInitialized,
   fetchUserVestingData,
+  enabled,
 }) => {
   const { account, chain } = useWeb3React()
   const { t } = useTranslation()
@@ -85,10 +87,10 @@ const ClaimButton: React.FC<React.PropsWithChildren<Props>> = ({
       width="100%"
       onClick={handleClaim}
       isLoading={isPending}
-      disabled={isReady}
+      disabled={isReady && !enabled}
       endIcon={isPending ? <AutoRenewIcon spin color="currentColor" /> : null}
     >
-      {t('Claim %symbol%', { symbol: token.symbol })}
+      {t('Claim')}
     </Button>
   )
 }

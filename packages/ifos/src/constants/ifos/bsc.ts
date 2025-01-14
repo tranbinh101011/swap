@@ -5,6 +5,31 @@ import { cakeBnbLpToken } from '../lpTokens'
 
 export const ifos: BaseIfoConfig[] = [
   {
+    id: 'solv',
+    address: '0xb0De22aAe05789C13E900688b420F1Bb7c2C3889',
+    isActive: true,
+    cIFO: false,
+    plannedStartTime: new Date('2025-01-16T10:00:00Z').getTime() / 1000,
+    poolBasic: {
+      raiseAmount: '$10,000',
+    },
+    poolUnlimited: {
+      raiseAmount: '$90,000',
+      additionalClaimingFee: true,
+    },
+    name: 'SOLV',
+    currency: bscTokens.cake,
+    token: bscTokens.solv,
+    campaignId: '512600000',
+    articleUrl: 'https://forum.pancakeswap.finance/t/solv-ifo-discussion-thread/993',
+    tokenOfferingPrice: 0.0310559006,
+    version: 8,
+    twitterUrl: 'https://twitter.com/SolvProtocol/',
+    description:
+      'Solv is a Bitcoin staking protocol that unlocks liquidity and maximizes the utility of idle Bitcoin assets',
+    vestingTitle: 'SOLV is Solv Protocol’s native utility token meant for governance, staking, and fee discounts',
+  },
+  {
     id: 'lista',
     address: '0x232c577a3A9c4ecbeeb213E1eb5519cB0C2FDb0F',
     isActive: false,

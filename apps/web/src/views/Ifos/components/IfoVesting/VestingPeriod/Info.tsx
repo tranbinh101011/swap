@@ -1,18 +1,16 @@
-import { useMemo } from 'react'
-import { styled } from 'styled-components'
-import { useTranslation } from '@pancakeswap/localization'
-import { Flex, Text, Progress, Tag } from '@pancakeswap/uikit'
-import { VestingData } from 'views/Ifos/hooks/vesting/fetchUserWalletIfoData'
 import { PoolIds } from '@pancakeswap/ifos'
-import { getFullDisplayBalance } from '@pancakeswap/utils/formatBalance'
-import { useCurrentBlock } from 'state/block/hooks'
-import useGetPublicIfoV3Data from 'views/Ifos/hooks/v3/useGetPublicIfoData'
-import BigNumber from 'bignumber.js'
+import { useTranslation } from '@pancakeswap/localization'
+import { Flex, Progress, Tag, Text } from '@pancakeswap/uikit'
 import dayjs from 'dayjs'
+import { useCurrentBlock } from 'state/block/hooks'
+import { styled } from 'styled-components'
+import useGetPublicIfoV3Data from 'views/Ifos/hooks/v3/useGetPublicIfoData'
+import { VestingData } from 'views/Ifos/hooks/vesting/fetchUserWalletIfoData'
 
 import { useQuery } from '@tanstack/react-query'
-import Claim from './Claim'
+import { getVestingInfo } from 'views/Ifos/hooks/getVestingInfo'
 import { isBasicSale } from '../../../hooks/v7/helpers'
+import Claim from './Claim'
 
 const WhiteCard = styled.div`
   background: ${({ theme }) => theme.colors.backgroundAlt};
@@ -41,16 +39,13 @@ const Info: React.FC<React.PropsWithChildren<InfoProps>> = ({
   ifoBasicSaleType,
 }) => {
   const { t } = useTranslation()
-  const { token } = data.ifo
   const { vestingStartTime } = data.userVestingData
-  const {
-    isVestingInitialized,
-    vestingComputeReleasableAmount,
-    offeringAmountInToken,
-    vestingInformationPercentage,
-    vestingReleased,
-    vestingInformationDuration,
-  } = data.userVestingData[poolId]
+  const { vestingInformationDuration } = data.userVestingData[poolId]
+  const { isVestingInitialized, isVestingOver, received, claimable, remaining, percentage } = getVestingInfo(
+    poolId,
+    data,
+  )
+
   const labelText =
     poolId === PoolIds.poolUnlimited
       ? t('Public Sale')
@@ -74,46 +69,6 @@ const Info: React.FC<React.PropsWithChildren<InfoProps>> = ({
   const currentTimeStamp = Date.now()
   const timeCliff = vestingStartTime === 0 ? currentTimeStamp : (vestingStartTime + (cliff ?? 0)) * 1000
   const timeVestingEnd = (vestingStartTime + vestingInformationDuration) * 1000
-  const isVestingOver = currentTimeStamp > timeVestingEnd
-
-  const vestingPercentage = useMemo(
-    () => new BigNumber(vestingInformationPercentage).times(0.01),
-    [vestingInformationPercentage],
-  )
-
-  const releasedAtSaleEnd = useMemo(() => {
-    return new BigNumber(offeringAmountInToken).times(new BigNumber(1).minus(vestingPercentage))
-  }, [offeringAmountInToken, vestingPercentage])
-
-  const amountReleased = useMemo(() => {
-    return new BigNumber(releasedAtSaleEnd).plus(vestingReleased).plus(vestingComputeReleasableAmount)
-  }, [releasedAtSaleEnd, vestingReleased, vestingComputeReleasableAmount])
-
-  const received = useMemo(() => {
-    const alreadyClaimed = new BigNumber(releasedAtSaleEnd).plus(vestingReleased)
-    return alreadyClaimed.gt(0) ? getFullDisplayBalance(alreadyClaimed, token.decimals, 4) : '0'
-  }, [token, releasedAtSaleEnd, vestingReleased])
-
-  const claimable = useMemo(() => {
-    const remain = new BigNumber(offeringAmountInToken).minus(amountReleased)
-    const claimableAmount = isVestingOver ? vestingComputeReleasableAmount.plus(remain) : vestingComputeReleasableAmount
-    return claimableAmount.gt(0) ? getFullDisplayBalance(claimableAmount, token.decimals, 4) : '0'
-  }, [offeringAmountInToken, amountReleased, isVestingOver, vestingComputeReleasableAmount, token.decimals])
-
-  const remaining = useMemo(() => {
-    const remain = new BigNumber(offeringAmountInToken).minus(amountReleased)
-    return remain.gt(0) ? getFullDisplayBalance(remain, token.decimals, 4) : '0'
-  }, [token, offeringAmountInToken, amountReleased])
-
-  const percentage = useMemo(() => {
-    const total = new BigNumber(received).plus(claimable).plus(remaining)
-    const receivedPercentage = new BigNumber(received).div(total).times(100).toNumber()
-    const amountAvailablePercentage = new BigNumber(claimable).div(total).times(100).toNumber()
-    return {
-      receivedPercentage,
-      amountAvailablePercentage: receivedPercentage + amountAvailablePercentage,
-    }
-  }, [received, claimable, remaining])
 
   if (claimable === '0' && remaining === '0') {
     return null
@@ -170,6 +125,7 @@ const Info: React.FC<React.PropsWithChildren<InfoProps>> = ({
         <Claim
           poolId={poolId}
           data={data}
+          enabled={isVestingOver}
           claimableAmount={claimable}
           isVestingInitialized={isVestingInitialized}
           fetchUserVestingData={fetchUserVestingData}

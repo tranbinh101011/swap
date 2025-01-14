@@ -1,11 +1,10 @@
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useMemo } from 'react'
 import { AdCakeStaking } from './Ads/AdCakeStaking'
-import { AdOptionsTrading } from './Ads/AdOptionsTrading'
 import { AdPCSX } from './Ads/AdPCSX'
-import { AdRocker } from './Ads/AdRocker'
+import { AdSolv } from './Ads/AdSolv'
 import { AdSpringboard } from './Ads/AdSpringboard'
-import { AdTradingCompetitionBfg, AdTradingCompetitionVinu } from './Ads/AdTradingCompetition'
+import { AdTradingCompetitionVinu } from './Ads/AdTradingCompetition'
 import { ExpandableAd } from './Expandable/ExpandableAd'
 import { shouldRenderOnPages } from './renderConditions'
 
@@ -45,18 +44,9 @@ export const useAdConfig = () => {
         component: <AdTradingCompetitionVinu />,
       },
       {
-        id: 'ad-bfg-tc',
-        component: <AdTradingCompetitionBfg />,
+        id: 'ad-ifo-solv',
+        component: <AdSolv />,
       },
-
-      // {
-      //   id: 'ad-mev',
-      //   component: <AdMevProtection />,
-      // },
-      // {
-      //   id: 'prediction-telegram-bot',
-      //   component: <AdTelegramBot />,
-      // },
       {
         id: 'pcsx',
         component: <AdPCSX />,
@@ -64,15 +54,6 @@ export const useAdConfig = () => {
       {
         id: 'cake-staking',
         component: <AdCakeStaking />,
-      },
-      {
-        id: 'clamm-options-trading',
-        component: <AdOptionsTrading />,
-      },
-
-      {
-        id: 'rocker-meme-career',
-        component: <AdRocker />,
       },
     ],
     [shouldRenderOnPage],

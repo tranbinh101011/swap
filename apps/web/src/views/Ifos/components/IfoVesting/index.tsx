@@ -1,15 +1,17 @@
-import { useMemo, useState, useCallback, useEffect } from 'react'
-import { styled } from 'styled-components'
 import { useTranslation } from '@pancakeswap/localization'
-import { Box, Card, CardBody, CardHeader, Flex, Text, Image, IfoNotTokens } from '@pancakeswap/uikit'
+import { Box, Card, CardBody, CardHeader, Flex, IfoNotTokens, Image, Text } from '@pancakeswap/uikit'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { styled } from 'styled-components'
 import { useAccount } from 'wagmi'
 
 import Trans from 'components/Trans'
 
-import { VestingStatus } from './types'
-import TokenInfo from './VestingPeriod/TokenInfo'
-import VestingEnded from './VestingEnded'
+import { PoolIds } from '@pancakeswap/ifos'
+import { getHasClaimable } from 'views/Ifos/hooks/getVestingInfo'
 import useFetchVestingData from '../../hooks/vesting/useFetchVestingData'
+import { VestingStatus } from './types'
+import VestingEnded from './VestingEnded'
+import TokenInfo from './VestingPeriod/TokenInfo'
 
 const StyleVestingCard = styled(Card)`
   width: 100%;
@@ -70,20 +72,23 @@ const IfoVesting: React.FC<React.PropsWithChildren<IfoVestingProps>> = ({ ifoBas
   const { data, fetchUserVestingData } = useFetchVestingData()
 
   useEffect(() => {
-    // When switch account need init
     if (account) {
       setIsFirstTime(true)
       fetchUserVestingData()
     }
   }, [account, fetchUserVestingData, setIsFirstTime])
 
+  const hasClaimable = getHasClaimable([PoolIds.poolBasic, PoolIds.poolUnlimited], data)
+
   const cardStatus = useMemo(() => {
     if (account) {
-      if (data.length > 0) return IfoVestingStatus[VestingStatus.HAS_TOKENS_CLAIM]
-      if (data.length === 0 && !isFirstTime) return IfoVestingStatus[VestingStatus.ENDED]
+      if (hasClaimable) {
+        return IfoVestingStatus[VestingStatus.HAS_TOKENS_CLAIM]
+      }
+      if (!hasClaimable && !isFirstTime) return IfoVestingStatus[VestingStatus.ENDED]
     }
     return IfoVestingStatus[VestingStatus.NOT_TOKENS_CLAIM]
-  }, [data, account, isFirstTime])
+  }, [data, account, isFirstTime, hasClaimable])
 
   const handleFetchUserVesting = useCallback(() => {
     setIsFirstTime(false)
@@ -122,15 +127,15 @@ const IfoVesting: React.FC<React.PropsWithChildren<IfoVestingProps>> = ({ ifoBas
         )}
         {cardStatus.status === VestingStatus.HAS_TOKENS_CLAIM && (
           <TokenInfoContainer>
-            {data.map((ifo, index) => (
+            {data && (
               <TokenInfo
-                key={ifo.ifo.id}
-                index={index}
-                data={ifo}
+                key={data.ifo.id}
+                index={0}
+                data={data}
                 fetchUserVestingData={handleFetchUserVesting}
                 ifoBasicSaleType={ifoBasicSaleType}
               />
-            ))}
+            )}
           </TokenInfoContainer>
         )}
         {cardStatus.status === VestingStatus.ENDED && <VestingEnded />}
