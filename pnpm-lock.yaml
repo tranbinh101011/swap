@@ -304,7 +304,7 @@ importers:
         version: 1.14.0
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)
       '@vanilla-extract/recipes':
         specifier: ^0.5.0
         version: 0.5.1(@vanilla-extract/css@1.14.0)
@@ -386,7 +386,7 @@ importers:
         version: 4.2.1(typescript@5.2.2)(vite@5.0.12(@types/node@18.0.4)(terser@5.24.0))
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.89.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.89.0)
 
   apps/blog:
     dependencies:
@@ -410,16 +410,16 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)
       next:
         specifier: 'catalog:'
-        version: 14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       next-seo:
         specifier: ^5.15.0
-        version: 5.15.0(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 5.15.0(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       next-themes:
         specifier: ^0.2.1
-        version: 0.2.1(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 0.2.1(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       qs:
         specifier: ^6.0.0
         version: 6.11.2
@@ -471,7 +471,7 @@ importers:
         version: 8.53.0
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.89.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.89.0)
 
   apps/bridge:
     dependencies:
@@ -498,7 +498,7 @@ importers:
         version: link:../../packages/utils
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)
       '@wagmi/core':
         specifier: ^0.10.11
         version: 0.10.17(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4)
@@ -562,7 +562,7 @@ importers:
         version: 8.53.0
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.89.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.89.0)
 
   apps/e2e:
     dependencies:
@@ -602,7 +602,7 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)
       dayjs:
         specifier: ^1.11.10
         version: 1.11.10
@@ -678,7 +678,7 @@ importers:
         version: 7.4.0(eslint@8.53.0)
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.89.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.89.0)
 
   apps/gamification:
     dependencies:
@@ -756,7 +756,7 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)
       '@wagmi/core':
         specifier: 2.10.5
         version: 2.10.5(@tanstack/query-core@5.52.0)(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(viem@2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
@@ -916,7 +916,7 @@ importers:
         version: 0.1.1
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.89.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.89.0)
 
   apps/ton:
     dependencies:
@@ -967,8 +967,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(@wagmi/core@2.10.5(@tanstack/query-core@5.52.0)(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(viem@2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4))(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@kyberswap/pancake-liquidity-widgets':
-        specifier: 1.0.2
-        version: 1.0.2(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(viem@2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
+        specifier: 1.0.6
+        version: 1.0.6(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(viem@2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
       '@next/bundle-analyzer':
         specifier: 13.0.7
         version: 13.0.7(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -1088,7 +1088,7 @@ importers:
         version: 1.9.7(react-redux@8.1.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(redux@4.2.1))(react@18.2.0)
       '@sentry/nextjs':
         specifier: ^8.16.0
-        version: 8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0)
       '@snapshot-labs/snapshot.js':
         specifier: ^0.4.40
         version: 0.4.110(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -1097,7 +1097,7 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@13.13.52)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@13.13.52)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)
       '@wagmi/core':
         specifier: 2.10.5
         version: 2.10.5(@tanstack/query-core@5.52.0)(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(viem@2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
@@ -1425,7 +1425,7 @@ importers:
         version: 4.2.1(typescript@5.2.2)(vite@5.0.12(@types/node@13.13.52)(terser@5.24.0))
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.89.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.89.0)
 
   examples/playground:
     dependencies:
@@ -2993,7 +2993,7 @@ importers:
     devDependencies:
       '@sentry/nextjs':
         specifier: ^8.0.0
-        version: 8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0)
       '@types/d3':
         specifier: ^7.4.0
         version: 7.4.3
@@ -5141,8 +5141,8 @@ packages:
   '@kurkle/color@0.3.2':
     resolution: {integrity: sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==}
 
-  '@kyberswap/pancake-liquidity-widgets@1.0.2':
-    resolution: {integrity: sha512-K2+uM+Xj2XLTt3FkQOTnRvnpcyGtYdolqx3vCGnP10opz/EkQ8niVY7D9G+dDDEv538Gx2oB7R0NcbdBaYenNg==}
+  '@kyberswap/pancake-liquidity-widgets@1.0.6':
+    resolution: {integrity: sha512-dxIoaMQYAX4/1RJysuk885X4xxRMfkTEpkQOl8RboJKJXDEcMuhDSODxLSBqhfqjUfz1YRcBohyuFpTYlJ0AQg==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -19921,7 +19921,7 @@ snapshots:
 
   '@kurkle/color@0.3.2': {}
 
-  '@kyberswap/pancake-liquidity-widgets@1.0.2(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(viem@2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)':
+  '@kyberswap/pancake-liquidity-widgets@1.0.6(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(viem@2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)':
     dependencies:
       '@pancakeswap/sdk': 5.8.8(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4)
       '@pancakeswap/swap-sdk-core': 1.2.0
@@ -22083,7 +22083,7 @@ snapshots:
       tslib: 1.14.1
     optional: true
 
-  '@sentry/nextjs@8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0(esbuild@0.17.19))':
+  '@sentry/nextjs@8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0)':
     dependencies:
       '@opentelemetry/instrumentation-http': 0.52.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.25.1
@@ -22095,14 +22095,14 @@ snapshots:
       '@sentry/types': 8.16.0
       '@sentry/utils': 8.16.0
       '@sentry/vercel-edge': 8.16.0
-      '@sentry/webpack-plugin': 2.20.1(webpack@5.89.0(esbuild@0.17.19))
+      '@sentry/webpack-plugin': 2.20.1(webpack@5.89.0)
       chalk: 3.0.0
       next: 14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       resolve: 1.22.8
       rollup: 3.29.4
       stacktrace-parser: 0.1.10
     optionalDependencies:
-      webpack: 5.89.0(esbuild@0.17.19)
+      webpack: 5.89.0
     transitivePeerDependencies:
       - '@opentelemetry/api'
       - '@opentelemetry/core'
@@ -22112,7 +22112,7 @@ snapshots:
       - react
       - supports-color
 
-  '@sentry/nextjs@8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0(esbuild@0.17.19))':
+  '@sentry/nextjs@8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0)':
     dependencies:
       '@opentelemetry/instrumentation-http': 0.52.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.25.1
@@ -22124,14 +22124,14 @@ snapshots:
       '@sentry/types': 8.16.0
       '@sentry/utils': 8.16.0
       '@sentry/vercel-edge': 8.16.0
-      '@sentry/webpack-plugin': 2.20.1(webpack@5.89.0(esbuild@0.17.19))
+      '@sentry/webpack-plugin': 2.20.1(webpack@5.89.0)
       chalk: 3.0.0
       next: 14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       resolve: 1.22.8
       rollup: 3.29.4
       stacktrace-parser: 0.1.10
     optionalDependencies:
-      webpack: 5.89.0(esbuild@0.17.19)
+      webpack: 5.89.0
     transitivePeerDependencies:
       - '@opentelemetry/api'
       - '@opentelemetry/core'
@@ -22240,12 +22240,12 @@ snapshots:
       '@sentry/types': 8.16.0
       '@sentry/utils': 8.16.0
 
-  '@sentry/webpack-plugin@2.20.1(webpack@5.89.0(esbuild@0.17.19))':
+  '@sentry/webpack-plugin@2.20.1(webpack@5.89.0)':
     dependencies:
       '@sentry/bundler-plugin-core': 2.20.1
       unplugin: 1.0.1
       uuid: 9.0.1
-      webpack: 5.89.0(esbuild@0.17.19)
+      webpack: 5.89.0
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -24522,9 +24522,9 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/next-plugin@2.3.2(@types/node@13.13.52)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))':
+  '@vanilla-extract/next-plugin@2.3.2(@types/node@13.13.52)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)':
     dependencies:
-      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@13.13.52)(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@13.13.52)(terser@5.24.0)(webpack@5.89.0)
       next: 14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -24536,9 +24536,9 @@ snapshots:
       - terser
       - webpack
 
-  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))':
+  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)':
     dependencies:
-      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(terser@5.24.0)(webpack@5.89.0)
       next: 14.2.14(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -24550,9 +24550,9 @@ snapshots:
       - terser
       - webpack
 
-  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))':
+  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0)':
     dependencies:
-      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(terser@5.24.0)(webpack@5.89.0)
       next: 14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -24622,13 +24622,13 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@13.13.52)(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))':
+  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@13.13.52)(terser@5.24.0)(webpack@5.89.0)':
     dependencies:
       '@vanilla-extract/integration': 6.2.3(@types/node@13.13.52)(terser@5.24.0)
       chalk: 4.1.2
       debug: 4.3.4(supports-color@8.1.1)
       loader-utils: 2.0.4
-      webpack: 5.89.0(esbuild@0.17.19)
+      webpack: 5.89.0
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -24638,13 +24638,13 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@18.0.4)(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))':
+  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@18.0.4)(terser@5.24.0)(webpack@5.89.0)':
     dependencies:
       '@vanilla-extract/integration': 6.2.3(@types/node@18.0.4)(terser@5.24.0)
       chalk: 4.1.2
       debug: 4.3.4(supports-color@8.1.1)
       loader-utils: 2.0.4
-      webpack: 5.89.0(esbuild@0.17.19)
+      webpack: 5.89.0
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -35049,17 +35049,6 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  terser-webpack-plugin@5.3.9(esbuild@0.17.19)(webpack@5.89.0(esbuild@0.17.19)):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.20
-      jest-worker: 27.5.1
-      schema-utils: 3.3.0
-      serialize-javascript: 6.0.1
-      terser: 5.24.0
-      webpack: 5.89.0(esbuild@0.17.19)
-    optionalDependencies:
-      esbuild: 0.17.19
-
   terser-webpack-plugin@5.3.9(esbuild@0.18.20)(webpack@5.89.0(esbuild@0.18.20)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.20
@@ -35070,6 +35059,15 @@ snapshots:
       webpack: 5.89.0(esbuild@0.18.20)
     optionalDependencies:
       esbuild: 0.18.20
+
+  terser-webpack-plugin@5.3.9(webpack@5.89.0):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.20
+      jest-worker: 27.5.1
+      schema-utils: 3.3.0
+      serialize-javascript: 6.0.1
+      terser: 5.24.0
+      webpack: 5.89.0
 
   terser@5.24.0:
     dependencies:
@@ -36555,16 +36553,16 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  webpack-retry-chunk-load-plugin@3.1.1(webpack@5.89.0(esbuild@0.17.19)):
+  webpack-retry-chunk-load-plugin@3.1.1(webpack@5.89.0):
     dependencies:
       prettier: 2.8.8
-      webpack: 5.89.0(esbuild@0.17.19)
+      webpack: 5.89.0
 
   webpack-sources@3.2.3: {}
 
   webpack-virtual-modules@0.5.0: {}
 
-  webpack@5.89.0(esbuild@0.17.19):
+  webpack@5.89.0:
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.5
@@ -36587,7 +36585,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.9(esbuild@0.17.19)(webpack@5.89.0(esbuild@0.17.19))
+      terser-webpack-plugin: 5.3.9(webpack@5.89.0)
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
