@@ -6,7 +6,7 @@ import { cakeBnbLpToken } from '../lpTokens'
 export const ifos: BaseIfoConfig[] = [
   {
     id: 'solv',
-    address: '0xb0De22aAe05789C13E900688b420F1Bb7c2C3889',
+    address: '0xe1C5dc4d2f63B39c611A9D75C23dbC85d9146E46',
     isActive: true,
     cIFO: false,
     plannedStartTime: new Date('2025-01-16T10:00:00Z').getTime() / 1000,

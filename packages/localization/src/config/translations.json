@@ -1292,7 +1292,6 @@
   "Sorry, you can’t claim any NFTs! Better luck next time.": "Sorry, you can’t claim any NFTs! Better luck next time.",
   "You need a profile to participate!": "You need a profile to participate!",
   "Randomizing NFT allocation with Chainlink": "Randomizing NFT allocation with Chainlink",
-  "Public Sale": "Public Sale",
   "You’re all set!": "You’re all set!",
   "How many can I mint?": "How many can I mint?",
   "Ready for Public Sale!": "Ready for Public Sale!",
@@ -1441,7 +1440,6 @@
   "You can choose one or both at the same time!": "You can choose one or both at the same time!",
   "We recommend you to check if you are eligible to participate in the Private Sale first. In the Public Sale, if the amount you commit is too small, you may not receive a meaningful amount of IFO tokens.": "We recommend you to check if you are eligible to participate in the Private Sale first. In the Public Sale, if the amount you commit is too small, you may not receive a meaningful amount of IFO tokens.",
   "How to Take Part in the Public Sale": "How to Take Part in the Public Sale",
-  "Private Sale": "Private Sale",
   "Unsupported Assets": "Unsupported Assets",
   "Some assets are not available through this interface because they may not work well with our smart contract or we are unable to allow trading for legal reasons.": "Some assets are not available through this interface because they may not work well with our smart contract or we are unable to allow trading for legal reasons.",
   "Trade the new BTT token": "Trade the new BTT token",
@@ -3685,5 +3683,9 @@
   "The time has already passed.": "The time has already passed.",
   "day(s)": "day(s)",
   "hour(s)": "hour(s)",
-  "SOON": "SOON"
+  "SOON": "SOON",
+  "Public IFO": "Public IFO",
+  "Private IFO": "Private IFO",
+  "Unlimited IFO": "Unlimited IFO",
+  "Basic IFO": "Basic IFO"
 }

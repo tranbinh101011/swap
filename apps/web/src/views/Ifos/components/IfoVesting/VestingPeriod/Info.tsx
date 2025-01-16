@@ -48,10 +48,10 @@ const Info: React.FC<React.PropsWithChildren<InfoProps>> = ({
 
   const labelText =
     poolId === PoolIds.poolUnlimited
-      ? t('Public Sale')
+      ? t('Public IFO')
       : isBasicSale(ifoBasicSaleType)
-      ? t('Basic Sale')
-      : t('Private Sale')
+      ? t('Basic IFO')
+      : t('Private IFO')
 
   const currentBlock = useCurrentBlock()
   const publicIfoData = useGetPublicIfoV3Data(data.ifo)

@@ -73,7 +73,7 @@ export const cardConfig = (
           .filter(Boolean)
 
         return {
-          title: t('Private Sale'),
+          title: t('Private IFO'),
           variant: 'blue',
           tooltip: msgs?.length ? (
             <>
@@ -103,7 +103,7 @@ export const cardConfig = (
       }
     case PoolIds.poolUnlimited:
       return {
-        title: meta?.version >= 3.1 ? t('Public Sale') : t('Unlimited Sale'),
+        title: meta?.version >= 3.1 ? t('Public IFO') : t('Unlimited IFO'),
         variant: 'violet',
         tooltip: meta.additionalClaimingFee
           ? t('No limits on the amount you can commit. Additional fee applies when claiming.')

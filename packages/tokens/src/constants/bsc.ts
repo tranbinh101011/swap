@@ -3351,7 +3351,7 @@ export const bscTokens = {
   ),
   solv: new ERC20Token(
     ChainId.BSC,
-    '0x04830A96a23EA718fAA695a5AAe74695AAE3A23f',
+    '0xabe8e5cabe24cb36df9540088fd7ce1175b9bc52',
     18,
     'SOLV',
     'Solv',

@@ -60,9 +60,9 @@ const eventTextMapping = (t: ContextApi['t'], saleStatus: SaleStatusEnum) => {
     case SaleStatusEnum.Presale:
       return t('Presale')
     case SaleStatusEnum.Sale:
-      return t('Public Sale')
+      return t('Public IFO')
     case SaleStatusEnum.DrawingRandomness:
-      return t('Public Sale')
+      return t('Public IFO')
     case SaleStatusEnum.Claim:
       return t('Claim Phase')
     default:
