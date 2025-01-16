@@ -3683,9 +3683,9 @@
   "The time has already passed.": "The time has already passed.",
   "day(s)": "day(s)",
   "hour(s)": "hour(s)",
-  "SOON": "SOON",
   "Public IFO": "Public IFO",
   "Private IFO": "Private IFO",
   "Unlimited IFO": "Unlimited IFO",
-  "Basic IFO": "Basic IFO"
+  "Basic IFO": "Basic IFO",
+  "NEW": "NEW"
 }

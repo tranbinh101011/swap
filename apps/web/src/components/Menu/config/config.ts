@@ -200,7 +200,7 @@ const config: (
           label: t('IFO'),
           href: '/ifo',
           image: '/images/ifos/ifo-bunny.png',
-          status: { text: t('SOON'), color: 'warning' },
+          status: { text: t('NEW'), color: 'success' },
           overrideSubNavItems: [
             {
               label: t('Latest'),
