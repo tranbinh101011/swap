@@ -3,16 +3,16 @@ import { Box, Link } from '@pancakeswap/uikit'
 import { VerticalDivider } from '@pancakeswap/widgets-internal'
 import { TextHighlight } from './TextHighlight'
 
-export const SolvStrip = () => {
+export const ListapieStripe = () => {
   const { t } = useTranslation()
 
   return (
     <Box mr={['6px']}>
       <TextHighlight
         text={t('Join the %token% Token Launch (IFO) on BNB Chain PancakeSwap', {
-          token: 'SOLV',
+          token: 'Listapie',
         })}
-        highlights={['SOLV', 'PancakeSwap']}
+        highlights={['Listapie', 'PancakeSwap']}
       />{' '}
       <Link
         external
@@ -38,7 +38,7 @@ export const SolvStrip = () => {
         external
         display="inline !important"
         fontSize={['12px', '12px', '14px']}
-        href="https://forum.pancakeswap.finance/t/solv-ifo-discussion-thread/993"
+        href="https://pancakeswap.finance/ifo"
       >
         {t('Learn More')}
       </Link>

@@ -8,7 +8,7 @@ import 'swiper/css/effect-fade'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { Countdown } from './Countdown'
 
-import { SolvStrip } from './SolvStrip'
+import { ListapieStripe } from './ListapieStripe'
 import { Step1 } from './Step1'
 import { Step2 } from './Step2'
 import { Step3 } from './Step3'
@@ -101,10 +101,10 @@ type BannerConfig = {
 
 const CONFIG: BannerConfig[] = [
   {
-    component: SolvStrip,
-    stripeImage: `${ASSET_CDN}/web/phishing-warning/solv.png?v=1`,
+    component: ListapieStripe,
+    stripeImage: `${ASSET_CDN}/web/phishing-warning/listapie.png`,
     stripeImageWidth: '92px',
-    stripeImageAlt: 'SOLV IFO',
+    stripeImageAlt: 'Listapie IFO',
   },
   {
     component: Step1,

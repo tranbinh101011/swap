@@ -3679,7 +3679,7 @@
   "Please provide valid choices": "Please provide valid choices",
   "The vested tokens will be released linearly over a period of %countdown%.": "The vested tokens will be released linearly over a period of %countdown%.",
   "%token% IFO starts in": "%token% IFO starts in",
-  "Join the SOLV Token Launch (IFO) on BNB Chain PancakeSwap": "Join the SOLV Token Launch (IFO) on BNB Chain PancakeSwap",
+  "Join the %token% Token Launch (IFO) on BNB Chain PancakeSwap": "Join the %token% Token Launch (IFO) on BNB Chain PancakeSwap",
   "The time has already passed.": "The time has already passed.",
   "day(s)": "day(s)",
   "hour(s)": "hour(s)",

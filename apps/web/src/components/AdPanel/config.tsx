@@ -1,8 +1,8 @@
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useMemo } from 'react'
 import { AdCakeStaking } from './Ads/AdCakeStaking'
+import { AdListaPie } from './Ads/AdListapie'
 import { AdPCSX } from './Ads/AdPCSX'
-import { AdSolv } from './Ads/AdSolv'
 import { AdSpringboard } from './Ads/AdSpringboard'
 import { AdTradingCompetitionVinu } from './Ads/AdTradingCompetition'
 import { ExpandableAd } from './Expandable/ExpandableAd'
@@ -44,8 +44,8 @@ export const useAdConfig = () => {
         component: <AdTradingCompetitionVinu />,
       },
       {
-        id: 'ad-ifo-solv',
-        component: <AdSolv />,
+        id: 'ad-ifo-listapie',
+        component: <AdListaPie />,
       },
       {
         id: 'pcsx',

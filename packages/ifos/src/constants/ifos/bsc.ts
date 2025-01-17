@@ -5,9 +5,34 @@ import { cakeBnbLpToken } from '../lpTokens'
 
 export const ifos: BaseIfoConfig[] = [
   {
+    id: 'listapie',
+    address: '0x4F045CD0C3293845e0A0460fA64caC5d59b4Dc37',
+    isActive: true,
+    cIFO: false,
+    plannedStartTime: new Date('2025-01-21T10:00:00Z').getTime() / 1000,
+    poolBasic: {
+      raiseAmount: '$30,000',
+    },
+    poolUnlimited: {
+      raiseAmount: '$270,000',
+      additionalClaimingFee: true,
+    },
+    name: 'LISTAPIE',
+    currency: bscTokens.cake,
+    token: bscTokens.listapie,
+    campaignId: '512700000',
+    articleUrl: 'https://pancakeswap.finance/ifo',
+    tokenOfferingPrice: 1,
+    version: 8,
+    twitterUrl: 'https://x.com/Listapiexyz_io',
+    description:
+      "Listapie's mission is to lock LISTA tokens to obtain voting rights and active engagement rewards within Lista DAO",
+    vestingTitle: 'LTP is the governance and reward-earning token of Listapie',
+  },
+  {
     id: 'solv',
     address: '0xe1C5dc4d2f63B39c611A9D75C23dbC85d9146E46',
-    isActive: true,
+    isActive: false,
     cIFO: false,
     plannedStartTime: new Date('2025-01-16T10:00:00Z').getTime() / 1000,
     poolBasic: {

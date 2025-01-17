@@ -3343,11 +3343,11 @@ export const bscTokens = {
   ),
   listapie: new ERC20Token(
     ChainId.BSC,
-    '0xFceB31A79F71AC9CBDCF853519c1b12D379EdC46',
+    '0x56fA5F7BF457454Be33D8B978C86A5f5B9DD84C2',
     18,
-    'LISTA-PIE',
-    'Lista Pie',
-    'https://lista.org/',
+    'LTP',
+    'Listapie',
+    'https://www.lista.magpiexyz.io/',
   ),
   solv: new ERC20Token(
     ChainId.BSC,
