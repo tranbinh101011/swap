@@ -1,7 +1,6 @@
 import shuffle from 'lodash/shuffle'
 import { type ReactElement, useMemo } from 'react'
 import CompetitionBanner from '../CompetitionBanner'
-import { EigenpieIFOBanner } from '../EigenpieIFOBanner'
 import { FourMemeBanner } from '../FourMemeBanner'
 import { OptionsBanner } from '../OptionsBanner'
 import { PCSXBanner } from '../PCSXBanner'
@@ -12,7 +11,6 @@ import { V4InfoBanner } from '../V4InfoBanner'
 import { VeCakeBanner } from '../VeCakeBanner'
 import WebNotificationBanner from '../WebNotificationBanner'
 import useIsRenderCompetitionBanner from './useIsRenderCompetitionBanner'
-import { useIsRenderIfoBannerFromConfig } from './useIsRenderIFOBanner'
 import useIsRenderUserBanner from './useIsRenderUserBanner'
 
 interface IBannerConfig {
@@ -36,17 +34,12 @@ interface IBannerConfig {
 export const useMultipleBannerConfig = () => {
   const isRenderCompetitionBanner = useIsRenderCompetitionBanner()
   const isRenderUserBanner = useIsRenderUserBanner()
-  const isRenderIFOBannerFromConfig = useIsRenderIfoBannerFromConfig()
 
   return useMemo(() => {
     const NO_SHUFFLE_BANNERS: IBannerConfig[] = [
       {
         shouldRender: isRenderUserBanner.shouldRender && !isRenderUserBanner.isEarningsBusdZero,
         banner: <UserBanner />,
-      },
-      {
-        shouldRender: isRenderIFOBannerFromConfig,
-        banner: <EigenpieIFOBanner />,
       },
       {
         shouldRender: true,
@@ -96,10 +89,5 @@ export const useMultipleBannerConfig = () => {
     ]
       .filter((bannerConfig: IBannerConfig) => bannerConfig.shouldRender)
       .map((bannerConfig: IBannerConfig) => bannerConfig.banner)
-  }, [
-    isRenderCompetitionBanner,
-    isRenderUserBanner.isEarningsBusdZero,
-    isRenderUserBanner.shouldRender,
-    isRenderIFOBannerFromConfig,
-  ])
+  }, [isRenderCompetitionBanner, isRenderUserBanner.isEarningsBusdZero, isRenderUserBanner.shouldRender])
 }

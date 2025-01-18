@@ -3,7 +3,7 @@ import { getActiveIfo, getInActiveIfos, getIfoConfig, SUPPORTED_CHAIN_IDS, Ifo }
 
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMemo } from 'react'
-import sortBy from 'lodash/sortBy'
+import orderBy from 'lodash/orderBy'
 
 export function useIfoConfigs() {
   const { chainId } = useActiveChainId()
@@ -71,7 +71,7 @@ export function useIfoConfigAcrossChainsById(id: string) {
 export function useActiveIfoConfigAcrossChains() {
   const configs = useIfoConfigsAcrossChains()
   return useMemo(() => {
-    const sortedConfigs = sortBy(configs, 'plannedStartTime')
+    const sortedConfigs = orderBy(configs, 'plannedStartTime', 'desc')
     return sortedConfigs?.find((ifo) => ifo.isActive)
   }, [configs])
 }
