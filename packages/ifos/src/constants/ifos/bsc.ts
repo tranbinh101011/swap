@@ -21,7 +21,7 @@ export const ifos: BaseIfoConfig[] = [
     currency: bscTokens.cake,
     token: bscTokens.listapie,
     campaignId: '512700000',
-    articleUrl: 'https://pancakeswap.finance/ifo',
+    articleUrl: 'https://forum.pancakeswap.finance/t/listapie-ifo-discussion-thread/1019 ',
     tokenOfferingPrice: 1,
     version: 8,
     twitterUrl: 'https://x.com/Listapiexyz_io',

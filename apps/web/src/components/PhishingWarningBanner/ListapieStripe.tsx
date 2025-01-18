@@ -38,7 +38,7 @@ export const ListapieStripe = () => {
         external
         display="inline !important"
         fontSize={['12px', '12px', '14px']}
-        href="https://pancakeswap.finance/ifo"
+        href="https://forum.pancakeswap.finance/t/listapie-ifo-discussion-thread/1019 "
       >
         {t('Learn More')}
       </Link>
