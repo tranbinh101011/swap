@@ -15,7 +15,7 @@ export const useGauges = () => {
     queryKey: ['gaugesVoting', chainId],
 
     queryFn: async (): Promise<Gauge[]> => {
-      const response = await fetch(`/api/gauges/getAllGauges?testnet=${chainId === ChainId.BSC_TESTNET ? 1 : ''}`)
+      const response = await fetch(`/api/gauges/getAllGauges${chainId === ChainId.BSC_TESTNET ? '?testnet=1' : ''}`)
       if (response.ok) {
         const result = (await response.json()) as Response
 
