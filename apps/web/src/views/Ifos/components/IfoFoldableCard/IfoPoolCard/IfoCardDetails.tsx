@@ -282,7 +282,7 @@ const IfoCardDetails: React.FC<React.PropsWithChildren<IfoCardDetailsProps>> = (
                 label={t('Vested percentage:')}
                 value={`${poolCharacteristic.vestingInformation.percentage}%`}
                 tooltipContent={t(
-                  '%percentageVested%% of the purchased token will get vested and released linearly over a period of time. %percentageTgeRelease%% of the purchased token will be released immediately and available for claiming when IFO ends.',
+                  '%percentageVested%% of the purchased token will be released at the end of the vesting schedule. %percentageTgeRelease%% of the purchased token will be released immediately and available for claiming when IFO ends.',
                   {
                     percentageVested: poolCharacteristic.vestingInformation.percentage,
                     percentageTgeRelease: BIG_ONE_HUNDRED.minus(
@@ -294,7 +294,7 @@ const IfoCardDetails: React.FC<React.PropsWithChildren<IfoCardDetailsProps>> = (
               <FooterEntry
                 label={t('Vesting schedule:')}
                 value={vestingCountdown}
-                tooltipContent={t('The vested tokens will be released linearly over a period of %countdown%.', {
+                tooltipContent={t('The vested tokens will be released at the end of %countdown%.', {
                   countdown: vestingCountdown,
                 })}
               />
