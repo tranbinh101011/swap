@@ -62,7 +62,7 @@ export default function TwapAndLimitSwap({ limit }: { limit?: boolean }) {
   return (
     <>
       <Flex
-        width={['328px', '100%']}
+        width="100%"
         height={isMobile ? 'auto' : '100%'}
         justifyContent="center"
         position="relative"
@@ -106,7 +106,7 @@ export default function TwapAndLimitSwap({ limit }: { limit?: boolean }) {
             setIsOpen={(isOpen) => setIsChartDisplayed?.(isOpen)}
           />
         )}
-        <Flex flexDirection="column">
+        <Flex flexDirection="column" width={isDesktop ? undefined : '100%'}>
           <StyledSwapContainer $isChartExpanded={isChartExpanded}>
             <StyledInputCurrencyWrapper mt={isChartExpanded ? '24px' : '0'}>
               <SwapSelection swapType={limit ? SwapType.LIMIT : SwapType.TWAP} style={{ marginBottom: 16 }} />
