@@ -10,10 +10,10 @@ import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSingleTokenSwapInfo, useSwapState } from 'state/swap/hooks'
 import { styled } from 'styled-components'
 import { XmasEffect } from 'views/SwapSimplify/V4Swap/XmasEffect'
-import PriceChartContainer from '../components/Chart/PriceChartContainer'
 // import { SwapSelection } from '../components/SwapSelection'
 import { SwapSelection } from '../../SwapSimplify/V4Swap/SwapSelectionTab'
 import { SwapFeaturesContext } from '../SwapFeaturesContext'
+import PriceChartContainer from '../components/Chart/PriceChartContainer'
 import { SwapType } from '../types'
 import { OrderHistory, TWAPPanel } from './Twap'
 
@@ -149,6 +149,9 @@ export const StyledSwapContainer = styled(Flex)<{ $isChartExpanded: boolean }>`
 `
 
 export const StyledInputCurrencyWrapper = styled(Box)`
-  max-width: 400px;
   width: 100%;
+
+  ${({ theme }) => theme.mediaQueries.md} {
+    width: 400px;
+  }
 `
