@@ -5,5 +5,12 @@ import { FAQConfig } from './types'
 
 export const useFaqConfig = (): FAQConfig => {
   const router = useRouter()
-  return useMemo(() => faqConfig[faqTypeByPage[router.pathname]] ?? {}, [router.pathname])
+
+  return useMemo(() => {
+    if (!router.isReady) {
+      return (() => ({})) as unknown as FAQConfig
+    }
+
+    return faqConfig[faqTypeByPage[router.pathname]] ?? ((() => ({})) as unknown as FAQConfig)
+  }, [router])
 }
