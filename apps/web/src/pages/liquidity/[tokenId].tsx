@@ -17,7 +17,6 @@ import {
   PreTitle,
   RowBetween,
   ScanLink,
-  Spinner,
   SyncAltIcon,
   Tag,
   Text,
@@ -34,6 +33,7 @@ import { useQuery } from '@tanstack/react-query'
 import { AppHeader } from 'components/App'
 import { LightGreyCard } from 'components/Card'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
+import PageLoader from 'components/Loader/PageLoader'
 import { CurrencyLogo, DoubleCurrencyLogo } from 'components/Logo'
 import { MerklSection } from 'components/Merkl/MerklSection'
 import { MerklTag } from 'components/Merkl/MerklTag'
@@ -519,12 +519,10 @@ export default function PoolPage() {
   return (
     <Box mb="40px">
       {!isLoading && <NextSeo title={`${currencyQuote?.symbol}-${currencyBase?.symbol} V3 LP #${tokenIdFromUrl}`} />}
-      <BodyWrapper>
-        {isLoading ? (
-          <Flex width="100%" justifyContent="center" alignItems="center" minHeight="200px" mb="32px">
-            <Spinner />
-          </Flex>
-        ) : (
+      {isLoading ? (
+        <PageLoader />
+      ) : (
+        <BodyWrapper>
           <>
             <AppHeader
               title={
@@ -629,7 +627,9 @@ export default function PoolPage() {
                     <Text fontSize="24px" fontWeight={600} mb="8px">
                       $
                       {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100))
-                        ? fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })
+                        ? fiatValueOfLiquidity.toFixed(2, {
+                            groupSeparator: ',',
+                          })
                         : '-'}
                     </Text>
                     <LightGreyCard
@@ -692,7 +692,9 @@ export default function PoolPage() {
                       <Text fontSize="24px" fontWeight={600}>
                         $
                         {fiatValueOfFees?.greaterThan(new Fraction(1, 100))
-                          ? fiatValueOfFees.toFixed(2, { groupSeparator: ',' })
+                          ? fiatValueOfFees.toFixed(2, {
+                              groupSeparator: ',',
+                            })
                           : '-'}
                       </Text>
 
@@ -818,8 +820,8 @@ export default function PoolPage() {
               )}
             </CardBody>
           </>
-        )}
-      </BodyWrapper>
+        </BodyWrapper>
+      )}
     </Box>
   )
 }
