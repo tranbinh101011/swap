@@ -96,19 +96,3 @@ export const TradingCompetition: React.FC<{ token: 'aitech' | 'bfg' | 'apt' | 'v
     </Box>
   )
 }
-
-export const TradingCompetitionAiTech = () => {
-  return <TradingCompetition token="aitech" />
-}
-
-export const TradingCompetitionBfg = () => {
-  return <TradingCompetition token="bfg" />
-}
-
-export const TradingCompetitionApt = () => {
-  return <TradingCompetition token="apt" />
-}
-
-export const TradingCompetitionVinu = () => {
-  return <TradingCompetition token="vinu" />
-}
