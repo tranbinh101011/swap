@@ -4,7 +4,7 @@ import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/swap-sdk-core'
 import { AutoColumn, Button, useMatchBreakpoints, useModal, useToast, useTooltip } from '@pancakeswap/uikit'
 import replaceBrowserHistoryMultiple from '@pancakeswap/utils/replaceBrowserHistoryMultiple'
 import { useUserSingleHopOnly } from '@pancakeswap/utils/user'
-import { NumericalInput, SwapUIV2 } from '@pancakeswap/widgets-internal'
+import { CurrencyLogo, NumericalInput, SwapUIV2 } from '@pancakeswap/widgets-internal'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { AutoRow } from 'components/Layout/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
@@ -201,8 +201,18 @@ export function TWAPPanel({ limit }: { limit?: boolean }) {
       toast={toast}
       FlipButton={FlipButton}
       Input={Input}
+      CurrencyLogo={TokenLogo}
     />
   )
+}
+
+const TokenLogo = ({ address, size }: { address?: string; size?: string }) => {
+  const currency = useCurrency(address)
+
+  if (!currency) {
+    return null
+  }
+  return <CurrencyLogo currency={currency} size={size} />
 }
 
 const switchAnimation = keyframes`

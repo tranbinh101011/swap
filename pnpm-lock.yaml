@@ -4,24 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-catalogs:
-  default:
-    '@aptos-labs/ts-sdk':
-      specifier: 1.30.0
-      version: 1.30.0
-    next:
-      specifier: 14.2.14
-      version: 14.2.14
-    viem:
-      specifier: ^2.21.22
-      version: 2.21.22
-    wagmi:
-      specifier: ^2.12.17
-      version: 2.12.17
-    wrangler:
-      specifier: 3.81.0
-      version: 3.81.0
-
 patchedDependencies:
   '@ledgerhq/connect-kit-loader@1.1.2':
     hash: xlsebypdiwsukm3c2ow7voujra
@@ -295,7 +277,7 @@ importers:
         version: link:../../packages/widgets-internal
       '@reduxjs/toolkit':
         specifier: ^1.9.1
-        version: 1.9.7(react-redux@8.1.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(redux@4.2.1))(react@18.2.0)
+        version: 1.9.7(react-redux@8.1.3(@types/react@18.2.37)(react@18.2.0))(react@18.2.0)
       '@tanstack/react-query':
         specifier: ^5.52.1
         version: 5.52.1(react@18.2.0)
@@ -304,7 +286,7 @@ importers:
         version: 1.14.0
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
       '@vanilla-extract/recipes':
         specifier: ^0.5.0
         version: 0.5.1(@vanilla-extract/css@1.14.0)
@@ -410,7 +392,7 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
       next:
         specifier: 'catalog:'
         version: 14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -498,7 +480,7 @@ importers:
         version: link:../../packages/utils
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
       '@wagmi/core':
         specifier: ^0.10.11
         version: 0.10.17(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4)
@@ -602,7 +584,7 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
       dayjs:
         specifier: ^1.11.10
         version: 1.11.10
@@ -750,13 +732,13 @@ importers:
         version: link:../../packages/widgets-internal
       '@reduxjs/toolkit':
         specifier: ^1.9.1
-        version: 1.9.7(react-redux@8.1.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(redux@4.2.1))(react@18.2.0)
+        version: 1.9.7(react-redux@8.1.3(@types/react@18.2.37)(react@18.2.0))(react@18.2.0)
       '@tanstack/react-query':
         specifier: ^5.52.1
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@14.2.14(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
       '@wagmi/core':
         specifier: 2.10.5
         version: 2.10.5(@tanstack/query-core@5.52.0)(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(viem@2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
@@ -973,11 +955,11 @@ importers:
         specifier: 13.0.7
         version: 13.0.7(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@orbs-network/twap-ui':
-        specifier: 0.11.27
-        version: 0.11.27(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
+        specifier: 0.11.31
+        version: 0.11.31(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
       '@orbs-network/twap-ui-pancake':
-        specifier: 0.11.27
-        version: 0.11.27(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@types/react@18.2.37)(react@18.2.0))(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
+        specifier: 0.11.31
+        version: 0.11.31(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@types/react@18.2.37)(react@18.2.0))(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
       '@pancakeswap/achievements':
         specifier: workspace:*
         version: link:../../packages/achievements
@@ -1085,7 +1067,7 @@ importers:
         version: 1.29.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@reduxjs/toolkit':
         specifier: ^1.9.1
-        version: 1.9.7(react-redux@8.1.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(redux@4.2.1))(react@18.2.0)
+        version: 1.9.7(react-redux@8.1.3(@types/react@18.2.37)(react@18.2.0))(react@18.2.0)
       '@sentry/nextjs':
         specifier: ^8.16.0
         version: 8.16.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(next@14.2.14(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(webpack@5.89.0(esbuild@0.17.19))
@@ -1482,7 +1464,7 @@ importers:
         version: 4.0.5
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/awgmi:
     dependencies:
@@ -1534,7 +1516,7 @@ importers:
         version: 13.3.8
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/blog:
     dependencies:
@@ -1641,7 +1623,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/eslint-config:
     dependencies:
@@ -1773,7 +1755,7 @@ importers:
         version: 4.17.21
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/hooks:
     dependencies:
@@ -1879,7 +1861,7 @@ importers:
         version: link:../utils
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/next-config:
     devDependencies:
@@ -1907,7 +1889,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/permit2-sdk:
     dependencies:
@@ -1929,7 +1911,7 @@ importers:
         version: 2.6.2
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/pools:
     dependencies:
@@ -1963,7 +1945,7 @@ importers:
         version: 4.14.201
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/position-managers:
     dependencies:
@@ -2050,7 +2032,7 @@ importers:
         version: link:../tsconfig
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/routing-sdk:
     dependencies:
@@ -2090,7 +2072,7 @@ importers:
         version: 4.14.202
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/routing-sdk/addons/quoter:
     dependencies:
@@ -2124,7 +2106,7 @@ importers:
         version: link:../../../tsconfig
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
       viem:
         specifier: 'catalog:'
         version: 2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@6.0.3)(zod@3.22.4)
@@ -2155,7 +2137,7 @@ importers:
         version: link:../../../utils
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/routing-sdk/addons/v2:
     dependencies:
@@ -2180,7 +2162,7 @@ importers:
         version: link:../../../tsconfig
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/routing-sdk/addons/v3:
     dependencies:
@@ -2214,7 +2196,7 @@ importers:
         version: 4.14.202
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/smart-router:
     dependencies:
@@ -2299,7 +2281,7 @@ importers:
         version: 2.2.2
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/stable-swap-sdk:
     dependencies:
@@ -2330,7 +2312,7 @@ importers:
         version: link:../utils
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
       viem:
         specifier: 'catalog:'
         version: 2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@6.0.3)(zod@3.22.4)
@@ -2373,7 +2355,7 @@ importers:
         version: 4.0.5
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/swap-sdk-core:
     dependencies:
@@ -2398,7 +2380,7 @@ importers:
         version: 4.0.5
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/swap-sdk-evm:
     dependencies:
@@ -2423,7 +2405,7 @@ importers:
         version: link:../tsconfig
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/token-lists:
     dependencies:
@@ -2442,7 +2424,7 @@ importers:
         version: link:../utils
       '@reduxjs/toolkit':
         specifier: ^1.9.1
-        version: 1.9.7(react-redux@8.1.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(redux@4.2.1))(react@18.2.0)
+        version: 1.9.7(react-redux@8.1.3(@types/react@18.2.37)(react@18.2.0))(react@18.2.0)
       '@types/react':
         specifier: ^18.2.21
         version: 18.2.37
@@ -2457,7 +2439,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/tokens:
     dependencies:
@@ -2476,7 +2458,7 @@ importers:
         version: link:../utils
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/tsconfig: {}
 
@@ -2674,7 +2656,7 @@ importers:
         version: 13.3.8
       jest-styled-components:
         specifier: ^7.0.8
-        version: 7.2.0(styled-components@6.0.7)
+        version: 7.2.0(styled-components@6.0.7(babel-plugin-styled-components@1.13.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
       js-cookie:
         specifier: '*'
         version: 3.0.5
@@ -2839,7 +2821,7 @@ importers:
         version: link:../tsconfig
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/v3-sdk:
     dependencies:
@@ -2876,7 +2858,7 @@ importers:
         version: link:../utils
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/v4-sdk:
     dependencies:
@@ -2898,7 +2880,7 @@ importers:
         version: link:../swap-sdk
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
 
   packages/wagmi:
     dependencies:
@@ -2926,7 +2908,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       tsup:
         specifier: ^6.7.0
-        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2)
+        version: 6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2)
       viem:
         specifier: 'catalog:'
         version: 2.21.22(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.22.4)
@@ -4099,6 +4081,7 @@ packages:
 
   '@confio/ics23@0.6.8':
     resolution: {integrity: sha512-wB6uo+3A50m0sW/EWcU64xpV/8wShZ6bMTa7pF8eYsTrSkQA7oLUIJcs/wb8g4y2Oyq701BaGiO6n/ak5WXO1w==}
+    deprecated: Unmaintained. The codebase for this package was moved to https://github.com/cosmos/ics23 but then the JS implementation was removed in https://github.com/cosmos/ics23/pull/353. Please consult the maintainers of https://github.com/cosmos for further assistance.
 
   '@cosmjs/amino@0.31.3':
     resolution: {integrity: sha512-36emtUq895sPRX8PTSOnG+lhJDCVyIcE0Tr5ct59sUbgQiI14y43vj/4WAlJ/utSOxy+Zhj9wxcs4AZfu0BHsw==}
@@ -5016,7 +4999,7 @@ packages:
   '@graphql-typed-document-node/core@3.2.0':
     resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
     peerDependencies:
-      graphql: 16.6.0
+      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -5360,6 +5343,7 @@ packages:
   '@mui/base@5.0.0-beta.36':
     resolution: {integrity: sha512-6A8fYiXgjqTO6pgj31Hc8wm1M3rFYCxDRh09dBVk0L0W4cb2lnurRJa3cAyic6hHY+we1S58OdGYRbKmOsDpGQ==}
     engines: {node: '>=12.0.0'}
+    deprecated: This package has been replaced by @base-ui-components/react
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
@@ -5891,14 +5875,14 @@ packages:
   '@openzeppelin/contracts@4.9.6':
     resolution: {integrity: sha512-xSmezSupL+y9VkHZJGDoCBpmnB2ogM13ccaYDWqJTfS3dbuHkgjuwDFUmaFauBCboQMGB/S5UqUl2y54X99BmA==}
 
-  '@orbs-network/twap-ui-pancake@0.11.27':
-    resolution: {integrity: sha512-n672u5MXjjYYfjKbvQdqmFDjNUtTbPG6rZyiMkJErfNelKswzCLEjDMsnpRQfbI0crCc1iI4aciKF2FzHDSjCg==}
+  '@orbs-network/twap-ui-pancake@0.11.31':
+    resolution: {integrity: sha512-cluViuHebY3gezHYm26y5kOzmKpCiLgpqocHVDvzY832cqpJt/oxQQfajhp2mgdEUw5uHyq6f+cKGtCEIKX1mw==}
     peerDependencies:
       react: '*'
       react-dom: '*'
 
-  '@orbs-network/twap-ui@0.11.27':
-    resolution: {integrity: sha512-Q3xXWZGIFnXC363PmooDfa5j12hLQ8KpaZlwNWYeDKMKWEHL8oUl+wDt93TGeiS+R9Y1DDDN29wNeUIs2ZkiSQ==}
+  '@orbs-network/twap-ui@0.11.31':
+    resolution: {integrity: sha512-EjScs0j4/hKSOeoxZt8w8q4FDW8XGEwmhLhlX6PpvSX/X3XxLLHvXo2Z0kRpg8WGeB+8v3qjdubvr8AW0qHMTQ==}
     peerDependencies:
       react: '*'
       react-dom: '*'
@@ -8703,6 +8687,7 @@ packages:
 
   '@web3modal/core@2.4.3':
     resolution: {integrity: sha512-7Z/sDe9RIYQ2k9ITcxgEa/u7FvlI76vcVVZn9UY4ISivefqrH4JAS3GX4JmVNUUlovwuiZdyqBv4llAQOMK6Rg==}
+    deprecated: Web3Modal is now Reown AppKit. Please follow the upgrade guide at https://docs.reown.com/appkit/upgrade/from-w3m-to-reown
 
   '@web3modal/standalone@2.4.3':
     resolution: {integrity: sha512-5ATXBoa4GGm+TIUSsKWsfWCJunv1XevOizpgTFhqyeGgRDmWhqsz9UIPzH/1mk+g0iJ/xqMKs5F6v9D2QeKxag==}
@@ -8710,6 +8695,7 @@ packages:
 
   '@web3modal/ui@2.4.3':
     resolution: {integrity: sha512-J989p8CdtEhI9gZHf/rZ/WFqYlrAHWw9GmAhFoiNODwjAp0BoG/uoaPiijJMchXdngihZOjLGCQwDXU16DHiKg==}
+    deprecated: Web3Modal is now Reown AppKit. Please follow the upgrade guide at https://docs.reown.com/appkit/upgrade/from-w3m-to-reown
 
   '@webassemblyjs/ast@1.11.6':
     resolution: {integrity: sha512-IN1xI7PwOvLPgjcf180gC1bqn3q/QaOCwYUahIOhbYUu8KA/3tw2RT/T0Gidi1l7Hhj5D/INhJxiICObqpMu4Q==}
@@ -8848,6 +8834,7 @@ packages:
 
   abstract-leveldown@0.12.4:
     resolution: {integrity: sha512-TOod9d5RDExo6STLMGa+04HGkl+TlMfbDnTyN93/ETJ9DpQ0DaYLqcMZlbXvdc4W3vVo1Qrl+WhSp8zvDsJ+jA==}
+    deprecated: Superseded by abstract-level (https://github.com/Level/community#faq)
 
   accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
@@ -9030,6 +9017,7 @@ packages:
   aptos@1.21.0:
     resolution: {integrity: sha512-PRKjoFgL8tVEc9+oS7eJUv8GNxx8n3+0byH2+m7CP3raYOD6yFKOecuwjVMIJmgfpjp6xH0P0HDMGZAXmSyU0Q==}
     engines: {node: '>=11.0.0'}
+    deprecated: Package aptos is no longer supported, please migrate to https://www.npmjs.com/package/@aptos-labs/ts-sdk
 
   arch@2.2.0:
     resolution: {integrity: sha512-Of/R0wqp83cgHozfIYLbBMnej79U/SVGOOyuB3VVFv1NRM/PSFMK12x9KVtiYzJqmnU5WR2qp0Z5rHb7sWGnFQ==}
@@ -10382,6 +10370,7 @@ packages:
 
   deferred-leveldown@0.2.0:
     resolution: {integrity: sha512-+WCbb4+ez/SZ77Sdy1iadagFiVzMB89IKOBhglgnUkVxOxRWmmFsz8UDSNWh4Rhq+3wr/vMFlYj+rdEwWUDdng==}
+    deprecated: Superseded by abstract-level (https://github.com/Level/community#faq)
 
   define-data-property@1.1.1:
     resolution: {integrity: sha512-E7uGkTzkk1d0ByLeSc6ZsFS79Axg+m1P/VsgYsxHgiuc3tFSj+MjMIwe90FC4lOAZzNBdY7kkO2P2wKdsQ1vgQ==}
@@ -12605,6 +12594,7 @@ packages:
 
   level-js@2.2.4:
     resolution: {integrity: sha512-lZtjt4ZwHE00UMC1vAb271p9qzg8vKlnDeXfIesH3zL0KxhHRDjClQLGLWhyR0nK4XARnd4wc/9eD1ffd4PshQ==}
+    deprecated: Superseded by browser-level (https://github.com/Level/community#faq)
 
   level-peek@1.0.6:
     resolution: {integrity: sha512-TKEzH5TxROTjQxWMczt9sizVgnmJ4F3hotBI48xCTYvOKd/4gA/uY0XjKkhJFo6BMic8Tqjf6jFMLWeg3MAbqQ==}
@@ -12614,6 +12604,7 @@ packages:
 
   levelup@0.18.6:
     resolution: {integrity: sha512-uB0auyRqIVXx+hrpIUtol4VAPhLRcnxcOsd2i2m6rbFIDarO5dnrupLOStYYpEcu8ZT087Z9HEuYw1wjr6RL6Q==}
+    deprecated: Superseded by abstract-level (https://github.com/Level/community#faq)
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -12749,12 +12740,14 @@ packages:
 
   lodash.get@4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
+    deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
 
   lodash.isarguments@3.1.0:
     resolution: {integrity: sha512-chi4NHZlZqZD18a0imDHnZPrDeBbTtVN7GXMwuGdRH9qotxAjYs3aVLKc7zNOG9eddR5Ksd8rvFEBc9SsggPpg==}
 
   lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -17108,6 +17101,24 @@ packages:
   zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
 
+catalogs:
+  default:
+    '@aptos-labs/ts-sdk':
+      specifier: 1.30.0
+      version: 1.30.0
+    next:
+      specifier: 14.2.14
+      version: 14.2.14
+    viem:
+      specifier: ^2.21.22
+      version: 2.21.22
+    wagmi:
+      specifier: ^2.12.17
+      version: 2.12.17
+    wrangler:
+      specifier: 3.81.0
+      version: 3.81.0
+
 snapshots:
 
   '@0xsquid/sdk@1.14.8(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
@@ -18932,8 +18943,8 @@ snapshots:
       '@nomiclabs/hardhat-etherscan': 3.1.8(hardhat@2.22.2(bufferutil@4.0.8)(ts-node@10.9.1(@types/node@13.13.52)(typescript@5.2.2))(typescript@4.9.5)(utf-8-validate@5.0.10))
       '@nomiclabs/hardhat-web3': 2.0.0(hardhat@2.22.2(bufferutil@4.0.8)(ts-node@10.9.1(@types/node@13.13.52)(typescript@5.2.2))(typescript@4.9.5)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@openzeppelin/contracts': 4.9.6
-      '@typechain/hardhat': 6.1.6(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.2(bufferutil@4.0.8)(ts-node@10.9.1(@types/node@13.13.52)(typescript@5.2.2))(typescript@4.9.5)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))
-      '@typechain/web3-v1': 6.0.7(typechain@8.3.2(typescript@5.2.2))(typescript@4.9.5)(web3-core@1.10.4)(web3-eth-contract@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@typechain/hardhat': 6.1.6(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.2(bufferutil@4.0.8)(ts-node@10.9.1(@types/node@13.13.52)(typescript@5.2.2))(typescript@4.9.5)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@4.9.5))
+      '@typechain/web3-v1': 6.0.7(typechain@8.3.2(typescript@4.9.5))(typescript@4.9.5)(web3-core@1.10.4)(web3-eth-contract@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@types/chai': 4.3.14
       '@types/fs-extra': 11.0.4
       '@types/mocha': 10.0.6
@@ -19978,7 +19989,7 @@ snapshots:
 
   '@manypkg/find-root@1.1.0':
     dependencies:
-      '@babel/runtime': 7.23.9
+      '@babel/runtime': 7.24.7
       '@types/node': 12.20.55
       find-up: 4.1.0
       fs-extra: 8.1.0
@@ -20837,13 +20848,13 @@ snapshots:
   '@openzeppelin/contracts@4.9.6':
     optional: true
 
-  '@orbs-network/twap-ui-pancake@0.11.27(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@types/react@18.2.37)(react@18.2.0))(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)':
+  '@orbs-network/twap-ui-pancake@0.11.31(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@types/react@18.2.37)(react@18.2.0))(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)':
     dependencies:
       '@defi.org/web3-candies': 4.20.17(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
       '@mui/material': 5.15.10(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@types/react@18.2.37)(react@18.2.0))(@types/react@18.2.37)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/system': 5.15.9(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.37)(react@18.2.0))(@types/react@18.2.37)(react@18.2.0))(@types/react@18.2.37)(react@18.2.0)
       '@orbs-network/twap': 1.24.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
-      '@orbs-network/twap-ui': 0.11.27(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
+      '@orbs-network/twap-ui': 0.11.31(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
       lodash: 4.17.21
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -20871,7 +20882,7 @@ snapshots:
       - web3-core
       - web3-eth-contract
 
-  '@orbs-network/twap-ui@0.11.27(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)':
+  '@orbs-network/twap-ui@0.11.31(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(@types/react@18.2.37)(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)':
     dependencies:
       '@defi.org/web3-candies': 4.20.17(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(bufferutil@4.0.8)(chalk@5.3.0)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(web3-core@1.10.4)(web3-eth-contract@1.10.4)
       '@emotion/react': 11.11.4(@types/react@18.2.37)(react@18.2.0)
@@ -21770,7 +21781,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@reduxjs/toolkit@1.9.7(react-redux@8.1.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(redux@4.2.1))(react@18.2.0)':
+  '@reduxjs/toolkit@1.9.7(react-redux@8.1.3(@types/react@18.2.37)(react@18.2.0))(react@18.2.0)':
     dependencies:
       immer: 9.0.21
       redux: 4.2.1
@@ -23595,7 +23606,7 @@ snapshots:
       typescript: 5.2.2
     optional: true
 
-  '@typechain/hardhat@6.1.6(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.2(bufferutil@4.0.8)(ts-node@10.9.1(@types/node@13.13.52)(typescript@5.2.2))(typescript@4.9.5)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))':
+  '@typechain/hardhat@6.1.6(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@typechain/ethers-v5@10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.2.2))(typescript@5.2.2))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.2(bufferutil@4.0.8)(ts-node@10.9.1(@types/node@13.13.52)(typescript@5.2.2))(typescript@4.9.5)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@4.9.5))':
     dependencies:
       '@ethersproject/abi': 5.7.0
       '@ethersproject/providers': 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -23606,7 +23617,7 @@ snapshots:
       typechain: 8.3.2(typescript@4.9.5)
     optional: true
 
-  '@typechain/web3-v1@6.0.7(typechain@8.3.2(typescript@5.2.2))(typescript@4.9.5)(web3-core@1.10.4)(web3-eth-contract@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@typechain/web3-v1@6.0.7(typechain@8.3.2(typescript@4.9.5))(typescript@4.9.5)(web3-core@1.10.4)(web3-eth-contract@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
     dependencies:
       lodash: 4.17.21
       ts-essentials: 7.0.3(typescript@4.9.5)
@@ -24518,7 +24529,7 @@ snapshots:
       - terser
       - webpack
 
-  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))':
+  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@14.2.14(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))':
     dependencies:
       '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(terser@5.24.0)(webpack@5.89.0(esbuild@0.17.19))
       next: 14.2.14(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -26436,7 +26447,7 @@ snapshots:
   '@yarnpkg/esbuild-plugin-pnp@3.0.0-rc.15(esbuild@0.18.20)':
     dependencies:
       esbuild: 0.18.20
-      tslib: 2.6.2
+      tslib: 2.7.0
 
   '@yarnpkg/fslib@2.10.3':
     dependencies:
@@ -26791,7 +26802,7 @@ snapshots:
 
   ast-types@0.15.2:
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.7.0
 
   ast-types@0.16.1:
     dependencies:
@@ -30814,7 +30825,7 @@ snapshots:
 
   jest-regex-util@29.6.3: {}
 
-  jest-styled-components@7.2.0(styled-components@6.0.7):
+  jest-styled-components@7.2.0(styled-components@6.0.7(babel-plugin-styled-components@1.13.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)):
     dependencies:
       '@adobe/css-tools': 4.3.1
       styled-components: 6.0.7(babel-plugin-styled-components@1.13.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -32791,13 +32802,13 @@ snapshots:
       postcss: 8.4.33
       ts-node: 10.9.1(@types/node@15.12.2)(typescript@5.2.2)
 
-  postcss-load-config@3.1.4(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2)):
+  postcss-load-config@3.1.4(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2)):
     dependencies:
       lilconfig: 2.1.0
       yaml: 1.10.2
     optionalDependencies:
       postcss: 8.4.33
-      ts-node: 10.9.1(@types/node@22.7.5)(typescript@5.2.2)
+      ts-node: 10.9.1(@types/node@18.18.9)(typescript@5.2.2)
 
   postcss-load-config@4.0.2(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.0.4)(typescript@5.2.2)):
     dependencies:
@@ -35265,6 +35276,25 @@ snapshots:
       yn: 3.1.1
     optional: true
 
+  ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2):
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      '@tsconfig/node10': 1.0.9
+      '@tsconfig/node12': 1.0.11
+      '@tsconfig/node14': 1.0.3
+      '@tsconfig/node16': 1.0.4
+      '@types/node': 18.18.9
+      acorn: 8.11.2
+      acorn-walk: 8.3.2
+      arg: 4.1.3
+      create-require: 1.1.1
+      diff: 4.0.2
+      make-error: 1.3.6
+      typescript: 5.2.2
+      v8-compile-cache-lib: 3.0.1
+      yn: 3.1.1
+    optional: true
+
   ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
@@ -35327,7 +35357,7 @@ snapshots:
       - supports-color
       - ts-node
 
-  tsup@6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))(typescript@5.2.2):
+  tsup@6.7.0(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))(typescript@5.2.2):
     dependencies:
       bundle-require: 4.0.2(esbuild@0.17.19)
       cac: 6.7.14
@@ -35337,7 +35367,7 @@ snapshots:
       execa: 5.1.1
       globby: 11.1.0
       joycon: 3.1.1
-      postcss-load-config: 3.1.4(postcss@8.4.33)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.2.2))
+      postcss-load-config: 3.1.4(postcss@8.4.33)(ts-node@10.9.1(@types/node@18.18.9)(typescript@5.2.2))
       resolve-from: 5.0.0
       rollup: 3.29.4
       source-map: 0.8.0-beta.0
