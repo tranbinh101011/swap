@@ -59,8 +59,8 @@ export const bscTokens = {
     ChainId.BSC,
     '0xEd8c8Aa8299C10f067496BB66f8cC7Fb338A3405',
     18,
-    'PROS',
-    'Prosper',
+    'PROS(old)',
+    'Prosper(old)',
     'https://prosper.so/',
   ),
   qbt: new ERC20Token(
