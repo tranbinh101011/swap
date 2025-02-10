@@ -21,7 +21,7 @@ export type VoteSlope = {
 
 export const useUserVoteSlopes = () => {
   const { data: gauges } = useGauges()
-  const { data: userInfo } = useVeCakeUserInfo()
+  const { data: userInfo, isLoading: isUserInfoLoading } = useVeCakeUserInfo()
   const gaugesVotingContract = useGaugesVotingContract()
   const { account, chainId } = useAccountActiveChain()
   const publicClient = useMemo(() => getPublicClient({ chainId }), [chainId])
@@ -35,18 +35,18 @@ export const useUserVoteSlopes = () => {
       userInfo?.cakePoolProxy,
       publicClient,
     ],
-    initialData: [],
     queryFn: async (): Promise<VoteSlope[]> => {
       if (!gauges || gauges.length === 0 || !account || !publicClient) return []
 
       const delegated = userInfo?.cakePoolType === CakePoolType.DELEGATED
 
       const hasProxy =
-        userInfo?.cakePoolProxy && !isAddressEqual(userInfo?.cakePoolProxy, zeroAddress) && userInfo && !delegated
+        !delegated && userInfo && userInfo.cakePoolProxy && !isAddressEqual(userInfo.cakePoolProxy, zeroAddress)
 
       const contracts = gauges.map((gauge) => {
         return {
-          ...gaugesVotingContract,
+          address: gaugesVotingContract.address,
+          abi: gaugesVotingContract.abi,
           functionName: 'voteUserSlopes',
           args: [account, gauge.hash as Hex],
         } as const
@@ -55,7 +55,8 @@ export const useUserVoteSlopes = () => {
       if (hasProxy) {
         gauges.forEach((gauge) => {
           contracts.push({
-            ...gaugesVotingContract,
+            address: gaugesVotingContract.address,
+            abi: gaugesVotingContract.abi,
             functionName: 'voteUserSlopes',
             args: [userInfo.cakePoolProxy, gauge.hash as Hex],
           } as const)
@@ -87,12 +88,11 @@ export const useUserVoteSlopes = () => {
         return []
       }
     },
-
-    enabled: Boolean(gauges?.length) && account && account !== '0x',
+    enabled: Boolean(gauges?.length) && !isUserInfoLoading && account && account !== '0x',
   })
 
   return {
-    data,
+    data: useMemo(() => data || [], [data]),
     refetch,
     isLoading,
   }

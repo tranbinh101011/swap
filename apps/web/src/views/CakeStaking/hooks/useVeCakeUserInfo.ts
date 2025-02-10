@@ -43,12 +43,13 @@ export const useVeCakeUserInfo = (
   targetChain?: ChainId,
 ): {
   data?: VeCakeUserInfo
+  isLoading: boolean
   refetch: () => void
 } => {
   const veCakeContract = useVeCakeContract(targetChain)
   const { account } = useAccountActiveChain()
 
-  const { data, refetch } = useReadContract({
+  const { data, refetch, isLoading, isPending } = useReadContract({
     chainId: targetChain ?? veCakeContract?.chain?.id,
     abi: veCakeContract.abi,
     address: veCakeContract.address,
@@ -76,6 +77,7 @@ export const useVeCakeUserInfo = (
 
   return {
     data,
+    isLoading: isPending || isLoading,
     refetch,
   }
 }

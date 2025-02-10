@@ -75,7 +75,7 @@ export const useGaugeRows = () => {
 
     return selectRowsHash.map((hash) => gaugesMap.get(hash)).filter(Boolean) as Gauge[]
   }, [gauges, selectRowsHash])
-  const isLoading = useMemo(() => gaugeIsLoading && voteIsLoading, [gaugeIsLoading, voteIsLoading])
+  const isLoading = useMemo(() => gaugeIsLoading || voteIsLoading, [gaugeIsLoading, voteIsLoading])
 
   return {
     gauges,
