@@ -41,6 +41,7 @@ import { useWeb3WalletView } from 'hooks/useWeb3WalletView'
 import { useInitGlobalWorker } from 'hooks/useWorker'
 import { persistor, useStore } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
+import { useWalletConnectRouterSync } from 'hooks/useWalletConnectRouterSync'
 import { Blocklist, Updaters } from '..'
 import { SEO } from '../../next-seo.config'
 import Providers from '../Providers'
@@ -69,6 +70,7 @@ function GlobalHooks() {
   useThemeCookie()
   useLockedEndNotification()
   useInitNotificationsClient()
+  useWalletConnectRouterSync()
   return null
 }
 

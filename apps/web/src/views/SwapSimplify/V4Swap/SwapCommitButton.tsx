@@ -157,10 +157,13 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
     inputCurrency ?? undefined,
     outputCurrency ?? undefined,
   ])
-  const currencyBalances = {
-    [Field.INPUT]: relevantTokenBalances[0],
-    [Field.OUTPUT]: relevantTokenBalances[1],
-  }
+  const currencyBalances = useMemo(
+    () => ({
+      [Field.INPUT]: relevantTokenBalances[0],
+      [Field.OUTPUT]: relevantTokenBalances[1],
+    }),
+    [relevantTokenBalances],
+  )
   const parsedAmounts = useParsedAmounts(order?.trade, currencyBalances, false)
   const parsedIndependentFieldAmount = parsedAmounts[independentField]
   const swapInputError = useSwapInputError(order, currencyBalances)
