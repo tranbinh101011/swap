@@ -48,7 +48,7 @@ export const getStaticProps = (async ({ params }) => {
       queryKey: ['voting', 'proposal', id],
       queryFn: () => getProposal(id),
     })
-    if (!fetchedProposal) {
+    if (!fetchedProposal || fetchedProposal.space.id !== 'cakevote.eth') {
       return {
         notFound: true,
         revalidate: 1,
