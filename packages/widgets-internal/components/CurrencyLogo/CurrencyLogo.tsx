@@ -3,8 +3,9 @@ import { useHttpLocations } from "@pancakeswap/hooks";
 import { BinanceIcon, TokenLogo } from "@pancakeswap/uikit";
 import { useMemo } from "react";
 import { styled } from "styled-components";
-import { space, SpaceProps } from "styled-system";
+import { SpaceProps, space } from "styled-system";
 
+import { ASSET_CDN } from "../../utils/endpoints";
 import { CurrencyInfo } from "./types";
 import { getCurrencyLogoUrlsByInfo } from "./utils";
 
@@ -54,7 +55,7 @@ export function CurrencyLogo({
     return (
       <StyledLogo
         size={size}
-        srcs={[`https://assets.pancakeswap.finance/web/native/${currency.chainId}.png`]}
+        srcs={[`${ASSET_CDN}/web/native/${currency.chainId}.png`]}
         width={size}
         imageRef={imageRef}
         style={style}

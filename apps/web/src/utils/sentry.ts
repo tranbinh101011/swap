@@ -18,7 +18,7 @@ const assignError = (maybeError: any) => {
   return maybeError
 }
 
-const possibleRejectMessage = ['Cancelled by User', 'cancel', 'Transaction was rejected', 'denied']
+const possibleRejectMessage = ['Cancelled by User', 'cancel', 'Transaction was rejected', 'denied', 'user has reject']
 
 // provider user rejected error code
 export const isUserRejected = (err) => {

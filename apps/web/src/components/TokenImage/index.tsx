@@ -4,8 +4,8 @@ import {
   ImageProps,
   TokenImage as UIKitTokenImage,
   TokenPairImage as UIKitTokenPairImage,
-  TokenPairLogo as UIKitTokenPairLogo,
   TokenPairImageProps as UIKitTokenPairImageProps,
+  TokenPairLogo as UIKitTokenPairLogo,
 } from '@pancakeswap/uikit'
 import uriToHttp from '@pancakeswap/utils/uriToHttp'
 import { ASSET_CDN } from 'config/constants/endpoints'
@@ -44,8 +44,7 @@ export const getImageUrlsFromToken = (token: Currency & { logoURI?: string | und
   return [...uriLocations, imageUri]
 }
 
-export const getChainLogoUrlFromChainId = (chainId: number) =>
-  `https://assets.pancakeswap.finance/web/chains/${chainId}.png`
+export const getChainLogoUrlFromChainId = (chainId: number) => `${ASSET_CDN}/web/chains/${chainId}.png`
 
 export const TokenPairImage: React.FC<React.PropsWithChildren<TokenPairImageProps>> = ({
   primaryToken,

@@ -16,6 +16,7 @@ import {
   getCalcGaugesVotingAddress,
   getCrossFarmingReceiverAddress,
   getCrossFarmingSenderAddress,
+  getCrossFarmingVaultAddress,
   getFarmAuctionAddress,
   getFixedStakingAddress,
   getGaugesVotingAddress,
@@ -24,7 +25,6 @@ import {
   getMasterChefV3Address,
   getNftMarketAddress,
   getNftSaleAddress,
-  getCrossFarmingVaultAddress,
   getPancakeProfileAddress,
   getPancakeSquadAddress,
   getPancakeVeSenderV2Address,
@@ -53,8 +53,8 @@ import {
 import { predictionsV1ABI, predictionsV2ABI, predictionsV3ABI } from '@pancakeswap/prediction'
 import { crossFarmingProxyABI } from 'config/abi/crossFarmingProxy'
 import { crossFarmingSenderABI } from 'config/abi/crossFarmingSender'
-import { nftSaleABI } from 'config/abi/nftSale'
 import { crossFarmingVaultABI } from 'config/abi/crossFarmingVault'
+import { nftSaleABI } from 'config/abi/nftSale'
 import { pointCenterIfoABI } from 'config/abi/pointCenterIfo'
 import { stableSwapNativeHelperABI } from 'config/abi/stableSwapNativeHelper'
 

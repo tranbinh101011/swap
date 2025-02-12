@@ -6,7 +6,7 @@ import { HistoryManagerProvider } from 'contexts/HistoryContext'
 import { ThemeProvider as NextThemeProvider, useTheme as useNextTheme } from 'next-themes'
 import { useMemo } from 'react'
 import { Provider } from 'react-redux'
-import { createWagmiConfig } from 'utils/wagmi'
+import { createW3WWagmiConfig, createWagmiConfig } from 'utils/wagmi'
 import { WagmiProvider } from 'wagmi'
 
 // Create a client
@@ -22,9 +22,14 @@ const StyledUIKitProvider: React.FC<React.PropsWithChildren> = ({ children, ...p
 }
 
 const Providers: React.FC<
-  React.PropsWithChildren<{ store: Store; children: React.ReactNode; dehydratedState: any }>
-> = ({ children, store, dehydratedState }) => {
-  const wagmiConfig = useMemo(() => createWagmiConfig(), [])
+  React.PropsWithChildren<{
+    store: Store
+    children: React.ReactNode
+    dehydratedState: any
+    w3wWagmiConfig?: boolean
+  }>
+> = ({ children, store, dehydratedState, w3wWagmiConfig }) => {
+  const wagmiConfig = useMemo(() => (w3wWagmiConfig ? createW3WWagmiConfig() : createWagmiConfig()), [w3wWagmiConfig])
   return (
     <WagmiProvider reconnectOnMount config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>

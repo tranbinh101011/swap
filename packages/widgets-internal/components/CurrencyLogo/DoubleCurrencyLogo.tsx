@@ -1,8 +1,9 @@
-import { useMemo } from "react";
 import { Currency } from "@pancakeswap/sdk";
+import { useMemo } from "react";
 import { styled } from "styled-components";
 
 import Image from "next/image";
+import { ASSET_CDN } from "../../utils/endpoints";
 import { CurrencyLogo } from "./CurrencyLogo";
 
 const Wrapper = styled.div<{ margin: boolean }>`
@@ -40,7 +41,7 @@ export function DoubleCurrencyLogo({
         {showChainLogo && currency0 ? (
           <Image
             alt={`chain-${currency0.chainId}`}
-            src={`https://assets.pancakeswap.finance/web/chains/${currency0.chainId}.png`}
+            src={`${ASSET_CDN}/web/chains/${currency0.chainId}.png`}
             style={{ maxHeight: chainLogoSize, margin: "8px" }}
             width={chainLogoSize}
             height={chainLogoSize}

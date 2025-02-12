@@ -5,7 +5,6 @@ export const ifos: BaseIfoConfig[] = [
   {
     id: 'eigenpie',
     version: 8,
-
     address: '0xa6f907493269BEF3383fF0CBFd25e1Cc35167c3B',
     plannedStartTime: 1727172900,
     plannedEndTime: 1727259300,

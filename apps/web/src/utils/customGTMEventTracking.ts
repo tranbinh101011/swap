@@ -29,6 +29,11 @@ export enum GTMEvent {
   IFOGoToCakeStaking = 'ifoGoToCakeStaking',
   IFOCommit = 'ifoCommit',
   IFOCommitTxnSent = 'ifoCommitTxnSent',
+
+  // IDO
+  IdoDeposit = 'idoDeposit',
+  IdoClaim = 'idoClaim',
+  IdoConnectWallet = 'idoConnectWallet',
 }
 
 export enum GTMCategory {
@@ -47,6 +52,7 @@ export enum GTMCategory {
   FiatOnRamp = 'FiatOnRamp',
   Prediction = 'Prediction',
   IFO = 'IFO',
+  IDO = 'IDO',
 }
 
 export enum GTMAction {
@@ -81,6 +87,12 @@ export enum GTMAction {
   ClickCommitBasicSale = 'Click Commit Button for Basic Sale',
   CommitTxnSentPublicSale = 'Commit Transaction Sent for Public Sale',
   CommitTxnSentBasicSale = 'Commit Transaction Sent for Basic Sale',
+
+  // IDO
+  ConfirmIDODeposit = 'Confirm IDO Deposit',
+  ConfirmIDOClaim = 'Confirm IDO Claim After TGE',
+  IDOConnectWalletPreTGE = 'IDO Connect Wallet Pre TGE',
+  IDOConnectWalletDuringTGE = 'IDO Connect Wallet During TGE',
 }
 
 interface CustomGTMDataLayer {
@@ -346,5 +358,32 @@ export const logGTMIfoCommitTxnSentEvent = (poolId: PoolIds) => {
     event: GTMEvent.IFOCommitTxnSent,
     action: poolId === PoolIds.poolUnlimited ? GTMAction.CommitTxnSentPublicSale : GTMAction.CommitTxnSentBasicSale,
     category: GTMCategory.IFO,
+  })
+}
+
+export const logGTMIdoDepositEvent = () => {
+  console.info('---IdoDeposit---')
+  window?.dataLayer?.push({
+    event: GTMEvent.IdoDeposit,
+    action: GTMAction.ConfirmIDODeposit,
+    category: GTMCategory.IDO,
+  })
+}
+
+export const logGTMIdoClaimEvent = () => {
+  console.info('---IdoClaim---')
+  window?.dataLayer?.push({
+    event: GTMEvent.IdoClaim,
+    action: GTMAction.ConfirmIDOClaim,
+    category: GTMCategory.IDO,
+  })
+}
+
+export const logGTMIdoConnectWalletEvent = (preTGE: boolean) => {
+  console.info('---IdoConnectWallet---')
+  window?.dataLayer?.push({
+    event: GTMEvent.IdoConnectWallet,
+    action: preTGE ? GTMAction.IDOConnectWalletPreTGE : GTMAction.IDOConnectWalletDuringTGE,
+    category: GTMCategory.IDO,
   })
 }

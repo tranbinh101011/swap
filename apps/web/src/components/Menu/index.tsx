@@ -14,6 +14,7 @@ import { IdType, useUserNotUsCitizenAcknowledgement } from 'hooks/useUserIsUsCit
 import { useWebNotifications } from 'hooks/useWebNotifications'
 import { useRouter } from 'next/router'
 import { Suspense, lazy, useCallback, useMemo } from 'react'
+import { styled } from 'styled-components'
 import { getOptionsUrl } from 'utils/getOptionsUrl'
 import GlobalSettings from './GlobalSettings'
 import { SettingsMode } from './GlobalSettings/types'
@@ -146,3 +147,26 @@ const Menu = (props) => {
 }
 
 export default Menu
+
+const SharedComponentWithOutMenuWrapper = styled.div`
+  display: none;
+`
+
+export const SharedComponentWithOutMenu: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { enabled } = useWebNotifications()
+  return (
+    <>
+      <SharedComponentWithOutMenuWrapper>
+        <GlobalSettings mode={SettingsMode.GLOBAL} />
+        {enabled && (
+          <Suspense fallback={null}>
+            <Notifications />
+          </Suspense>
+        )}
+        <NetworkSwitcher />
+        <UserMenu />
+      </SharedComponentWithOutMenuWrapper>
+      {children}
+    </>
+  )
+}

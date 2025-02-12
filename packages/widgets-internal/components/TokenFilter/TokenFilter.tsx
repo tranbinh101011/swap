@@ -6,6 +6,7 @@ import { Column, IMultiSelectChangeEvent, IMultiSelectProps, ISelectItem, MultiS
 import { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Address } from "viem";
+import { ASSET_CDN } from "../../utils/endpoints";
 import { CurrencyLogo } from "../CurrencyLogo";
 
 export interface ITokenProps {
@@ -85,10 +86,7 @@ const StyledChainLogo = styled.img`
 const CurrencyLogoWithChain = ({ currency }: { currency: ERC20Token }) => (
   <CurrencyLogoContainer>
     <CurrencyLogo currency={currency} />
-    <StyledChainLogo
-      alt={`chain-${currency.chainId}`}
-      src={`https://assets.pancakeswap.finance/web/chains/${currency.chainId}.png`}
-    />
+    <StyledChainLogo alt={`chain-${currency.chainId}`} src={`${ASSET_CDN}/web/chains/${currency.chainId}.png`} />
   </CurrencyLogoContainer>
 );
 

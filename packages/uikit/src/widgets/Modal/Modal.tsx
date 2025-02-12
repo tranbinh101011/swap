@@ -45,6 +45,17 @@ export const ModalWrapper = ({
   );
 };
 
+const getIsAndroid = () => {
+  if (typeof window === "undefined") return false;
+  const ua = window.navigator.userAgent;
+  const android = Boolean(ua.match(/Android/i));
+  return android;
+};
+
+const getIsBinance = () => {
+  return typeof window !== "undefined" && (window as any).ethereum?.isBinance;
+};
+
 const Modal: React.FC<React.PropsWithChildren<ModalProps>> = ({
   title,
   onDismiss: onDismiss_,
@@ -64,6 +75,8 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = ({
 }) => {
   const context = useContext(ModalV2Context);
   const onDismiss = context?.onDismiss || onDismiss_;
+  const isAndroid = getIsAndroid();
+  const isBinance = getIsBinance();
   const theme = useTheme();
   return (
     <ModalWrapper
@@ -95,6 +108,7 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = ({
       >
         {children}
       </ModalBody>
+      {isAndroid && isBinance ? <Box height="60px" width="100%" /> : null}
     </ModalWrapper>
   );
 };
