@@ -175,13 +175,13 @@ const useFarmsWithBalance = () => {
       farmsWithStakedBalance: [...farmsWithStakedBalance, ...v3FarmsWithBalance],
       earningsSum:
         (earningsSum ?? 0) +
-          v3PendingCakes?.reduce((accum, earning) => {
-            const earningNumber = new BigNumber(earning.toString())
-            if (earningNumber.eq(0)) {
-              return accum
-            }
-            return accum + earningNumber.div(DEFAULT_TOKEN_DECIMAL).toNumber()
-          }, 0) ?? 0,
+        v3PendingCakes?.reduce((accum, earning) => {
+          const earningNumber = new BigNumber(earning.toString())
+          if (earningNumber.eq(0)) {
+            return accum
+          }
+          return accum + earningNumber.div(DEFAULT_TOKEN_DECIMAL).toNumber()
+        }, 0),
     }
   }, [earningsSum, farmsWithStakedBalance, v3FarmsWithBalance, v3PendingCakes])
 }

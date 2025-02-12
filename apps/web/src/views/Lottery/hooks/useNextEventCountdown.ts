@@ -6,7 +6,7 @@ import { useLottery } from 'state/lottery/hooks'
 const useNextEventCountdown = (nextEventTime: number): number | null => {
   const dispatch = useAppDispatch()
   const [secondsRemaining, setSecondsRemaining] = useState<number | null>(null)
-  const timer = useRef<number | null>(null)
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null)
   const { currentLotteryId } = useLottery()
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const useNextEventCountdown = (nextEventTime: number): number | null => {
     return () => {
       if (timer.current) clearInterval(timer.current)
     }
-  }, [setSecondsRemaining, nextEventTime, currentLotteryId, timer, dispatch])
+  }, [nextEventTime, currentLotteryId, dispatch])
 
   return secondsRemaining
 }

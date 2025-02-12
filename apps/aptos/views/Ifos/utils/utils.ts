@@ -74,7 +74,7 @@ export const computeVestingScheduleId = (beneficiary: string, index: number): st
   const bytesB = Buffer.alloc(8)
   bytesB.writeBigInt64LE(BigInt(index))
 
-  const bytes = Buffer.concat([bytesA, bytesB])
+  const bytes = Buffer.concat([Uint8Array.from(bytesA), Uint8Array.from(bytesB)])
 
   return stripHexPrefix(keccak256(bytes))
 }

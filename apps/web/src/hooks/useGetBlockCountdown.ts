@@ -7,7 +7,7 @@ import { publicClient } from 'utils/wagmi'
  * Returns a countdown in seconds of a given block
  */
 const useBlockCountdown = (blockNumber: number) => {
-  const timer = useRef<number | null>(null)
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null)
   const [secondsRemaining, setSecondsRemaining] = useState(0)
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const useBlockCountdown = (blockNumber: number) => {
         clearInterval(timer.current)
       }
     }
-  }, [setSecondsRemaining, blockNumber, timer])
+  }, [blockNumber])
 
   return secondsRemaining
 }

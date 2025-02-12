@@ -189,7 +189,7 @@ export function useHasPendingRevocation(token?: Token, spender?: string) {
     }
     return undefined
   }, [allTransactions, spender, token?.address])
-  return pendingApprovals === 0n ?? false
+  return typeof pendingApprovals === 'bigint' && pendingApprovals === 0n
 }
 
 // we want the latest one to come first, so return negative if a is after b

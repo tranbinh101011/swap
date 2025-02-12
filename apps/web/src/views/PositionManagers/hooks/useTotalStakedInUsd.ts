@@ -30,5 +30,5 @@ export const useTotalStakedInUsd = ({
     return totalPoolToken0Usd.plus(totalPoolToken1Usd).toNumber()
   }, [pool0Amount, pool1Amount, token0PriceUSD, token1PriceUSD])
 
-  return totalStakedInUsd * boostedLiquidityX ?? 0
+  return totalStakedInUsd * boostedLiquidityX
 }
