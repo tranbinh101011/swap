@@ -11,6 +11,7 @@ import { Countdown } from './Countdown'
 import { Step1 } from './Step1'
 import { Step2 } from './Step2'
 import { Step3 } from './Step3'
+import { TradingCompetitionInfoStripeAndy } from './TradingCompetition'
 
 const Container = styled(Flex).withConfig({ shouldForwardProp: (prop) => !['$background'].includes(prop) })<{
   $background?: string
@@ -98,6 +99,12 @@ type BannerConfig = {
 }
 
 const CONFIG: BannerConfig[] = [
+  {
+    component: TradingCompetitionInfoStripeAndy,
+    stripeImage: `${ASSET_CDN}/web/phishing-warning/andy.png`,
+    stripeImageWidth: '92px',
+    stripeImageAlt: 'ANDY',
+  },
   {
     component: Step1,
     stripeImage: `${ASSET_CDN}/web/phishing-warning/phishing-warning-bunny-1.png`,

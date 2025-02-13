@@ -8,7 +8,7 @@ import { AdCard } from '../Card'
 import { AdPlayerProps } from '../types'
 import { getImageUrl } from '../utils'
 
-export const AdTradingCompetition = (props: AdPlayerProps & { token: 'aitech' | 'apt' | 'vinu' | 'bfg' }) => {
+export const AdTradingCompetition = (props: AdPlayerProps & { token: 'aitech' | 'apt' | 'vinu' | 'bfg' | 'andy' }) => {
   const { t } = useTranslation()
   const { token, ...rest } = props
   const { unit, reward } = tradingCompetitionConfig[token]
@@ -43,4 +43,8 @@ export const AdTradingCompetitionBfg = (props: AdPlayerProps) => {
 
 export const AdTradingCompetitionVinu = (props: AdPlayerProps) => {
   return <AdTradingCompetition token="vinu" {...props} />
+}
+
+export const AdTradingCompetitionAndy = (props: AdPlayerProps) => {
+  return <AdTradingCompetition token="andy" {...props} />
 }

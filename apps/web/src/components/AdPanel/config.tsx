@@ -1,10 +1,10 @@
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useMemo } from 'react'
 import { AdCakeStaking } from './Ads/AdCakeStaking'
-import { AdPCSX } from './Ads/AdPCSX'
 import { AdIfo } from './Ads/AdIfo'
+import { AdPCSX } from './Ads/AdPCSX'
 import { AdSpringboard } from './Ads/AdSpringboard'
-import { AdTradingCompetitionVinu } from './Ads/AdTradingCompetition'
+import { AdTradingCompetitionAndy } from './Ads/AdTradingCompetition'
 import { ExpandableAd } from './Expandable/ExpandableAd'
 import { shouldRenderOnPages } from './renderConditions'
 import { useShouldRenderAdIfo } from './useShouldRenderAdIfo'
@@ -42,8 +42,8 @@ export const useAdConfig = () => {
         component: <AdSpringboard />,
       },
       {
-        id: 'ad-vinu-tc',
-        component: <AdTradingCompetitionVinu />,
+        id: 'ad-andy-tc',
+        component: <AdTradingCompetitionAndy />,
       },
       {
         id: 'ad-ifo',
