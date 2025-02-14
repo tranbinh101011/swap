@@ -1,4 +1,10 @@
-import { BCakeWrapperFarmConfig, Protocol, fetchAllUniversalFarms, fetchAllUniversalFarmsMap } from '@pancakeswap/farms'
+import {
+  BCakeWrapperFarmConfig,
+  Protocol,
+  fetchAllUniversalFarms,
+  fetchAllUniversalFarmsMap,
+  getFarmConfigKey,
+} from '@pancakeswap/farms'
 import { CurrencyAmount, ERC20Token, Pair, Token, pancakePairV2ABI } from '@pancakeswap/sdk'
 import { LegacyStableSwapPair } from '@pancakeswap/smart-router/legacy-router'
 import { deserializeToken } from '@pancakeswap/token-lists'
@@ -119,7 +125,7 @@ export const getTrackedV2LpTokens = memoize(
 export const getBCakeWrapperAddress = async (lpAddress: Address, chainId: number) => {
   const fetchUniversalFarmsMap = await fetchAllUniversalFarmsMap()
 
-  const f = fetchUniversalFarmsMap[`${chainId}:${lpAddress}`] as V2PoolInfo | StablePoolInfo | undefined
+  const f = fetchUniversalFarmsMap[getFarmConfigKey({ lpAddress, chainId })] as V2PoolInfo | StablePoolInfo | undefined
 
   return f?.bCakeWrapperAddress ?? '0x'
 }
