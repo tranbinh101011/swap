@@ -1,5 +1,5 @@
 import { getChainNameInKebabCase } from '@pancakeswap/chains'
-import { fetchAllUniversalFarms, fetchAllUniversalFarmsMap } from '@pancakeswap/farms'
+import { fetchAllUniversalFarms, fetchAllUniversalFarmsMap, getFarmConfigKey } from '@pancakeswap/farms'
 import set from 'lodash/set'
 import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
 import { PoolInfo, StablePoolInfo, V2PoolInfo } from '../type'
@@ -48,7 +48,7 @@ const composeFarmConfig = async (farm: PoolInfo) => {
   if (farm.protocol !== 'stable' && farm.protocol !== 'v2') return farm
 
   const farmConfig = await fetchAllUniversalFarmsMap()
-  const localFarm = farmConfig[`${farm.chainId}:${farm.lpAddress}`] as V2PoolInfo | StablePoolInfo | undefined
+  const localFarm = farmConfig[getFarmConfigKey(farm)] as V2PoolInfo | StablePoolInfo | undefined
 
   if (!localFarm) {
     return farm
