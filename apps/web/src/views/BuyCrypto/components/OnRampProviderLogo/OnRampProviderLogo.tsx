@@ -1,9 +1,8 @@
 import type { Token } from '@pancakeswap/swap-sdk-core'
-import { Box, Skeleton, TokenPairImage } from '@pancakeswap/uikit'
+import { Box, Image, Skeleton, TokenPairImage } from '@pancakeswap/uikit'
 import { FiatLogo } from 'components/Logo/CurrencyLogo'
 import { getImageUrlFromToken } from 'components/TokenImage'
 import { ASSET_CDN } from 'config/constants/endpoints'
-import Image from 'next/image'
 import { ONRAMP_PROVIDERS, PROVIDER_ICONS, isNativeBtc } from 'views/BuyCrypto/constants'
 import { OnRampIconCircleWrapper, OnRampIconContainer } from 'views/BuyCrypto/styles'
 
