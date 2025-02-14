@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Flex, useToast } from '@pancakeswap/uikit'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import {
   BridgeRoutes,
@@ -67,6 +67,15 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
       .map((chain) => ({ ...chain, rpcUrl: props.rpcConfig?.[chain.id]?.[0] ?? chain.rpcUrl }))
   }, [supportedChainIds, connector?.id, props.rpcConfig])
 
+  const handleError = useCallback(
+    (params: { type: string; message?: string | undefined; error?: Error | undefined }) => {
+      if (params.message) {
+        toast.toastError(params.message)
+      }
+    },
+    [toast],
+  )
+
   return (
     <BridgeWalletProvider>
       <GlobalStyle />
@@ -76,11 +85,7 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
         chains={supportedChains}
         connectWalletButton={connectWalletButton}
         refreshingIcon={<RefreshingIcon />}
-        onError={(params) => {
-          if (params.message) {
-            toast.toastError(params.message)
-          }
-        }}
+        onError={handleError}
       >
         <Flex flexDirection="column" justifyContent="center" maxWidth="480px" width="100%">
           <BridgeTransfer />

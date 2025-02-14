@@ -5,13 +5,15 @@ import {
 import { WalletProvider as TronWalletProvider } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { env } from '../../configs'
 
+const EMPTY_ARRAY: never[] = []
+
 export function BridgeWalletProvider(props: React.PropsWithChildren) {
   const { children } = props
 
   return (
     <SolanaConnectionProvider endpoint={env.SOLANA_RPC_ENDPOINT}>
-      <SolanaWalletProvider wallets={[]} autoConnect={false}>
-        <TronWalletProvider adapters={[]} autoConnect={false}>
+      <SolanaWalletProvider wallets={EMPTY_ARRAY} autoConnect={false}>
+        <TronWalletProvider adapters={EMPTY_ARRAY} autoConnect={false}>
           {children}
         </TronWalletProvider>
       </SolanaWalletProvider>
