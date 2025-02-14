@@ -1,11 +1,13 @@
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useMemo } from 'react'
 import { AdCakeStaking } from './Ads/AdCakeStaking'
+import { AdCommon } from './Ads/AdCommon'
 import { AdIfo } from './Ads/AdIfo'
 import { AdPCSX } from './Ads/AdPCSX'
 import { AdSpringboard } from './Ads/AdSpringboard'
 import { AdTradingCompetitionAndy } from './Ads/AdTradingCompetition'
 import { ExpandableAd } from './Expandable/ExpandableAd'
+import { AdsIds } from './hooks/useAdsConfig'
 import { shouldRenderOnPages } from './renderConditions'
 import { useShouldRenderAdIfo } from './useShouldRenderAdIfo'
 
@@ -36,6 +38,10 @@ export const useAdConfig = () => {
         component: <ExpandableAd />,
         priority: Priority.FIRST_AD,
         shouldRender: [shouldRenderOnPage],
+      },
+      {
+        id: 'tst-perp',
+        component: <AdCommon id={AdsIds.TST_PERP} />,
       },
       {
         id: 'ad-springboard',

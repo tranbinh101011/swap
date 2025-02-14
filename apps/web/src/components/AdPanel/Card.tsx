@@ -86,6 +86,7 @@ interface AdCardProps extends BoxProps {
   children?: React.ReactNode
   imageUrl?: string
   alt?: string
+  imgPadding?: string
 
   isExpanded?: boolean
 
@@ -98,7 +99,7 @@ interface AdCardProps extends BoxProps {
 }
 
 export const AdCard = forwardRef<HTMLDivElement, AdCardProps>(
-  ({ children, imageUrl, alt, isExpanded, forceMobile, isDismissible = true, ...props }, ref) => {
+  ({ children, imageUrl, alt, isExpanded, forceMobile, isDismissible = true, imgPadding, ...props }, ref) => {
     const imageRef = useRef<HTMLImageElement>(null)
     const [isExpandTriggered, setIsExpandTriggered] = useState(false)
 
@@ -160,9 +161,34 @@ export const AdCard = forwardRef<HTMLDivElement, AdCardProps>(
           </CloseButtonContainer>
         )}
         <GraphicsContainer>
-          {imageUrl && <img ref={imageRef} src={imageUrl} alt={alt || 'Card Image'} width={207} height={188} />}
+          {imageUrl && (
+            <ImgBox
+              style={{
+                padding: imgPadding,
+              }}
+            >
+              <img
+                ref={imageRef}
+                src={imageUrl}
+                alt={alt || 'Card Image'}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                }}
+              />
+            </ImgBox>
+          )}
         </GraphicsContainer>
       </BaseCard>
     )
   },
 )
+
+const ImgBox = styled(Box)`
+  width: 207px;
+  height: 188px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`

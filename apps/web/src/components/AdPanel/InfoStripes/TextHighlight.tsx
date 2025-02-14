@@ -1,7 +1,11 @@
 import { Text } from '@pancakeswap/uikit'
 
 export const TextHighlight = ({ text, highlights }: { text: string; highlights: string[] }) => {
-  const prts = text.split(new RegExp(`(${highlights.join('|')})`, 'g'))
+  let prts: string[] = [text]
+  if (highlights.length > 0) {
+    prts = text.split(new RegExp(`(${highlights.join('|')})`, 'g'))
+  }
+
   return prts.map((prt, i) => {
     const key = `${prt}-${i}`
     if (highlights.includes(prt)) {

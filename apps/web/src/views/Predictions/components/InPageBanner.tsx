@@ -1,7 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { SUPPORTED_CHAIN_IDS } from '@pancakeswap/prediction'
 import { Flex, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
-import { AIPrediction } from 'components/PhishingWarningBanner/AIPredictionStripe'
+import { AIPrediction } from 'components/AdPanel/InfoStripes/AIPredictionStripe'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMemo } from 'react'
 import styled from 'styled-components'

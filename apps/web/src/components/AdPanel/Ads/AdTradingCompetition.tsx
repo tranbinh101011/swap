@@ -1,10 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Link } from '@pancakeswap/uikit'
-import { tradingCompetitionConfig } from 'components/PhishingWarningBanner/TradingCompetition'
 import { BodyText } from '../BodyText'
 import { AdButton } from '../Button'
 import { AdCard } from '../Card'
 
+import { tradingCompetitionConfig } from '../InfoStripes/TradingCompetition'
 import { AdPlayerProps } from '../types'
 import { getImageUrl } from '../utils'
 
