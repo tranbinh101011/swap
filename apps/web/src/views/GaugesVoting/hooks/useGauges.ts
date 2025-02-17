@@ -2,20 +2,22 @@ import { ChainId } from '@pancakeswap/chains'
 import { Gauge } from '@pancakeswap/gauges'
 import { useQuery } from '@tanstack/react-query'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { stringify } from 'qs'
 
 type Response = {
   data: Gauge[]
   lastUpdated: number
 }
 
-export const useGauges = () => {
+export const useGauges = (showKilled: boolean = false) => {
   const { chainId } = useActiveChainId()
 
   const { data, isPending } = useQuery({
-    queryKey: ['gaugesVoting', chainId],
+    queryKey: ['gaugesVoting', chainId, showKilled],
 
     queryFn: async (): Promise<Gauge[]> => {
-      const response = await fetch(`/api/gauges/getAllGauges${chainId === ChainId.BSC_TESTNET ? '?testnet=1' : ''}`)
+      const query = stringify({ testnet: chainId === ChainId.BSC_TESTNET ? 1 : undefined, killed: showKilled })
+      const response = await fetch(`/api/gauges/getAllGauges?${query}`)
       if (response.ok) {
         const result = (await response.json()) as Response
 

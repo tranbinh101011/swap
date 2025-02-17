@@ -14,6 +14,8 @@ import {
   useMatchBreakpoints,
 } from '@pancakeswap/uikit'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import keyBy from 'lodash/keyBy'
 import NextLink from 'next/link'
 import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
@@ -24,7 +26,6 @@ import { useEpochVotePower } from 'views/GaugesVoting/hooks/useEpochVotePower'
 import { useGauges } from 'views/GaugesVoting/hooks/useGauges'
 import { useUserVoteSlopes } from 'views/GaugesVoting/hooks/useUserVoteGauges'
 import { useWriteGaugesVoteCallback } from 'views/GaugesVoting/hooks/useWriteGaugesVoteCallback'
-import { useAccount } from 'wagmi'
 import { RemainingVotePower } from '../../RemainingVotePower'
 import { AddGaugeModal } from '../AddGauge/AddGaugeModal'
 import { EmptyTable } from './EmptyTable'
@@ -47,7 +48,7 @@ const Scrollable = styled.div.withConfig({ shouldForwardProp: (prop) => !['expan
 `
 
 export const VoteTable = () => {
-  const { address: account } = useAccount()
+  const { account } = useAccountActiveChain()
   const { t } = useTranslation()
   const [submitted, setSubmitted] = useState(false)
   const { cakeLockedAmount } = useCakeLockStatus()
@@ -134,37 +135,42 @@ export const VoteTable = () => {
   }, [gaugesCount, rows])
 
   const sortedSubmitVotes = useMemo(() => {
-    const voteGauges = slopes
-      .map((slope) => {
-        const vote = votes[slope.hash]
-        // update vote power
-        if (vote && !vote?.locked) {
-          const row = gauges?.find((r) => r.hash === slope.hash)
-          if (!row) return undefined
-          const currentPower = Number(vote.power) ? BigInt((Number(vote.power) * 100).toFixed(0)) : 0n
-          const { nativePower = 0, proxyPower = 0, nativeEnd, proxyEnd } = slope || {}
-          // ignore vote if current power is 0 and never voted
-          if (currentPower === 0n && nativePower === 0 && proxyPower === 0 && !nativeEnd && !proxyEnd) return undefined
-          return {
-            ...row,
-            delta: currentPower - (BigInt(nativePower) + BigInt(proxyPower)),
-            weight: currentPower,
-          }
+    const slopesByHash = keyBy(slopes, 'hash')
+    const voteGaugesAdded = Object.keys(votes).map((hash) => {
+      const vote = votes[hash]
+      const slope = slopesByHash[hash]
+      const row = gauges?.find((r) => r.hash === hash)
+      if (!row || !slope) return undefined
+      const currentPower = Number(vote.power) ? BigInt((Number(vote.power) * 100).toFixed(0)) : 0n
+      const { nativePower = 0, proxyPower = 0, nativeEnd, proxyEnd } = slope || {}
+      // ignore vote if current power is 0 and never voted
+      if (currentPower === 0n && nativePower === 0 && proxyPower === 0 && !nativeEnd && !proxyEnd) return undefined
+      return {
+        ...row,
+        delta: currentPower - (BigInt(nativePower) + BigInt(proxyPower)),
+        weight: currentPower,
+      }
+    })
+    const voteGaugesRemoved = slopes.map((slope) => {
+      const vote = votes[slope.hash]
+
+      // vote deleted
+      if (!vote && (slope.proxyPower > 0 || slope.nativePower > 0)) {
+        const row = gauges?.find((r) => r.hash === slope.hash)
+        if (!row) return undefined
+        return {
+          ...row,
+          delta: 0n - (BigInt(slope.nativePower) + BigInt(slope.proxyPower)),
+          weight: 0n,
         }
-        // vote deleted
-        if (!vote && (slope.proxyPower > 0 || slope.nativePower > 0)) {
-          const row = gauges?.find((r) => r.hash === slope.hash)
-          if (!row) return undefined
-          return {
-            ...row,
-            delta: 0n - (BigInt(slope.nativePower) + BigInt(slope.proxyPower)),
-            weight: 0n,
-          }
-        }
-        return undefined
-      })
+      }
+      return undefined
+    })
+
+    const voteGauges = [...voteGaugesAdded, ...voteGaugesRemoved]
       .filter((gauge: GaugeWithDelta | undefined): gauge is GaugeWithDelta => Boolean(gauge))
       .sort((a, b) => (b.delta < a.delta ? 1 : -1))
+
     return voteGauges
   }, [slopes, votes, gauges])
 

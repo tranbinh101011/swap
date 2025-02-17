@@ -5,8 +5,8 @@ import dayjs from 'dayjs'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useGaugesVotingContract } from 'hooks/useContract'
 import { useEffect, useMemo } from 'react'
-import { publicClient as getPublicClient } from 'utils/viem'
 import { isAddressEqual } from 'utils'
+import { publicClient as getPublicClient } from 'utils/viem'
 import { Address, Hex, zeroAddress } from 'viem'
 import { useCurrentBlockTimestamp } from 'views/CakeStaking/hooks/useCurrentBlockTimestamp'
 import { useVeCakeUserInfo } from 'views/CakeStaking/hooks/useVeCakeUserInfo'
@@ -100,11 +100,17 @@ export const useUserVote = (gauge: Gauge | undefined, submitted?: boolean, usePr
           .unix(Number(proxyLastVoteTime))
           .add(10, 'day')
           .isAfter(dayjs.unix(currentTimestamp))
-        const nativeVoteLocked = dayjs
+        let nativeVoteLocked = dayjs
           .unix(Number(nativeLastVoteTime))
           .add(10, 'day')
           .isAfter(dayjs.unix(currentTimestamp))
         let [nativeSlope, nativePower, proxySlope, proxyPower] = [_nativeSlope, _nativePower, _proxySlope, _proxyPower]
+
+        if (gauge?.killed) {
+          nativeVoteLocked = true
+          nativePower = 0n
+        }
+
         if (!proxyEnd) {
           return {
             hash: gauge?.hash as Hex,
@@ -197,18 +203,23 @@ export const useUserVote = (gauge: Gauge | undefined, submitted?: boolean, usePr
           })
         : []
       const [[nativeSlope, nativePower, nativeEnd], lastVoteTime] = response
-      const voteLocked = dayjs.unix(Number(lastVoteTime)).add(10, 'day').isAfter(dayjs.unix(currentTimestamp))
+      let voteLocked = dayjs.unix(Number(lastVoteTime)).add(10, 'day').isAfter(dayjs.unix(currentTimestamp))
+      let votedPower = nativePower
+      if (gauge?.killed) {
+        voteLocked = true
+        votedPower = 0n
+      }
 
       return {
         hash: gauge?.hash as Hex,
         nativeSlope,
-        nativePower,
+        nativePower: votedPower,
         nativeEnd,
         nativeLastVoteTime: lastVoteTime,
         nativeVoteLocked: voteLocked,
 
         slope: nativeSlope,
-        power: nativePower,
+        power: votedPower,
         end: nativeEnd,
         lastVoteTime,
         voteLocked,

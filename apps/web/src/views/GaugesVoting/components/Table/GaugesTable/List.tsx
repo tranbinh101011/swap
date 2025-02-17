@@ -140,6 +140,7 @@ type ListItemProps = {
 export function GaugeIdentifierDetails({ data }: ListItemProps) {
   const hasManager = data.type === GaugeType.ALM
   const { managerName } = usePositionManagerName(data)
+  const { t } = useTranslation()
 
   return (
     <Flex justifyContent="space-between" flex="1">
@@ -157,6 +158,15 @@ export function GaugeIdentifierDetails({ data }: ListItemProps) {
               </Text>
             </Flex>
           ) : null}
+          {data.killed && (
+            <span
+              style={{
+                color: '#FFB237',
+              }}
+            >
+              {t('Deleted')}
+            </span>
+          )}
         </Flex>
       </FlexGap>
       <FlexGap gap="0.25em" justifyContent="flex-end" flexWrap="wrap" style={{ flex: 1 }}>

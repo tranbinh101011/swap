@@ -92,6 +92,15 @@ export const TableRow: React.FC<RowProps> = ({ data, submitted, vote = { ...DEFA
               </Text>
             </Flex>
           ) : null}
+          {data.killed && (
+            <span
+              style={{
+                color: '#FFB237',
+              }}
+            >
+              {t('Deleted')}
+            </span>
+          )}
         </Flex>
       </FlexGap>
 

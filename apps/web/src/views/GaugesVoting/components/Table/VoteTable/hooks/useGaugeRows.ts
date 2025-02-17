@@ -68,7 +68,7 @@ const useSelectRowsWithQuery = (gauges: Gauge[] | undefined) => {
 }
 
 export const useGaugeRows = () => {
-  const { data: gauges, isLoading: gaugeIsLoading } = useGauges()
+  const { data: gauges, isLoading: gaugeIsLoading } = useGauges(true)
   const { selectRowsHash, onRowSelect, refetch, isLoading: voteIsLoading } = useSelectRowsWithQuery(gauges)
   const rows = useMemo(() => {
     const gaugesMap = new Map(gauges?.map((gauge) => [gauge.hash, gauge]))

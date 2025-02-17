@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useGaugesVotingContract } from 'hooks/useContract'
-import { useAccount } from 'wagmi'
 
 export const useVotedPower = () => {
-  const { address: account } = useAccount()
+  const { account } = useAccountActiveChain()
   const contract = useGaugesVotingContract()
   const { data } = useQuery({
     queryKey: ['/vecake/vote-power', contract.address, account],

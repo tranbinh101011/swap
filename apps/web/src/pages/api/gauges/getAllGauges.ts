@@ -5,7 +5,7 @@ import qs from 'qs'
 import { getViemClients } from 'utils/viem.server'
 import { stringify } from 'viem'
 
-const MAX_CACHE_SECONDS = 60 * 5
+const MAX_CACHE_SECONDS = 10
 
 const handler: NextApiHandler = async (req, res) => {
   const queryString = qs.stringify(req.query)
@@ -31,12 +31,7 @@ const handler: NextApiHandler = async (req, res) => {
       },
     )
 
-    if (blockNumber) {
-      // cache for long time if blockNumber is provided
-      res.setHeader('Cache-Control', `max-age=10800, s-maxage=31536000`)
-    } else {
-      res.setHeader('Cache-Control', `max-age=10, s-maxage=${MAX_CACHE_SECONDS}, stale-while-revalidate`)
-    }
+    res.setHeader('Cache-Control', `max-age=${MAX_CACHE_SECONDS}, s-maxage=${MAX_CACHE_SECONDS}`)
     return res.status(200).json({
       data: JSON.parse(stringify(gauges)),
       lastUpdated: Number(Date.now()),
