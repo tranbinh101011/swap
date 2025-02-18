@@ -9,7 +9,6 @@ import { useContext, useEffect, useState } from 'react'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSingleTokenSwapInfo, useSwapState } from 'state/swap/hooks'
 import { styled } from 'styled-components'
-import { XmasEffect } from 'views/SwapSimplify/V4Swap/XmasEffect'
 // import { SwapSelection } from '../components/SwapSelection'
 import { SwapSelection } from '../../SwapSimplify/V4Swap/SwapSelectionTab'
 import { SwapFeaturesContext } from '../SwapFeaturesContext'
@@ -130,7 +129,6 @@ export default function TwapAndLimitSwap({ limit }: { limit?: boolean }) {
           </StyledSwapContainer>
         </Flex>
       </Flex>
-      <XmasEffect />
     </>
   )
 }
