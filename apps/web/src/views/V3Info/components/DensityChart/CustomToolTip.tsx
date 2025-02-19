@@ -27,6 +27,11 @@ interface CustomToolTipProps {
 function CustomToolTip({ chartProps, poolData, currentPrice }: CustomToolTipProps) {
   const { t } = useTranslation()
   const { theme } = useTheme()
+
+  if (!chartProps?.active || !chartProps?.payload || !chartProps?.payload.length) {
+    return null
+  }
+
   const price0 = chartProps?.payload?.[0]?.payload.price0
   const price1 = chartProps?.payload?.[0]?.payload.price1
   const tvlToken0 = chartProps?.payload?.[0]?.payload.tvlToken0
