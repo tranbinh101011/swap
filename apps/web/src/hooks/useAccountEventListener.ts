@@ -7,12 +7,14 @@ import { useSwitchNetworkLocal } from './useSwitchNetwork'
 
 export const useChainIdListener = () => {
   const switchNetworkCallback = useSwitchNetworkLocal()
+  const { chainId: oldChainId } = useAccount()
   const onChainChanged = useCallback(
     ({ chainId }: { chainId?: number }) => {
       if (chainId === undefined) return
+      if (oldChainId === chainId) return
       switchNetworkCallback(chainId)
     },
-    [switchNetworkCallback],
+    [switchNetworkCallback, oldChainId],
   )
   const { connector } = useAccount()
 
@@ -22,7 +24,7 @@ export const useChainIdListener = () => {
     return () => {
       connector?.emitter?.off('change', onChainChanged)
     }
-  }, [connector, onChainChanged])
+  }, [connector, onChainChanged, oldChainId])
 }
 
 const useAddressListener = () => {
