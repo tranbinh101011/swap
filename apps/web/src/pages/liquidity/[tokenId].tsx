@@ -82,6 +82,7 @@ import { AprCalculatorV2 } from 'views/AddLiquidityV3/components/AprCalculatorV2
 import RateToggle from 'views/AddLiquidityV3/formViews/V3FormView/components/RateToggle'
 import { PageWithoutFAQ } from 'views/Page'
 import { useSendTransaction, useWalletClient } from 'wagmi'
+import { redirect } from 'next/navigation'
 
 export const BodyWrapper = styled(Card)`
   border-radius: 24px;
@@ -192,7 +193,14 @@ export default function PoolPage() {
   const { account, chainId } = useAccountActiveChain()
 
   const router = useRouter()
+
   const { tokenId: tokenIdFromUrl } = router.query
+
+  if (tokenIdFromUrl === 'pools') {
+    redirect('/liquidity/pools')
+  } else if (tokenIdFromUrl === 'positions') {
+    redirect('/liquidity/positions')
+  }
 
   const parsedTokenId = tokenIdFromUrl ? BigInt(tokenIdFromUrl as string) : undefined
 
