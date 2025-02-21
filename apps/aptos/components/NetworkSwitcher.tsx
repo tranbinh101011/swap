@@ -17,6 +17,7 @@ const evmChains = [
   { id: 59144, name: 'Linea', chainName: 'linea' },
   { id: 8453, name: 'Base', chainName: 'base' },
   { id: 204, name: 'opBNB Mainnet', chainName: 'opBNB' },
+  { id: 10143, name: 'Monad Testnet', chainName: 'monad' },
 ]
 
 const NetworkSelect = () => {

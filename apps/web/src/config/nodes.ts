@@ -10,6 +10,7 @@ import {
   baseGoerli,
   baseSepolia,
   linea,
+  monadTestnet,
   opBNB,
   opBNBTestnet,
   polygonZkEvm,
@@ -84,6 +85,10 @@ export const SERVER_NODES = {
   [ChainId.SEPOLIA]: sepolia.rpcUrls.default.http,
   [ChainId.ARBITRUM_SEPOLIA]: arbitrumSepolia.rpcUrls.default.http,
   [ChainId.BASE_SEPOLIA]: baseSepolia.rpcUrls.default.http,
+  [ChainId.MONAD_TESTNET]: [
+    'https://testnet-rpc2.monad.xyz/52227f026fa8fac9e2014c58fbf5643369b3bfc6',
+    ...monadTestnet.rpcUrls.default.http,
+  ],
 } satisfies Record<ChainId, readonly string[]>
 
 export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
@@ -160,4 +165,8 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
   [ChainId.SEPOLIA]: sepolia.rpcUrls.default.http,
   [ChainId.ARBITRUM_SEPOLIA]: arbitrumSepolia.rpcUrls.default.http,
   [ChainId.BASE_SEPOLIA]: baseSepolia.rpcUrls.default.http,
+  [ChainId.MONAD_TESTNET]: [
+    'https://testnet-rpc2.monad.xyz/52227f026fa8fac9e2014c58fbf5643369b3bfc6',
+    ...monadTestnet.rpcUrls.default.http,
+  ],
 } satisfies Record<ChainId, readonly string[]>

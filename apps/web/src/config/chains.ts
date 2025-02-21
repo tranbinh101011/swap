@@ -14,6 +14,7 @@ import {
   linea,
   lineaTestnet,
   mainnet,
+  monadTestnet,
   opBNB,
   opBNBTestnet,
   polygonZkEvm,
@@ -93,4 +94,5 @@ export const CHAINS: [Chain, ...Chain[]] = [
   opBNB,
   opBNBTestnet,
   scrollSepolia,
+  monadTestnet,
 ]

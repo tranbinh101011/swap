@@ -38,9 +38,9 @@ import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { CurrencyField as Field } from 'utils/types'
 import { basisPointsToPercent } from 'utils/exchange'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { CurrencyField as Field } from 'utils/types'
 
 import { useTranslation } from '@pancakeswap/localization'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
@@ -60,10 +60,10 @@ import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
 import { QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
 import { useSendTransaction, useWalletClient } from 'wagmi'
 
-import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
 import { ZapLiquidityWidget } from 'components/ZapLiquidityWidget'
 import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
+import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
+import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
 import LockedDeposit from './components/LockedDeposit'
 import { PositionPreview } from './components/PositionPreview'
 import RangeSelector from './components/RangeSelector'
@@ -274,7 +274,6 @@ export default function V3FormView({
 
   const onAdd = useCallback(async () => {
     logGTMClickAddLiquidityConfirmEvent()
-
     if (
       !chainId ||
       !signer ||
