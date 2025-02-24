@@ -179,11 +179,6 @@ const config: (
           href: '/lottery',
           image: '/images/decorations/lottery.png',
         },
-        {
-          label: t('Quests'),
-          href: 'https://quest.pancakeswap.finance/quests',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
       ].map((item) => addMenuItemSupported(item, chainId)),
     },
     {

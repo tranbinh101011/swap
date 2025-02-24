@@ -4,7 +4,6 @@ import CompetitionBanner from '../CompetitionBanner'
 import { FourMemeBanner } from '../FourMemeBanner'
 import { OptionsBanner } from '../OptionsBanner'
 import { PCSXBanner } from '../PCSXBanner'
-import { QuestBanner } from '../QuestBanner'
 import { TgPredictionBotBanner } from '../TgPredictionBotBanner'
 import UserBanner from '../UserBanner'
 import { V4InfoBanner } from '../V4InfoBanner'
@@ -52,10 +51,6 @@ export const useMultipleBannerConfig = () => {
       {
         shouldRender: true,
         banner: <WebNotificationBanner />,
-      },
-      {
-        shouldRender: true,
-        banner: <QuestBanner />,
       },
       {
         shouldRender: true,
