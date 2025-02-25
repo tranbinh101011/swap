@@ -48,6 +48,7 @@ const WalletProviders = [
   'isUniswapWallet',
   'isXDEFI',
   'isZerion',
+  'isBinance',
 ]
 
 async function checkWalletSupportAddEthereumChain(connector: Connector) {
