@@ -1,5 +1,17 @@
 # @pancakeswap/permit2-sdk
 
+## 1.1.0
+
+### Minor Changes
+
+- 6a6acdb: support monad testnet
+
+### Patch Changes
+
+- Updated dependencies [6a6acdb]
+  - @pancakeswap/chains@0.5.0
+  - @pancakeswap/sdk@5.8.11
+
 ## 1.0.12
 
 ### Patch Changes

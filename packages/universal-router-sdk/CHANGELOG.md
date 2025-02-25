@@ -1,5 +1,20 @@
 # @pancakeswap/universal-router-sdk
 
+## 1.1.0
+
+### Minor Changes
+
+- 6a6acdb: support monad testnet
+
+### Patch Changes
+
+- Updated dependencies [6a6acdb]
+  - @pancakeswap/chains@0.5.0
+  - @pancakeswap/permit2-sdk@1.1.0
+  - @pancakeswap/smart-router@7.1.0
+  - @pancakeswap/v3-sdk@3.9.0
+  - @pancakeswap/sdk@5.8.11
+
 ## 1.0.42
 
 ### Patch Changes

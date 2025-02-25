@@ -1,5 +1,24 @@
 # @pancakeswap/farms
 
+## 1.1.0
+
+### Minor Changes
+
+- 6a6acdb: support monad testnet
+
+### Patch Changes
+
+- Updated dependencies [6a6acdb]
+- Updated dependencies [77db844]
+  - @pancakeswap/chains@0.5.0
+  - @pancakeswap/tokens@0.7.0
+  - @pancakeswap/v3-sdk@3.9.0
+  - @pancakeswap/price-api-sdk@7.0.0
+  - @pancakeswap/stable-swap-sdk@2.0.1
+  - @pancakeswap/sdk@5.8.11
+  - @pancakeswap/utils@6.0.10
+  - @pancakeswap/token-lists@0.0.14
+
 ## 1.0.84
 
 ### Patch Changes

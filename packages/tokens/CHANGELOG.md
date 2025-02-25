@@ -1,5 +1,19 @@
 # @pancakeswap/tokens
 
+## 0.7.0
+
+### Minor Changes
+
+- 6a6acdb: support monad testnet
+
+### Patch Changes
+
+- 77db844: Update token symbol
+- Updated dependencies [6a6acdb]
+  - @pancakeswap/chains@0.5.0
+  - @pancakeswap/sdk@5.8.11
+  - @pancakeswap/token-lists@0.0.14
+
 ## 0.6.29
 
 ### Patch Changes
