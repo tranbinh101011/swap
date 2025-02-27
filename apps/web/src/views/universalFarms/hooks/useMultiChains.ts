@@ -1,9 +1,10 @@
+import { ChainId } from '@pancakeswap/chains'
 import { CHAINS } from 'config/chains'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMemo } from 'react'
 
 export const MAINNET_CHAINS = CHAINS.filter((chain) => {
-  if ('testnet' in chain && chain.testnet) {
+  if ('testnet' in chain && chain.testnet && chain.id !== ChainId.MONAD_TESTNET) {
     return false
   }
   return true
