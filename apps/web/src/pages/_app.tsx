@@ -32,17 +32,18 @@ import { V4CakeIcon } from 'views/Home/components/V4CakeIcon'
 import { AdPanel } from 'components/AdPanel'
 import { layoutDesktopAdIgnoredPages, layoutMobileAdIgnoredPages } from 'components/AdPanel/config'
 import { shouldRenderOnPages } from 'components/AdPanel/renderConditions'
+import { Cb1Membership } from 'components/Cb1/Cb1Membership'
 import { ZKSyncAirdropModalWithAutoPopup } from 'components/ClaimZksyncAirdropModal'
 import { useDataDogRUM } from 'hooks/useDataDogRUM'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
 import useInitNotificationsClient from 'hooks/useInitNotificationsClient'
+import useOptionsSunsetNotification from 'hooks/useOptionsSunsetNotification'
 import { useVercelFeatureFlagOverrides } from 'hooks/useVercelToolbar'
+import { useWalletConnectRouterSync } from 'hooks/useWalletConnectRouterSync'
 import { useWeb3WalletView } from 'hooks/useWeb3WalletView'
 import { useInitGlobalWorker } from 'hooks/useWorker'
 import { persistor, useStore } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
-import { useWalletConnectRouterSync } from 'hooks/useWalletConnectRouterSync'
-import useOptionsSunsetNotification from 'hooks/useOptionsSunsetNotification'
 import { Blocklist, Updaters } from '..'
 import { SEO } from '../../next-seo.config'
 import Providers from '../Providers'
@@ -203,6 +204,7 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
       <AffiliateSunsetModal />
       <SimpleStakingSunsetModal />
       <VercelToolbar />
+      <Cb1Membership />
     </ProductionErrorBoundary>
   )
 }

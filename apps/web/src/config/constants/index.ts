@@ -31,3 +31,5 @@ export const QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH = {
 }
 
 export const PERSIST_CHAIN_KEY = 'persistChain'
+
+export const LS_CB1 = 'cb1-state'
