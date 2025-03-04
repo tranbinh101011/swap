@@ -38,15 +38,6 @@ export const tradingCompetitionConfig = {
     reward: '100,000',
     unit: '$',
   },
-  andy: {
-    imgUrl: 'andy_competition',
-    swapUrl:
-      'https://pancakeswap.finance/?outputCurrency=0x01CA78a2B5F1a9152D8A3A625bd7dF5765eeE1D8&utm_source=Website&utm_medium=banner&utm_campaign=ANDY&utm_id=TradingCompetition',
-    learnMoreUrl:
-      'https://blog.pancakeswap.finance/articles/pancake-swap-x-andy-trading-competition-50-000-in-rewards?utm_source=Website&utm_medium=banner&utm_campaign=ANDY&utm_id=TradingCompetition',
-    reward: '50,000',
-    unit: '$',
-  },
 }
 
 export const TradingCompetition: React.FC<{ token: 'aitech' | 'bfg' | 'apt' | 'vinu' | 'andy' }> = ({ token }) => {
@@ -104,8 +95,4 @@ export const TradingCompetition: React.FC<{ token: 'aitech' | 'bfg' | 'apt' | 'v
       </Link>
     </Box>
   )
-}
-
-export const TradingCompetitionInfoStripeAndy = () => {
-  return <TradingCompetition token="andy" />
 }

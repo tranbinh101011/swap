@@ -5,7 +5,6 @@ import { AdCommon } from './Ads/AdCommon'
 import { AdIfo } from './Ads/AdIfo'
 import { AdPCSX } from './Ads/AdPCSX'
 import { AdSpringboard } from './Ads/AdSpringboard'
-import { AdTradingCompetitionAndy } from './Ads/AdTradingCompetition'
 import { ExpandableAd } from './Expandable/ExpandableAd'
 import { AdsIds } from './hooks/useAdsConfig'
 import { shouldRenderOnPages } from './renderConditions'
@@ -46,10 +45,6 @@ export const useAdConfig = () => {
       {
         id: 'ad-springboard',
         component: <AdSpringboard />,
-      },
-      {
-        id: 'ad-andy-tc',
-        component: <AdTradingCompetitionAndy />,
       },
       {
         id: 'ad-ifo',
