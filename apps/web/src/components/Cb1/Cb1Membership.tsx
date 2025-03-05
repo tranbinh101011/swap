@@ -41,7 +41,7 @@ const Cb1Inner = () => {
             marginTop: '24px',
           }}
         >
-          $8.453 {t('to be earned!')}
+          $8,453 {t('to be earned!')}
         </Text>
         <Text
           style={{
@@ -50,7 +50,7 @@ const Cb1Inner = () => {
         >
           <b>Coinbase One </b>
           {t(
-            'members who trade on PancakeSwap on Base, BNB, or Arbitrum are eligible to earn a portion of $8453 airdropped to their wallet biweekly! Must trade a minimum of $100 to qualify.',
+            'members who trade on PancakeSwap on Base, BNB, or Arbitrum are eligible to earn a portion of $8,453 airdropped to their wallet biweekly! Must trade a minimum of $100 to qualify.',
           )}
         </Text>
         <Button
