@@ -169,11 +169,11 @@ export const WETH9 = {
   ),
   [ChainId.MONAD_TESTNET]: new ERC20Token(
     ChainId.MONAD_TESTNET,
-    '0x261D8c5e9742e6f7f1076Fa1F560894524e19cad',
+    '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701',
     18,
-    'WETH',
-    'Wrapped Ether',
-    'https://weth.io',
+    'WMON',
+    'Wrapped Monad',
+    'https://www.monad.xyz/',
   ),
 }
 
