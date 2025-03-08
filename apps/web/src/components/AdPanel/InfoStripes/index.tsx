@@ -8,8 +8,8 @@ import 'swiper/css/effect-fade'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { Countdown } from './Countdown'
 
-import { AdsIds } from '../hooks/useAdsConfig'
-import { useGetInfoStripeConfig } from './InfoStripeCommon'
+import { AdsIds, useAdsConfigs } from '../hooks/useAdsConfig'
+import { InfoStripeCommon } from './InfoStripeCommon'
 import { Step1 } from './Step1'
 import { Step2 } from './Step2'
 import { Step3 } from './Step3'
@@ -100,30 +100,46 @@ type BannerConfig = {
 }
 
 const useBannerConfigs = () => {
-  const perpConfig = useGetInfoStripeConfig(AdsIds.TST_PERP)
-  const CONFIG: BannerConfig[] = [
-    {
-      ...perpConfig,
-    },
-    {
-      component: <Step1 />,
-      stripeImage: `${ASSET_CDN}/web/phishing-warning/phishing-warning-bunny-1.png`,
-      stripeImageWidth: '92px',
-      stripeImageAlt: 'Phishing Warning',
-    },
-    {
-      component: <Step2 />,
-      stripeImage: `${ASSET_CDN}/web/phishing-warning/phishing-warning-bunny-2.png`,
-      stripeImageWidth: '92px',
-      stripeImageAlt: 'Phishing Warning',
-    },
-    {
-      component: <Step3 />,
-      stripeImage: `${ASSET_CDN}/web/banners/pcsx/pcsx-bg-medium.png`,
-      stripeImageWidth: '92px',
-      stripeImageAlt: 'PCSX',
-    },
-  ]
+  const configs = useAdsConfigs()
+  const commonAdConfigs = useMemo(() => {
+    return Object.entries(configs)
+      .map(([key, value]) => {
+        if (value.infoStripe) {
+          return {
+            component: <InfoStripeCommon id={key as AdsIds} />,
+            stripeImage: `${ASSET_CDN}/web/phishing-warning/${value.infoStripe.img}.png`,
+            stripeImageWidth: '92px',
+            stripeImageAlt: value.id,
+          }
+        }
+        return undefined
+      })
+      .filter(Boolean) as BannerConfig[]
+  }, [configs])
+  const CONFIG: BannerConfig[] = useMemo(
+    () => [
+      ...commonAdConfigs,
+      {
+        component: <Step1 />,
+        stripeImage: `${ASSET_CDN}/web/phishing-warning/phishing-warning-bunny-1.png`,
+        stripeImageWidth: '92px',
+        stripeImageAlt: 'Phishing Warning',
+      },
+      {
+        component: <Step2 />,
+        stripeImage: `${ASSET_CDN}/web/phishing-warning/phishing-warning-bunny-2.png`,
+        stripeImageWidth: '92px',
+        stripeImageAlt: 'Phishing Warning',
+      },
+      {
+        component: <Step3 />,
+        stripeImage: `${ASSET_CDN}/web/banners/pcsx/pcsx-bg-medium.png`,
+        stripeImageWidth: '92px',
+        stripeImageAlt: 'PCSX',
+      },
+    ],
+    [commonAdConfigs],
+  )
   return CONFIG
 }
 
@@ -136,7 +152,7 @@ const InfoStripes: React.FC<React.PropsWithChildren> = () => {
   const CONFIG = useBannerConfigs()
   const banner = CONFIG[step]
 
-  const nextItem = useMemo(() => (step < CONFIG.length - 1 ? step + 1 : 0), [step])
+  const nextItem = useMemo(() => (step < CONFIG.length - 1 ? step + 1 : 0), [step, CONFIG.length])
 
   const handleClickNext = useCallback(() => {
     setStep(nextItem)

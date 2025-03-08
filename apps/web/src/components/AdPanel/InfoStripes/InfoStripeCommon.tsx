@@ -1,19 +1,9 @@
 import { Box, Link } from '@pancakeswap/uikit'
 import { VerticalDivider } from '@pancakeswap/widgets-internal'
-import { ASSET_CDN } from 'config/constants/endpoints'
 import { AdsIds, useAdsConfig } from '../hooks/useAdsConfig'
 import { AdTextConfig } from '../types'
 import { TextHighlight } from './TextHighlight'
 
-export const useGetInfoStripeConfig = (id: AdsIds) => {
-  const config = useAdsConfig(id).infoStripe
-  return {
-    component: <InfoStripeCommon id={id} />,
-    stripeImage: `${ASSET_CDN}/web/phishing-warning/${config.img}.png`,
-    stripeImageWidth: '92px',
-    stripeImageAlt: id,
-  }
-}
 export const InfoStripeCommon = (props: { id: AdsIds }) => {
   const config = useAdsConfig(props.id).infoStripe
   return (
