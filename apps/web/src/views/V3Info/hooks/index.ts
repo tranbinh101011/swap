@@ -3,12 +3,27 @@ import { GraphQLClient } from 'graphql-request'
 import { useMemo } from 'react'
 import { multiChainId } from 'state/info/constant'
 import { useChainNameByQuery } from 'state/info/hooks'
-import { Block } from 'state/info/types'
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
 import { useExplorerChainNameByQuery } from 'state/info/api/hooks'
 import { components } from 'state/info/api/schema'
+import { fetchPoolsForToken } from 'state/info/queries/tokens/fetchPoolsForToken'
+import { fetchTokenChartData } from 'state/info/queries/tokens/fetchTokenChartData'
+import { fetchedTokenData } from 'state/info/queries/tokens/fetchTokenData'
+import { fetchedTokenDatas } from 'state/info/queries/tokens/fetchTokenDatas'
+import {
+  Block,
+  ChartDayData,
+  PoolChartEntry,
+  PoolDataForView,
+  PriceChartEntry,
+  ProtocolDataForView,
+  TokenChartEntry,
+  TokenDataForView,
+  Transaction,
+} from 'state/info/types'
+import { transformPoolData } from 'state/info/utils'
 import { getPercentChange } from 'views/V3Info/utils/data'
 import { fetchPoolChartData } from '../data/pool/chartData'
 import { fetchedPoolData } from '../data/pool/poolData'
@@ -18,22 +33,8 @@ import { fetchChartData } from '../data/protocol/chart'
 import { fetchProtocolData } from '../data/protocol/overview'
 import { fetchTopTransactions } from '../data/protocol/transactions'
 import { fetchSearchResults } from '../data/search'
-import { fetchTokenChartData } from '../data/token/chartData'
-import { fetchPoolsForToken } from '../data/token/poolsForToken'
 import { fetchPairPriceChartTokenData, fetchTokenPriceData } from '../data/token/priceData'
-import { fetchedTokenData, fetchedTokenDatas } from '../data/token/tokenData'
 import { fetchTokenTransactions } from '../data/token/transactions'
-import {
-  ChartDayData,
-  PoolChartEntry,
-  PoolData,
-  PriceChartEntry,
-  ProtocolData,
-  TokenChartEntry,
-  TokenData,
-  Transaction,
-} from '../types'
-import { transformPoolData } from '../utils'
 
 const QUERY_SETTINGS_IMMUTABLE = {
   retryDelay: 3000,
@@ -57,7 +58,7 @@ export const useProtocolChartData = (): ChartDayData[] | undefined => {
   return useMemo(() => chartData?.data ?? [], [chartData])
 }
 
-export const useProtocolData = (): ProtocolData | undefined => {
+export const useProtocolData = (): ProtocolDataForView | undefined => {
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
   const explorerChainName = useExplorerChainNameByQuery()
@@ -159,7 +160,7 @@ export async function fetchTopTokens(chainName: components['schemas']['ChainName
           return acc
         },
         {} as {
-          [address: string]: TokenData
+          [address: string]: TokenDataForView
         },
       ),
       error: false,
@@ -175,7 +176,7 @@ export async function fetchTopTokens(chainName: components['schemas']['ChainName
 
 export const useTopTokensData = ():
   | {
-      [address: string]: TokenData
+      [address: string]: TokenDataForView
     }
   | undefined => {
   const chainName = useChainNameByQuery()
@@ -203,7 +204,7 @@ const tokenDataFetcher = (dataClient: GraphQLClient, tokenAddresses: string[], b
   return Promise.all(addressGroup.map((d) => fetchedTokenDatas(dataClient, d, blocks)))
 }
 
-export const useTokenData = (address: string): TokenData | undefined => {
+export const useTokenData = (address: string): TokenDataForView | undefined => {
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
   const explorerChainName = useExplorerChainNameByQuery()
@@ -294,7 +295,7 @@ export async function fetchTopPools(chainName: components['schemas']['ChainName'
           }
         },
         {} as {
-          [address: string]: PoolData
+          [address: string]: PoolDataForView
         },
       ),
       error: false,
@@ -310,7 +311,7 @@ export async function fetchTopPools(chainName: components['schemas']['ChainName'
 
 export const useTopPoolsData = ():
   | {
-      [address: string]: PoolData
+      [address: string]: PoolDataForView
     }
   | undefined => {
   const chainName = useChainNameByQuery()
@@ -329,7 +330,7 @@ export const useTopPoolsData = ():
   return data?.data
 }
 
-export const usePoolsDataForToken = (address: string): PoolData[] | undefined => {
+export const usePoolsDataForToken = (address: string): PoolDataForView[] | undefined => {
   const chainName = useChainNameByQuery()
   const explorerChainName = useExplorerChainNameByQuery()
 
@@ -345,7 +346,7 @@ export const usePoolsDataForToken = (address: string): PoolData[] | undefined =>
   return data?.data
 }
 
-export const usePoolData = (address: string): PoolData | undefined => {
+export const usePoolData = (address: string): PoolDataForView | undefined => {
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
   const explorerChainName = useExplorerChainNameByQuery()

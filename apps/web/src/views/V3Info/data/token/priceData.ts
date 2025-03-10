@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { explorerApiClient } from 'state/info/api/client'
 import { components } from 'state/info/api/schema'
-import { PriceChartEntry } from '../../types'
+import { PriceChartEntry } from 'state/info/types'
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc)

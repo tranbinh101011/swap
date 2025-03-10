@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { explorerApiClient } from 'state/info/api/client'
 import type { components } from 'state/info/api/schema'
-import { ChartDayData } from '../../types'
+import { ChartDayData } from 'state/info/types'
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc)

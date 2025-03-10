@@ -4,12 +4,12 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import NextLink from 'next/link'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useChainIdByQuery, useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
+import { PoolDataForView } from 'state/info/types'
 import { styled } from 'styled-components'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { DoubleCurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import { Arrow, Break, ClickableColumnHeader, PageButtons, TableWrapper } from 'views/Info/components/InfoTables/shared'
 import { POOL_HIDE, v3InfoPath } from '../../constants'
-import { PoolData } from '../../types'
 import { feeTierPercent } from '../../utils'
 import { formatDollarAmount } from '../../utils/numbers'
 import { GreyBadge } from '../Card'
@@ -61,7 +61,7 @@ const SORT_FIELD = {
   volumeUSDWeek: 'volumeUSDWeek',
 }
 
-const DataRow = ({ poolData, index, chainPath }: { poolData: PoolData; index: number; chainPath: string }) => {
+const DataRow = ({ poolData, index, chainPath }: { poolData: PoolDataForView; index: number; chainPath: string }) => {
   const chainName = useChainNameByQuery()
   const chainId = useChainIdByQuery()
   const token0symbol = getTokenSymbolAlias(poolData.token0.address, chainId, poolData.token0.symbol)
@@ -96,7 +96,13 @@ const DataRow = ({ poolData, index, chainPath }: { poolData: PoolData; index: nu
 
 const MAX_ITEMS = 10
 
-export default function PoolTable({ poolDatas, maxItems = MAX_ITEMS }: { poolDatas: PoolData[]; maxItems?: number }) {
+export default function PoolTable({
+  poolDatas,
+  maxItems = MAX_ITEMS,
+}: {
+  poolDatas: PoolDataForView[]
+  maxItems?: number
+}) {
   const { chainId } = useActiveChainId()
 
   const { t } = useTranslation()
@@ -123,7 +129,7 @@ export default function PoolTable({ poolDatas, maxItems = MAX_ITEMS }: { poolDat
           .filter((x) => !!x && chainId && !POOL_HIDE?.[chainId]?.includes(x.address))
           .sort((a, b) => {
             if (a && b) {
-              return a[sortField as keyof PoolData] > b[sortField as keyof PoolData]
+              return a[sortField as keyof PoolDataForView] > b[sortField as keyof PoolDataForView]
                 ? (sortDirection ? -1 : 1) * 1
                 : (sortDirection ? -1 : 1) * -1
             }

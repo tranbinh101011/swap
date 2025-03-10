@@ -5,8 +5,8 @@ import useTheme from 'hooks/useTheme'
 import React, { ComponentProps, Dispatch, ReactNode, SetStateAction } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { Margin } from 'recharts/types/util/types'
+import { VolumeWindow } from 'state/info/types'
 import { styled } from 'styled-components'
-import { VolumeWindow } from '../../types'
 import { LoadingRows } from '../Loader'
 
 const DEFAULT_HEIGHT = 300

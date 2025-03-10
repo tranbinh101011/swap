@@ -35,7 +35,7 @@ export const getCakeApr = (pool: PoolInfo, cakePrice: BigNumber): Promise<CakeAp
 }
 
 // @todo @ChefJerry should directly fetch from poolInfo api, BE need update
-export const getLpApr = async (pool: PoolInfo, signal?: AbortSignal): Promise<number> => {
+export const getLpApr = async (pool: PoolInfo, apr24h: boolean = false, signal?: AbortSignal): Promise<number> => {
   const { protocol } = pool
   const chainName = chainIdToExplorerInfoChainName[pool.chainId]
 
@@ -57,6 +57,9 @@ export const getLpApr = async (pool: PoolInfo, signal?: AbortSignal): Promise<nu
     return 0
   }
 
+  if (apr24h) {
+    return resp.data.apr24h ? parseFloat(resp.data.apr24h) : 0
+  }
   return resp.data.apr7d ? parseFloat(resp.data.apr7d) : 0
 }
 

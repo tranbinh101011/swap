@@ -41,6 +41,7 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(fn: T, { ttl, key, maxC
     if (halfTTS) {
       const nextKey = calcCacheKey(keyFunction(args), epochId + 1)
       if (!cache.has(nextKey)) {
+        // @ts-ignore
         const nextPromise = fn(...args)
         cache.set(nextKey, nextPromise)
       }
@@ -52,6 +53,7 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(fn: T, { ttl, key, maxC
       return cache.get(cacheKey)
     }
 
+    // @ts-ignore
     const promise = fn(...args)
 
     cache.set(cacheKey, promise)

@@ -1,12 +1,12 @@
 import { explorerApiClient } from 'state/info/api/client'
 import type { components } from 'state/info/api/schema'
+import { Transaction } from 'state/info/types'
 import { transformTransaction } from 'views/V3Info/utils'
-import { Transaction } from '../../types'
 
 export async function fetchTokenTransactions(
   address: string,
   chainName: components['schemas']['ChainName'],
-  signal: AbortSignal,
+  signal?: AbortSignal,
 ): Promise<{ data: Transaction[] | undefined; error: boolean; loading: boolean }> {
   try {
     const data = await explorerApiClient

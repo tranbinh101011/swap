@@ -19,12 +19,13 @@ export const StyledSwiper = styled(Swiper)<{ $showPagination?: boolean }>`
 
   .swiper-pagination {
     position: absolute;
-    left: 18px;
-    bottom: 16px;
-    width: 148px;
+    left: 18px !important;
+    bottom: 16px !important;
+    width: 148px !important;
 
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: center;
 
     gap: 4px;
   }
@@ -58,6 +59,9 @@ export const StyledSwiper = styled(Swiper)<{ $showPagination?: boolean }>`
       &.pause::before {
         animation-play-state: paused;
       }
+    }
+    &.played {
+      background-color: ${({ theme }) => theme.colors.secondary};
     }
   }
 `

@@ -12,12 +12,12 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChainLinkSupportChains, multiChainId } from 'state/info/constant'
 import { useChainIdByQuery, useChainNameByQuery } from 'state/info/hooks'
+import { Transaction, TransactionType } from 'state/info/types'
 import { styled } from 'styled-components'
 import { getBlockExploreLink } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { Arrow, Break, ClickableColumnHeader, PageButtons, TableWrapper } from 'views/Info/components/InfoTables/shared'
-import { Transaction, TransactionType } from '../../types'
 import { shortenAddress } from '../../utils'
 import { formatTime } from '../../utils/date'
 import { formatDollarAmount } from '../../utils/numbers'
@@ -185,7 +185,7 @@ export default function TransactionTable({
       ? [...transactions]
           .sort((a, b) => {
             if (a && b) {
-              return a[sortField as keyof Transaction] > b[sortField as keyof Transaction]
+              return a[sortField as keyof Transaction]! > b[sortField as keyof Transaction]!
                 ? (sortDirection ? -1 : 1) * 1
                 : (sortDirection ? -1 : 1) * -1
             }

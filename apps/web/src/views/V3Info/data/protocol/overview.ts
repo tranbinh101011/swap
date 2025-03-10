@@ -1,15 +1,15 @@
 import BigNumber from 'bignumber.js'
-import type { components } from 'state/info/api/schema'
 import { explorerApiClient } from 'state/info/api/client'
+import type { components } from 'state/info/api/schema'
+import { ProtocolDataForView } from 'state/info/types'
 import { getPercentChange } from '../../utils/data'
-import { ProtocolData } from '../../types'
 
 export async function fetchProtocolData(
   chainName: components['schemas']['ChainName'],
   signal: AbortSignal,
 ): Promise<{
   error: boolean
-  data: ProtocolData | undefined
+  data: ProtocolDataForView | undefined
 }> {
   try {
     const data = await explorerApiClient

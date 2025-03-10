@@ -1,3 +1,4 @@
+import { Currency } from '@pancakeswap/swap-sdk-core'
 import { Flex, Text } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { useMemo } from 'react'
@@ -20,6 +21,31 @@ const TokenButton = styled(Flex)`
 type PoolCurrenciesProps = {
   poolInfo?: PoolInfo | null
 }
+
+function getTokenUrls(chainPath: string, poolInfo?: PoolInfo | null) {
+  if (!poolInfo) {
+    return { token0Url: '', token1Url: '' }
+  }
+
+  const { protocol } = poolInfo
+  const stableSwapUrlQuery = protocol === 'stable' ? '?type=stableSwap' : ''
+
+  const v2Url = (token: Currency) => `/info${chainPath}/tokens/${token.wrapped.address}${stableSwapUrlQuery}`
+
+  const v3Url = (token: Currency) => `/info/${protocol}/${chainPath}/tokens/${token.wrapped.address}`
+
+  if (protocol === 'stable' || protocol === 'v2') {
+    return {
+      token0Url: v2Url(poolInfo.token0.wrapped),
+      token1Url: v2Url(poolInfo.token1.wrapped),
+    }
+  }
+
+  return {
+    token0Url: v3Url(poolInfo.token0.wrapped),
+    token1Url: v3Url(poolInfo.token1.wrapped),
+  }
+}
 export const PoolCurrencies: React.FC<PoolCurrenciesProps> = ({ poolInfo }) => {
   const chainPath = useMultiChainPath()
   const chainName = useChainNameByQuery()
@@ -38,6 +64,10 @@ export const PoolCurrencies: React.FC<PoolCurrenciesProps> = ({ poolInfo }) => {
     poolInfo?.token1.wrapped.address,
   ])
 
+  const infoUrls = useMemo(() => {
+    return getTokenUrls(chainPath, poolInfo)
+  }, [chainPath, poolInfo])
+
   const hasSmallDifference = useMemo(() => {
     const { token0Price = 0, token1Price = 0 } = poolInfo ?? {}
     return poolInfo ? Math.abs(Number(token1Price) - Number(token0Price)) < 1 : false
@@ -50,9 +80,7 @@ export const PoolCurrencies: React.FC<PoolCurrenciesProps> = ({ poolInfo }) => {
   return (
     <Flex justifyContent="space-between" flexDirection={['column', 'column', 'column', 'row']}>
       <Flex flexDirection={['column', 'column', 'row']}>
-        <NextLinkFromReactRouter
-          to={`/info${chainPath}/tokens/${poolInfo.token0.wrapped.address}${stableSwapUrlQuery}`}
-        >
+        <NextLinkFromReactRouter to={infoUrls.token0Url}>
           <TokenButton>
             <CurrencyLogo address={poolInfo.token0.wrapped.address} size="24px" chainName={chainName} />
             <Text fontSize="16px" ml="4px" style={{ whiteSpace: 'nowrap' }} width="fit-content">
@@ -64,7 +92,7 @@ export const PoolCurrencies: React.FC<PoolCurrenciesProps> = ({ poolInfo }) => {
             </Text>
           </TokenButton>
         </NextLinkFromReactRouter>
-        <NextLinkFromReactRouter to={`/info${chainPath}/tokens/${poolInfo.token1.address}${stableSwapUrlQuery}`}>
+        <NextLinkFromReactRouter to={infoUrls.token1Url}>
           <TokenButton ml={[null, null, '10px']}>
             <CurrencyLogo address={poolInfo.token1.address} size="24px" chainName={chainName} />
             <Text fontSize="16px" ml="4px" style={{ whiteSpace: 'nowrap' }} width="fit-content">

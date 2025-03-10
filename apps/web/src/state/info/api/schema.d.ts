@@ -2365,6 +2365,7 @@ export interface operations {
         content: {
           'application/json': {
             apr7d: string
+            apr24h?: string
             poolId: string
             virtualPrice: string
             virtualPrice7d: string

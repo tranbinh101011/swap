@@ -1,7 +1,7 @@
 import { explorerApiClient } from 'state/info/api/client'
 import type { components } from 'state/info/api/schema'
+import { Transaction } from 'state/info/types'
 import { transformTransaction } from 'views/V3Info/utils'
-import { Transaction } from '../../types'
 
 export async function fetchTopTransactions(
   chainName: components['schemas']['ChainName'],

@@ -1,7 +1,7 @@
 import { explorerApiClient } from 'state/info/api/client'
 import { components } from 'state/info/api/schema'
-import { PoolData } from 'views/V3Info/types'
-import { transformPoolData } from 'views/V3Info/utils'
+import { PoolDataForView } from 'state/info/types'
+import { transformPoolData } from 'state/info/utils'
 
 /**
  * Fetch top addresses by volume
@@ -9,8 +9,8 @@ import { transformPoolData } from 'views/V3Info/utils'
 export async function fetchPoolsForToken(
   address: string,
   chainName: components['schemas']['ChainName'],
-  signal: AbortSignal,
-): Promise<{ error: boolean; data: PoolData[] }> {
+  signal?: AbortSignal,
+): Promise<{ error: boolean; data: PoolDataForView[] }> {
   try {
     const data = await explorerApiClient.GET('/cached/pools/v3/{chainName}/list/top', {
       signal,

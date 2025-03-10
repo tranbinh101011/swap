@@ -16,12 +16,12 @@ import useTheme from 'hooks/useTheme'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { multiChainId } from 'state/info/constant'
 import { useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
+import { TokenDataForView } from 'state/info/types'
 import { styled } from 'styled-components'
 import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import { Arrow, Break, ClickableColumnHeader, PageButtons, TableWrapper } from 'views/Info/components/InfoTables/shared'
 import { TOKEN_HIDE, v3InfoPath } from '../../constants'
-import { TokenData } from '../../types'
 import { formatDollarAmount } from '../../utils/numbers'
 import HoverInlineText from '../HoverInlineText'
 import Loader, { LoadingRows } from '../Loader'
@@ -76,7 +76,15 @@ const ResponsiveLogo = styled(CurrencyLogo)`
   }
 `
 
-const DataRow = ({ tokenData, index, chainPath }: { tokenData: TokenData; index: number; chainPath: string }) => {
+const DataRow = ({
+  tokenData,
+  index,
+  chainPath,
+}: {
+  tokenData: TokenDataForView
+  index: number
+  chainPath: string
+}) => {
   const { theme } = useTheme()
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
@@ -129,7 +137,7 @@ export default function TokenTable({
   tokenDatas,
   maxItems = MAX_ITEMS,
 }: {
-  tokenDatas: TokenData[] | undefined
+  tokenDatas: TokenDataForView[] | undefined
   maxItems?: number
 }) {
   const { t } = useTranslation()
@@ -159,7 +167,7 @@ export default function TokenTable({
           .filter((x) => !!x && !TOKEN_HIDE?.[chainId]?.includes(x.address))
           .sort((a, b) => {
             if (a && b) {
-              return a[sortField as keyof TokenData] > b[sortField as keyof TokenData]
+              return a[sortField as keyof TokenDataForView] > b[sortField as keyof TokenDataForView]
                 ? (sortDirection ? -1 : 1) * 1
                 : (sortDirection ? -1 : 1) * -1
             }

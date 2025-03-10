@@ -25,19 +25,18 @@ import { CHAIN_QUERY_NAME } from 'config/chains'
 import { ONE_HOUR_SECONDS } from 'config/constants/info'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import { ChainLinkSupportChains, multiChainId, multiChainScan } from 'state/info/constant'
+import { atom, useAtomValue } from 'jotai'
+import { atomFamily } from 'jotai/utils'
+import isEqual from 'lodash/isEqual'
+import { ChainLinkSupportChains, checkIsStableSwap, multiChainId, multiChainScan } from 'state/info/constant'
 import {
   useChainIdByQuery,
   useChainNameByQuery,
   useMultiChainPath,
-  usePoolsForTokenDataQuery,
   useStableSwapPath,
-  useTokenChartTvlDataQuery,
-  useTokenChartVolumeDataQuery,
-  useTokenDataQuery,
   useTokenPriceDataQuery,
-  useTokenTransactionsQuery,
 } from 'state/info/hooks'
+import { PoolData, TokenData, Transaction, TvlChartEntry, VolumeChartEntry } from 'state/info/types'
 import { styled } from 'styled-components'
 import { getBlockExploreLink } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
@@ -73,6 +72,27 @@ const StyledCMCLink = styled(UIKitLink)`
 `
 const DEFAULT_TIME_WINDOW = dayjs.duration(1, 'weeks')
 
+interface TokenInfoParams {
+  address: string
+  chain: string
+  type: 'swap' | 'stableSwap'
+}
+
+interface TokenQueryResponse {
+  token: TokenData
+  pool: (PoolData | undefined)[]
+  transactions: Transaction[] | undefined
+  chartVolume: VolumeChartEntry[] | undefined
+  chartTvl: TvlChartEntry[] | undefined
+}
+const tokenInfoAtom = atomFamily((params: TokenInfoParams) => {
+  return atom(async () => {
+    const resp = await fetch(`/api/token/${params.type}/${params.chain}/${params.address}`)
+    const json = await resp.json()
+    return json as TokenQueryResponse
+  })
+}, isEqual)
+
 const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = ({ routeAddress }) => {
   const { isXs, isSm } = useMatchBreakpoints()
   const { t } = useTranslation()
@@ -82,13 +102,15 @@ const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = (
   const address = routeAddress.toLowerCase()
 
   const cmcLink = useCMCLink(address)
+  const type = checkIsStableSwap() ? 'stableSwap' : 'swap'
 
-  const tokenData = useTokenDataQuery(address)
-  const poolDatas = usePoolsForTokenDataQuery(address)
-  const transactions = useTokenTransactionsQuery(address)
-  // const chartData = useTokenChartDataQuery(address)
-  const volumeChartData = useTokenChartVolumeDataQuery(address)
-  const tvlChartData = useTokenChartTvlDataQuery(address)
+  const {
+    token: tokenData,
+    pool: poolDatas,
+    transactions,
+    chartVolume: volumeChartData,
+    chartTvl: tvlChartData,
+  } = useAtomValue(tokenInfoAtom({ address, chain: CHAIN_QUERY_NAME[chainId], type }))
 
   // pricing data
   const priceData = useTokenPriceDataQuery(address, ONE_HOUR_SECONDS, DEFAULT_TIME_WINDOW)

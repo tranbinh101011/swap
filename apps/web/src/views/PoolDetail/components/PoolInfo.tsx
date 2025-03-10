@@ -1,7 +1,21 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Percent } from '@pancakeswap/swap-sdk-core'
-import { AutoColumn, AutoRow, Box, Column, Flex, FlexGap, Grid, Spinner, Text } from '@pancakeswap/uikit'
+import {
+  AddIcon,
+  AutoColumn,
+  AutoRow,
+  Box,
+  Card,
+  CardBody,
+  Column,
+  Flex,
+  FlexGap,
+  Grid,
+  Spinner,
+  Text,
+} from '@pancakeswap/uikit'
 import { ChainLogo, DoubleCurrencyLogo, FeatureStack, FeeTierTooltip } from '@pancakeswap/widgets-internal'
+import ConnectWalletButton from 'components/ConnectWalletButton'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { NextSeo } from 'next-seo'
 import { useMemo } from 'react'
@@ -9,6 +23,7 @@ import { useChainIdByQuery, useChainNameByQuery } from 'state/info/hooks'
 import styled from 'styled-components'
 import { multiChainNameConverter } from 'utils/chainNameConverter'
 import { PoolGlobalAprButton } from 'views/universalFarms/components/PoolAprButton'
+import { useConnect } from 'wagmi'
 import { usePoolInfoByQuery } from '../hooks/usePoolInfo'
 import { MyPositions } from './MyPositions'
 import { PoolCharts } from './PoolCharts'
@@ -30,6 +45,7 @@ export const PoolInfo = () => {
   const poolInfo = usePoolInfoByQuery()
   const chainId = useChainIdByQuery()
   const networkName = useChainNameByQuery()
+  const { connectAsync } = useConnect()
 
   const [currency0, currency1] = useMemo(() => {
     if (!poolInfo) return [undefined, undefined]
@@ -104,6 +120,35 @@ export const PoolInfo = () => {
           </AutoColumn>
         </FlexGap>
       </Header>
+      {!account && (
+        <Grid gridGap="24px">
+          <Text as="h3" fontWeight={600} fontSize={24}>
+            {t('My Positions')}
+          </Text>
+          <Card>
+            <CardBody>
+              <Box
+                display="flex"
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                }}
+              >
+                <Text>{t('Please connect wallet to view your position / add liquidity.')}</Text>
+                <ConnectWalletButton
+                  style={{
+                    marginTop: '24px',
+                  }}
+                >
+                  {t('Add Liquidity')}
+                  <AddIcon ml="8px" color="var(--colors-invertedContrast)" />
+                </ConnectWalletButton>
+              </Box>
+            </CardBody>
+          </Card>
+        </Grid>
+      )}
       {account && poolInfo ? <MyPositions poolInfo={poolInfo} /> : null}
 
       <AutoRow gap="lg" flexWrap="wrap">

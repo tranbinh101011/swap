@@ -1,7 +1,7 @@
-import { explorerApiClient } from 'state/info/api/client'
 import dayjs from 'dayjs'
+import { explorerApiClient } from 'state/info/api/client'
 import { components } from 'state/info/api/schema'
-import { Transaction, TransactionType } from '../../types'
+import { Transaction, TransactionType } from 'state/info/types'
 
 export async function fetchPoolTransactions(
   address: string,

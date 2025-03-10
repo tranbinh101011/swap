@@ -2,16 +2,16 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Box, Card, Flex, Text } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useEffect, useMemo, useRef } from 'react'
 import { useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
+import { TokenDataForView } from 'state/info/types'
 import { styled } from 'styled-components'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import Percent from 'views/Info/components/Percent'
-import { v3InfoPath, TOKEN_HIDE } from '../../constants'
+import { TOKEN_HIDE, v3InfoPath } from '../../constants'
 import { useTopTokensData } from '../../hooks'
-import { TokenData } from '../../types'
 
 const CardWrapper = styled(NextLinkFromReactRouter)`
   display: inline-block;
@@ -39,7 +39,7 @@ export const ScrollableRow = styled.div`
   }
 `
 
-const DataCard = ({ tokenData }: { tokenData: TokenData }) => {
+const DataCard = ({ tokenData }: { tokenData: TokenDataForView }) => {
   const chainName = useChainNameByQuery()
   const chainPath = useMultiChainPath()
   return (

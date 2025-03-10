@@ -1,24 +1,24 @@
 import { explorerApiClient } from 'state/info/api/client'
 import { components } from 'state/info/api/schema'
-import { PoolDataForView } from 'state/info/types'
+import { TokenDataForView } from 'state/info/types'
 import { getPercentChange } from 'utils/infoDataHelpers'
 
-export async function fetchedPoolData(
+export async function fetchedTokenData(
   chainName: components['schemas']['ChainName'],
-  poolAddress: string,
-  signal: AbortSignal,
+  tokenAddress: string,
+  signal?: AbortSignal,
 ): Promise<{
   error: boolean
-  data: PoolDataForView | undefined
+  data: TokenDataForView | undefined
 }> {
   try {
     const data = await explorerApiClient
-      .GET('/cached/pools/v3/{chainName}/{address}', {
+      .GET('/cached/tokens/v3/{chainName}/{address}', {
         signal,
         params: {
           path: {
             chainName,
-            address: poolAddress,
+            address: tokenAddress,
           },
         },
       })
@@ -45,41 +45,37 @@ export async function fetchedPoolData(
       data.tvlUSD ? parseFloat(data.tvlUSD) : undefined,
       data.tvlUSD24h ? parseFloat(data.tvlUSD24h) : undefined,
     )
+    const decimals = data.decimals ?? 0
+    const tvlToken = data.tvl ? parseFloat(data.tvl) : 0
+    const priceUSD = data.priceUSD ? parseFloat(data.priceUSD) : 0
+    const priceUSDOneDay = data.priceUSD24h ? parseFloat(data.priceUSD24h) : 0
+    const priceUSDWeek = data.priceUSD7d ? parseFloat(data.priceUSD7d) : 0
+    const priceUSDChange = priceUSD && priceUSDOneDay ? getPercentChange(priceUSD, priceUSDOneDay) : 0
+    const priceUSDChangeWeek = priceUSD && priceUSDWeek ? getPercentChange(priceUSD, priceUSDWeek) : 0
 
-    const feeUSD = parseFloat(data.feeUSD24h) ?? 0
+    const txCount = data.txCount24h ?? 0
+
+    const feesUSD = parseFloat(data.feeUSD24h) ?? 0
 
     return {
       error: false,
       data: {
+        exists: !!data,
         address: data.id,
-        feeTier: data.feeTier,
-        liquidity: parseFloat(data.liquidity),
-        sqrtPrice: parseFloat(data.sqrtPrice),
-        tick: data.tick ?? 0,
-        token0: {
-          address: data.token0.id,
-          name: data.token0.name,
-          symbol: data.token0.symbol,
-          decimals: data.token0.decimals,
-          derivedETH: 0,
-        },
-        token1: {
-          address: data.token1.id,
-          name: data.token1.name,
-          symbol: data.token1.symbol,
-          decimals: data.token1.decimals,
-          derivedETH: 0,
-        },
-        token0Price: parseFloat(data.token0Price),
-        token1Price: parseFloat(data.token1Price),
+        name: data?.name ?? '',
+        symbol: data?.symbol ?? '',
+        decimals,
         volumeUSD,
         volumeUSDChange,
         volumeUSDWeek,
+        txCount,
         tvlUSD,
+        feesUSD,
         tvlUSDChange,
-        tvlToken0: parseFloat(data.tvlToken0),
-        tvlToken1: parseFloat(data.tvlToken1),
-        feeUSD,
+        tvlToken,
+        priceUSD,
+        priceUSDChange,
+        priceUSDChangeWeek,
       },
     }
   } catch (e) {

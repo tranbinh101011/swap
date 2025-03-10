@@ -51,7 +51,9 @@ export const PoolListItemAction = memo(({ pool }: { pool: PoolInfo }) => {
   )
 })
 
-export const getPoolDetailPageLink = async (pool: PoolInfo) => {
+export const getPoolDetailPageLink = async (
+  pool: Pick<PoolInfo, 'protocol' | 'chainId' | 'stableSwapAddress' | 'lpAddress'>,
+) => {
   const linkPrefix = `/liquidity/pool${multiChainPaths[pool.chainId] || '/bsc'}`
   if (pool.protocol === Protocol.STABLE) {
     if (pool.stableSwapAddress) {

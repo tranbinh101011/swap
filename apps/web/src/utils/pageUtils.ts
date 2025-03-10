@@ -6,14 +6,26 @@ export const getTokenStaticPaths = (): GetStaticPaths => {
   return () => {
     return {
       paths: [],
-      fallback: true,
+      fallback: 'blocking',
     }
   }
+}
+
+export const invalidAddressCheck = (address: string | string[]) => {
+  if (
+    !address ||
+    !isAddress(String(address).toLowerCase()) ||
+    unsupportedTokens.tokens.map((t) => t.address.toLowerCase()).includes(String(address).toLowerCase())
+  ) {
+    return true
+  }
+  return false
 }
 
 export const getTokenStaticProps = (): GetStaticProps => {
   return async ({ params }) => {
     const address = params?.address
+    const chain = params?.chainName
 
     // In case somebody pastes checksummed address into url (since GraphQL expects lowercase address)
     if (
@@ -31,6 +43,7 @@ export const getTokenStaticProps = (): GetStaticProps => {
     return {
       props: {
         address,
+        chain,
       },
     }
   }

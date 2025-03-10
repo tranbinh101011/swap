@@ -2,7 +2,8 @@ import { useTheme } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { Box, Button, Column, LinkExternal, PageHeader, Row, Text } from '@pancakeswap/uikit'
 import { VerticalDivider } from '@pancakeswap/widgets-internal'
-import { BCakeBoosterCard } from 'views/Farms/components/YieldBooster/components/bCakeV3/BCakeBoosterCard'
+import { AdPanel } from 'components/AdPanel'
+import { Suspense } from 'react'
 import { FarmFlexWrapper, FarmH1, FarmH2 } from 'views/Farms/styled'
 
 export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }) => {
@@ -40,7 +41,9 @@ export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }
             </Row>
           </Box>
           <Box>
-            <BCakeBoosterCard />
+            <Suspense>
+              <AdPanel.PicksAdsSlides isDismissible={false} />
+            </Suspense>
           </Box>
         </FarmFlexWrapper>
       </Column>

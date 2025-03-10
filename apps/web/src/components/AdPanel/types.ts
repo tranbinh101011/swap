@@ -9,10 +9,18 @@ export interface AdPlayerProps {
   forceMobile?: boolean
 }
 
+export interface AdSlide {
+  id: string
+  component: JSX.Element
+  shouldRender?: Array<boolean>
+  priority?: number
+}
+
 export interface AdTextConfig {
   text: string
   highlights?: string[]
   link?: string
+  subTitle?: boolean
 }
 export interface BtnConfig {
   text: string
@@ -33,8 +41,33 @@ export interface InfoStripeConfig {
   btns: BtnConfig[]
 }
 
+export enum AdsConfigTypes {
+  DEFAULT = 'default',
+  PICKS = 'picks',
+}
+
 export interface AdsCampaignConfig {
   id: string
   ad: AdsConfig
   infoStripe: InfoStripeConfig
+}
+
+type Token = {
+  address: string
+  name: string
+  symbol: string
+  color: string
+  img: string
+}
+
+export type PickConfig = {
+  chain: string
+  poolId: `0x{string}`
+  token0: Token
+  token1: Token
+}
+
+export type PicksConfig = {
+  update: number
+  configs: PickConfig[]
 }
