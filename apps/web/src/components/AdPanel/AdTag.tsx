@@ -45,8 +45,11 @@ const TagBox = styled.div<ThemedTagBox>`
   justify-content: center;
   border-radius: 24px;
   margin-right: 4px;
-  padding-top: 2px;
-  padding-right: 10px;
-  padding-bottom: 2px;
-  padding-left: 10px;
+  padding: 2px 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 `

@@ -163,7 +163,9 @@ const AdPicksTooltip = () => {
           'Pancake Picks are trending tokens from selected categories, filtered by meaningful metrics, and refreshed every weekday.',
         )}
       </Text>
-      <Link href="https://pancakeswap.finance">{t('More Information')}</Link>
+      <Link external href="https://docs.pancakeswap.finance/products/pancake-picks">
+        {t('More Information')}
+      </Link>
     </>
   )
 }
