@@ -2,7 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import getTimePeriods from '@pancakeswap/utils/getTimePeriods'
 
 export const useIDODuration = (duration: number) => {
-  const { days, hours } = getTimePeriods(duration)
+  const { days, hours } = getTimePeriods(duration, 'ceil')
   const { t } = useTranslation()
 
   if (days > 1) {
