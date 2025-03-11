@@ -2,7 +2,7 @@ import { MultiChainName } from 'state/info/constant'
 import styled from 'styled-components'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 
-export const BaseCoinSvg = ({ color, index }: { color: string; index }) => (
+export const BaseCoinSvg = ({ color, index }: { color: string; index: string }) => (
   <svg width="83" height="88" viewBox="0 0 83 88" fill="none" xmlns="http://www.w3.org/2000/svg">
     <mask
       id="mask0_1475_43376"

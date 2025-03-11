@@ -11,7 +11,7 @@ import {
   useMatchBreakpoints,
 } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
-import { AdPanel } from 'components/AdPanel'
+import { AdPlayer } from 'components/AdPanel/AdPlayer'
 import { useMemo } from 'react'
 import styled, { css } from 'styled-components'
 import { useCakeLockStatus } from '../hooks/useVeCakeUserInfo'
@@ -26,7 +26,7 @@ export const PageHead = () => {
     <>
       {isMobile && (
         <Box mb="16px">
-          <AdPanel.AdPlayer />
+          <AdPlayer />
         </Box>
       )}
       <Flex justifyContent="space-between" flexDirection="row">
