@@ -22,18 +22,6 @@ interface ConnectWalletButtonProps extends ButtonProps {
   withIcon?: boolean
 }
 
-export const getBinanceDeepLink = (url: string, chainId = 1) => {
-  const base = 'bnc://app.binance.com/mp/app'
-  const appId = 'yFK5FCqYprrXDiVFbhyRx7'
-
-  const startPagePath = btoa('/pages/browser/index')
-  const startPageQuery = btoa(`url=${url}&defaultChainId=${chainId}`)
-  const deeplink = `${base}?appId=${appId}&startPagePath=${startPagePath}&startPageQuery=${startPageQuery}`
-  const dp = btoa(deeplink)
-  const http = `https://app.binance.com/en/download?_dp=${dp}`
-  return { http, bnc: deeplink }
-}
-
 const InstallModal = () => {
   const { t } = useTranslation()
 
@@ -70,9 +58,7 @@ const ConnectW3WButton = ({ children, withIcon, onClick, ...props }: ConnectWall
 
   const handleClick = (e) => {
     if (isInBinance()) {
-      console.debug('debug connect w3w chainId', chainId)
       connectAsync({
-        // connector: binanceWeb3WalletConnector({ shimDisconnect: false }),
         connector: binanceWeb3WalletConnector(),
         chainId,
       })
@@ -112,16 +98,7 @@ export const DisconnectW3WButton: React.FC<ButtonProps> = (props) => {
         },
       )
       if (window.ethereum) {
-        // await window.ethereum.request({
-        //   method: 'wallet_revokePermissions',
-        //   params: [
-        //     {
-        //       eth_accounts: {},
-        //     },
-        //   ],
-        // })
-        // @ts-expect-error
-        await window.ethereum.request({
+        await window.ethereum.request?.({
           method: 'eth_requestAccounts',
           params: [{ eth_accounts: {} }],
         })

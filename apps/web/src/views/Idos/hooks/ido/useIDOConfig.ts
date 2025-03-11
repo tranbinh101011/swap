@@ -54,12 +54,10 @@ export const useIDOConfig = () => {
         stakeCurrency0 ? CurrencyAmount.fromRawAmount(stakeCurrency0, pool0Info?.capPerUserInLP ?? 0n) : undefined,
         stakeCurrency1 ? CurrencyAmount.fromRawAmount(stakeCurrency1, pool1Info?.capPerUserInLP ?? 0n) : undefined,
       ],
-      raiseAmounts: offeringCurrency
-        ? [
-            CurrencyAmount.fromRawAmount(offeringCurrency, pool0Info?.raisingAmountPool ?? 0n),
-            CurrencyAmount.fromRawAmount(offeringCurrency, pool1Info?.raisingAmountPool ?? 0n),
-          ]
-        : [undefined, undefined],
+      raiseAmounts: [
+        stakeCurrency0 ? CurrencyAmount.fromRawAmount(stakeCurrency0, pool0Info?.raisingAmountPool ?? 0n) : undefined,
+        stakeCurrency1 ? CurrencyAmount.fromRawAmount(stakeCurrency1, pool1Info?.raisingAmountPool ?? 0n) : undefined,
+      ],
       saleAmounts: offeringCurrency
         ? [
             CurrencyAmount.fromRawAmount(offeringCurrency, pool0Info?.offeringAmountPool ?? 0n),

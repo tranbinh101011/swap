@@ -1,18 +1,48 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Card, CardBody, FlexGap, Text } from '@pancakeswap/uikit'
+import getTimePeriods from '@pancakeswap/utils/getTimePeriods'
 import { CurrencyLogo, NumberDisplay } from '@pancakeswap/widgets-internal'
 import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
 import useTheme from 'hooks/useTheme'
+import { useMemo } from 'react'
 import { useIDOConfig } from 'views/Idos/hooks/ido/useIDOConfig'
 import { useIDOCurrencies } from 'views/Idos/hooks/ido/useIDOCurrencies'
 import { useIDODuration } from 'views/Idos/hooks/ido/useIDODuration'
+
+dayjs.extend(timezone)
 
 export const IdoSaleInfoCard: React.FC = () => {
   const { t } = useTranslation()
   const { theme, isDark } = useTheme()
   const { offeringCurrency, stakeCurrency0, stakeCurrency1 } = useIDOCurrencies()
   const { totalSalesAmount, status, duration, startTimestamp, endTimestamp } = useIDOConfig()
-  const durationText = useIDODuration(duration)
+  const preSaleDurationText = useIDODuration(duration)
+
+  const durationText = useMemo(() => {
+    if (status !== 'finished') {
+      return preSaleDurationText
+    }
+
+    const { days } = getTimePeriods(duration)
+    if (days < 1) {
+      return (
+        <>
+          {dayjs.unix(startTimestamp).format('DD-MM-YYYY')}
+          <br />
+          {dayjs.unix(startTimestamp).tz('Asia/Singapore').format('HH:mm')} -{' '}
+          {dayjs.unix(endTimestamp).tz('Asia/Singapore').format('HH:mm')} (UTC+8)
+        </>
+      )
+    }
+
+    return (
+      <>
+        {dayjs.unix(startTimestamp).format('DD-MM-YYYY')} {t('to')} <br />
+        {dayjs.unix(endTimestamp).format('DD-MM-YYYY')}
+      </>
+    )
+  }, [duration, endTimestamp, preSaleDurationText, startTimestamp, status, t])
 
   return (
     <Card background={isDark ? '#18171A' : theme.colors.background} mb="16px">
@@ -37,16 +67,7 @@ export const IdoSaleInfoCard: React.FC = () => {
             <Text color="textSubtle" style={{ whiteSpace: 'nowrap' }}>
               {t('Project Duration')}
             </Text>
-            <Text textAlign="right">
-              {status !== 'finished' ? (
-                <>{durationText}</>
-              ) : (
-                <>
-                  {dayjs.unix(startTimestamp).format('DD-MM-YYYY')} {t('to')} <br />
-                  {dayjs.unix(endTimestamp).format('DD-MM-YYYY')}
-                </>
-              )}
-            </Text>
+            <Text textAlign="right">{durationText}</Text>
           </FlexGap>
         </FlexGap>
         {status !== 'finished' && (

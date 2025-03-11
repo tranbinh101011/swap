@@ -1,6 +1,7 @@
 import type { WindowProvider } from 'wagmi/window'
 
 export interface ExtendEthereum extends WindowProvider {
+  request?: (args: { method: string; params?: unknown[] }) => Promise<unknown>
   isSafePal?: true
   isCoin98?: true
   isBlocto?: true

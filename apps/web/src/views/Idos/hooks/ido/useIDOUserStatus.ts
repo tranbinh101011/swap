@@ -120,5 +120,6 @@ const useViewUserOfferingAndRefundingAmounts = () => {
       ]
     },
     enabled: !!account && !!idoContract,
+    placeholderData: (prev) => prev,
   })
 }

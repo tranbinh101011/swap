@@ -32,6 +32,10 @@ const Hero = () => {
   //   }
   // }
 
+  if (!currentIdoConfig) {
+    return null
+  }
+
   return (
     <Box mb="24px">
       <StyledHero>

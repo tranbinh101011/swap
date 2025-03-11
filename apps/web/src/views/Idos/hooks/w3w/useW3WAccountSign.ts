@@ -1,50 +1,8 @@
 import { useCallback } from 'react'
-import { v4 } from 'uuid'
-import type { Address, Hex } from 'viem'
-import { useAccount, useSignMessage } from 'wagmi'
+import { logger } from 'utils/datadog'
+import type { Address } from 'viem'
+import { useAccount, useChainId } from 'wagmi'
 import { useIDOContract } from '../ido/useIDOContract'
-
-export const useW3WAccountSign = () => {
-  const { address } = useAccount()
-  const { signMessageAsync } = useSignMessage()
-  const contract = useIDOContract()
-
-  const sign = useCallback(async () => {
-    if (!address) throw new Error('No address provided')
-    const timestamp = Date.now() + 1000 * 60 * 20 // now + 20 minutes
-    const nonce = v4()
-    const message = [timestamp.toString(), address, nonce].join(' ') as `0x${string}`
-
-    console.debug('message', message)
-
-    const signature = await signMessageAsync({
-      message,
-    })
-
-    return w3wSign({
-      address,
-      contractAddress: contract?.address,
-      signature,
-      timestamp,
-      nonce,
-    })
-  }, [address, contract?.address, signMessageAsync])
-
-  return sign
-}
-
-interface W3WSignResponse {
-  code: SignResponseCode
-  success: boolean
-  message: string
-  data: {
-    // if address is not a w3w address, signature will be null
-    // @note: signature is not a string starting with 0x
-    signature: string | null
-    // time in seconds
-    expireAt: number
-  }
-}
 
 enum SignResponseCode {
   Normal = '000000',
@@ -55,6 +13,45 @@ enum SignResponseCode {
   IllegalNonce = '351082',
   IllegalAddress = '351026',
   RestrictedAddress = '351083',
+  AlreadyParticipated = '351084',
+  MFANeeded = '351022',
+  InvalidMFA = '351023',
+}
+
+declare global {
+  interface Window {
+    binancew3w: {
+      pcs: {
+        sign: (params: { binanceChainId: string; contractAddress: string; address: string }) => Promise<{
+          code: SignResponseCode
+          message: string
+          success: boolean
+          data: {
+            signature: string
+            expireAt: number
+          }
+        }>
+      }
+    }
+  }
+}
+
+export const useW3WAccountSign = () => {
+  const { address } = useAccount()
+  const chainId = useChainId()
+  const contract = useIDOContract()
+
+  const sign = useCallback(async () => {
+    if (!address) throw new Error('No address provided')
+
+    return w3wSign({
+      chainId,
+      address,
+      contractAddress: contract?.address ?? '',
+    })
+  }, [address, contract?.address, chainId])
+
+  return sign
 }
 
 export class W3WSignRestrictedError extends Error {
@@ -64,34 +61,35 @@ export class W3WSignRestrictedError extends Error {
   }
 }
 
+class W3WSignNotSupportedError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'W3WSignNotSupportedError'
+  }
+}
+
 const w3wSign = async ({
+  chainId,
   address,
   contractAddress,
-  signature,
-  timestamp,
-  nonce,
 }: {
+  chainId: number
   address: Address
   contractAddress: Address
-  signature: Hex
-  timestamp: number
-  nonce: string | number
 }): Promise<{
   signature: string | null
   expireAt: number
 }> => {
   try {
-    const response = await fetch('/api/w3w/sign', {
-      method: 'POST',
-      body: JSON.stringify({
-        timestamp,
-        address,
-        contractAddress,
-        nonce,
-        signature,
-      }),
+    if (typeof window === 'undefined' || typeof window.binancew3w?.pcs?.sign === 'undefined') {
+      throw new W3WSignNotSupportedError('W3W sign not supported')
+    }
+
+    const result = await window.binancew3w.pcs.sign({
+      binanceChainId: `${chainId}`,
+      contractAddress,
+      address,
     })
-    const result: W3WSignResponse = await response.json()
 
     if (result.code === SignResponseCode.RestrictedAddress) {
       throw new W3WSignRestrictedError('Restricted address')
@@ -107,6 +105,12 @@ const w3wSign = async ({
     }
   } catch (error) {
     console.error('Error signing W3W account:', error)
+    logger.error('Error get W3W sign', {
+      error,
+      chainId,
+      contractAddress,
+      address,
+    })
     return {
       signature: null,
       expireAt: 0,

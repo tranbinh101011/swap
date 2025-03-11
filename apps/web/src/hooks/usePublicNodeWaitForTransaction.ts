@@ -1,13 +1,15 @@
 import { ChainId } from '@gelatonetwork/limit-orders-lib'
+import { AVERAGE_CHAIN_BLOCK_TIMES } from '@pancakeswap/chains'
+import { useFetchBlockData } from '@pancakeswap/wagmi'
 import { BSC_BLOCK_TIME } from 'config'
 import { CHAINS } from 'config/chains'
-import { AVERAGE_CHAIN_BLOCK_TIMES } from '@pancakeswap/chains'
 import first from 'lodash/first'
 import { useCallback } from 'react'
 import { RetryableError, retry } from 'state/multicall/retry'
 import {
   BlockNotFoundError,
   GetTransactionReceiptParameters,
+  HttpRequestError,
   PublicClient,
   TransactionNotFoundError,
   TransactionReceipt,
@@ -17,7 +19,6 @@ import {
   http,
 } from 'viem'
 import { usePublicClient } from 'wagmi'
-import { useFetchBlockData } from '@pancakeswap/wagmi'
 import { useActiveChainId } from './useActiveChainId'
 
 export const viemClientsPublicNodes = CHAINS.reduce((prev, cur) => {
@@ -78,6 +79,12 @@ export function usePublicNodeWaitForTransaction() {
             throw new RetryableError(`Block not found for transaction: ${opts.hash}`)
           } else if (error instanceof WaitForTransactionReceiptTimeoutError) {
             throw new RetryableError(`Timeout reached when fetching transaction receipt: ${opts.hash}`)
+          } else if (
+            error instanceof HttpRequestError &&
+            (error.details?.includes('Load failed') || error.details?.includes('Failed to fetch'))
+          ) {
+            // retry on network error
+            throw new RetryableError(`Network error: ${error.details}`)
           }
           throw error
         }

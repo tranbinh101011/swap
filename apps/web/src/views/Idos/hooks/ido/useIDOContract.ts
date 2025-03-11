@@ -1,5 +1,4 @@
 import { idoABI } from 'config/abi/ido'
-import { isAddress } from 'ethers/lib/utils'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
@@ -28,10 +27,10 @@ function getIdoAddressFromUrl(): `0x${string}` | null {
 }
 
 function getIDOAddress(idoId: string): `0x${string}` {
-  const contractAddressFromQuery = getIdoAddressFromUrl()
-  if (contractAddressFromQuery && isAddress(contractAddressFromQuery)) {
-    return contractAddressFromQuery
-  }
+  // const contractAddressFromQuery = getIdoAddressFromUrl()
+  // if (contractAddressFromQuery && isAddress(contractAddressFromQuery)) {
+  //   return contractAddressFromQuery
+  // }
   return idoConfigDict[idoId]?.contractAddress
 }
 

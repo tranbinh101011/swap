@@ -8,6 +8,7 @@ import { useIDOCurrencies } from 'views/Idos/hooks/ido/useIDOCurrencies'
 import { useIDOPoolInfo } from 'views/Idos/hooks/ido/useIDOPoolInfo'
 import { useIDOUserStatus } from 'views/Idos/hooks/ido/useIDOUserStatus'
 import { Footer } from '../Footer'
+import { ClaimedCard } from './ClaimedCard'
 import { IdoRibbon } from './IdoRibbon'
 import { IdoSaleInfoCard } from './IdoSaleInfoCard'
 import { IdoStakeActionCard } from './IdoStakeActionCard'
@@ -85,6 +86,8 @@ export const IdoCard: React.FC = () => {
 
   return (
     <CardBody>
+      {pool0Info && <ClaimedCard userStatus={userStatus0} pid={pool0Info.pid} />}
+      {pool1Info && <ClaimedCard userStatus={userStatus1} pid={pool1Info.pid} />}
       <IdoSaleInfoCard />
       <FlexGap flexDirection="column" gap="16px">
         {pool0Info && <IdoStakeActionCard pid={pool0Info.pid} userStatus={userStatus0} idoStatus={idoStatus0} />}

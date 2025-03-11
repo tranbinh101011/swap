@@ -5,6 +5,7 @@ import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { useCallback } from 'react'
 import { useLatestTxReceipt } from 'state/farmsV4/state/accountPositions/hooks/useLatestTxReceipt'
+import { logGTMIdoClaimEvent } from 'utils/customGTMEventTracking'
 import { isUserRejected } from 'utils/sentry'
 import { useIDOContract } from './useIDOContract'
 import { useIDOUserInfo } from './useIDOUserInfo'
@@ -31,6 +32,7 @@ export const useIDOClaimCallback = () => {
         if (receipt?.status) {
           setLatestTxReceipt(receipt)
           toastSuccess(t('Claim successful'), <ToastDescriptionWithTx txHash={receipt.transactionHash} />)
+          logGTMIdoClaimEvent()
         }
       } catch (error) {
         if (isUserRejected(error)) {

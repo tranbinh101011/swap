@@ -64,9 +64,6 @@ export const useIDODepositCallback = () => {
             })
           }
 
-          console.log('signature', signature)
-          console.log('expireAt', expireAt)
-
           if (!signature || !expireAt) {
             throw new W3WSignError('Invalid signature or expiredAt')
           }

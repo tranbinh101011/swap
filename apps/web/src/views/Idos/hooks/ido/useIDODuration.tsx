@@ -13,5 +13,9 @@ export const useIDODuration = (duration: number) => {
     return `${hours} ${t('hours')}`
   }
 
+  if (hours === 1) {
+    return `${t('1 hour')}`
+  }
+
   return `${t('< 1 hour')}`
 }
