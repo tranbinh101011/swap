@@ -24,7 +24,9 @@ const VaultStakeActions: React.FC<React.PropsWithChildren<VaultStakeActionsProps
   performanceFee,
 }) => {
   const { stakingToken, stakingTokenPrice, userDataLoaded } = pool
-  const [onPresentTokenRequired] = useModal(<NotEnoughTokensModal tokenSymbol={stakingToken.symbol} />)
+  const [onPresentTokenRequired] = useModal(
+    <NotEnoughTokensModal tokenSymbol={stakingToken.symbol} tokenAddress={stakingToken.address} />,
+  )
   const [onPresentStake] = useModal(
     <VaultStakeModal stakingMax={stakingTokenBalance} pool={pool} performanceFee={performanceFee} />,
   )

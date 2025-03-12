@@ -52,7 +52,9 @@ const HasSharesActions: React.FC<React.PropsWithChildren<HasStakeActionProps>> =
     ? getBalanceNumber(cakeAsBigNumber?.multipliedBy(cakePrice), stakingToken.decimals)
     : 0
 
-  const [onPresentTokenRequired] = useModal(<NotEnoughTokensModal tokenSymbol={stakingToken.symbol} />)
+  const [onPresentTokenRequired] = useModal(
+    <NotEnoughTokensModal tokenSymbol={stakingToken.symbol} tokenAddress={stakingToken.address} />,
+  )
   const [onPresentStake] = useModal(
     <VaultStakeModal stakingMax={stakingTokenBalance} performanceFee={performanceFee} pool={pool} />,
   )

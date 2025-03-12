@@ -1,10 +1,10 @@
-import { useCallback, memo } from 'react'
-import { Button, useModal, Skeleton, ButtonProps } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { Button, ButtonProps, Skeleton, useModal } from '@pancakeswap/uikit'
+import { memo, useCallback } from 'react'
 import { usePool } from 'state/pools/hooks'
+import NotEnoughTokensModal from '../../Modals/NotEnoughTokensModal'
 import AddAmountModal from '../Modals/AddAmountModal'
 import { AddButtonProps } from '../types'
-import NotEnoughTokensModal from '../../Modals/NotEnoughTokensModal'
 
 interface AddButtonPropsType extends AddButtonProps, ButtonProps {}
 
@@ -42,7 +42,9 @@ const AddCakeButton: React.FC<React.PropsWithChildren<AddButtonPropsType>> = ({
     'AddAmountModal',
   )
 
-  const [onPresentTokenRequired] = useModal(<NotEnoughTokensModal tokenSymbol={stakingToken?.symbol || ''} />)
+  const [onPresentTokenRequired] = useModal(
+    <NotEnoughTokensModal tokenSymbol={stakingToken?.symbol || ''} tokenAddress={stakingToken?.address} />,
+  )
 
   const handleClicked = useCallback(() => {
     return currentBalance.gt(0) ? openAddAmountModal() : onPresentTokenRequired()
