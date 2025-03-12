@@ -43,7 +43,7 @@ export const getTokenStaticProps = (): GetStaticProps => {
     return {
       props: {
         address,
-        chain,
+        ...(chain && { chain }),
       },
     }
   }

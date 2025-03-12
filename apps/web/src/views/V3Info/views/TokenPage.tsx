@@ -41,6 +41,7 @@ import { styled } from 'styled-components'
 import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import useCMCLink from 'views/Info/hooks/useCMCLink'
+import { chainNames } from '@pancakeswap/chains'
 import BarChart from '../components/BarChart/alt'
 import { LocalLoader } from '../components/Loader'
 import Percent from '../components/Percent'
@@ -98,9 +99,10 @@ const tokenPageDataAtom = atomFamily((params: TokenPageParams) => {
   })
 }, isEqual)
 
-const TokenPage: React.FC<{ address: string; chain?: string }> = ({ address, chain }) => {
+const TokenPage: React.FC<{ address: string; chain?: string }> = ({ address, chain: _chain }) => {
   const { isXs, isSm } = useMatchBreakpoints()
-  // const { chainId } = useActiveChainId()
+  const { chainId } = useActiveChainId()
+  const chain = _chain ?? chainNames[chainId]
   // eslint-disable-next-line no-param-reassign
   address = address.toLowerCase()
   const cmcLink = useCMCLink(address)
@@ -175,7 +177,6 @@ const TokenPage: React.FC<{ address: string; chain?: string }> = ({ address, cha
   const chainPath = useMultiChainPath()
   const infoTypeParam = useStableSwapPath()
   const chainName = useChainNameByQuery()
-  const { chainId } = useActiveChainId()
 
   const tokenSymbol = getTokenSymbolAlias(address, chainId, tokenData?.symbol)
   const tokenName = getTokenNameAlias(address, chainId, tokenData?.name)
