@@ -18,8 +18,8 @@ interface ButtonAndDetailsPanelProps {
   swapCommitButton: React.ReactNode
   pricingAndSlippage: React.ReactNode
   tradeDetails: React.ReactNode
+  mevToggleSlot?: React.ReactNode
   mevSlot?: React.ReactNode
-
   gasTokenSelector?: React.ReactNode
 }
 
@@ -30,11 +30,13 @@ export const ButtonAndDetailsPanel: React.FC<ButtonAndDetailsPanelProps> = ({
   tradeDetails,
   mevSlot,
   gasTokenSelector,
+  mevToggleSlot,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   return (
     <PanelWrapper>
       {swapCommitButton}
+      {mevSlot}
       {gasTokenSelector}
       {shouldRenderDetails && (
         <SwapUIV2.Collapse
@@ -44,7 +46,7 @@ export const ButtonAndDetailsPanel: React.FC<ButtonAndDetailsPanelProps> = ({
           content={tradeDetails}
         />
       )}
-      {!isOpen && mevSlot}
+      {mevToggleSlot}
     </PanelWrapper>
   )
 }

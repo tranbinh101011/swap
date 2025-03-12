@@ -1,12 +1,20 @@
 import { ChainId } from '@pancakeswap/chains'
 import { useQuery } from '@tanstack/react-query'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useCallback } from 'react'
-import { MethodNotFoundRpcError, WalletClient } from 'viem'
-
 import { BSCMevGuardChain } from 'utils/mevGuardChains'
+import { MethodNotFoundRpcError, WalletClient } from 'viem'
 import { addChain } from 'viem/actions'
+import { WalletType } from 'views/Mev/types'
 import { Connector, useAccount, useWalletClient } from 'wagmi'
+import {
+  walletConnectSupportDefaultMevOnBSC,
+  walletPretendToBinanceWallet,
+  walletPretendToMetamask,
+  walletSupportCustomRPCNative,
+  walletSupportDefaultMevOnBSC,
+  walletSupportManualRPCConfig,
+} from '../constant'
 
 const WalletProviders = [
   'isApexWallet',
@@ -84,6 +92,7 @@ async function fetchMEVStatus(walletClient: WalletClient): Promise<{ mevEnabled:
         'latest',
       ],
     })
+
     return { mevEnabled: result === '0x30' }
   } catch (error) {
     console.error('Error checking MEV status:', error)
@@ -104,41 +113,60 @@ export function useWalletSupportsAddEthereumChain() {
 
 export function useIsMEVEnabled() {
   const { data: walletClient } = useWalletClient()
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId } = useAccountActiveChain()
+  const { walletType } = useWalletType()
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['isMEVEnabled', walletClient, account, chainId],
+    queryKey: ['isMEVEnabled', walletClient, account, chainId, walletType],
     queryFn: () => fetchMEVStatus(walletClient!),
     enabled: Boolean(account) && walletClient && chainId === ChainId.BSC,
     staleTime: 60000,
   })
 
-  return { isMEVEnabled: data?.mevEnabled ?? false, isLoading, refetch, isMEVProtectAvailable: chainId === ChainId.BSC }
+  // console.log('isMEVEnabled', data?.mevEnabled, walletType, chainId, walletClient)
+  return {
+    isMEVEnabled:
+      (walletType !== WalletType.mevNotSupported &&
+        (data?.mevEnabled || (walletType === WalletType.mevDefaultOnBSC && chainId === ChainId.BSC))) ??
+      false,
+    isLoading,
+    refetch,
+    isMEVProtectAvailable: chainId === ChainId.BSC,
+  }
 }
 
 export const useShouldShowMEVToggle = () => {
-  const { walletSupportsAddEthereumChain, isLoading: isWalletSupportLoading } = useWalletSupportsAddEthereumChain()
-  const { account } = useActiveWeb3React()
+  const { isLoading: isWalletSupportLoading } = useWalletSupportsAddEthereumChain()
+  const { account } = useAccountActiveChain()
   const { isMEVEnabled, isLoading, isMEVProtectAvailable } = useIsMEVEnabled()
+  const { walletType, isLoading: isWalletTypeLoading } = useWalletType()
   return (
-    !isMEVEnabled &&
     !isLoading &&
+    !isWalletTypeLoading &&
+    !isMEVEnabled &&
     !isWalletSupportLoading &&
     Boolean(account) &&
-    walletSupportsAddEthereumChain &&
+    walletType > WalletType.mevNotSupported &&
     isMEVProtectAvailable
   )
 }
 
 export const useAddMevRpc = (onSuccess?: () => void, onBeforeStart?: () => void, onFinish?: () => void) => {
   const { data: walletClient } = useWalletClient()
+  const { connector } = useAccount()
   const addMevRpc = useCallback(async () => {
     onBeforeStart?.()
     try {
+      const provider = (await connector?.getProvider()) as any
       // Check if the Ethereum provider is available
       if (walletClient) {
         // Prompt the wallet to add the custom network
         const result = await addChain(walletClient, { chain: BSCMevGuardChain })
+
+        if (provider?.isMetaMask && !walletPretendToMetamask.some((d) => d in provider)) {
+          console.info('MetaMask chain dapp detected. Adding RPC network again. on metamask dapp need to run twice')
+          await addChain(walletClient, { chain: BSCMevGuardChain })
+        }
         console.info('RPC network added successfully!', result)
         onSuccess?.()
       } else {
@@ -150,6 +178,47 @@ export const useAddMevRpc = (onSuccess?: () => void, onBeforeStart?: () => void,
     } finally {
       onFinish?.()
     }
-  }, [onBeforeStart, onSuccess, onFinish, walletClient])
+  }, [onBeforeStart, connector, walletClient, onSuccess, onFinish])
   return { addMevRpc }
+}
+
+export async function getWalletType(connector?: Connector): Promise<WalletType> {
+  if (!connector || typeof connector.getProvider !== 'function') return WalletType.mevNotSupported
+  const provider = (await connector.getProvider()) as any
+
+  // check WalletConnect + supported wallets
+  if (provider.isWalletConnect) {
+    try {
+      // check session metadata
+      const walletName = provider.session?.peer?.metadata?.name
+      if (walletConnectSupportDefaultMevOnBSC.includes(walletName)) {
+        return WalletType.mevDefaultOnBSC
+      }
+    } catch (error) {
+      console.error('Error detecting Wallet via WalletConnect:', error)
+    }
+  }
+  if (walletSupportManualRPCConfig.some((d) => d in provider)) return WalletType.mevOnlyManualConfig
+  if (
+    walletSupportDefaultMevOnBSC.some((d) => d in provider) &&
+    !walletPretendToBinanceWallet.some((d) => d in provider)
+  )
+    return WalletType.mevDefaultOnBSC
+  if (walletSupportCustomRPCNative.some((d) => d in provider) && !walletPretendToMetamask.some((d) => d in provider))
+    return WalletType.nativeSupportCustomRPC
+  return WalletType.mevNotSupported
+}
+
+export function useWalletType() {
+  const { connector } = useAccount()
+  const { data, isLoading } = useQuery({
+    queryKey: ['useWalletType', connector?.uid],
+    queryFn: async () => {
+      if (!connector) {
+        return WalletType.mevNotSupported
+      }
+      return getWalletType(connector)
+    },
+  })
+  return { walletType: data ?? WalletType.mevNotSupported, isLoading }
 }

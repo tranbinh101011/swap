@@ -3643,7 +3643,6 @@
   "Total transactions protected:": "Total transactions protected:",
   "PancakeSwap MEV Guard protects you from frontrunning and sandwich attacks when Swapping.": "PancakeSwap MEV Guard protects you from frontrunning and sandwich attacks when Swapping.",
   "MEV Protect": "MEV Protect",
-  "Disabled": "Disabled",
   "Enable MEV Protect": "Enable MEV Protect",
   "Add automatically on BNB Smart Chain:": "Add automatically on BNB Smart Chain:",
   "Springboard": "Springboard",
@@ -3767,5 +3766,16 @@
   "PancakeSwap users": "PancakeSwap users",
   "from the following nationalities are currently not eligible to participate in this event: Belarus, Myanmar, Côte d'Ivoire, Cuba, Iran, Iraq, Liberia, Sudan, Syria, Zimbabwe, Congo (Kinshasa), North Korea.": "from the following nationalities are currently not eligible to participate in this event: Belarus, Myanmar, Côte d'Ivoire, Cuba, Iran, Iraq, Liberia, Sudan, Syria, Zimbabwe, Congo (Kinshasa), North Korea.",
   "Please ensure you comply with the eligibility requirements before participating.": "Please ensure you comply with the eligibility requirements before participating.",
-  "1 hour": "1 hour"
+  "1 hour": "1 hour",
+  "See the guides": "See the guides",
+  "See the wallets supported": "See the wallets supported",
+  "MEV Guard is now active, your trades are secure with PancakeSwap": "MEV Guard is now active, your trades are secure with PancakeSwap",
+  "Setup Required!": "Setup Required!",
+  "Your wallet requires manual setup to enable PancakeSwap MEV Guard": "Your wallet requires manual setup to enable PancakeSwap MEV Guard",
+  "Can’t Enable MEV Guard!": "Can’t Enable MEV Guard!",
+  "Your wallet provider doesn’t support PancakeSwap MEV Guard": "Your wallet provider doesn’t support PancakeSwap MEV Guard",
+  "requires a manual configuration for your wallet. Choose your wallet to view a detailed guide:": "requires a manual configuration for your wallet. Choose your wallet to view a detailed guide:",
+  "If you've already set this up manually, no action is needed - just proceed with the swap!": "If you've already set this up manually, no action is needed - just proceed with the swap!",
+  "MEV Protected": "MEV Protected",
+  "Add automatically on BNB Smart Chain: PancakeSwap MEV Guard": "Add automatically on BNB Smart Chain: PancakeSwap MEV Guard"
 }

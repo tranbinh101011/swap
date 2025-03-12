@@ -14,6 +14,7 @@ import { useMemo } from 'react'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { logger } from 'utils/datadog'
+import { MevSwapDetail } from 'views/Mev/MevSwapDetail'
 import { MevToggle } from 'views/Mev/MevToggle'
 import { SwapType } from '../../Swap/types'
 import { useIsWrapping } from '../../Swap/V3Swap/hooks'
@@ -154,6 +155,7 @@ export function V4SwapForm() {
         swapCommitButton={
           <CommitButton order={bestOrder} tradeLoaded={tradeLoaded} tradeError={tradeError} {...commitHooks} />
         }
+        mevSlot={<MevSwapDetail />}
         pricingAndSlippage={
           <FlexGap
             alignItems="center"
@@ -186,7 +188,7 @@ export function V4SwapForm() {
         }
         tradeDetails={<TradeDetails loaded={tradeLoaded} order={bestOrder} />}
         shouldRenderDetails={Boolean(executionPrice) && Boolean(bestOrder) && !isWrapping && !tradeError}
-        mevSlot={<MevToggle />}
+        mevToggleSlot={<MevToggle />}
         gasTokenSelector={
           isPaymasterAvailable && <GasTokenSelector mt="8px" inputCurrency={inputCurrency || undefined} />
         }

@@ -3,6 +3,7 @@ import { Box, Button, FlexGap, LinkExternal, Text, useMatchBreakpoints } from '@
 import useTheme from 'hooks/useTheme'
 import { useMemo } from 'react'
 import { styled } from 'styled-components'
+import { INFO_SECTION_ID, walletConfig } from './constant'
 import { getImageUrl } from './utils'
 
 const InfoSectionWrapper = styled.div`
@@ -29,33 +30,6 @@ const InnerWrapper = styled.div`
   align-items: center;
   gap: 40px;
 `
-const walletConfig = [
-  {
-    title: 'Trust Wallet',
-    image: 'trust.png',
-    doc: 'https://community.trustwallet.com/t/how-to-add-a-custom-network-on-the-trust-wallet-mobile-app/626781',
-  },
-  {
-    title: 'SafePal',
-    image: 'safepal.png',
-    doc: 'https://safepalsupport.zendesk.com/hc/en-us/articles/14688426876443-How-to-add-a-Custom-network-in-the-SafePal-software-wallet',
-  },
-  {
-    title: 'Coinbase Wallet',
-    image: 'coinbase.png',
-    doc: ' https://www.coinbase.com/en-sg/learn/wallet/How-to-add-custom-networks-Coinbase-Wallet',
-  },
-  {
-    title: 'TokenPocket',
-    image: 'token-pocket.png',
-    doc: 'https://help.tokenpocket.pro/en/wallet-operation/custom-network-token/how-to-add-custom-network',
-  },
-  {
-    title: 'Others',
-    image: 'others.png',
-    doc: 'https://support.metamask.io/networks-and-sidechains/managing-networks/how-to-add-a-custom-network-rpc/',
-  },
-]
 
 export const InfoSection: React.FC<{ walletCount: number }> = ({ walletCount }) => {
   const { t } = useTranslation()
@@ -67,7 +41,7 @@ export const InfoSection: React.FC<{ walletCount: number }> = ({ walletCount }) 
   }, [walletCount])
 
   return (
-    <InfoSectionWrapper>
+    <InfoSectionWrapper id={INFO_SECTION_ID}>
       <Wrapper>
         <InnerWrapper>
           <Box>
