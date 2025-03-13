@@ -3,8 +3,6 @@ import BigNumber from 'bignumber.js'
 import { SentryErrorBoundary } from 'components/ErrorBoundary'
 import GlobalCheckClaimStatus from 'components/GlobalCheckClaimStatus'
 import { PageMeta } from 'components/Layout/Page'
-import { AffiliateExpiredModal } from 'components/Modal/AffiliateExpiredModal'
-import { AffiliateSunsetModal } from 'components/Modal/AffiliateSunsetModal'
 import { SimpleStakingSunsetModal } from 'components/Modal/SimpleStakingSunsetModal'
 import { NetworkModal } from 'components/NetworkModal'
 import { FixedSubgraphHealthIndicator } from 'components/SubgraphHealthIndicator/FixedSubgraphHealthIndicator'
@@ -201,8 +199,6 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
       {shouldScreenWallet && <Blocklist />}
       {isShowV4IconButton && <V4CakeIcon />}
       <ZKSyncAirdropModalWithAutoPopup />
-      <AffiliateExpiredModal />
-      <AffiliateSunsetModal />
       <SimpleStakingSunsetModal />
       <VercelToolbar />
       <Cb1Membership />

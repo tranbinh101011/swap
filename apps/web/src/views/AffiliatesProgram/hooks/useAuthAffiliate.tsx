@@ -1,6 +1,5 @@
 import { useAccount } from 'wagmi'
-import { getCookie, deleteCookie } from 'cookies-next'
-import { AFFILIATE_SID } from 'pages/api/affiliates-program/affiliate-login'
+
 import { useQuery } from '@tanstack/react-query'
 
 export interface FeeType {
@@ -75,8 +74,6 @@ const initAffiliateData: InfoDetail = {
 
 const useAuthAffiliate = (): AffiliateInfoType => {
   const { address } = useAccount()
-  const cookie = getCookie(AFFILIATE_SID)
-
   const { data, refetch } = useQuery({
     queryKey: ['affiliates-program', 'auth-affiliate', address],
 
@@ -84,9 +81,6 @@ const useAuthAffiliate = (): AffiliateInfoType => {
       try {
         const response = await fetch(`/api/affiliates-program/affiliate-info`)
         const result: AffiliateInfoResponse = await response.json()
-        if (result.status === 'error') {
-          deleteCookie(AFFILIATE_SID, { sameSite: true })
-        }
 
         return {
           isAffiliate: result.status === 'success',
@@ -101,7 +95,7 @@ const useAuthAffiliate = (): AffiliateInfoType => {
       }
     },
 
-    enabled: Boolean(address && cookie !== ''),
+    enabled: Boolean(address),
   })
 
   return {

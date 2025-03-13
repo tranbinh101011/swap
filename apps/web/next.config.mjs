@@ -170,6 +170,11 @@ const config = {
         permanent: true,
       },
       {
+        source: '/affiliates-program/:path*',
+        destination: '/',
+        permanent: true,
+      },
+      {
         source: '/farms/archived',
         destination: '/farms/history',
         permanent: true,
