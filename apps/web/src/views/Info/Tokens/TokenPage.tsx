@@ -152,7 +152,7 @@ const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = (
                   <Text>{`(${truncateHash(address)})`}</Text>
                 </Flex>
               </Breadcrumbs>
-              <Flex justifyContent={[null, null, 'flex-end']} mt={['8px', '8px', 0]}>
+              <Flex justifyContent={[null, null, 'flex-end']} mt={['8px', '8px', 0]} alignItems="center">
                 <ScanLink
                   mr="8px"
                   color="primary"

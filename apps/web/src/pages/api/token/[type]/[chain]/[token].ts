@@ -51,7 +51,7 @@ async function _loadData(chain?: string, address?: string, type?: SupportedType)
     case 'swap': {
       const chainId = getChainIdByChainName(chain) || ChainId.BSC
       const query: V2TokenDataQuery = {
-        chainName: chain as 'bsc' | 'ethereum' | 'arbitrum',
+        chainName: queryChainName as 'bsc' | 'ethereum' | 'arbitrum',
         chainId: parseInt(chainId as any as string),
         address,
         type,

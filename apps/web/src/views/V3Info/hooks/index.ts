@@ -195,15 +195,6 @@ export const useTopTokensData = ():
 
 const graphPerPage = 50
 
-const tokenDataFetcher = (dataClient: GraphQLClient, tokenAddresses: string[], blocks?: Block[]) => {
-  const times = Math.ceil(tokenAddresses.length / graphPerPage)
-  const addressGroup: Array<string[]> = []
-  for (let i = 0; i < times; i++) {
-    addressGroup.push(tokenAddresses.slice(i * graphPerPage, (i + 1) * graphPerPage))
-  }
-  return Promise.all(addressGroup.map((d) => fetchedTokenDatas(dataClient, d, blocks)))
-}
-
 export const useTokenData = (address: string): TokenDataForView | undefined => {
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
