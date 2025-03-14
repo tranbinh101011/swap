@@ -20,7 +20,6 @@ import {
 } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
-import { AptosYieldFarmingBanner } from 'components/Banner/AptosYieldFarmingBanner'
 import useLpRewardsAprs from 'components/Farms/hooks/useLpRewardsAprs'
 import Page from 'components/Layout/Page'
 import NoSSR from 'components/NoSSR'
@@ -36,6 +35,7 @@ import { ViewMode, useFarmViewMode, useFarmsStakedOnly } from 'state/user'
 import { styled } from 'styled-components'
 import { getFarmApr } from 'utils/farmApr'
 import Table from './FarmTable/FarmTable'
+import { WarningTips } from './WarningTips'
 
 const ControlContainer = styled.div`
   display: flex;
@@ -312,7 +312,11 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
     <FarmsContext.Provider value={providerValue}>
       <PageHeader>
         <Box mb="32px" mt="16px">
-          <AptosYieldFarmingBanner />
+          <WarningTips
+            content={t(
+              'Dual Incentives are Completed! You will continue to earn trading fees and check the Finished farms tab to find your positions.',
+            )}
+          />
         </Box>
         <FarmFlexWrapper justifyContent="space-between">
           <Box>

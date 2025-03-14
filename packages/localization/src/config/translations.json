@@ -3777,5 +3777,6 @@
   "requires a manual configuration for your wallet. Choose your wallet to view a detailed guide:": "requires a manual configuration for your wallet. Choose your wallet to view a detailed guide:",
   "If you've already set this up manually, no action is needed - just proceed with the swap!": "If you've already set this up manually, no action is needed - just proceed with the swap!",
   "MEV Protected": "MEV Protected",
-  "Add automatically on BNB Smart Chain: PancakeSwap MEV Guard": "Add automatically on BNB Smart Chain: PancakeSwap MEV Guard"
+  "Add automatically on BNB Smart Chain: PancakeSwap MEV Guard": "Add automatically on BNB Smart Chain: PancakeSwap MEV Guard",
+  "Dual Incentives are Completed! You will continue to earn trading fees and check the Finished farms tab to find your positions.": "Dual Incentives are Completed! You will continue to earn trading fees and check the Finished farms tab to find your positions."
 }
