@@ -122,6 +122,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
         desktop: 'https://www.okx.com/web3',
         mobile: 'https://www.okx.com/web3',
       },
+      qrCode,
     },
     {
       id: 'BinanceW3W',
@@ -182,6 +183,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       downloadLink: {
         desktop: 'https://rabby.io/',
       },
+      qrCode,
     },
     {
       id: 'math',
