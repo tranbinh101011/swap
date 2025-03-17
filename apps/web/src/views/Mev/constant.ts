@@ -4,7 +4,7 @@ export const walletSupportDefaultMevOnBSC = ['isTrustWallet', 'isTrust', 'isBina
 export const walletConnectSupportDefaultMevOnBSC = ['Binance Wallet', 'Trust Wallet']
 // wallet connect wallets that support mev on bsc default
 
-export const walletSupportCustomRPCNative = ['isOkxWallet', 'isMetaMask']
+export const walletSupportCustomRPCNative = ['isMetaMask'] // isOkxWallet okx can't support EIP-3085 on wallet app
 // wallet support wallet_addEthereumChain native
 
 export const walletSupportManualRPCConfig = ['isRabby']
@@ -33,6 +33,7 @@ export const walletPretendToMetamask = [
   'isSafePal',
   'isBybit',
   'isCoinbaseWallet',
+  'isOkxWallet',
 ]
 // wallet support mev on bsc default, but it not using PCS RPC
 
