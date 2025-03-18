@@ -269,11 +269,7 @@ export const fetchNodeHistory = createAsyncThunk<
   return { bets, claimableStatuses, page, totalHistory: Number(userRoundsLength) }
 })
 
-// Leaderboard
-export const filterLeaderboard = createAsyncThunk<
-  { results: PredictionUser[] },
-  { filters: LeaderboardFilter; extra: PredictionConfig }
->('predictions/filterLeaderboard', async ({ filters, extra }) => {
+export const fetchPredictionUsers = async (filters: LeaderboardFilter, extra: PredictionConfig) => {
   const usersResponse = await getPredictionUsers(
     {
       skip: 0,
@@ -287,6 +283,14 @@ export const filterLeaderboard = createAsyncThunk<
   const transformer = transformUserResponse(extra.token.symbol, extra.token.chainId)
 
   return { results: usersResponse.map(transformer) }
+}
+
+// Leaderboard
+export const filterLeaderboard = createAsyncThunk<
+  { results: PredictionUser[] },
+  { filters: LeaderboardFilter; extra: PredictionConfig }
+>('predictions/filterLeaderboard', async ({ filters, extra }) => {
+  return fetchPredictionUsers(filters, extra)
 })
 
 export const fetchAddressResult = createAsyncThunk<

@@ -1,13 +1,13 @@
-import { gql } from 'graphql-request'
 import { ChainId, testnetChainIds } from '@pancakeswap/chains'
-import dayjs from 'dayjs'
-import { getCakeContract } from 'utils/contractHelpers'
-import { formatEther } from 'viem'
-import { getCakeVaultAddress } from 'utils/addressHelpers'
 import addresses from 'config/constants/contracts'
+import dayjs from 'dayjs'
+import { gql } from 'graphql-request'
+import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
+import { getCakeVaultAddress } from 'utils/addressHelpers'
+import { getCakeContract } from 'utils/contractHelpers'
 import { bitQueryServerClient } from 'utils/graphql'
 import { CHAIN_IDS } from 'utils/wagmi'
-import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
+import { formatEther } from 'viem'
 
 // Values fetched from TheGraph and BitQuery jan 24, 2022
 const txCount = 54780336
@@ -73,26 +73,25 @@ export const getTotalTvl = async () => {
       }
     }
 
-    const { totalTvl: v2TotalTvl, txCount30d: v2TxCount30d } = await getStats('v2', mainnetChainIds)
-    const { totalTvl: v3TotalTvl, txCount30d: v3TxCount30d } = await getStats('v3', mainnetChainIds)
-    const { totalTvl: stableTotalTvl, txCount30d: stableTxCount30d } = await getStats('stable', [
-      ChainId.ARBITRUM_ONE,
-      ChainId.BSC,
+    const [v2Stats, v3Stats, stableStats, cakePriceResponse, totalCakeInVault, totalCakeInVE] = await Promise.all([
+      getStats('v2', mainnetChainIds),
+      getStats('v3', mainnetChainIds),
+      getStats('stable', [ChainId.ARBITRUM_ONE, ChainId.BSC]),
+      fetch('https://farms-api.pancakeswap.com/price/cake').then((res) => res.json()),
+      getCakeContract().read.balanceOf([getCakeVaultAddress()]),
+      getCakeContract().read.balanceOf([addresses.veCake[ChainId.BSC]]),
     ])
 
-    const cake = await (await fetch('https://farms-api.pancakeswap.com/price/cake')).json()
-    const cakeVaultV2 = getCakeVaultAddress()
-    const cakeContract = getCakeContract()
-    const totalCakeInVault = await cakeContract.read.balanceOf([cakeVaultV2])
-    const totalCakeInVE = await cakeContract.read.balanceOf([addresses.veCake[ChainId.BSC]])
-    results.tvl =
-      parseFloat(formatEther(totalCakeInVault)) * cake.price +
-      parseFloat(formatEther(totalCakeInVE)) * cake.price +
-      v2TotalTvl +
-      v3TotalTvl +
-      stableTotalTvl
+    const cakePrice = cakePriceResponse.price
 
-    results.totalTx30Days = v2TxCount30d + v3TxCount30d + stableTxCount30d
+    results.tvl =
+      parseFloat(formatEther(totalCakeInVault)) * cakePrice +
+      parseFloat(formatEther(totalCakeInVE)) * cakePrice +
+      v2Stats.totalTvl +
+      v3Stats.totalTvl +
+      stableStats.totalTvl
+
+    results.totalTx30Days = v2Stats.txCount30d + v3Stats.txCount30d + stableStats.txCount30d
   } catch (error) {
     if (process.env.NODE_ENV === 'production') {
       console.error('Error when fetching tvl stats', error)

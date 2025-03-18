@@ -71,7 +71,6 @@ async function _fetchGaugesSC(client: PublicClient, killed?: boolean, blockNumbe
 }
 
 const fetchGaugesSC = cacheByLRU(_fetchGaugesSC, {
-  name: 'gaugesSC',
   ttl: 15000,
   key: (params) => {
     const [, killed, blockNumber] = params

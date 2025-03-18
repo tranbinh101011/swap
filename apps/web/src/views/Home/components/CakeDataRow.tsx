@@ -14,6 +14,7 @@ import { styled } from 'styled-components'
 import { getCakeVaultAddress } from 'utils/addressHelpers'
 import { publicClient } from 'utils/wagmi'
 import { erc20Abi } from 'viem'
+import { PublicClient } from 'viem/_types/clients/createPublicClient'
 import { useCakeEmissionPerBlock } from 'views/Home/hooks/useCakeEmissionPerBlock'
 
 const StyledColumn = styled(Flex)<{ noMobileBorder?: boolean; noDesktopBorder?: boolean }>`
@@ -69,6 +70,40 @@ const StyledWrapper = styled(Flex)`
 const planetFinanceBurnedTokensWei = 637407922445268000000000n
 const cakeVaultAddress = getCakeVaultAddress()
 
+export async function fetchCakeStats(client: PublicClient) {
+  const [totalSupply, burned, totalVaultLockedAmount, totalVeLockedAmount] = await client.multicall({
+    contracts: [
+      { abi: erc20Abi, address: bscTokens.cake.address, functionName: 'totalSupply' },
+      {
+        abi: erc20Abi,
+        address: bscTokens.cake.address,
+        functionName: 'balanceOf',
+        args: ['0x000000000000000000000000000000000000dEaD'],
+      },
+      {
+        abi: cakeVaultV2ABI,
+        address: cakeVaultAddress,
+        functionName: 'totalLockedAmount',
+      },
+      {
+        abi: erc20Abi,
+        address: bscTokens.cake.address,
+        functionName: 'balanceOf',
+        args: [addresses.veCake[ChainId.BSC]],
+      },
+    ],
+    allowFailure: false,
+  })
+  const totalBurned = planetFinanceBurnedTokensWei + burned
+  const circulating = totalSupply - (totalBurned + totalVaultLockedAmount + totalVeLockedAmount)
+
+  return {
+    cakeSupply: totalSupply && burned ? +formatBigInt(totalSupply - totalBurned) : 0,
+    burnedBalance: burned ? +formatBigInt(totalBurned) : 0,
+    circulatingSupply: circulating ? +formatBigInt(circulating) : 0,
+  }
+}
+
 const CakeDataRow = () => {
   const { t } = useTranslation()
   const { observerRef, isIntersecting } = useIntersectionObserver()
@@ -86,39 +121,10 @@ const CakeDataRow = () => {
     queryKey: ['cakeDataRow'],
 
     queryFn: async () => {
-      const [totalSupply, burned, totalVaultLockedAmount, totalVeLockedAmount] = await publicClient({
+      const client = publicClient({
         chainId: ChainId.BSC,
-      }).multicall({
-        contracts: [
-          { abi: erc20Abi, address: bscTokens.cake.address, functionName: 'totalSupply' },
-          {
-            abi: erc20Abi,
-            address: bscTokens.cake.address,
-            functionName: 'balanceOf',
-            args: ['0x000000000000000000000000000000000000dEaD'],
-          },
-          {
-            abi: cakeVaultV2ABI,
-            address: cakeVaultAddress,
-            functionName: 'totalLockedAmount',
-          },
-          {
-            abi: erc20Abi,
-            address: bscTokens.cake.address,
-            functionName: 'balanceOf',
-            args: [addresses.veCake[ChainId.BSC]],
-          },
-        ],
-        allowFailure: false,
       })
-      const totalBurned = planetFinanceBurnedTokensWei + burned
-      const circulating = totalSupply - (totalBurned + totalVaultLockedAmount + totalVeLockedAmount)
-
-      return {
-        cakeSupply: totalSupply && burned ? +formatBigInt(totalSupply - totalBurned) : 0,
-        burnedBalance: burned ? +formatBigInt(totalBurned) : 0,
-        circulatingSupply: circulating ? +formatBigInt(circulating) : 0,
-      }
+      return fetchCakeStats(client)
     },
 
     enabled: Boolean(loadData),

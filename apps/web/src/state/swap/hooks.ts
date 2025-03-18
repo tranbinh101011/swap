@@ -1,6 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Price, Trade, TradeType } from '@pancakeswap/sdk'
 import { CAKE, STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
+import { PairDataTimeWindowEnum } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import { useQuery } from '@tanstack/react-query'
@@ -20,7 +21,6 @@ import { isAddressEqual, safeGetAddress } from 'utils'
 import { computeSlippageAdjustedAmounts } from 'utils/exchange'
 import { getTokenAddress } from 'views/Swap/components/Chart/utils'
 import { useAccount } from 'wagmi'
-import { PairDataTimeWindowEnum } from '@pancakeswap/uikit'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, replaceSwapState } from './actions'
 import { SwapState, swapReducerAtom } from './reducer'
@@ -280,6 +280,13 @@ export function useDefaultsFromURLSearch():
   }, [dispatch, chainId, query, native, isReady])
 
   return result
+}
+
+export function useDefaultsFromURLSearchForHomePage() {
+  return {
+    inputCurrencyId: 'bnb',
+    outputCurrencyId: 'cake',
+  }
 }
 
 type useFetchPairPricesParams = {

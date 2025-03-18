@@ -6,7 +6,7 @@ const mockT = (key) => key
 describe('getActiveMenuItem', () => {
   it('should return an active item', () => {
     // Given
-    const pathname = '/'
+    const pathname = '/swap'
 
     // When
     const result = getActiveMenuItem({ pathname, menuConfig: menuConfig(mockT, false, undefined) })

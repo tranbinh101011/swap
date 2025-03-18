@@ -84,6 +84,14 @@ export const TotalApy: React.FC<React.PropsWithChildren<TotalApyProps>> = ({ veC
     return Number.isNaN(total) ? 0 : total
   }, [bribeApr, cakePoolApr, revenueSharingApr])
 
+  console.log({
+    shouldShow4yrApr,
+    veCAKEPoolApr,
+    revShareEmissionApr,
+    BRIBE_APR,
+    totalApy,
+  })
+
   const {
     targetRef: totalAprRef,
     tooltip: totalAprTooltips,

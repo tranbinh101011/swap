@@ -26,7 +26,11 @@ export const additionalColors = {
 export const lightColors = {
   ...baseColors,
   ...additionalColors,
+  blue10: "#ECF6FE",
+  blue20: "#C3E5FC",
+  blue60: "#2882CC",
   secondary: "#7645D9",
+  secondary10: "#F6F4FB",
   secondary80: "#7645D980",
   background: "#FAF9FA",
   backgroundDisabled: "#E9EAEB",
@@ -73,7 +77,11 @@ export const lightColors = {
 export const darkColors = {
   ...baseColors,
   ...additionalColors,
+  blue10: "#0B3557",
+  blue20: "#0E4572",
+  blue60: "#72B8F1",
   secondary: "#A881FC",
+  secondary10: "#322B48",
   secondary80: "#A881FC80",
   background: "#08060B",
   backgroundDisabled: "#3c3742",

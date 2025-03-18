@@ -30,6 +30,10 @@ const Results: React.FC<React.PropsWithChildren<ResultsProps>> = ({ token, api }
   const currentSkip = useGetLeaderboardSkip()
   const hasMoreResults = useGetLeaderboardHasMoreResults()
   const dispatch = useLocalDispatch()
+  console.log({
+    token,
+    api,
+  })
 
   const handleClick = () => {
     if (api && token?.symbol && token?.chainId) {

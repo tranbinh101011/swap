@@ -109,4 +109,4 @@ export const layoutMobileAdIgnoredPages = [
 export const layoutDesktopAdIgnoredPages = [...commonLayoutAdIgnoredPages]
 
 // NOTE: In current phase, we're adding pages to whitelist as well for AdPlayer.
-export const commonLayoutWhitelistedPages = ['/', '/buy-crypto', '/prediction']
+export const commonLayoutWhitelistedPages = ['/swap', '/buy-crypto', '/prediction']

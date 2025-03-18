@@ -202,6 +202,8 @@ export { default as TokenPocketIcon } from "./Icons/TokenPocket";
 export { default as TradeIcon } from "./Icons/Trade";
 export { default as TradeFilledIcon } from "./Icons/TradeFilled";
 export { default as TradingViewIcon } from "./Icons/TradingView";
+export { default as TriangleDownIcon } from "./Icons/TriangleDown";
+export { default as TriangleUpIcon } from "./Icons/TriangleUp";
 export { default as TrophyIcon } from "./Icons/Trophy";
 export { default as TrophyFillIcon } from "./Icons/TrophyFill";
 export { default as TrophyGoldIcon } from "./Icons/TrophyGold";

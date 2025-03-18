@@ -1,6 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { Percent } from '@pancakeswap/swap-sdk-core'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
+import { useReadContract } from '@pancakeswap/wagmi'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { CAKE_PER_BLOCK } from 'config'
@@ -16,7 +17,7 @@ import {
   getRevenueSharingVeCakeAddressNoFallback,
 } from 'utils/addressHelpers'
 import { publicClient } from 'utils/wagmi'
-import { useReadContract } from '@pancakeswap/wagmi'
+import { PublicClient } from 'viem'
 import { CakePoolType } from '../types'
 import { useCurrentBlockTimestamp } from './useCurrentBlockTimestamp'
 import { useVeCakeTotalSupply } from './useVeCakeTotalSupply'
@@ -45,6 +46,39 @@ export const useUserSharesPercent = (): Percent => {
   }, [balance, totalSupply])
 }
 
+export const fetchCakePoolEmission = async (client: PublicClient, chianId?: number): Promise<BigNumber> => {
+  const [cakeRateToSpecialFarm, poolInfo, totalSpecialAllocPoint] = await client.multicall({
+    contracts: [
+      {
+        address: getMasterChefV2Address(chianId)!,
+        abi: masterChefV2ABI,
+        functionName: 'cakeRateToSpecialFarm',
+      } as const,
+      {
+        address: getMasterChefV2Address(chianId)!,
+        abi: masterChefV2ABI,
+        functionName: 'poolInfo',
+        args: [pid],
+      } as const,
+      {
+        address: getMasterChefV2Address(chianId)!,
+        abi: masterChefV2ABI,
+        functionName: 'totalSpecialAllocPoint',
+      } as const,
+    ],
+    allowFailure: false,
+  })
+
+  const cakeRate = cakeRateToSpecialFarm ?? 0n
+  const allocPoint = poolInfo[2] ?? 0n
+  const totalAlloc = totalSpecialAllocPoint ?? 1n
+
+  return new BigNumber(CAKE_PER_BLOCK)
+    .times(new BigNumber(cakeRate.toString()).div(1e12))
+    .times(allocPoint.toString())
+    .div(totalAlloc.toString())
+}
+
 export const useCakePoolEmission = () => {
   const { chainId } = useActiveChainId()
   const client = useMemo(() => {
@@ -57,44 +91,10 @@ export const useCakePoolEmission = () => {
     queryKey: ['vecake/cakePoolEmission', client?.chain?.id],
 
     queryFn: async () => {
-      const response = await client.multicall({
-        contracts: [
-          {
-            address: getMasterChefV2Address(client?.chain?.id)!,
-            abi: masterChefV2ABI,
-            functionName: 'cakeRateToSpecialFarm',
-          } as const,
-          {
-            address: getMasterChefV2Address(client?.chain?.id)!,
-            abi: masterChefV2ABI,
-            functionName: 'poolInfo',
-            args: [pid],
-          } as const,
-          {
-            address: getMasterChefV2Address(client?.chain?.id)!,
-            abi: masterChefV2ABI,
-            functionName: 'totalSpecialAllocPoint',
-          } as const,
-        ],
-        allowFailure: false,
-      })
-
-      const cakeRateToSpecialFarm = response[0] ?? 0n
-      const allocPoint = response[1][2] ?? 0n
-      const totalSpecialAllocPoint = response[2] ?? 0n
-      return [cakeRateToSpecialFarm, allocPoint, totalSpecialAllocPoint]
+      return fetchCakePoolEmission(client, client?.chain?.id)
     },
   })
-
-  return useMemo(() => {
-    if (!data) return BIG_ZERO
-    const [cakeRateToSpecialFarm, allocPoint, totalSpecialAllocPoint] = data
-
-    return new BigNumber(CAKE_PER_BLOCK)
-      .times(new BigNumber(cakeRateToSpecialFarm.toString()).div(1e12))
-      .times(allocPoint.toString())
-      .div((totalSpecialAllocPoint ?? 1n).toString())
-  }, [data])
+  return data || BIG_ZERO
 }
 
 export const useCakePoolAPR = () => {

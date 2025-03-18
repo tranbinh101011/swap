@@ -170,6 +170,10 @@ interface CurrencyInputPanelProps {
   disabled?: boolean
   error?: boolean | string
   showUSDPrice?: boolean
+  topOptions?: {
+    show: boolean
+    walletDisplay: boolean
+  }
   tokensToShow?: Token[]
   currencyLoading?: boolean
   inputLoading?: boolean
@@ -198,6 +202,10 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
   error,
   showUSDPrice,
   tokensToShow,
+  topOptions = {
+    show: true,
+    walletDisplay: true,
+  },
   currencyLoading,
   inputLoading,
   title,
@@ -262,6 +270,7 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
   }, [onPresentCurrencyModal, disableCurrencySelect])
 
   const balance = !hideBalance && !!currency ? formatAmount(selectedCurrencyBalance, 6) : undefined
+
   return (
     <SwapUIV2.CurrencyInputPanelSimplify
       id={id}
@@ -275,22 +284,26 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
       inputRef={inputRef}
       wrapperRef={wrapperRef}
       top={
-        <Flex justifyContent="space-between" alignItems="center" width="100%" position="relative">
-          {title}
-          <LazyAnimatePresence mode="wait" features={domAnimation}>
-            {account ? (
-              !isInputFocus || !onMax ? (
-                <SwapUIV2.WalletAssetDisplay
-                  isUserInsufficientBalance={isUserInsufficientBalance}
-                  balance={balance}
-                  onMax={onMax}
-                />
-              ) : (
-                <SwapUIV2.AssetSettingButtonList onPercentInput={onPercentInput} />
-              )
-            ) : null}
-          </LazyAnimatePresence>
-        </Flex>
+        topOptions.show ? (
+          <Flex justifyContent="space-between" alignItems="center" width="100%" position="relative">
+            {title}
+            {topOptions.walletDisplay && (
+              <LazyAnimatePresence mode="wait" features={domAnimation}>
+                {account ? (
+                  !isInputFocus || !onMax ? (
+                    <SwapUIV2.WalletAssetDisplay
+                      isUserInsufficientBalance={isUserInsufficientBalance}
+                      balance={balance}
+                      onMax={onMax}
+                    />
+                  ) : (
+                    <SwapUIV2.AssetSettingButtonList onPercentInput={onPercentInput} />
+                  )
+                ) : null}
+              </LazyAnimatePresence>
+            )}
+          </Flex>
+        ) : null
       }
       inputLeft={
         <>

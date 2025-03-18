@@ -47,7 +47,6 @@ const _fetchAllGauges = async (
 }
 
 export const fetchAllGauges = cacheByLRU(_fetchAllGauges, {
-  name: 'fetchAllGauges',
   ttl: 10000,
   key: (params) => {
     const [, options] = params

@@ -5,9 +5,13 @@ type AsyncFunction<T extends any[]> = (...args: T) => Promise<any>
 
 // Type definitions for the cache.
 type CacheOptions<T extends AsyncFunction<any>> = {
-  name?: string
   maxCacheSize?: number
   ttl: number
+  persist?: {
+    name: string
+    version: string
+    type: 'r2'
+  }
   key?: (params: Parameters<T>) => any
 }
 
@@ -19,11 +23,37 @@ function calcCacheKey(args: any[], epoch: number) {
 
 const identity = (args: any) => args
 
-export const cacheByLRU = <T extends AsyncFunction<any>>(fn: T, { ttl, key, maxCacheSize }: CacheOptions<T>) => {
+export const cacheByLRU = <T extends AsyncFunction<any>>(
+  fn: T,
+  { ttl, key, maxCacheSize, persist }: CacheOptions<T>,
+) => {
   const cache = new QuickLRU<string, Promise<any>>({
     maxAge: ttl,
     maxSize: maxCacheSize || 1000,
   })
+  const fetchR2Cache = persist
+    ? cacheByLRU(_fetchR2Cache, {
+        ttl,
+      })
+    : undefined
+
+  function persistKey() {
+    return `${persist?.name}-${persist?.version}`
+  }
+
+  async function ensurePersist(promise: Promise<any>) {
+    try {
+      if (fetchR2Cache && persist) {
+        const t = Date.now()
+        const value = await Promise.race([fetchR2Cache(persistKey()), promise])
+        console.log('*****time usage****', Date.now() - t)
+        return value
+      }
+      return promise
+    } catch (ex) {
+      return promise
+    }
+  }
 
   const keyFunction = key || identity
 
@@ -50,7 +80,7 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(fn: T, { ttl, key, maxC
     const cacheKey = calcCacheKey(keyFunction(args), epochId)
     // logger(cacheKey, `exists=${cache.has(cacheKey)}`)
     if (cache.has(cacheKey)) {
-      return cache.get(cacheKey)
+      return ensurePersist(cache.get(cacheKey)!)
     }
 
     // @ts-ignore
@@ -66,11 +96,44 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(fn: T, { ttl, key, maxC
     }
 
     try {
-      return await promise
+      // Persist to R2 or other storage
+      promise.then((result) => {
+        const jsonResult = stringify(result)
+        if (persist && result && jsonResult !== '{}' && jsonResult !== '[]') {
+          uploadR2(persistKey(), result).catch((ex) => {
+            console.error('Failed to persist cache', ex)
+          })
+        }
+      })
+
+      return ensurePersist(promise)
     } catch (error) {
       // logger('error', cacheKey, error)
       cache.delete(cacheKey)
       throw error
     }
   }
+}
+
+async function uploadR2(key: string, value: any) {
+  console.info('update homepage cache', key)
+  if (!process.env.OBJECT_CACHE_SECRET) {
+    return
+  }
+  await fetch(`https://obj-cache.pancakeswap.com`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.OBJECT_CACHE_SECRET}`,
+    },
+    body: JSON.stringify({ key, value }),
+  })
+}
+
+async function _fetchR2Cache(key: string) {
+  const resp = await fetch(`https://proofs.pancakeswap.com/cache/${key}`)
+  if (resp.status === 200) {
+    return resp.json()
+  }
+  throw new Error(`Failed to fetch cache:https://proofs.pancakeswap.com/cache/${key}`)
 }
