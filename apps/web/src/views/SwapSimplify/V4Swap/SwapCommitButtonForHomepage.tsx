@@ -131,7 +131,7 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   const { t } = useTranslation()
   const chainId = useChainId()
   // form data
-  const { independentField } = useSwapState()
+  const { independentField, typedValue } = useSwapState()
   const [inputCurrency, outputCurrency] = useSwapCurrency()
   const { isExpertMode } = useSwapConfig()
   const { isRecipientEmpty, isRecipientError } = useIsRecipientError()
@@ -249,12 +249,13 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   )
 
   const handleSwap = useCallback(() => {
-    router.push(
-      `/swap?inputCurrency=${currencyId(inputCurrency)}&outputCurrency=${currencyId(
-        outputCurrency,
-      )}&exactAmount=${parsedIndependentFieldAmount?.toExact()}`,
-    )
-  }, [inputCurrency, outputCurrency, parsedIndependentFieldAmount])
+    let [input, output] = [inputCurrency, outputCurrency].map((currency) => currencyId(currency))
+    if (independentField === Field.OUTPUT) {
+      ;[input, output] = [output, input]
+    }
+
+    router.push(`/swap?inputCurrency=${input}&outputCurrency=${output}&exactAmount=${typedValue}`)
+  }, [inputCurrency, outputCurrency, typedValue])
 
   useEffect(() => {
     if (indirectlyOpenConfirmModalState) {
