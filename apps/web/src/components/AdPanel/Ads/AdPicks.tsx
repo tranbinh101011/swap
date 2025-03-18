@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Box, Link, Text, useTooltip } from '@pancakeswap/uikit'
+import { Box, LinkExternal, Text, useTooltip } from '@pancakeswap/uikit'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { formatAmount } from '@pancakeswap/utils/formatInfoNumbers'
 import BigNumber from 'bignumber.js'
@@ -15,11 +15,12 @@ import styled from 'styled-components'
 import { useMyPositions } from 'views/PoolDetail/components/MyPositionsContext'
 import { getPoolDetailPageLink } from 'views/universalFarms/components'
 import { sumApr } from 'views/universalFarms/utils/sumApr'
-import { AdTag } from '../AdTag'
+import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { BodyText } from '../BodyText'
 import { AdCard } from '../Card'
 import { PickBaseCoin } from '../PickBaseCoin'
 import { PickConfig } from '../types'
+import { AdTag } from '../AdTag'
 
 const usePicksData = (poolId: `0x{string}`, chain: string) => {
   const chainId = getChainId(chain)!
@@ -34,7 +35,7 @@ const usePicksData = (poolId: `0x{string}`, chain: string) => {
   const numerator = useMemo(() => {
     if (!pool || !cakeApr) return BIG_ZERO // Default value if pool or cakeApr is missing
     return new BigNumber(lpApr).times(cakeApr?.userTvlUsd ?? BIG_ZERO)
-  }, [lpApr, cakeApr, cakeApr?.userTvlUsd, pool])
+  }, [lpApr, cakeApr, pool])
 
   const denominator = useMemo(() => {
     return cakeApr?.userTvlUsd ?? BIG_ZERO
@@ -129,16 +130,18 @@ export const AdPicks = ({ config, index }: { config: PickConfig; index: number }
             {t('PANCAKE PICKS')} #{index + 1} 🔥
           </Text>
           {tooltipVisible && tooltip}
-          <Link
-            color="primary60"
-            style={{
-              marginTop: '14.5px',
-            }}
-            href={link}
-          >
-            {token0.symbol}/{token1.symbol}
-          </Link>
         </BodyText>
+        <Box
+          style={{
+            marginTop: '14.5px',
+          }}
+        >
+          <NextLinkFromReactRouter to={link}>
+            <Text color="primary60">
+              {token0.symbol}/{token1.symbol}
+            </Text>
+          </NextLinkFromReactRouter>
+        </Box>
         <Box
           display="flex"
           style={{
@@ -163,9 +166,9 @@ const AdPicksTooltip = () => {
           'Pancake Picks are trending tokens from selected categories, filtered by meaningful metrics, and refreshed every weekday.',
         )}
       </Text>
-      <Link external href="https://docs.pancakeswap.finance/products/pancake-picks">
+      <LinkExternal href="https://docs.pancakeswap.finance/products/pancake-picks">
         {t('More Information')}
-      </Link>
+      </LinkExternal>
     </>
   )
 }
