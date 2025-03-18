@@ -249,12 +249,11 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   )
 
   const handleSwap = useCallback(() => {
-    let [input, output] = [inputCurrency, outputCurrency].map((currency) => currencyId(currency))
-    if (independentField === Field.OUTPUT) {
-      ;[input, output] = [output, input]
-    }
+    const [input, output] = [inputCurrency, outputCurrency].map((currency) => currencyId(currency))
 
-    router.push(`/swap?inputCurrency=${input}&outputCurrency=${output}&exactAmount=${typedValue}`)
+    router.push(
+      `/swap?inputCurrency=${input}&outputCurrency=${output}&exactAmount=${typedValue}&exactField=${independentField}`,
+    )
   }, [inputCurrency, outputCurrency, typedValue])
 
   useEffect(() => {
