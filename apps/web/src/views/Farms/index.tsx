@@ -9,12 +9,17 @@ export function useIsBloctoETH() {
   const { chain } = useAccount()
   const { isConnected, connector } = useAccount()
   const isETH = chain?.id === mainnet.id
-  return (
-    (connector?.id === ConnectorNames.Blocto ||
-      (typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isBlocto))) &&
-    isConnected &&
-    isETH
-  )
+  try {
+    return (
+      (connector?.id === ConnectorNames.Blocto ||
+        (typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isBlocto))) &&
+      isConnected &&
+      isETH
+    )
+  } catch (error) {
+    console.error('Error checking Blocto ETH connection:', error)
+    return false
+  }
 }
 
 export const FarmsV3PageLayout: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {

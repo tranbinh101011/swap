@@ -5,7 +5,8 @@ import { getTrustWalletProvider } from '@pancakeswap/wagmi/connectors/trustWalle
 import type { ExtendEthereum } from 'global'
 import { Config } from 'wagmi'
 import { ConnectMutateAsync } from 'wagmi/query'
-import { chains, createWagmiConfig, walletConnectNoQrCodeConnector } from '../utils/wagmi'
+import { chains, createWagmiConfig, walletConnectNoQrCodeConnector } from 'utils/wagmi'
+import safeGetWindow from '@pancakeswap/utils/safeGetWindow'
 import { ASSET_CDN } from './constants/endpoints'
 
 export enum ConnectorNames {
@@ -66,7 +67,12 @@ const isMetamaskInstalled = () => {
 }
 
 function isBinanceWeb3WalletInstalled() {
-  return typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isBinance)
+  try {
+    return Boolean((safeGetWindow() as ExtendEthereum)?.isBinance)
+  } catch (error) {
+    console.error('Error checking Binance Web3 Wallet:', error)
+    return false
+  }
 }
 
 const walletsConfig = <config extends Config = Config, context = unknown>({
@@ -113,7 +119,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/okx-wallet.png`,
       connectorId: ConnectorNames.Injected,
       get installed() {
-        return typeof window !== 'undefined' && Boolean(window.okxwallet)
+        return Boolean(safeGetWindow()?.okxwallet)
       },
       downloadLink: 'https://www.okx.com/download',
       deepLink:
@@ -155,7 +161,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/opera.png`,
       connectorId: ConnectorNames.Injected,
       get installed() {
-        return typeof window !== 'undefined' && Boolean(window.ethereum?.isOpera)
+        return Boolean(safeGetWindow()?.ethereum?.isOpera)
       },
       downloadLink: 'https://www.opera.com/crypto/next',
     },
@@ -165,7 +171,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/brave.png`,
       connectorId: ConnectorNames.Injected,
       get installed() {
-        return typeof window !== 'undefined' && Boolean(window.ethereum?.isBraveWallet)
+        return Boolean(safeGetWindow()?.ethereum?.isBraveWallet)
       },
       downloadLink: 'https://brave.com/wallet/',
     },
@@ -174,7 +180,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       title: 'Rabby Wallet',
       icon: `${ASSET_CDN}/web/wallets/rabby.png`,
       get installed() {
-        return typeof window !== 'undefined' && Boolean(window.ethereum?.isRabby)
+        return Boolean(safeGetWindow()?.ethereum?.isRabby)
       },
       connectorId: ConnectorNames.Injected,
       guide: {
@@ -191,7 +197,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/mathwallet.png`,
       connectorId: ConnectorNames.Injected,
       get installed() {
-        return typeof window !== 'undefined' && Boolean(window.ethereum?.isMathWallet)
+        return Boolean(safeGetWindow()?.ethereum?.isMathWallet)
       },
       qrCode,
     },
@@ -201,7 +207,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/tokenpocket.png`,
       connectorId: ConnectorNames.Injected,
       get installed() {
-        return typeof window !== 'undefined' && Boolean(window.ethereum?.isTokenPocket)
+        return Boolean(safeGetWindow()?.ethereum?.isTokenPocket)
       },
       qrCode,
     },
@@ -211,7 +217,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/safepal.png`,
       connectorId: ConnectorNames.Injected,
       get installed() {
-        return typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isSafePal)
+        return Boolean((safeGetWindow()?.ethereum as ExtendEthereum)?.isSafePal)
       },
       downloadLink: 'https://safepal.com/en/extension',
       qrCode,
@@ -222,10 +228,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/coin98.png`,
       connectorId: ConnectorNames.Injected,
       get installed() {
-        return (
-          typeof window !== 'undefined' &&
-          (Boolean((window.ethereum as ExtendEthereum)?.isCoin98) || Boolean(window.coin98))
-        )
+        return Boolean((safeGetWindow()?.ethereum as ExtendEthereum)?.isCoin98) || Boolean(safeGetWindow()?.coin98)
       },
       qrCode,
     },
@@ -235,9 +238,12 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/blocto.png`,
       connectorId: ConnectorNames.Blocto,
       get installed() {
-        return typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isBlocto)
-          ? true
-          : undefined // undefined to show SDK
+        try {
+          return (safeGetWindow()?.ethereum as ExtendEthereum)?.isBlocto ? true : undefined // undefined to show SDK
+        } catch (error) {
+          console.error('Error checking Blocto installation:', error)
+          return undefined
+        }
       },
     },
     {
@@ -246,7 +252,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/cyberwallet.png`,
       connectorId: ConnectorNames.CyberWallet,
       get installed() {
-        return typeof window !== 'undefined' && isCyberWallet()
+        return Boolean(safeGetWindow() && isCyberWallet())
       },
       isNotExtension: true,
       guide: {

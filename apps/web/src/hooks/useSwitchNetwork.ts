@@ -19,7 +19,12 @@ export function useSwitchNetworkLocal() {
   const router = useRouter()
 
   const isBloctoMobileApp = useMemo(() => {
-    return typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isBlocto)
+    try {
+      return typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isBlocto)
+    } catch (error) {
+      console.error('Error checking Blocto mobile app:', error)
+      return false
+    }
   }, [])
 
   return useCallback(

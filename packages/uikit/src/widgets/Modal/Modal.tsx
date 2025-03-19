@@ -53,7 +53,12 @@ const getIsAndroid = () => {
 };
 
 const getIsBinance = () => {
-  return typeof window !== "undefined" && (window as any).ethereum?.isBinance;
+  try {
+    return typeof window !== "undefined" && Boolean((window as any).ethereum?.isBinance);
+  } catch (error) {
+    console.error("Error checking Binance Web3 Wallet:", error);
+    return false;
+  }
 };
 
 const Modal: React.FC<React.PropsWithChildren<ModalProps>> = ({

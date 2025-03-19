@@ -29,9 +29,13 @@ export function useDataDogRUM() {
   }, [ready, address, setReady])
 
   useEffect(() => {
-    // @ts-ignore
-    if (ready && window?.ethereum?.isBinance) {
-      datadogRum.setGlobalContextProperty('wallet', 'Binance Wallet')
+    try {
+      // @ts-ignore
+      if (ready && typeof window !== 'undefined' && window?.ethereum?.isBinance) {
+        datadogRum.setGlobalContextProperty('wallet', 'Binance Wallet')
+      }
+    } catch (error) {
+      console.error('Error setting Datadog wallet context:', error)
     }
 
     return () => {
