@@ -3623,5 +3623,7 @@
   "Bridge across %num% chains": "Bridge across %num% chains",
   "%burned% BURN • $%marketCap% MKT. CAP": "%burned% BURN • $%marketCap% MKT. CAP",
   "in the last 30 days": "in the last 30 days",
-  "Join %token% Trading Competition to share of": "Join %token% Trading Competition to share of"
+  "Join %token% Trading Competition to share of": "Join %token% Trading Competition to share of",
+  "Earn from": "Earn from",
+  "You currently have no position in this liquidity pair.": "You currently have no position in this liquidity pair."
 }
