@@ -7,10 +7,15 @@ import useCatchTxError from 'hooks/useCatchTxError'
 import { useCallback } from 'react'
 import { useLatestTxReceipt } from 'state/farmsV4/state/accountPositions/hooks/useLatestTxReceipt'
 import { isAddressEqual } from 'utils'
-import { WriteContractReturnType, erc20Abi, zeroAddress } from 'viem'
+import { erc20Abi, WriteContractReturnType, zeroAddress } from 'viem'
 import { userRejectedError } from 'views/Swap/V3Swap/hooks/useSendSwapTransaction'
 import { useWriteContract } from 'wagmi'
-import { useW3WAccountSign } from '../w3w/useW3WAccountSign'
+import {
+  useW3WAccountSign,
+  W3WSignAlreadyParticipatedError,
+  W3WSignNotSupportedError,
+  W3WSignRestrictedError,
+} from '../w3w/useW3WAccountSign'
 import { useIDOContract } from './useIDOContract'
 import { useIDOPoolInfo } from './useIDOPoolInfo'
 import { useIDOUserInfo } from './useIDOUserInfo'
@@ -79,7 +84,13 @@ export const useIDODepositCallback = () => {
           toastSuccess(t('Deposit successful'), <ToastDescriptionWithTx txHash={receipt.transactionHash} />)
         }
       } catch (error) {
-        if (userRejectedError(error)) {
+        if (error instanceof W3WSignRestrictedError) {
+          toastWarning(t('Restricted address detected'), t('You cannot participate in this TGE'))
+        } else if (error instanceof W3WSignNotSupportedError) {
+          toastWarning(t('Method not support '), t('Please upgrade your wallet app'))
+        } else if (error instanceof W3WSignAlreadyParticipatedError) {
+          toastWarning(t('Account Already Participated'), t('You have already participated in this TGE'))
+        } else if (userRejectedError(error)) {
           toastWarning(
             t('You canceled deposit'),
             t(`You didn't confirm %symbol% deposit in your wallet`, {

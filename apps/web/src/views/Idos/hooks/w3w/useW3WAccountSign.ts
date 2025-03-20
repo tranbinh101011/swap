@@ -61,10 +61,17 @@ export class W3WSignRestrictedError extends Error {
   }
 }
 
-class W3WSignNotSupportedError extends Error {
+export class W3WSignNotSupportedError extends Error {
   constructor(message: string) {
     super(message)
     this.name = 'W3WSignNotSupportedError'
+  }
+}
+
+export class W3WSignAlreadyParticipatedError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'W3WSignAlreadyParticipatedError'
   }
 }
 
@@ -95,6 +102,10 @@ const w3wSign = async ({
       throw new W3WSignRestrictedError('Restricted address')
     }
 
+    if (result.code === SignResponseCode.AlreadyParticipated) {
+      throw new W3WSignAlreadyParticipatedError('Already participated')
+    }
+
     if (result.code !== SignResponseCode.Normal) {
       throw new Error('Failed to sign')
     }
@@ -111,6 +122,13 @@ const w3wSign = async ({
       contractAddress,
       address,
     })
+    if (
+      error instanceof W3WSignRestrictedError ||
+      error instanceof W3WSignNotSupportedError ||
+      error instanceof W3WSignAlreadyParticipatedError
+    ) {
+      throw error
+    }
     return {
       signature: null,
       expireAt: 0,

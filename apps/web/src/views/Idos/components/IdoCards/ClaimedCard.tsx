@@ -106,7 +106,7 @@ export const ClaimedCard: React.FC<{
             {t('View in Wallet')}
           </Button>
           <Button width="100%" px="14px" style={{ whiteSpace: 'nowrap' }} onClick={handleSwap}>
-            {t('Swap %token%', { token: offeringCurrency?.symbol })}
+            {t('Trade %token%', { token: offeringCurrency?.symbol })}
           </Button>
         </FlexGap>
       </CardBody>

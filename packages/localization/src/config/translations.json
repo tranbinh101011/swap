@@ -3564,7 +3564,7 @@
   "APRs are calculated using the total liquidity in the pool versus the total reward amount, actual APRs may be higher as some liquidity is not staked or in-range.": "APRs are calculated using the total liquidity in the pool versus the total reward amount, actual APRs may be higher as some liquidity is not staked or in-range.",
   "APRs for individual positions may vary depending on the price range set.": "APRs for individual positions may vary depending on the price range set.",
   "View in Wallet": "View in Wallet",
-  "Swap %token%": "Swap %token%",
+  "Trade %token%": "Trade %token%",
   "Bubblemaps's Token Generation Event": "Bubblemaps's Token Generation Event",
   "Bubblemaps is a crypto analytical tool turning blockchain data into a powerful visual experience. It shows connections between a token’s holders and helps identify team wallets, VCs, and insiders—making it easier to understand the tokenomics and spot potential risks.": "Bubblemaps is a crypto analytical tool turning blockchain data into a powerful visual experience. It shows connections between a token’s holders and helps identify team wallets, VCs, and insiders—making it easier to understand the tokenomics and spot potential risks.",
   "What can Bubblemaps do?": "What can Bubblemaps do?",
@@ -3625,5 +3625,13 @@
   "in the last 30 days": "in the last 30 days",
   "Join %token% Trading Competition to share of": "Join %token% Trading Competition to share of",
   "Earn from": "Earn from",
-  "You currently have no position in this liquidity pair.": "You currently have no position in this liquidity pair."
+  "You currently have no position in this liquidity pair.": "You currently have no position in this liquidity pair.",
+  "Bedrock's Token Generation Event": "Bedrock's Token Generation Event",
+  "Bedrock is a multi-asset liquid restaking protocol that enables Bitcoin staking through uniBTC. uniBTC allows holders to earn rewards while maintaining liquidity, unlocking new yield opportunities in Bitcoin’s 1 trillion market cap. With a cutting-edge approach to BTCFi 2.0, Bedrock is redefining Bitcoin’s role in DeFi — and extending liquid restaking across 12+ blockchains for BTC, ETH, and DePIN assets.": "Bedrock is a multi-asset liquid restaking protocol that enables Bitcoin staking through uniBTC. uniBTC allows holders to earn rewards while maintaining liquidity, unlocking new yield opportunities in Bitcoin’s 1 trillion market cap. With a cutting-edge approach to BTCFi 2.0, Bedrock is redefining Bitcoin’s role in DeFi — and extending liquid restaking across 12+ blockchains for BTC, ETH, and DePIN assets.",
+  "Restricted address detected": "Restricted address detected",
+  "You cannot participate in this TGE": "You cannot participate in this TGE",
+  "Method not support ": "Method not support ",
+  "Please upgrade your wallet app": "Please upgrade your wallet app",
+  "Account Already Participated": "Account Already Participated",
+  "You have already participated in this TGE": "You have already participated in this TGE"
 }

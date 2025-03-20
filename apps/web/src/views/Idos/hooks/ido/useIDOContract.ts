@@ -3,7 +3,7 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { getContract } from 'utils/contractHelpers'
-import { createPublicClient, custom, http, type WalletClient } from 'viem'
+import { createPublicClient, custom, http, isAddress, type WalletClient } from 'viem'
 import { bsc } from 'viem/chains'
 import { idoConfigDict } from 'views/Idos/config'
 import { useWalletClient } from 'wagmi'
@@ -27,10 +27,10 @@ function getIdoAddressFromUrl(): `0x${string}` | null {
 }
 
 function getIDOAddress(idoId: string): `0x${string}` {
-  // const contractAddressFromQuery = getIdoAddressFromUrl()
-  // if (contractAddressFromQuery && isAddress(contractAddressFromQuery)) {
-  //   return contractAddressFromQuery
-  // }
+  const contractAddressFromQuery = getIdoAddressFromUrl()
+  if (contractAddressFromQuery && isAddress(contractAddressFromQuery)) {
+    return contractAddressFromQuery
+  }
   return idoConfigDict[idoId]?.contractAddress
 }
 

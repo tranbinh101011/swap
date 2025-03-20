@@ -1,11 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Card, CardBody, FlexGap, Text } from '@pancakeswap/uikit'
 import getTimePeriods from '@pancakeswap/utils/getTimePeriods'
-import { CurrencyLogo, NumberDisplay } from '@pancakeswap/widgets-internal'
+import { NumberDisplay } from '@pancakeswap/widgets-internal'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import useTheme from 'hooks/useTheme'
 import { useMemo } from 'react'
+import { StyledLogo } from 'views/Idos/components/Icons'
+import { useCurrentIDOConfig } from 'views/Idos/hooks/ido/useCurrentIDOConfig'
 import { useIDOConfig } from 'views/Idos/hooks/ido/useIDOConfig'
 import { useIDOCurrencies } from 'views/Idos/hooks/ido/useIDOCurrencies'
 import { useIDODuration } from 'views/Idos/hooks/ido/useIDODuration'
@@ -17,6 +19,7 @@ export const IdoSaleInfoCard: React.FC = () => {
   const { theme, isDark } = useTheme()
   const { offeringCurrency, stakeCurrency0, stakeCurrency1 } = useIDOCurrencies()
   const { totalSalesAmount, status, duration, startTimestamp, endTimestamp } = useIDOConfig()
+  const { icon } = useCurrentIDOConfig() ?? {}
   const preSaleDurationText = useIDODuration(duration)
 
   const durationText = useMemo(() => {
@@ -48,7 +51,7 @@ export const IdoSaleInfoCard: React.FC = () => {
     <Card background={isDark ? '#18171A' : theme.colors.background} mb="16px">
       <CardBody>
         <FlexGap gap="8px">
-          {offeringCurrency ? <CurrencyLogo size="40px" currency={offeringCurrency} /> : null}
+          {icon && <StyledLogo size="40px" srcs={[icon]} />}
           <FlexGap flexDirection="column">
             <Text fontSize="12px" bold color="secondary" lineHeight="18px" textTransform="uppercase">
               {t('Total Sale')}

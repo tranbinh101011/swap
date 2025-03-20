@@ -9,6 +9,7 @@ export type IDOFAQs = Array<{ title: ReactNode; description: ReactNode }>
 
 export type IDOConfig = {
   id: string
+  icon: string
   projectUrl: string
   chainId: ChainId
   bannerUrl: string
@@ -22,6 +23,7 @@ export type IDOConfig = {
 export const idoConfigDict: Record<string, IDOConfig> = {
   myshell: {
     id: 'myshell',
+    icon: '/images/ido/myshell.png',
     projectUrl: 'https://myshell.ai/',
     chainId: ChainId.BSC,
     bannerUrl: `${ASSET_CDN}/web/ido/myshell-banner.png`,
@@ -40,6 +42,7 @@ export const idoConfigDict: Record<string, IDOConfig> = {
   bubblemaps: {
     id: 'bubblemaps',
     projectUrl: 'https://bubblemaps.io/',
+    icon: '/images/ido/bubblemaps.png',
     chainId: ChainId.BSC,
     bannerUrl: `${ASSET_CDN}/web/ido/bubblemaps-banner.png`,
     contractAddress: '0xb330A50d27341730b7B3fD285B150e5742C3b090',
@@ -159,6 +162,89 @@ export const idoConfigDict: Record<string, IDOConfig> = {
             <br />
             <Trans>Please ensure you comply with the eligibility requirements before participating.</Trans>
           </>
+        ),
+      },
+    ],
+  },
+  bedrock: {
+    id: 'bedrock',
+    projectUrl: 'https://www.bedrock.technology/',
+    icon: '/images/ido/bedrock.png',
+    chainId: ChainId.BSC,
+    bannerUrl: `${ASSET_CDN}/web/ido/bedrock-banner.png`,
+    contractAddress: '0xA7082d7935830e476932196D241D5Db60529B4Af',
+    tgeTitle: <Trans>Bedrock's Token Generation Event</Trans>,
+    tgeSubtitle: <Trans>Exclusively via Binance Keyless Wallet</Trans>,
+    description: (
+      <>
+        <Trans>
+          Bedrock is a multi-asset liquid restaking protocol that enables Bitcoin staking through uniBTC. uniBTC allows
+          holders to earn rewards while maintaining liquidity, unlocking new yield opportunities in Bitcoin’s 1 trillion
+          market cap. With a cutting-edge approach to BTCFi 2.0, Bedrock is redefining Bitcoin’s role in DeFi — and
+          extending liquid restaking across 12+ blockchains for BTC, ETH, and DePIN assets.
+        </Trans>
+        <br />
+        <br />
+        Website:{' '}
+        <a href="https://www.bedrock.technology" target="_blank" rel="noreferrer">
+          https://www.bedrock.technology
+        </a>
+        <br />
+        <br />
+        X:{' '}
+        <a href="https://x.com/Bedrock_DeFi" target="_blank" rel="noreferrer">
+          https://x.com/Bedrock_DeFi
+        </a>
+        <br />
+      </>
+    ),
+    faqs: [
+      {
+        title: <Trans>1. When can I claim my tokens?</Trans>,
+        description: (
+          <>
+            <Trans>
+              You can claim your tokens immediately once the TGE ends by clicking the Claim button. Alternatively, you
+              can return to the TGE page at any time afterward to claim your tokens—there is no fixed claim period.
+            </Trans>
+            <Trans>On the TGE page, you will also find key details, including:</Trans>
+            <ul>
+              <li>
+                <Trans>The number of tokens available for claiming</Trans>
+              </li>
+              <li>
+                <Trans>The TGE duration</Trans>
+              </li>
+              <li>
+                <Trans>The total amount of BNB subscribed</Trans>
+              </li>
+              <li>
+                <Trans>The total amount of refunded BNB (if applicable)</Trans>
+              </li>
+              <li>
+                <Trans>The TGE status (e.g., oversubscribed or not)</Trans>
+              </li>
+            </ul>
+          </>
+        ),
+      },
+      {
+        title: <Trans>2. How many tokens will I receive?</Trans>,
+        description: (
+          <Trans>
+            During the TGE, users can subscribe up to a maximum of 3 BNB. The final token allocation is determined based
+            on the proportion of BNB a user contributed relative to the total BNB subscribed by all participants at the
+            time the sale ends.
+          </Trans>
+        ),
+      },
+      {
+        title: <Trans>3. Will I receive a refund if the pool is oversubscribed?</Trans>,
+        description: (
+          <Trans>
+            Yes. If the TGE is oversubscribed, any excess BNB that was not used to purchase tokens will be automatically
+            refunded to your wallet when you claim your tokens.
+          </Trans>
         ),
       },
     ],
