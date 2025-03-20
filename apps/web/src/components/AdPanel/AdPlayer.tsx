@@ -1,5 +1,6 @@
 import { memo } from 'react'
-import { commonLayoutWhitelistedPages, useAdConfig } from './config'
+import { useAdConfig } from './config'
+import { commonLayoutWhitelistedPages } from './constants'
 import { shouldRenderOnPages } from './renderConditions'
 import { AdPlayerProps } from './types'
 import { AdSlidesRender } from './AdSlidesRender'

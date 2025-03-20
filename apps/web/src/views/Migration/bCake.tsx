@@ -12,7 +12,7 @@ import {
   Text,
 } from '@pancakeswap/uikit'
 import { MobileCard } from 'components/AdPanel/MobileCard'
-import { commonLayoutWhitelistedPages } from 'components/AdPanel/config'
+import { commonLayoutWhitelistedPages } from 'components/AdPanel/constants'
 import { shouldRenderOnPages } from 'components/AdPanel/renderConditions'
 import Page from 'components/Layout/Page'
 import Image from 'next/image'
