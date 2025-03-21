@@ -165,7 +165,8 @@ export function useStakedPools(): FixedStakingPool[] {
     args: [],
   })
 
-  const numberOfPools = poolLength ? toNumber(poolLength.toString()) : 0
+  const poolLengthNumber = poolLength ? toNumber(poolLength.toString()) : 0
+  const numberOfPools = Number.isSafeInteger(poolLengthNumber) && poolLengthNumber >= 0 ? poolLengthNumber : 0
 
   const fixedStakePools = useSingleContractMultipleData({
     contract: useMemo(
@@ -180,6 +181,7 @@ export function useStakedPools(): FixedStakingPool[] {
       () => Array.from(Array(numberOfPools).keys()).map((index) => [BigInt(index)] as const),
       [numberOfPools],
     ),
+    options: { enabled: Boolean(numberOfPools) },
   })
 
   return useMemo(() => {
