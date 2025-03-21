@@ -49,6 +49,7 @@ export const chainName: { [key: number]: string } = {
   [ChainId.LINEA]: "linea",
   [ChainId.BASE]: "base",
   [ChainId.OPBNB]: "opbnb",
+  [ChainId.MONAD_TESTNET]: "monad-testnet",
 };
 
 // TODO: move to utils or token-list
