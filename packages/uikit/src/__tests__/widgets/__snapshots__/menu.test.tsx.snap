@@ -768,7 +768,7 @@ exports[`renders correctly 1`] = `
             <a
               aria-label="Pancake home page"
               class="c5"
-              href="/"
+              href="/home"
             >
               <svg
                 class="c6 mobile-icon"

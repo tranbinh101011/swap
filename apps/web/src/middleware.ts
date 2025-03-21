@@ -4,8 +4,15 @@ import { withClientId } from 'middlewares/client-id-middleware'
 import { withGeoBlock } from 'middlewares/geo-block-middleware'
 import { withUserIp } from 'middlewares/ip-address-middleware'
 import { stackMiddlewares } from 'middlewares/stack-middleware'
+import { visitorRedirectMiddleware } from 'middlewares/visitor-rule-middleware'
 
-export const middleware = stackMiddlewares([withClientId, withGeoBlock, withUserIp, withABTesting])
+export const middleware = stackMiddlewares([
+  withClientId,
+  withGeoBlock,
+  withUserIp,
+  withABTesting,
+  visitorRedirectMiddleware,
+])
 
 export const config = {
   matcher: [
