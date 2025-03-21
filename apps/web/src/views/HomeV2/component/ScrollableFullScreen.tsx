@@ -11,7 +11,7 @@ interface ScrollableFullScreenProps {
 
 const FullScreenContainer = styled.div<{ offsetHeight: number }>`
   scroll-snap-align: start;
-  height: calc(100vh - ${({ offsetHeight }) => offsetHeight + 50}px);
+  height: calc(100vh - ${({ offsetHeight }) => offsetHeight}px);
   width: 100%;
   overflow: hidden;
   position: relative;
@@ -21,14 +21,15 @@ const FullScreenContainer = styled.div<{ offsetHeight: number }>`
   align-items: center;
 `
 
-export const ScrollableFullScreen: React.FC<ScrollableFullScreenProps> = ({ children, headerSelector = '#menu' }) => {
+export const ScrollableFullScreen: React.FC<ScrollableFullScreenProps> = ({ children, headerSelector = '#nav' }) => {
   const [headerHeight, setHeaderHeight] = useState(0)
   const { isMobile, isTablet } = useMatchBreakpoints()
 
   React.useEffect(() => {
     const header = document.querySelector(headerSelector)
     if (header) {
-      setHeaderHeight(header.clientHeight)
+      const rect = header.getBoundingClientRect()
+      setHeaderHeight(rect.height)
     }
   }, [headerSelector])
 

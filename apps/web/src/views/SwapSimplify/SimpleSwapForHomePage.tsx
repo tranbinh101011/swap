@@ -64,7 +64,7 @@ export default function SimpleSwapForHomePage() {
       height="100%"
       justifyContent="center"
       position="relative"
-      mt={isChartExpanded ? undefined : isMobile ? '0px' : '42px'}
+      mt={isChartExpanded ? undefined : isMobile ? '0px' : '-2px'}
       p={isChartExpanded ? undefined : isMobile ? '16px' : '24px'}
     >
       <Flex

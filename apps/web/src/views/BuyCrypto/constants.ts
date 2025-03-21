@@ -101,7 +101,7 @@ export const getNetworkFullName = (chainId: number | undefined): string => {
     case OnRampChainId.ETHEREUM:
       return 'Ethereum '
     case OnRampChainId.BSC:
-      return 'Binance Smart Chain'
+      return 'BNB Chain'
     case OnRampChainId.ZKSYNC:
       return 'ZkSync Era'
     case OnRampChainId.ARBITRUM_ONE:
