@@ -75,7 +75,7 @@ interface Props {
   minDepositUSD?: number
   boosterMultiplier?: number
   isBooster?: boolean
-  onStake: (
+  onStake?: (
     amountA: CurrencyAmount<Currency>,
     amountB: CurrencyAmount<Currency>,
     allowDepositToken0: boolean,

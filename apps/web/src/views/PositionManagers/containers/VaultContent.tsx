@@ -2,6 +2,7 @@ import { isThirdPartyVaultConfig } from '@pancakeswap/position-managers'
 import { ViewMode } from '@pancakeswap/uikit'
 import { memo, useMemo } from 'react'
 import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
+import { MANAGER } from '@pancakeswap/position-managers/src/constants/managers'
 
 import { CardLayout } from '../components'
 import { TableRow } from '../components/TableView'
@@ -63,7 +64,12 @@ export const VaultContent = memo(function VaultContent() {
         }
         return true
       })
-      .filter(() => {
+      .filter((d) => {
+        // Move all DefiEdge pools to history page
+        if (d.manager === MANAGER.DEFIEDGE) {
+          return status === PositionManagerStatus.FINISHED // Only show in history
+        }
+
         if (status === PositionManagerStatus.FINISHED) {
           return false
           // return d.endTimestamp <= Date.now() / 1000

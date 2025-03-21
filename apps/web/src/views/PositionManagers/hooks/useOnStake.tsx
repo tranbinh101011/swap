@@ -11,7 +11,12 @@ import { useCallback } from 'react'
 import { Address } from 'viem'
 import { usePMSlippage } from './usePMSlippage'
 
-export const useOnStake = (managerId: MANAGER, contractAddress: Address, bCakeWrapperAddress?: Address) => {
+export const useOnStake = (
+  managerId: MANAGER,
+  contractAddress: Address,
+  bCakeWrapperAddress?: Address,
+  isDisabled?: boolean,
+) => {
   const positionManagerBCakeWrapperContract = usePositionManagerBCakeWrapperContract(bCakeWrapperAddress ?? '0x')
   const positionManagerWrapperContract = usePositionManagerWrapperContract(contractAddress)
   const { fetchWithCatchTxError, loading: pendingTx } = useCatchTxError()
@@ -58,7 +63,7 @@ export const useOnStake = (managerId: MANAGER, contractAddress: Address, bCakeWr
                 },
               )
             }
-          : () =>
+          : async () =>
               positionManagerWrapperContract.write.mintThenDeposit(
                 [
                   allowDepositToken0 ? amountA?.numerator ?? 0n : 0n,
@@ -101,12 +106,12 @@ export const useOnStake = (managerId: MANAGER, contractAddress: Address, bCakeWr
     async (onDone?: () => void) => {
       const receipt = await fetchWithCatchTxError(
         bCakeWrapperAddress
-          ? () =>
+          ? async () =>
               positionManagerBCakeWrapperContract.write.deposit([0n, true], {
                 account: account ?? '0x',
                 chain,
               })
-          : () =>
+          : async () =>
               positionManagerWrapperContract.write.deposit([0n], {
                 account: account ?? '0x',
                 chain,
@@ -136,7 +141,7 @@ export const useOnStake = (managerId: MANAGER, contractAddress: Address, bCakeWr
   )
 
   return {
-    onStake: mintThenDeposit,
+    onStake: isDisabled ? undefined : mintThenDeposit,
     onUpdate,
     isTxLoading: pendingTx,
   }
