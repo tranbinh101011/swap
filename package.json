@@ -9,7 +9,7 @@
     "apis/*",
     "scripts"
   ],
-  "packageManager": "pnpm@9.15.3",
+  "packageManager": "pnpm@10.6.5",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "turbo run dev --filter=web... --concurrency=50",
@@ -54,6 +54,7 @@
     "@pancakeswap/tsconfig": "workspace:*",
     "@stylelint/postcss-css-in-js": "^0.37.2",
     "@types/node": "^18.16.2",
+    "eslint": "^8.32.0",
     "eslint-plugin-address": "^0.0.2",
     "eslint-plugin-lodash": "^7.4.0",
     "husky": "^7.0.0",
@@ -68,14 +69,14 @@
     "stylelint-config-styled-components": "^0.1.1",
     "tilg": "^0.1.1",
     "tsx": "^4.6.1",
-    "turbo": "2.0.6",
+    "turbo": "2.4.4",
     "typescript": "5.7.3",
     "vitest": "^1.5.0",
     "wrangler": "catalog:"
   },
   "volta": {
     "node": "20.17.0",
-    "pnpm": "9.15.3"
+    "pnpm": "10.6.5"
   },
   "dependencies": {
     "ws": "^8.17.1",
