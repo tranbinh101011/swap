@@ -26,7 +26,7 @@ export const MyVeCakeBalance = () => {
   return (
     <StyledBox>
       <img src="/images/cake-staking/token-vecake.png" alt="token-vecake" width="58px" />
-      <Flex flexDirection={['column', 'column', 'row']} ml="4px">
+      <Flex flexDirection={['column', 'column', 'row']} ml="4px" alignItems="center">
         <Text fontSize="20px" bold lineHeight="120%" mr="16px">
           {t('MY veCAKE')}
         </Text>

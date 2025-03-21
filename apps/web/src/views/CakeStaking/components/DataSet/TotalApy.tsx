@@ -23,9 +23,15 @@ interface TotalApyProps {
   veCake: string
   cakeAmount: number
   cakeLockWeeks: string
+  showTotalAPYOnly?: boolean
 }
 
-export const TotalApy: React.FC<React.PropsWithChildren<TotalApyProps>> = ({ veCake, cakeAmount, cakeLockWeeks }) => {
+export const TotalApy: React.FC<React.PropsWithChildren<TotalApyProps>> = ({
+  veCake,
+  cakeAmount,
+  cakeLockWeeks,
+  showTotalAPYOnly,
+}) => {
   const { t } = useTranslation()
   const cakePoolEmission = useCakePoolEmission()
   const revShareEmission = useRevShareEmission()
@@ -190,17 +196,32 @@ export const TotalApy: React.FC<React.PropsWithChildren<TotalApyProps>> = ({ veC
     },
   )
 
+  const totalApyElement = (
+    <Flex justifyContent="space-between">
+      <TooltipText fontSize="14px" color="textSubtle" ref={totalAprRef}>
+        {t('Total APR')}
+      </TooltipText>
+      <Flex>
+        <Text>🔹</Text>
+        <GradientText>{t('Up to %apr%%', { apr: totalApy.toFixed(2) })} </GradientText>
+      </Flex>
+    </Flex>
+  )
+
+  if (showTotalAPYOnly) {
+    return (
+      <>
+        <Flex width="100%" flexDirection="column">
+          {totalApyElement}
+        </Flex>
+        {totalAprTooltipVisible && totalAprTooltips}
+      </>
+    )
+  }
+
   return (
     <Flex width="100%" flexDirection="column">
-      <Flex justifyContent="space-between">
-        <TooltipText fontSize="14px" color="textSubtle" ref={totalAprRef}>
-          {t('Total APR')}
-        </TooltipText>
-        <Flex>
-          <Text>🔹</Text>
-          <GradientText>{t('Up to %apr%%', { apr: totalApy.toFixed(2) })} </GradientText>
-        </Flex>
-      </Flex>
+      {totalApyElement}
       <Box ml="25px">
         <Flex mt="4px" justifyContent="space-between">
           <TooltipText fontSize="14px" color="textSubtle" ref={veCakePoolAprRef}>

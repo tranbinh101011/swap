@@ -76,6 +76,7 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = ({
   bodyAlignItems,
   headerBorderColor,
   bodyTop = "0px",
+  headerProps,
   ...props
 }) => {
   const context = useContext(ModalV2Context);
@@ -98,7 +99,7 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = ({
       >
         <ModalTitle>
           {onBack && <ModalBackButton onBack={onBack} />}
-          <Heading>{title}</Heading>
+          <Heading {...headerProps}>{title}</Heading>
         </ModalTitle>
         {headerRightSlot}
         {!hideCloseButton && <ModalCloseButton onDismiss={onDismiss} />}

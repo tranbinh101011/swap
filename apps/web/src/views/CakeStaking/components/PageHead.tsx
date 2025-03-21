@@ -1,19 +1,11 @@
 import { useTranslation } from '@pancakeswap/localization'
-import {
-  ArrowForwardIcon,
-  Box,
-  Button,
-  Flex,
-  Grid,
-  HelpIcon,
-  Link,
-  Text,
-  useMatchBreakpoints,
-} from '@pancakeswap/uikit'
+import { ArrowForwardIcon, Box, Button, Flex, Grid, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { AdPlayer } from 'components/AdPanel/AdPlayer'
+import PinnedFAQButton from 'components/PinnedFAQButton'
 import { useMemo } from 'react'
 import styled, { css } from 'styled-components'
+import faqConfig from '../faqConfig'
 import { useCakeLockStatus } from '../hooks/useVeCakeUserInfo'
 import { CakeLockStatus } from '../types'
 import { HeadBunny, MobileHeadBunny } from './HeadImage'
@@ -29,24 +21,28 @@ export const PageHead = () => {
           <AdPlayer />
         </Box>
       )}
-      <Flex justifyContent="space-between" flexDirection="row">
-        <Flex flex="1" flexDirection="column" mr={[0, 0, '8px']}>
-          <Heading />
-          <Description />
-          <NextLinkFromReactRouter
-            to="/swap?chain=bsc&inputCurrency=BNB&outputCurrency=0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82"
-            prefetch={false}
-            style={{ width: 'fit-content' }}
-          >
-            <Button p="0" variant="text" mt="4px">
-              <Text color="primary" bold fontSize="16px" mr="4px">
-                {t('Get CAKE')}
-              </Text>
-              <ArrowForwardIcon color="primary" />
-            </Button>
-          </NextLinkFromReactRouter>
-        </Flex>
 
+      <Flex justifyContent="space-between" flexDirection="row">
+        {isMobile ? (
+          <Heading />
+        ) : (
+          <Flex flex="1" flexDirection="column" mr={[0, 0, '8px']}>
+            <Heading />
+            <Description />
+            <NextLinkFromReactRouter
+              to="/swap?chain=bsc&inputCurrency=BNB&outputCurrency=0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82"
+              prefetch={false}
+              style={{ width: 'fit-content' }}
+            >
+              <Button p="0" variant="text" mt="4px">
+                <Text color="primary" bold fontSize="16px" mr="4px">
+                  {t('Get CAKE')}
+                </Text>
+                <ArrowForwardIcon color="primary" />
+              </Button>
+            </NextLinkFromReactRouter>
+          </Flex>
+        )}
         {/* <Box>{!isMobile && <AdPanel.AdPlayer />}</Box> */}
         <Box>
           <HeadBunny />
@@ -63,20 +59,15 @@ const Heading = () => {
   const staking = useMemo(() => status === CakeLockStatus.Locking, [status])
 
   return (
-    <Flex alignItems="baseline" justifyContent={staking ? 'space-between' : undefined}>
-      <Text lineHeight="110%" bold color="secondary" mb="16px" fontSize={['32px', '32px', '64px', '64px']}>
+    <Flex alignItems="baseline" width="100%" justifyContent={staking || isMobile ? 'space-between' : undefined}>
+      <Text lineHeight="110%" bold color="secondary" mb="0px" fontSize={['32px', '32px', '64px', '64px']}>
         {t('CAKE Staking')}
       </Text>
       {isMobile ? (
-        <Link
-          external
-          href="https://docs.pancakeswap.finance/products/vecake/how-to-get-vecake"
-          style={{ textDecoration: 'none', zIndex: 1 }}
-        >
-          <Button width="48px" height="48px" variant="subtle" ml={staking ? 0 : '16px'}>
-            <HelpIcon ml="0" color="white" width="24px" />
-          </Button>
-        </Link>
+        <PinnedFAQButton
+          faqConfig={faqConfig}
+          docLink="https://docs.pancakeswap.finance/products/vecake/what-is-vecake"
+        />
       ) : null}
     </Flex>
   )

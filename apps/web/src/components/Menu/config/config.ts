@@ -211,14 +211,14 @@ const config: (
           image: '/images/voting/voting-bunny.png',
           items: [
             {
-              label: t('Proposals'),
-              href: '/voting',
-              supportChainIds: SUPPORT_ONLY_BSC,
-            },
-            {
               label: t('Gauges'),
               href: '/gauges-voting',
               supportChainIds: SUPPORT_CAKE_STAKING,
+            },
+            {
+              label: t('Proposals'),
+              href: '/voting',
+              supportChainIds: SUPPORT_ONLY_BSC,
             },
           ].map((item) => addMenuItemSupported(item, chainId)),
         },

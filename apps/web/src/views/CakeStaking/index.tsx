@@ -170,11 +170,17 @@ const CakeStaking = () => {
   )
 }
 
-const StyledPageHeader = styled(PageHeader)`
-  padding-top: 32px;
+export const StyledPageHeader = styled(PageHeader)`
+  padding-top: 8px;
+  margin-left: -8px;
+  margin-right: -8px;
 
   ${({ theme }) => theme.mediaQueries.lg} {
     padding-top: 56px;
+  }
+
+  ${({ theme }) => theme.mediaQueries.sm} {
+    padding-top: 32px;
   }
 `
 

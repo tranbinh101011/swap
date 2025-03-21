@@ -1,5 +1,20 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { AutoRow, BalanceInput, BalanceInputProps, Box, Button, FlexGap, Image, Text } from '@pancakeswap/uikit'
+import {
+  AtomBox,
+  AutoRow,
+  BalanceInputProps,
+  Box,
+  Button,
+  domAnimation,
+  Flex,
+  FlexGap,
+  Image,
+  LazyAnimatePresence,
+  SwapCSS,
+  Text,
+  useMatchBreakpoints,
+} from '@pancakeswap/uikit'
+import { SwapUIV2 } from '@pancakeswap/widgets-internal'
 import { MAX_VECAKE_LOCK_WEEKS } from 'config/constants/veCake'
 import { useAtom, useAtomValue } from 'jotai'
 import React, { useCallback, useMemo } from 'react'
@@ -10,6 +25,25 @@ import { useWriteWithdrawCallback } from '../hooks/useContractWrite/useWriteWith
 import { useMaxUnlockWeeks } from '../hooks/useMaxUnlockTime'
 import { useCakeLockStatus } from '../hooks/useVeCakeUserInfo'
 import { LockWeeksDataSet } from './DataSet'
+
+const weeksOnMobile = [
+  {
+    value: 2,
+    label: '2W',
+  },
+  {
+    value: 26,
+    label: '6M',
+  },
+  {
+    value: 52,
+    label: '1Y',
+  },
+  {
+    value: 208,
+    label: 'MAX',
+  },
+]
 
 const weeks = [
   {
@@ -34,16 +68,22 @@ const weeks = [
   },
 ]
 
-const ButtonBlocked = styled(Button)`
+const ButtonBlocked = styled(Button)<{ selected?: boolean }>`
   flex: 1;
   white-space: nowrap;
+  font-size: 12px;
+  padding: 0 2px;
+  color: ${({ selected, theme }) => (selected ? theme.colors.primary : 'inherit')};
+  font-weight: 600;
+  cursor: pointer;
 `
 
-const LockImageElement = React.memo(() => (
-  <Box width={40} mr={12}>
-    <Image src="/images/cake-staking/lock.png" height={37} width={34} />
-  </Box>
-))
+const Divider = styled.div`
+  width: 1px;
+  height: 16px;
+  background-color: ${({ theme }) => theme.colors.cardBorder};
+  margin: 0 4px;
+`
 
 const WeekInput: React.FC<{
   value: BalanceInputProps['value']
@@ -51,11 +91,13 @@ const WeekInput: React.FC<{
   disabled?: boolean
 }> = ({ value, onUserInput, disabled }) => {
   const { t } = useTranslation()
+  const { isMobile } = useMatchBreakpoints()
   const { cakeLockExpired, cakeUnlockTime } = useCakeLockStatus()
   const showMax = useMemo(() => (cakeLockExpired ? false : cakeUnlockTime > 0), [cakeLockExpired, cakeUnlockTime])
   const weekOptions = useMemo(() => {
-    return showMax ? weeks.slice(0, weeks.length - 1) : weeks
-  }, [showMax])
+    const options = isMobile ? weeksOnMobile : weeks
+    return showMax ? options.slice(0, options.length - 1) : options
+  }, [showMax, isMobile])
   const maxUnlockWeeks = useMaxUnlockWeeks(MAX_VECAKE_LOCK_WEEKS, cakeLockExpired ? 0 : cakeUnlockTime)
   const onInput = useCallback(
     (v: string) => {
@@ -78,23 +120,54 @@ const WeekInput: React.FC<{
   )
 
   return (
-    <>
-      <BalanceInput
-        width="100%"
-        mb="8px"
-        placeholder="0"
-        inputProps={{
-          style: { textAlign: 'left', marginTop: '1px', marginBottom: '1px' },
-          disabled,
-          max: MAX_VECAKE_LOCK_WEEKS,
-          pattern: '^[0-9]*$',
-        }}
-        value={value}
-        appendComponent={<LockImageElement />}
-        onUserInput={onInput}
-        unit={t('Weeks')}
-      />
-      {disabled ? null : (
+    <AtomBox position="relative" id="lock-weeks-input" display="grid" gap="4px" width="100%">
+      <AtomBox display="flex" alignItems="center" justifyContent="space-between" mb="8px">
+        <Text color="textSubtle" fontSize={12} bold width="100%">
+          {t('Lock Duration')}
+        </Text>
+        <LazyAnimatePresence mode="wait" features={domAnimation}>
+          <FlexGap
+            justifyContent="space-between"
+            alignItems="center"
+            flexWrap="wrap"
+            gap="4px"
+            minWidth="fit-content"
+            color="textSubtle"
+          >
+            {weekOptions.map(({ value: v, label }, index) => (
+              <React.Fragment key={v}>
+                <ButtonBlocked
+                  bold
+                  as="p"
+                  data-week={v}
+                  disabled={disabled || maxUnlockWeeks < v}
+                  onClick={handleWeekSelect}
+                  selected={Number(value) === v}
+                >
+                  {label}
+                </ButtonBlocked>
+                {index < weekOptions.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+
+            {showMax ? (
+              <>
+                <Divider />
+                <ButtonBlocked
+                  as="p"
+                  data-week={maxUnlockWeeks}
+                  disabled={disabled || maxUnlockWeeks <= 0}
+                  onClick={handleWeekSelect}
+                  selected={Number(value) === maxUnlockWeeks}
+                >
+                  {t('Max')}
+                </ButtonBlocked>
+              </>
+            ) : null}
+          </FlexGap>
+        </LazyAnimatePresence>
+      </AtomBox>
+      {/* <AtomBox display="flex" alignItems="center" justifyContent="space-between" mb="8px">
         <FlexGap justifyContent="space-between" flexWrap="wrap" gap="4px" width="100%">
           {weekOptions.map(({ value: v, label }) => (
             <ButtonBlocked
@@ -121,8 +194,58 @@ const WeekInput: React.FC<{
             </ButtonBlocked>
           ) : null}
         </FlexGap>
-      )}
-    </>
+      </AtomBox> */}
+      <AtomBox
+        display="flex"
+        flexDirection="column"
+        flexWrap="nowrap"
+        position="relative"
+        backgroundColor="backgroundAlt"
+        zIndex="1"
+      >
+        <AtomBox
+          as="label"
+          className={SwapCSS.inputContainerVariants({
+            showBridgeWarning: false,
+            error: false,
+          })}
+          style={{ borderRadius: '24px' }}
+        >
+          <AtomBox
+            display="flex"
+            flexDirection="row-reverse"
+            flexWrap="nowrap"
+            color="text"
+            fontSize="12px"
+            lineHeight="16px"
+            px="16px"
+            py="0px"
+            className="targetInput"
+            position="relative"
+            style={{ height: 80 }}
+          >
+            <SwapUIV2.NumericalInput
+              error={false}
+              disabled={disabled}
+              className="token-amount-input"
+              value={value}
+              onUserInput={onInput}
+              fontSize="24px"
+              placeholder="0"
+              pattern="^[0-9]*$"
+            />
+            <Flex alignItems="center">
+              <Box width={40} mr="4px">
+                <Image src="/images/cake-staking/lock.png" height={37} width={34} />
+              </Box>
+              <Text fontSize="20px" bold>
+                {t('Weeks')}
+              </Text>
+            </Flex>
+          </AtomBox>
+        </AtomBox>
+      </AtomBox>
+    </AtomBox>
   )
 }
 
@@ -143,20 +266,10 @@ export const LockWeeksForm: React.FC<React.PropsWithChildren<LockWeeksFormProps>
   hideLockWeeksDataSetStyle,
   onDismiss,
 }) => {
-  const { t } = useTranslation()
   const [value, onChange] = useAtom(cakeLockWeeksAtom)
 
   return (
     <AutoRow alignSelf="start">
-      <FlexGap gap="4px" alignItems="center" mb="4px">
-        <Text color="textSubtle" textTransform="uppercase" fontSize={16} bold>
-          {t('add')}
-        </Text>
-        <Text color="textSubtle" textTransform="uppercase" fontSize={16} bold>
-          {t('duration')}
-        </Text>
-      </FlexGap>
-
       <WeekInput value={value} onUserInput={onChange} disabled={disabled} />
 
       {customVeCakeCard}

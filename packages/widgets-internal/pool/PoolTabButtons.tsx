@@ -1,7 +1,23 @@
+import { useTranslation } from "@pancakeswap/localization";
+import {
+  ButtonMenu,
+  ButtonMenuItem,
+  Flex,
+  FlexGap,
+  IconButton,
+  Modal,
+  ModalV2,
+  NotificationDot,
+  Text,
+  Toggle,
+  ToggleView,
+  TuneIcon,
+  useMatchBreakpoints,
+  useModalV2,
+  ViewMode,
+} from "@pancakeswap/uikit";
 import { useRouter } from "next/router";
 import { styled } from "styled-components";
-import { useTranslation } from "@pancakeswap/localization";
-import { ToggleView, ViewMode, ButtonMenu, ButtonMenuItem, Toggle, Text, NotificationDot } from "@pancakeswap/uikit";
 import { NextLinkFromReactRouter } from "../components/NextLink";
 
 const ToggleWrapper = styled.div`
@@ -63,8 +79,9 @@ const PoolTabButtons = ({
   hideViewMode = false,
 }: PoolTableButtonsPropsType) => {
   const router = useRouter();
-
   const { t } = useTranslation();
+  const filterModal = useModalV2();
+  const { isMobile } = useMatchBreakpoints();
 
   const isExact = router.pathname === "/pools" || router.pathname === "/_mp/pools";
 
@@ -80,7 +97,7 @@ const PoolTabButtons = ({
         </ButtonMenuItem>
         <NotificationDot show={hasStakeInFinishedPools}>
           <ButtonMenuItem id="finished-pools-button" as={NextLinkFromReactRouter} to="/pools/history" replace>
-            {t("Finished")}
+            {t("Old")}
           </ButtonMenuItem>
         </NotificationDot>
       </ButtonMenu>
@@ -94,11 +111,50 @@ const PoolTabButtons = ({
     </ToggleWrapper>
   );
 
+  const FilterModalContent = () => (
+    <Modal title={t("Filter")} headerBackground="gradientCardHeader" onDismiss={filterModal.onDismiss}>
+      <FlexGap flexDirection="column" gap="16px">
+        <Flex justifyContent="space-between" alignItems="center">
+          <Flex alignItems="center">
+            <Text>{t("Pool status")}</Text>
+          </Flex>
+          {liveOrFinishedSwitch}
+        </Flex>
+        <Flex justifyContent="space-between" alignItems="center">
+          <Flex alignItems="center">
+            <Text>{t("Staked only")}</Text>
+          </Flex>
+          <Toggle
+            checked={stakedOnly}
+            onChange={() => {
+              setStakedOnly(!stakedOnly);
+              filterModal.setIsOpen(false);
+            }}
+            scale="md"
+          />
+        </Flex>
+      </FlexGap>
+    </Modal>
+  );
+
   return (
     <ViewControls>
       {viewModeToggle}
-      {liveOrFinishedSwitch}
-      {stakedOnlySwitch}
+      {isMobile ? (
+        <>
+          <IconButton variant="text" scale="xs" onClick={filterModal.onOpen}>
+            <TuneIcon color="primary" width="18px" />
+          </IconButton>
+          <ModalV2 isOpen={filterModal.isOpen} onDismiss={filterModal.onDismiss}>
+            <FilterModalContent />
+          </ModalV2>
+        </>
+      ) : (
+        <>
+          {liveOrFinishedSwitch}
+          {stakedOnlySwitch}
+        </>
+      )}
     </ViewControls>
   );
 };

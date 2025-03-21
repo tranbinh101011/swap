@@ -7,11 +7,11 @@ import {
   Card,
   CardBody,
   ErrorIcon,
+  FeeTier,
   Flex,
   FlexGap,
   PaginationButton,
   Skeleton,
-  Tag,
   Text,
 } from '@pancakeswap/uikit'
 import formatLocalisedCompactNumber, { getBalanceNumber } from '@pancakeswap/utils/formatBalance'
@@ -20,16 +20,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { SpaceProps } from 'styled-system'
 import { usePositionManagerName } from 'views/GaugesVoting/hooks/usePositionManagerName'
-import { feeTierPercent } from 'views/V3Info/utils'
 import { GaugeTokenImage } from '../../GaugeTokenImage'
 import { NetworkBadge } from '../../NetworkBadge'
 import { PositionManagerLogo } from '../../PositionManagerLogo'
 import { RowData } from './types'
-
-const ListContainer = styled(Flex)`
-  margin-left: -1em;
-  margin-right: -1em;
-`
 
 const ListItemContainer = styled(Box)`
   padding: 0.875em;
@@ -115,7 +109,7 @@ export const GaugesList = ({
   ) : null
 
   return (
-    <ListContainer {...props} flexDirection="column">
+    <Flex {...props} flexDirection="column">
       {isLoading ? (
         Loading
       ) : (
@@ -124,7 +118,7 @@ export const GaugesList = ({
           {paginationButton}
         </>
       )}
-    </ListContainer>
+    </Flex>
   )
 }
 
@@ -144,7 +138,7 @@ export function GaugeIdentifierDetails({ data }: ListItemProps) {
 
   return (
     <Flex justifyContent="space-between" flex="1">
-      <FlexGap gap="0.25em" flexWrap="nowrap">
+      <FlexGap gap="0.25em" flexWrap="nowrap" alignItems="center">
         <GaugeTokenImage gauge={data} />
         <Flex flexDirection="column">
           <Text fontWeight={600} fontSize={16} lineHeight={hasManager ? 1 : 1.5}>
@@ -169,16 +163,16 @@ export function GaugeIdentifierDetails({ data }: ListItemProps) {
           )}
         </Flex>
       </FlexGap>
-      <FlexGap gap="0.25em" justifyContent="flex-end" flexWrap="wrap" style={{ flex: 1 }}>
+      <FlexGap gap="0.25em" alignItems="center" justifyContent="flex-end" flexWrap="wrap" style={{ flex: 1 }}>
         <NetworkBadge chainId={Number(data.chainId)} scale="sm" />
-        {data.type === GaugeType.V3 ? (
-          <Tag outline variant="secondary" scale="sm">
-            {feeTierPercent(data.feeTier)}
-          </Tag>
+
+        {data ? (
+          <FeeTier
+            type={GAUGE_TYPE_NAMES[data.type]}
+            fee={data.type === GaugeType.V3 ? data?.feeTier : 0}
+            denominator={1_000_000}
+          />
         ) : null}
-        <Tag variant="secondary" scale="sm">
-          {data ? GAUGE_TYPE_NAMES[data.type] : ''}
-        </Tag>
       </FlexGap>
     </Flex>
   )
@@ -203,7 +197,7 @@ export function GaugeItemDetails({ data, totalGaugesWeight }: ListItemProps) {
   }, [data.weight])
 
   return (
-    <FlexGap gap="1em" flexDirection="column">
+    <FlexGap gap="8px" flexDirection="column">
       <GaugeIdentifierDetails data={data} />
       <FlexGap flexDirection="column" alignSelf="stretch" gap="0.5em">
         <Flex justifyContent="space-between" alignSelf="stretch">

@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState, ReactElement } from "react";
-import { styled } from "styled-components";
+import { useIntersectionObserver } from "@pancakeswap/hooks";
+import { useTranslation } from "@pancakeswap/localization";
+import { Flex, OptionProps, SearchInput, Select, Text, ViewMode } from "@pancakeswap/uikit";
+import latinise from "@pancakeswap/utils/latinise";
 import BigNumber from "bignumber.js";
 import partition from "lodash/partition";
-import { useTranslation } from "@pancakeswap/localization";
-import { useIntersectionObserver } from "@pancakeswap/hooks";
-import latinise from "@pancakeswap/utils/latinise";
 import { useRouter } from "next/router";
-import { Flex, Text, SearchInput, Select, OptionProps, ViewMode } from "@pancakeswap/uikit";
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { styled } from "styled-components";
 
 import { sortPools } from "./helpers";
 import PoolTabButtons from "./PoolTabButtons";
@@ -20,12 +20,12 @@ const PoolControlsView = styled.div`
 
   justify-content: space-between;
   flex-direction: column;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 
   ${({ theme }) => theme.mediaQueries.sm} {
     flex-direction: row;
     flex-wrap: wrap;
-    padding: 16px 32px;
+    padding: 16px 0px;
     margin-bottom: 0;
   }
 `;
@@ -220,7 +220,7 @@ export function PoolControls<T>({
               />
             </ControlStretch>
           </LabelWrapper>
-          <LabelWrapper style={{ marginLeft: 16 }}>
+          <LabelWrapper style={{ marginLeft: 16, width: "100%" }}>
             <Text fontSize="12px" bold color="textSubtle" textTransform="uppercase">
               {t("Search")}
             </Text>
