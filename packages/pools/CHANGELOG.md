@@ -1,5 +1,11 @@
 # @pancakeswap/pools
 
+## 5.1.38
+
+### Patch Changes
+
+- 49352a5: Added base chain
+
 ## 5.1.37
 
 ### Patch Changes

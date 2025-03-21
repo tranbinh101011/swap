@@ -1,5 +1,11 @@
 # @pancakeswap/gauges
 
+## 2.0.6
+
+### Patch Changes
+
+- 091d6a7: Remove missing peer dependency
+
 ## 2.0.5
 
 ### Patch Changes
