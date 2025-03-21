@@ -1,7 +1,8 @@
 import { nanoid } from '@reduxjs/toolkit'
 import { useCallback } from 'react'
-import { fetchTokenList } from './actions'
 import { TokenList } from '../src/types'
+import { fetchTokenList } from './actions'
+import { getTokenList } from './getTokenList'
 
 function useFetchListCallback(
   dispatch: (action?: unknown) => void,
@@ -13,8 +14,6 @@ function useFetchListCallback(
       if (sendDispatch) {
         dispatch(fetchTokenList.pending({ requestId, url: listUrl }))
       }
-      // lazy load avj and token list schema
-      const getTokenList = (await import('./getTokenList')).default
       return getTokenList(listUrl)
         .then((tokenList) => {
           if (sendDispatch) {

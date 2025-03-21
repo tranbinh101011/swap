@@ -4,8 +4,6 @@ import * as exports from './index'
 test('exports', () => {
   expect(Object.keys(exports)).toMatchInlineSnapshot(`
     [
-      "NEW_LIST_STATE",
-      "createTokenListReducer",
       "fetchTokenList",
       "addList",
       "removeList",
@@ -14,7 +12,10 @@ test('exports', () => {
       "acceptListUpdate",
       "rejectVersionUpdate",
       "updateListVersion",
+      "getTokenList",
       "createListsAtom",
+      "NEW_LIST_STATE",
+      "createTokenListReducer",
       "useFetchListCallback",
     ]
   `)

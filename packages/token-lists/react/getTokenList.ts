@@ -1,61 +1,42 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
-import { TokenList, TokenInfo } from '@pancakeswap/token-lists'
 import uriToHttp from '@pancakeswap/utils/uriToHttp'
-import remove from 'lodash/remove'
-import Ajv from 'ajv'
 import schema from '../schema/pancakeswap.json'
-
-export const tokenListValidator = new Ajv({ allErrors: true }).compile(schema)
+import { TokenList } from '../src/types'
 
 /**
  * Contains the logic for resolving a list URL to a validated token list
  * @param listUrl list url
  */
-export default async function getTokenList(listUrl: string): Promise<TokenList> {
+export async function getTokenList(listUrl: string): Promise<TokenList> {
   const urls: string[] = uriToHttp(listUrl)
+  const { default: Ajv } = await import('ajv')
+  const validator = new Ajv({ allErrors: true }).compile(schema)
 
-  for (let i = 0; i < urls.length; i++) {
-    const url = urls[i]
-    const isLast = i === urls.length - 1
-    let response
+  for (const [i, url] of urls.entries()) {
     try {
-      response = await fetch(url)
+      const json = await fetchJson(url)
+      if (!validator(json)) {
+        const preFilterErrors = validator.errors
+        json.tokens = json.tokens.filter((token: any) => validator({ ...json, tokens: [token] }))
+        if (!validator(json)) {
+          const errors = validator.errors
+          throw new Error(`Validation failed after filtering: ${JSON.stringify(errors)}`)
+        }
+        console.warn(`Pre-filter validation errors: ${JSON.stringify(preFilterErrors)}`)
+      }
+      return json as TokenList
     } catch (error) {
-      console.error('Failed to fetch list', listUrl, error)
-      if (isLast) throw new Error(`Failed to download list ${listUrl}`)
-      continue
-    }
-
-    if (!response.ok) {
-      if (isLast) throw new Error(`Failed to download list ${listUrl}`)
-      continue
-    }
-
-    const json = await response.json()
-    if (!tokenListValidator(json)) {
-      const preFilterValidationErrors: string =
-        tokenListValidator.errors?.reduce<string>((memo, error) => {
-          const add = `${(error as any).dataPath} ${error.message ?? ''}`
-          return memo.length > 0 ? `${memo}; ${add}` : `${add}`
-        }, '') ?? 'unknown error'
-      if (json.tokens) {
-        remove<TokenInfo>(json.tokens, (token) => {
-          return !tokenListValidator({ ...json, tokens: [token] })
-        })
-      }
-      if (!tokenListValidator(json)) {
-        const validationErrors: string =
-          tokenListValidator.errors?.reduce<string>((memo, error) => {
-            const add = `${(error as any).dataPath} ${error.message ?? ''}`
-            return memo.length > 0 ? `${memo}; ${add}` : `${add}`
-          }, '') ?? 'unknown error'
-        throw new Error(`Token list ${url} failed validation: ${validationErrors}`)
-      } else {
-        console.warn(`Token list ${url} validation failed before token filtering: ${preFilterValidationErrors}`)
+      if (i === urls.length - 1) {
+        throw new Error(`Failed to download list ${listUrl}`)
       }
     }
-    return json as TokenList
   }
   throw new Error('Unrecognized list URL protocol.')
+}
+
+async function fetchJson(url: string): Promise<any> {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Failed to fetch: ${url}`)
+  return res.json()
 }

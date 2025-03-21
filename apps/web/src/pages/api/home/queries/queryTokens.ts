@@ -4,6 +4,7 @@ import { ZERO_ADDRESS } from '@pancakeswap/swap-sdk-core'
 import { WALLET_API } from 'config/constants/endpoints'
 import { checksumAddress } from 'utils/checksumAddress'
 import { HomePageToken } from '../types'
+import { queryTokenList } from './queryTokenList'
 
 const tokens: HomePageToken[] = [
   {
@@ -70,20 +71,24 @@ async function getTokenPrices(chainId: ChainId, addresses: `0x${string}`[]) {
 }
 
 export async function queryTokens() {
-  const prices = await getTokenPrices(
-    ChainId.BSC,
-    tokens.map((x) => x.id),
-  )
+  const [prices, tokenMap] = await Promise.all([
+    getTokenPrices(
+      ChainId.BSC,
+      tokens.map((x) => x.id),
+    ),
+    queryTokenList(),
+  ])
 
   return tokens.map((x, i) => {
     const price = prices[i]
     const addr = checksumAddress(x.id)
+    const logo = tokenMap[`${x.chainId}-${addr}`]?.logoURI || `https://tokens.pancakeswap.finance/images/${addr}.png`
     return {
       ...x,
       id: addr,
       price: price ? price.priceUSD : 0,
       percent: price ? price.percent : 0,
-      icon: `https://tokens.pancakeswap.finance/images/${addr}.png`,
+      icon: logo,
     }
   })
 }
