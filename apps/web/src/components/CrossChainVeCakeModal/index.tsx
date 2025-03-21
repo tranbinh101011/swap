@@ -60,7 +60,7 @@ const ChainLogoMap = {
 }
 
 const StyleUl = styled.ul`
-  list-style-type: '\2022';
+  list-style-type: '\\2022';
   list-style-position: outside;
   margin-left: 16px;
   margin-top: 20px;

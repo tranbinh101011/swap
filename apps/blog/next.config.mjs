@@ -7,7 +7,6 @@ const withVanillaExtract = createVanillaExtractPlugin()
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   transpilePackages: [
     '@pancakeswap/uikit',
     '@pancakeswap/hooks',

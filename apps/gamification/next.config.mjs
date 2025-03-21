@@ -21,14 +21,13 @@ const nextConfig = {
   experimental: {
     scrollRestoration: true,
     fallbackNodePolyfills: false,
-    outputFileTracingRoot: path.join(__dirname, '../../'),
-    outputFileTracingExcludes: {
-      '*': [],
-    },
     optimizePackageImports: ['@pancakeswap/widgets-internal', '@pancakeswap/uikit'],
   },
+  outputFileTracingRoot: path.join(__dirname, '../../'),
+  outputFileTracingExcludes: {
+    '*': [],
+  },
   reactStrictMode: true,
-  swcMinify: false,
   transpilePackages: [
     '@pancakeswap/uikit',
     '@pancakeswap/hooks',
