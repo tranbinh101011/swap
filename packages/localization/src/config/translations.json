@@ -568,7 +568,6 @@
   "Register": "Register",
   "Contribute %symbol%": "Contribute %symbol%",
   "Volume": "Volume",
-  "Prediction (BETA)": "Prediction (BETA)",
   "You can now start prediction": "You can now start prediction",
   "Leaderboard": "Leaderboard",
   "Tokens": "Tokens",
@@ -3400,7 +3399,6 @@
   "PancakeSwap Prediction Telegram Bot is now live!": "PancakeSwap Prediction Telegram Bot is now live!",
   "Quick start to Buy Crypto": "Quick start to Buy Crypto",
   "Need Help?": "Need Help?",
-  "Quick start to Prediction (BETA)": "Quick start to Prediction (BETA)",
   "What is the Prediction Feature?": "What is the Prediction Feature?",
   "How Do I Participate in Prediction?": "How Do I Participate in Prediction?",
   "What Are the Risks in Prediction?": "What Are the Risks in Prediction?",
@@ -3637,7 +3635,6 @@
   "Please upgrade your wallet app": "Please upgrade your wallet app",
   "Account Already Participated": "Account Already Participated",
   "You have already participated in this TGE": "You have already participated in this TGE",
-
   "Quick start": "Quick start",
   "View details in Docs": "View details in Docs",
   "What is CAKE staking?": "What is CAKE staking?",
@@ -3691,5 +3688,6 @@
   "I still have CAKE staked in the old Auto or Manual CAKE Pools. What should I do?": "I still have CAKE staked in the old Auto or Manual CAKE Pools. What should I do?",
   "Auto CAKE and Manual CAKE Pools": "Auto CAKE and Manual CAKE Pools",
   "migrate to veCAKE": "migrate to veCAKE",
-  "Learn how to migrate here": "Learn how to migrate here"
+  "Learn how to migrate here": "Learn how to migrate here",
+  "Quick start to Prediction": "Quick start to Prediction"
 }

@@ -169,7 +169,7 @@ const config: (
           type: DropdownMenuItemType.EXTERNAL_LINK,
         },
         {
-          label: t('Prediction (BETA)'),
+          label: t('Prediction'),
           href: '/prediction',
           image: '/images/decorations/prediction.png',
           supportChainIds: PREDICTION_SUPPORTED_CHAINS,
