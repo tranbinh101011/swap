@@ -24,8 +24,8 @@ import { warningSeverity } from 'utils/exchange'
 
 import { paymasterInfo } from 'config/paymaster'
 import { usePaymaster } from 'hooks/usePaymaster'
-import { InterfaceOrder, isXOrder } from 'views/Swap/utils'
 import { isAddressEqual } from 'utils'
+import { InterfaceOrder, isXOrder } from 'views/Swap/utils'
 import FormattedPriceImpact from '../../components/FormattedPriceImpact'
 import { StyledBalanceMaxMini, SwapCallbackError } from '../../components/styleds'
 import { SlippageAdjustedAmounts, formatExecutionPrice } from '../utils/exchange'
@@ -185,7 +185,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
                 <>
                   <Text>
                     {t(
-                      'Fee ranging from 0.1% to 0.01% depending on the pool fee tier. You can check the fee tier by clicking the magnifier icon under the “Route” section.',
+                      'Fee ranging from 0.01% to 1% depending on the pool fee tier. You can check the fee tier by clicking the magnifier icon under the “Route” section.',
                     )}
                   </Text>
                   <Text mt="12px">
