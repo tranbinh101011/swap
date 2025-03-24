@@ -9,6 +9,7 @@ import { formatDollarAmount } from './IdoDepositButton'
 
 declare global {
   interface Window {
+    bn: any
     _bnJumpToAsset: () => void
     _bnJumpToTrade: (params: {
       fromChainId: number
@@ -29,7 +30,7 @@ export const ClaimedCard: React.FC<{
   const chainId = useChainId()
   const userHasStaked = userStatus?.stakedAmount?.greaterThan(0)
   const claimableAmount = userStatus?.claimableAmount?.toSignificant(6)
-  const { offeringCurrency, stakeCurrency0, stakeCurrency1 } = useIDOCurrencies()
+  const { offeringCurrency } = useIDOCurrencies()
   const amountInDollar = useStablecoinPriceAmount(
     offeringCurrency ?? undefined,
     claimableAmount !== undefined && Number.isFinite(+claimableAmount) ? +claimableAmount : undefined,

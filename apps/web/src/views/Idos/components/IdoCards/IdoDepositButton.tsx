@@ -28,7 +28,7 @@ import { useStablecoinPriceAmount } from 'hooks/useStablecoinPrice'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { useAccount, useDisconnect } from 'wagmi'
+import { useAccount } from 'wagmi'
 
 import { getIsAndroid, isInBinance } from '@binance/w3w-utils'
 import { ASSET_CDN } from 'config/constants/endpoints'
@@ -158,6 +158,12 @@ export const IdoDepositButton: React.FC<{
     }
   }, [verifyStatus, onOpen, onUnverifiedOpen])
 
+  useEffect(() => {
+    if (verifyStatus === VerifyStatus.eligible && isUnverifiedOpen) {
+      onUnverifiedDismiss()
+    }
+  }, [isUnverifiedOpen, onUnverifiedDismiss, verifyStatus])
+
   const { targetRef, tooltip } = useTooltip(
     <Text>
       {t(
@@ -203,7 +209,6 @@ export const IdoDepositButton: React.FC<{
     }
   }
 
-  const { disconnectAsync } = useDisconnect()
   const durationText = useIDODuration(duration)
 
   useEffect(() => {
@@ -212,11 +217,12 @@ export const IdoDepositButton: React.FC<{
     }
   }, [account, isBinance, verifyStatus, onUnverifiedOpen])
 
+  // const { disconnectAsync } = useDisconnect()
   const handleUnverifiedDismiss = () => {
     onUnverifiedDismiss()
-    if (account && isBinance && verifyStatus === VerifyStatus.ineligible) {
-      disconnectAsync()
-    }
+    // if (account && isBinance && verifyStatus === VerifyStatus.ineligible) {
+    //   disconnectAsync()
+    // }
   }
 
   // issue: https://issues.chromium.org/issues/41177736

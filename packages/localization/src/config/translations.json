@@ -3689,5 +3689,8 @@
   "Auto CAKE and Manual CAKE Pools": "Auto CAKE and Manual CAKE Pools",
   "migrate to veCAKE": "migrate to veCAKE",
   "Learn how to migrate here": "Learn how to migrate here",
+  "Particle Network's Token Generation Event": "Particle Network's Token Generation Event",
+  "Particle Network is the largest chain abstraction infrastructure for Web3. Its core technology, Universal Accounts, represents the solution to Web3's user, data, and liquidity fragmentation, giving users a single account and balance across all chains.": "Particle Network is the largest chain abstraction infrastructure for Web3. Its core technology, Universal Accounts, represents the solution to Web3's user, data, and liquidity fragmentation, giving users a single account and balance across all chains.",
+  "The Particle Chain, Particle Network’s L1 blockchain, acts as the engine powering Universal Accounts. To showcase this innovation, Particle has already released the chain-agnostic Mainnet dApp — UniversalX. With it, users can trade using tokens from any chain, combining their assets across all ecosystems and paying gas with any token.": "The Particle Chain, Particle Network’s L1 blockchain, acts as the engine powering Universal Accounts. To showcase this innovation, Particle has already released the chain-agnostic Mainnet dApp — UniversalX. With it, users can trade using tokens from any chain, combining their assets across all ecosystems and paying gas with any token.",
   "Quick start to Prediction": "Quick start to Prediction"
 }

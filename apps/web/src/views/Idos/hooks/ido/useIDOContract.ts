@@ -18,6 +18,8 @@ export const useIDOContract = () => {
 }
 
 function getIdoAddressFromUrl(): `0x${string}` | null {
+  if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production') return null
+
   if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search)
     return urlParams.get('testIdoAddress') as `0x${string}` | null
