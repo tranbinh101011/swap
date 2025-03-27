@@ -1,7 +1,18 @@
-import { Orders, ToastProps, TWAP as PancakeTWAP } from '@orbs-network/twap-ui-pancake'
+import { Orders, TWAP as PancakeTWAP, ToastProps } from '@orbs-network/twap-ui-pancake'
 import { useTheme } from '@pancakeswap/hooks'
+import { Percent } from '@pancakeswap/sdk'
 import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/swap-sdk-core'
-import { AutoColumn, Button, useMatchBreakpoints, useModal, useToast, useTooltip } from '@pancakeswap/uikit'
+import {
+  AutoColumn,
+  Button,
+  domAnimation,
+  LazyAnimatePresence,
+  useMatchBreakpoints,
+  useModal,
+  useToast,
+  useTooltip,
+} from '@pancakeswap/uikit'
+
 import replaceBrowserHistoryMultiple from '@pancakeswap/utils/replaceBrowserHistoryMultiple'
 import { useUserSingleHopOnly } from '@pancakeswap/utils/user'
 import { CurrencyLogo, NumericalInput, SwapUIV2 } from '@pancakeswap/widgets-internal'
@@ -26,8 +37,10 @@ import {
   useUserV2SwapEnable,
   useUserV3SwapEnable,
 } from 'state/user/smartRouter'
+import { useCurrencyBalances } from 'state/wallet/hooks'
 import { keyframes, styled } from 'styled-components'
 import currencyId from 'utils/currencyId'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { useAccount } from 'wagmi'
 import ArrowDark from '../../../../public/images/swap/arrow_dark.json' assert { type: 'json' }
 import ArrowLight from '../../../../public/images/swap/arrow_light.json' assert { type: 'json' }
@@ -202,7 +215,64 @@ export function TWAPPanel({ limit }: { limit?: boolean }) {
       FlipButton={FlipButton}
       Input={Input}
       CurrencyLogo={TokenLogo}
+      Balance={Balance}
     />
+  )
+}
+
+const Balance = ({
+  balance,
+  insufficientBalance,
+  isInputFocus,
+  onValueChange,
+  isSrcToken,
+}: {
+  balance?: string
+  insufficientBalance: boolean
+  isInputFocus: boolean
+  onValueChange: (value: string) => void
+  isSrcToken?: boolean
+}) => {
+  const { address: account } = useAccount()
+  const {
+    [Field.INPUT]: { currencyId: inputCurrencyId },
+    [Field.OUTPUT]: { currencyId: outputCurrencyId },
+  } = useSwapState()
+  const inputCurrency = useCurrency(inputCurrencyId)
+  const outputCurrency = useCurrency(outputCurrencyId)
+  const [inputBalance] = useCurrencyBalances(account, [inputCurrency, outputCurrency])
+  const maxAmountInput = useMemo(() => maxAmountSpend(inputBalance), [inputBalance])
+  const onPercentInput = useCallback(
+    (percent: number) => {
+      if (!isSrcToken) return
+      if (maxAmountInput) {
+        onValueChange(maxAmountInput.multiply(new Percent(percent, 100)).toExact())
+      }
+    },
+    [maxAmountInput, onValueChange, isSrcToken],
+  )
+
+  const onMax = useCallback(() => {
+    if (!isSrcToken) return
+    if (maxAmountInput) {
+      onValueChange(maxAmountInput.toExact())
+    }
+  }, [maxAmountInput, onValueChange, isSrcToken])
+
+  return (
+    <LazyAnimatePresence mode="wait" features={domAnimation}>
+      {account ? (
+        !isInputFocus ? (
+          <SwapUIV2.WalletAssetDisplay
+            isUserInsufficientBalance={insufficientBalance}
+            balance={balance}
+            onMax={onMax}
+          />
+        ) : (
+          <SwapUIV2.AssetSettingButtonList onPercentInput={onPercentInput} />
+        )
+      ) : null}
+    </LazyAnimatePresence>
   )
 }
 
