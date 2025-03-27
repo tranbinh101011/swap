@@ -42,17 +42,14 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
   }
 
   async function ensurePersist(promise: Promise<any>) {
-    try {
-      if (fetchR2Cache && persist) {
-        const t = Date.now()
-        const value = await Promise.race([fetchR2Cache(persistKey()), promise])
-        console.log('*****time usage****', Date.now() - t)
-        return value
-      }
-      return promise
-    } catch (ex) {
-      return promise
+    if (fetchR2Cache && persist) {
+      const t = Date.now()
+      const r2Promise = fetchR2Cache(persistKey())
+      const value = await Promise.race([r2Promise, promise])
+      console.log('*****time usage****', Date.now() - t)
+      return value ?? promise
     }
+    return promise
   }
 
   const keyFunction = key || identity
@@ -135,5 +132,6 @@ async function _fetchR2Cache(key: string) {
   if (resp.status === 200) {
     return resp.json()
   }
-  throw new Error(`Failed to fetch cache:https://proofs.pancakeswap.com/cache/${key}`)
+  console.warn(`Failed to fetch cache:https://proofs.pancakeswap.com/cache/${key}`)
+  return undefined
 }

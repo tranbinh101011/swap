@@ -1,18 +1,12 @@
 import { ChainId, getChainName } from '@pancakeswap/chains'
 import { ZERO_ADDRESS } from '@pancakeswap/swap-sdk-core'
+import { TokenInfo } from '@pancakeswap/token-lists'
 import BN from 'bignumber.js'
 import { fetchExplorerFarmPools } from 'state/farmsV4/state/farmPools/fetcher'
 import { getCakeApr } from 'state/farmsV4/state/poolApr/fetcher'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import { checksumAddress } from 'utils/checksumAddress'
 import { HomePagePoolInfo } from '../types'
-
-function tokenLogo(address: `0x${string}`) {
-  if (address === ZERO_ADDRESS) {
-    return `https://assets.pancakeswap.finance/web/native/${ChainId.BSC}.png`
-  }
-  return `https://tokens.pancakeswap.finance/images/${address}.png`
-}
 
 function scorePools(
   pools: PoolInfo[],
@@ -43,7 +37,7 @@ function scorePools(
     .sort((a, b) => b.score - a.score)
 }
 
-export async function queryPools(cakePrice: number) {
+export async function queryPools(cakePrice: number, tokenMap: Record<string, TokenInfo>) {
   const poolsInfo = await fetchExplorerFarmPools()
   let filtered = poolsInfo.filter((x) => x.lpApr && x.tvlUsd)
 
@@ -66,6 +60,10 @@ export async function queryPools(cakePrice: number) {
     return Number.parseFloat(obj.boost || '0')
   })
 
+  function tokenLogo(chainId: ChainId, address: `0x${string}`) {
+    const key = `${chainId}-${checksumAddress(address)}`
+    return tokenMap[key].logoURI
+  }
   return tops.map((p, i) => {
     const chain = getChainName(p.chainId)
     const link = `/liquidity/pool/${chain}/${p.lpAddress}`
@@ -77,13 +75,13 @@ export async function queryPools(cakePrice: number) {
         id: p.token0.wrapped.address,
         symbol: p.token0.wrapped.symbol,
         chainId: p.chainId,
-        icon: tokenLogo(p.token0.isNative ? ZERO_ADDRESS : p.token0.wrapped.address),
+        icon: tokenLogo(p.chainId, p.token0.isNative ? ZERO_ADDRESS : p.token0.wrapped.address),
       },
       token1: {
         id: p.token1.wrapped.address,
         symbol: p.token1.wrapped.symbol,
         chainId: p.chainId,
-        icon: tokenLogo(p.token1.isNative ? ZERO_ADDRESS : p.token1.wrapped.address),
+        icon: tokenLogo(p.chainId, p.token1.isNative ? ZERO_ADDRESS : p.token1.wrapped.address),
       },
       chainId: p.chainId,
       apr24h: Number(p.lpApr) + aprs[i],

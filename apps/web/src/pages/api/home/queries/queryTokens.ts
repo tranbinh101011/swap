@@ -79,7 +79,7 @@ export async function queryTokens() {
     queryTokenList(),
   ])
 
-  return tokens.map((x, i) => {
+  const topTokens = tokens.map((x, i) => {
     const price = prices[i]
     const addr = checksumAddress(x.id)
     const logo = tokenMap[`${x.chainId}-${addr}`]?.logoURI || `https://tokens.pancakeswap.finance/images/${addr}.png`
@@ -91,4 +91,8 @@ export async function queryTokens() {
       icon: logo,
     }
   })
+  return {
+    topTokens,
+    tokenMap,
+  }
 }

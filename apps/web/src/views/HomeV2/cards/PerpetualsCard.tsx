@@ -88,7 +88,15 @@ export const PerpetualCard: React.FC<PerpetualCardProps> = ({ tokens }) => {
           key={token.id}
           left={
             <>
-              <img src={token.icon} alt={token.symbol} width={getIconSize(isMobile)} height={getIconSize(isMobile)} />
+              <img
+                style={{
+                  borderRadius: '50%',
+                }}
+                src={token.icon}
+                alt={token.symbol}
+                width={getIconSize(isMobile)}
+                height={getIconSize(isMobile)}
+              />
               <Flex flexDirection="column" ml="12px">
                 <HomepageSymbol isMobile={isMobile} isTablet={isTablet}>
                   {token.symbol}
