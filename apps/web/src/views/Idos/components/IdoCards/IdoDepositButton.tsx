@@ -196,15 +196,22 @@ export const IdoDepositButton: React.FC<{
 
   const accountEllipsis = account ? `${account.substring(0, 2)}...${account.substring(account.length - 4)}` : null
 
+  const [depositing, setDepositing] = useState(false)
   const handleConfirmDeposit = async () => {
+    if (depositing) return
     if (verifyStatus !== VerifyStatus.eligible || !isBinance) {
       onUnverifiedOpen()
       return
     }
     if (depositAmount) {
-      const hash = await deposit(pid, depositAmount, handleCloseModal)
-      if (hash) {
-        logGTMIdoDepositEvent()
+      setDepositing(true)
+      try {
+        const hash = await deposit(pid, depositAmount, handleCloseModal)
+        if (hash) {
+          logGTMIdoDepositEvent()
+        }
+      } finally {
+        setDepositing(false)
       }
     }
   }

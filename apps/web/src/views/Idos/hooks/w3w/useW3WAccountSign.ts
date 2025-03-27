@@ -18,19 +18,21 @@ enum SignResponseCode {
   InvalidMFA = '351023',
 }
 
+type SignResponse = {
+  code: SignResponseCode
+  message: string
+  success: boolean
+  data: {
+    signature: string
+    expireAt: number
+  }
+}
+
 declare global {
   interface Window {
     binancew3w: {
       pcs: {
-        sign: (params: { binanceChainId: string; contractAddress: string; address: string }) => Promise<{
-          code: SignResponseCode
-          message: string
-          success: boolean
-          data: {
-            signature: string
-            expireAt: number
-          }
-        }>
+        sign: (params: { binanceChainId: string; contractAddress: string; address: string }) => Promise<SignResponse>
       }
     }
   }
@@ -75,6 +77,14 @@ export class W3WSignAlreadyParticipatedError extends Error {
   }
 }
 
+export class W3WSignError extends Error {
+  constructor(response: SignResponse | Error) {
+    super(response.message)
+    this.cause = response
+    this.name = 'W3WSignError'
+  }
+}
+
 const w3wSign = async ({
   chainId,
   address,
@@ -98,6 +108,13 @@ const w3wSign = async ({
       address,
     })
 
+    if (result.code === SignResponseCode.Normal && result.data) {
+      return {
+        signature: result.data?.signature,
+        expireAt: result.data?.expireAt,
+      }
+    }
+
     if (result.code === SignResponseCode.RestrictedAddress) {
       throw new W3WSignRestrictedError('Restricted address')
     }
@@ -106,22 +123,19 @@ const w3wSign = async ({
       throw new W3WSignAlreadyParticipatedError('Already participated')
     }
 
-    if (result.code !== SignResponseCode.Normal) {
-      throw new Error('Failed to sign')
-    }
-
-    return {
-      signature: result.data?.signature,
-      expireAt: result.data?.expireAt,
-    }
+    throw new W3WSignError(result)
   } catch (error) {
     console.error('Error signing W3W account:', error)
-    logger.error('Error get W3W sign', {
-      error,
-      chainId,
-      contractAddress,
-      address,
-    })
+    logger.error(
+      'Error get W3W sign',
+      {
+        chainId,
+        contractAddress,
+        address,
+        error,
+      },
+      error instanceof Error ? error : new Error('unknown error'),
+    )
     if (
       error instanceof W3WSignRestrictedError ||
       error instanceof W3WSignNotSupportedError ||
