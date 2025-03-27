@@ -270,7 +270,10 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
     }
   }, [onPresentCurrencyModal, disableCurrencySelect])
 
-  const balance = !hideBalance && !!currency ? formatAmount(selectedCurrencyBalance, 6) : undefined
+  const balance =
+    !hideBalance && !!currency
+      ? formatAmount(selectedCurrencyBalance, selectedCurrencyBalance?.currency.decimals)
+      : undefined
 
   return (
     <SwapUIV2.CurrencyInputPanelSimplify

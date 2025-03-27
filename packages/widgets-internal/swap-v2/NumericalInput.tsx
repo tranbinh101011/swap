@@ -2,8 +2,9 @@ import { useTranslation } from "@pancakeswap/localization";
 import { SwapCSS } from "@pancakeswap/uikit";
 import { escapeRegExp } from "@pancakeswap/utils/escapeRegExp";
 import clsx from "clsx";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { styled } from "styled-components";
+import { truncateDecimals } from "../utils/numbers";
 
 const StyledInput = styled.input`
   /* will-change: font-size;
@@ -36,11 +37,13 @@ export const NumericalInput = memo(function InnerInput({
 }: NumericalInputProps) {
   const enforcer = (nextUserInput: string) => {
     if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
-      onUserInput(nextUserInput);
+      onUserInput(truncateDecimals(nextUserInput));
     }
   };
 
   const { t } = useTranslation();
+
+  const truncatedValue = useMemo(() => (typeof value === "string" ? truncateDecimals(value) : value), [value]);
 
   return (
     <StyledInput
@@ -53,7 +56,7 @@ export const NumericalInput = memo(function InnerInput({
         })
       )}
       {...rest}
-      value={value}
+      value={truncatedValue}
       onChange={(event) => {
         // replace commas with periods, because we exclusively uses period as the decimal separator
         enforcer(event.target.value.replace(/,/g, "."));

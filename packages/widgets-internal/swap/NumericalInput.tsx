@@ -3,6 +3,7 @@ import { SwapCSS } from "@pancakeswap/uikit";
 import { escapeRegExp } from "@pancakeswap/utils/escapeRegExp";
 import clsx from "clsx";
 import { memo } from "react";
+import { truncateDecimals } from "../utils/numbers";
 
 const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
 
@@ -25,7 +26,7 @@ export const NumericalInput = memo(function InnerInput({
 }: NumericalInputProps) {
   const enforcer = (nextUserInput: string) => {
     if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
-      onUserInput(nextUserInput);
+      onUserInput(truncateDecimals(nextUserInput));
     }
   };
 
@@ -42,7 +43,7 @@ export const NumericalInput = memo(function InnerInput({
         })
       )}
       {...rest}
-      value={value}
+      value={truncateDecimals(value?.toString())}
       onChange={(event) => {
         // replace commas with periods, because we exclusively uses period as the decimal separator
         enforcer(event.target.value.replace(/,/g, "."));
