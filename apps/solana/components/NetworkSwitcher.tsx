@@ -1,0 +1,85 @@
+import { useIsMounted } from '@pancakeswap/hooks'
+import { useTranslation } from '@pancakeswap/localization'
+import { Box, Text, UserMenu, UserMenuDivider, UserMenuItem } from '@pancakeswap/uikit'
+import { ASSETS_CDN, EVM_DOMAIN } from 'config/constant'
+import { APTOS_MENU, defaultChain } from 'config/chains'
+import Image from 'next/image'
+
+const EVM_CHAINS = [
+  { id: 56, name: 'BNB Chain', chainName: 'bsc' },
+  { id: 1, name: 'Ethereum', chainName: 'eth' },
+  { id: 324, name: 'zkSync Era', chainName: 'zkSync' },
+  { id: 1101, name: 'Polygon zkEVM', chainName: 'polygonZkEVM' },
+  { id: 42161, name: 'Arbitrum One', chainName: 'arb' },
+  { id: 59144, name: 'Linea', chainName: 'linea' },
+  { id: 8453, name: 'Base', chainName: 'base' },
+  { id: 204, name: 'opBNB Mainnet', chainName: 'opBNB' },
+  { id: 10143, name: 'Monad Testnet', chainName: 'monadTestnet' },
+]
+
+const NON_EVM_CHAINS = [APTOS_MENU]
+
+const NetworkSelect = () => {
+  const { t } = useTranslation()
+
+  return (
+    <>
+      <Box px="16px" py="8px">
+        <Text color="textSubtle">{t('Select a Network')}</Text>
+      </Box>
+      <UserMenuDivider />
+      {EVM_CHAINS.map((chain) => (
+        <UserMenuItem
+          key={chain.id}
+          style={{ justifyContent: 'flex-start' }}
+          as="a"
+          target="_blank"
+          href={`${EVM_DOMAIN}/swap?chain=${chain.chainName}`}
+        >
+          <Image
+            src={`${ASSETS_CDN}/web/chains/${chain.id}.png`}
+            width={24}
+            height={24}
+            unoptimized
+            alt={`chain-${chain.id}`}
+          />
+          <Text color="text" pl="12px">
+            {chain.name}
+          </Text>
+        </UserMenuItem>
+      ))}
+      {NON_EVM_CHAINS.map((chain) => (
+        <UserMenuItem key={chain.id} style={{ justifyContent: 'flex-start' }} as="a" target="_blank" href={chain.link}>
+          <Image src={chain.image} width={24} height={24} unoptimized alt={`chain-${chain.id}`} />
+          <Text color="text" pl="12px">
+            {chain.name}
+          </Text>
+        </UserMenuItem>
+      ))}
+    </>
+  )
+}
+
+export const NetworkSwitcher = () => {
+  const chain = defaultChain
+
+  const isMounted = useIsMounted()
+
+  return (
+    <UserMenu
+      variant="default"
+      avatarSrc="https://tokens.pancakeswap.finance/images/symbol/sol.png"
+      placement="bottom"
+      text={
+        <>
+          <Box display={['none', null, null, null, null, 'block']}>
+            {`Solana${isMounted && chain?.testnet && chain?.name ? ` ${chain?.name}` : ''}`}
+          </Box>
+          <Box display={['block', null, null, null, null, 'none']}>Solana</Box>
+        </>
+      }
+    >
+      {() => <NetworkSelect />}
+    </UserMenu>
+  )
+}

@@ -24,7 +24,10 @@
     "clsx": "^1.2.1",
     "d3": "^7.8.2",
     "dayjs": "^1.11.10",
+    "jotai": "^2.4.3",
     "lodash": "^4.17.21",
+    "react-dom": "^18.2.0",
+    "swiper": "^11.1.12",
     "viem": "catalog:"
   },
   "peerDependencies": {
@@ -38,6 +41,7 @@
     "@sentry/nextjs": "^9.6.0",
     "@types/lodash": "^4.14.168",
     "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.0.6",
     "@types/styled-system": "^5.1.17",
     "csstype": "^3.1.2",
     "next": "catalog:",

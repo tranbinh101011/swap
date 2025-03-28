@@ -17,4 +17,6 @@ export type FooterProps = {
   langs: Language[];
   chainId: number;
   setLang: (lang: Language) => void;
+  showLangSelector?: boolean;
+  showCakePrice?: boolean;
 } & FlexProps;

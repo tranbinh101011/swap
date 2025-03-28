@@ -85,6 +85,8 @@ const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
   activeItem,
   activeSubItem,
   activeSubItemChildItem,
+  showCakePrice = true,
+  showLangSelector = true,
   langs,
   buyCakeLabel,
   buyCakeLink,
@@ -165,16 +167,18 @@ const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
                 <AtomBox mr="12px" display={{ xs: "none", xxl: "block" }}>
                   <CakePrice chainId={chainId} showSkeleton={false} cakePriceUsd={cakePriceUsd} />
                 </AtomBox>
-                <Box mt="4px">
-                  <LangSelector
-                    currentLang={currentLang}
-                    langs={langs}
-                    setLang={setLang}
-                    buttonScale="xs"
-                    color="textSubtle"
-                    hideLanguage
-                  />
-                </Box>
+                {showLangSelector && (
+                  <Box mt="4px">
+                    <LangSelector
+                      currentLang={currentLang}
+                      langs={langs}
+                      setLang={setLang}
+                      buttonScale="xs"
+                      color="textSubtle"
+                      hideLanguage
+                    />
+                  </Box>
+                )}
                 {rightSide}
               </Flex>
             </StyledNav>
@@ -215,6 +219,8 @@ const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
         cakePriceUsd={cakePriceUsd}
         buyCakeLabel={buyCakeLabel}
         buyCakeLink={buyCakeLink}
+        showLangSelector={showLangSelector}
+        showCakePrice={showCakePrice}
         mb={[`${MOBILE_MENU_HEIGHT}px`, null, "0px"]}
       />
       <AtomBox display={{ xs: "block", lg: "none" }}>

@@ -32,6 +32,8 @@ const MenuItem: React.FC<React.PropsWithChildren<FooterProps>> = ({
   buyCakeLabel,
   buyCakeLink,
   chainId,
+  showLangSelector = true,
+  showCakePrice = true,
   ...props
 }) => {
   const isMounted = useIsMounted();
@@ -89,29 +91,33 @@ const MenuItem: React.FC<React.PropsWithChildren<FooterProps>> = ({
         >
           <Flex order={[2, null, 1]} alignItems="center">
             {isMounted && <ThemeSwitcher isDark={isDark} toggleTheme={toggleTheme} />}
-            <LangSelector
-              currentLang={currentLang}
-              langs={langs}
-              setLang={setLang}
-              color="textSubtle"
-              dropdownPosition="top-right"
-            />
+            {showLangSelector && (
+              <LangSelector
+                currentLang={currentLang}
+                langs={langs}
+                setLang={setLang}
+                color="textSubtle"
+                dropdownPosition="top-right"
+              />
+            )}
           </Flex>
-          <Flex order={[1, null, 2]} mb={["24px", null, "0"]} justifyContent="space-between" alignItems="center">
-            <Box mr="20px">
-              <CakePrice chainId={chainId} cakePriceUsd={cakePriceUsd} color="textSubtle" />
-            </Box>
-            <Button
-              data-theme="dark"
-              as="a"
-              href={buyCakeLink}
-              target="_blank"
-              scale="sm"
-              endIcon={<ArrowForwardIcon color="backgroundAlt" />}
-            >
-              {buyCakeLabel}
-            </Button>
-          </Flex>
+          {showCakePrice && (
+            <Flex order={[1, null, 2]} mb={["24px", null, "0"]} justifyContent="space-between" alignItems="center">
+              <Box mr="20px">
+                <CakePrice chainId={chainId} cakePriceUsd={cakePriceUsd} color="textSubtle" />
+              </Box>
+              <Button
+                data-theme="dark"
+                as="a"
+                href={buyCakeLink}
+                target="_blank"
+                scale="sm"
+                endIcon={<ArrowForwardIcon color="backgroundAlt" />}
+              >
+                {buyCakeLabel}
+              </Button>
+            </Flex>
+          )}
         </StyledToolsContainer>
       </Flex>
     </StyledFooter>

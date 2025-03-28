@@ -74,6 +74,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
   placement = "bottom-end",
   recalculatePopover,
   ellipsis = true,
+  popperStyle = {},
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -129,7 +130,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
         {!disabled && <ChevronDownIcon color="text" width="24px" />}
       </StyledUserMenu>
       {!disabled && (
-        <Menu style={styles.popper} ref={setTooltipRef} {...attributes.popper} $isOpen={isOpen}>
+        <Menu style={{ ...styles.popper, ...popperStyle }} ref={setTooltipRef} {...attributes.popper} $isOpen={isOpen}>
           <Box onClick={() => setIsOpen(false)}>{children?.({ isOpen })}</Box>
         </Menu>
       )}

@@ -26,6 +26,8 @@ export interface NavProps {
   currentLang: string;
   buyCakeLabel: string;
   buyCakeLink: string;
+  showCakePrice?: boolean;
+  showLangSelector?: boolean;
   langs: Language[];
   chainId: number;
   setLang: (lang: Language) => void;

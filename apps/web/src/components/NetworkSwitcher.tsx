@@ -23,14 +23,24 @@ import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { useUserShowTestnet } from 'state/user/hooks/useUserShowTestnet'
 import { chainNameConverter } from 'utils/chainNameConverter'
-import { chains } from 'utils/wagmi'
+import { chains as evmChains } from 'utils/wagmi'
 import { useAccount } from 'wagmi'
 import { ChainLogo } from './Logo/ChainLogo'
 
-const AptosChain = {
-  id: 1,
-  name: 'Aptos',
-}
+const NON_EVM_CHAINS = [
+  {
+    id: 1,
+    name: 'Aptos',
+    link: 'https://aptos.pancakeswap.finance/swap',
+    image: 'https://aptos.pancakeswap.finance/images/apt.png',
+  },
+  {
+    id: 2,
+    name: 'Solana',
+    link: process.env.SOLANA_SWAP_PAGE ?? 'https://solana.pancakeswap.finance/swap',
+    image: 'https://tokens.pancakeswap.finance/images/symbol/sol.png',
+  },
+]
 
 const NetworkSelect = ({ switchNetwork, chainId, isWrongNetwork }) => {
   const { t } = useTranslation()
@@ -42,7 +52,7 @@ const NetworkSelect = ({ switchNetwork, chainId, isWrongNetwork }) => {
         <Text color="textSubtle">{t('Select a Network')}</Text>
       </Box>
       <UserMenuDivider />
-      {chains
+      {evmChains
         .filter((chain) => {
           if (chain.id === chainId) return true
           if ('testnet' in chain && chain.testnet && chain.id !== ChainId.MONAD_TESTNET) {
@@ -66,24 +76,20 @@ const NetworkSelect = ({ switchNetwork, chainId, isWrongNetwork }) => {
             </Text>
           </UserMenuItem>
         ))}
-      <UserMenuItem
-        key={`aptos-${AptosChain.id}`}
-        style={{ justifyContent: 'flex-start' }}
-        as="a"
-        target="_blank"
-        href="https://aptos.pancakeswap.finance/swap"
-      >
-        <Image
-          src="https://aptos.pancakeswap.finance/images/apt.png"
-          width={24}
-          height={24}
-          unoptimized
-          alt={`chain-aptos-${AptosChain.id}`}
-        />{' '}
-        <Text color="text" pl="12px">
-          {AptosChain.name}
-        </Text>
-      </UserMenuItem>
+      {NON_EVM_CHAINS.map((chain) => (
+        <UserMenuItem
+          key={`${chain.name}-${chain.id}`}
+          style={{ justifyContent: 'flex-start' }}
+          as="a"
+          target="_blank"
+          href={chain.link}
+        >
+          <Image src={chain.image} width={24} height={24} unoptimized alt={`chain-${chain.name}-${chain.id}`} />{' '}
+          <Text color="text" pl="12px">
+            {chain.name}
+          </Text>
+        </UserMenuItem>
+      ))}
     </>
   )
 }
@@ -95,7 +101,7 @@ const WrongNetworkSelect = ({ switchNetwork, chainId }) => {
       'The URL you are accessing (Chain id: %chainId%) belongs to %network%; mismatching your wallet’s network. Please switch the network to continue.',
       {
         chainId,
-        network: chains.find((c) => c.id === chainId)?.name ?? 'Unknown network',
+        network: evmChains.find((c) => c.id === chainId)?.name ?? 'Unknown network',
       },
     ),
     {
@@ -106,7 +112,7 @@ const WrongNetworkSelect = ({ switchNetwork, chainId }) => {
   const { chain } = useAccount()
   const localChainId = useLocalNetworkChain() || ChainId.BSC
 
-  const localChainName = chains.find((c) => c.id === localChainId)?.name ?? 'BSC'
+  const localChainName = evmChains.find((c) => c.id === localChainId)?.name ?? 'BSC'
 
   const [ref1, isHover] = useHover<HTMLButtonElement>()
 
@@ -172,7 +178,7 @@ export const NetworkSwitcher = () => {
   const { isLoading, canSwitch, switchNetworkAsync } = useSwitchNetwork()
   const router = useRouter()
 
-  const foundChain = useMemo(() => chains.find((c) => c.id === chainId), [chainId])
+  const foundChain = useMemo(() => evmChains.find((c) => c.id === chainId), [chainId])
   const symbol =
     (foundChain?.id ? SHORT_SYMBOL[foundChain.id] ?? NATIVE[foundChain.id]?.symbol : undefined) ??
     foundChain?.nativeCurrency?.symbol

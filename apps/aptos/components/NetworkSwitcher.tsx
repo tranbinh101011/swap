@@ -4,7 +4,7 @@ import { useIsMounted } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { Box, Text, UserMenu, UserMenuDivider, UserMenuItem } from '@pancakeswap/uikit'
 import { APEX_DOMAIN, ASSETS_CDN } from 'config'
-import { defaultChain } from 'config/chains'
+import { defaultChain, SOLANA_MENU } from 'config/chains'
 import Image from 'next/image'
 import { aptosLogoClass } from './Logo/CurrencyLogo.css'
 
@@ -19,6 +19,8 @@ const evmChains = [
   { id: 204, name: 'opBNB Mainnet', chainName: 'opBNB' },
   { id: 10143, name: 'Monad Testnet', chainName: 'monad' },
 ]
+
+const NON_EVM_CHAINS = [SOLANA_MENU]
 
 const NetworkSelect = () => {
   const { t } = useTranslation()
@@ -44,6 +46,14 @@ const NetworkSelect = () => {
             unoptimized
             alt={`chain-${chain.id}`}
           />
+          <Text color="text" pl="12px">
+            {chain.name}
+          </Text>
+        </UserMenuItem>
+      ))}
+      {NON_EVM_CHAINS.map((chain) => (
+        <UserMenuItem key={chain.id} style={{ justifyContent: 'flex-start' }} as="a" target="_blank" href={chain.link}>
+          <Image src={chain.image} width={24} height={24} unoptimized alt={`chain-${chain.id}`} />
           <Text color="text" pl="12px">
             {chain.name}
           </Text>
