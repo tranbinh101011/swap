@@ -17,9 +17,18 @@ const tradingCompetitionConfig = {
     reward: '75,000',
     unit: '$',
   },
+  merl: {
+    imgUrl: 'merl_competition',
+    swapUrl:
+      'https://pancakeswap.finance/swap?inputCurrency=BNB&outputCurrency=0xa0c56a8c0692bD10B3fA8f8bA79Cf5332B7107F9&utm_source=Website&utm_medium=banner&utm_campaign=MERL&utm_id=TradingCompetition',
+    learnMoreUrl:
+      'https://blog.pancakeswap.finance/articles/pancake-swap-x-merl-trading-competition-50-000-in-rewards?utm_source=Website&utm_medium=banner&utm_campaign=MERL&utm_id=TradingCompetition',
+    reward: '50,000',
+    unit: '$',
+  },
 }
 
-export const AdTradingCompetition = (props: AdPlayerProps & { token: 'eos' }) => {
+export const AdTradingCompetition = (props: AdPlayerProps & { token: keyof typeof tradingCompetitionConfig }) => {
   const { t } = useTranslation()
   const { isMobile } = useMatchBreakpoints()
   const { token, ...rest } = props
@@ -51,4 +60,8 @@ export const AdTradingCompetition = (props: AdPlayerProps & { token: 'eos' }) =>
 
 export const AdTradingCompetitionEos = (props: AdPlayerProps) => {
   return <AdTradingCompetition token="eos" {...props} />
+}
+
+export const AdTradingCompetitionMerl = (props: AdPlayerProps) => {
+  return <AdTradingCompetition token="merl" {...props} />
 }
