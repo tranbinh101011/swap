@@ -32,7 +32,10 @@ export const WalletAssetDisplay: React.FC<{
   balance?: string;
   isUserInsufficientBalance?: boolean;
 }> = memo(({ balance, onMax, isUserInsufficientBalance }) => {
-  const { targetRef, tooltip, tooltipVisible } = useTooltip(balance || "", { placement: "right" });
+  const { targetRef, tooltip, tooltipVisible } = useTooltip(balance || "", {
+    placement: "right",
+    avoidToStopPropagation: true,
+  });
 
   return (
     <Wrapper

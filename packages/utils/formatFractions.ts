@@ -12,7 +12,7 @@ export function formatFraction(
   if (!fraction || fraction.denominator === 0n) {
     return undefined
   }
-  if (fraction.greaterThan(10n ** BigInt(precision))) {
+  if (precision === 0 || fraction.greaterThan(10n ** BigInt(precision))) {
     return fraction.toFixed(0)
   }
   return fraction.toSignificant(precision, undefined, rounding)

@@ -19,6 +19,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { styled } from 'styled-components'
 
 import { formatNumber } from '@pancakeswap/utils/formatBalance'
+import isUndefinedOrNull from '@pancakeswap/utils/isUndefinedOrNull'
 import { useStablecoinPriceAmount } from 'hooks/useStablecoinPrice'
 import { StablePair } from 'views/AddLiquidity/AddStableLiquidity/hooks/useStableLPDerivedMintInfo'
 
@@ -270,10 +271,16 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
     }
   }, [onPresentCurrencyModal, disableCurrencySelect])
 
-  const balance =
-    !hideBalance && !!currency
-      ? formatAmount(selectedCurrencyBalance, selectedCurrencyBalance?.currency.decimals)
-      : undefined
+  const balance = useMemo(
+    () =>
+      !hideBalance &&
+      !!currency &&
+      selectedCurrencyBalance &&
+      !isUndefinedOrNull(selectedCurrencyBalance?.currency?.decimals)
+        ? formatAmount(selectedCurrencyBalance, selectedCurrencyBalance?.currency?.decimals)
+        : undefined,
+    [selectedCurrencyBalance, currency, hideBalance],
+  )
 
   return (
     <SwapUIV2.CurrencyInputPanelSimplify
