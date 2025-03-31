@@ -133,11 +133,13 @@ const PoolTable: React.FC<React.PropsWithChildren<PoolTableProps>> = ({ poolData
   const [page, setPage] = useState(1)
   const [maxPage, setMaxPage] = useState(1)
   useEffect(() => {
-    let extraPages = 1
-    if (poolDatas.length % ITEMS_PER_INFO_TABLE_PAGE === 0) {
-      extraPages = 0
+    if (poolDatas) {
+      let extraPages = 1
+      if (poolDatas.length % ITEMS_PER_INFO_TABLE_PAGE === 0) {
+        extraPages = 0
+      }
+      setMaxPage(Math.floor(poolDatas.length / ITEMS_PER_INFO_TABLE_PAGE) + extraPages)
     }
-    setMaxPage(Math.floor(poolDatas.length / ITEMS_PER_INFO_TABLE_PAGE) + extraPages)
   }, [poolDatas])
   const sortedPools = useMemo(() => {
     return poolDatas
