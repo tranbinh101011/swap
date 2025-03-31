@@ -26,21 +26,9 @@ export type PoolInfo = {
    */
   capPerUserInLP: bigint
   /**
-   * Whether the pool has a tax
-   */
-  hasTax: boolean
-  /**
-   * Flat tax rate
-   */
-  flatTaxRate: bigint
-  /**
    * Total amount of tokens staked in the pool
    */
   totalAmountPool: bigint
-  /**
-   * Sum of taxes overflow
-   */
-  sumTaxesOverflow: bigint
 }
 
 export type IDOPoolInfo = {
@@ -114,10 +102,7 @@ export const useIDOPoolInfo = () => {
         raisingAmountPool: _pool0Info[0],
         offeringAmountPool: _pool0Info[1],
         capPerUserInLP: _pool0Info[2],
-        hasTax: _pool0Info[3],
-        flatTaxRate: _pool0Info[4],
-        totalAmountPool: _pool0Info[5],
-        sumTaxesOverflow: _pool0Info[6],
+        totalAmountPool: _pool0Info[3],
       }
 
       const pool1Info = {
@@ -126,10 +111,7 @@ export const useIDOPoolInfo = () => {
         raisingAmountPool: _pool1Info[0],
         offeringAmountPool: _pool1Info[1],
         capPerUserInLP: _pool1Info[2],
-        hasTax: _pool1Info[3],
-        flatTaxRate: _pool1Info[4],
-        totalAmountPool: _pool1Info[5],
-        sumTaxesOverflow: _pool1Info[6],
+        totalAmountPool: _pool1Info[3],
       }
 
       return {

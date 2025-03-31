@@ -10,7 +10,6 @@ import { useIDOUserInfo } from './useIDOUserInfo'
 
 export type IDOUserStatus = {
   stakedAmount: CurrencyAmount<Currency> | undefined
-  stakeTax: CurrencyAmount<Currency> | undefined
   stakeRefund: CurrencyAmount<Currency> | undefined
   claimableAmount: CurrencyAmount<Currency> | undefined
   claimed: boolean | undefined
@@ -36,16 +35,6 @@ export const useIDOUserStatus = (): [IDOUserStatus | undefined, IDOUserStatus | 
     return [userInfo[0].claimedPool, userInfo[1].claimedPool]
   }, [userInfo])
 
-  const stakeTax = useMemo(() => {
-    if (!stakeCurrency0) return [undefined, undefined]
-    return [
-      CurrencyAmount.fromRawAmount(stakeCurrency0, offeringAndRefundingAmounts?.[0].userTaxAmount ?? 0n),
-      stakeCurrency1
-        ? CurrencyAmount.fromRawAmount(stakeCurrency1, offeringAndRefundingAmounts?.[1].userTaxAmount ?? 0n)
-        : undefined,
-    ]
-  }, [stakeCurrency0, stakeCurrency1, offeringAndRefundingAmounts])
-
   const stakeRefund = useMemo(() => {
     if (!stakeCurrency0) return [undefined, undefined]
     return [
@@ -68,7 +57,6 @@ export const useIDOUserStatus = (): [IDOUserStatus | undefined, IDOUserStatus | 
     pool0Info
       ? {
           stakedAmount: stakedAmounts[0],
-          stakeTax: stakeTax[0],
           stakeRefund: stakeRefund[0],
           claimableAmount: claimableAmount[0],
           claimed: claimed[0],
@@ -77,7 +65,6 @@ export const useIDOUserStatus = (): [IDOUserStatus | undefined, IDOUserStatus | 
     pool1Info
       ? {
           stakedAmount: stakedAmounts[1],
-          stakeTax: stakeTax[1],
           stakeRefund: stakeRefund[1],
           claimableAmount: claimableAmount[1],
           claimed: claimed[1],
@@ -89,7 +76,6 @@ export const useIDOUserStatus = (): [IDOUserStatus | undefined, IDOUserStatus | 
 export type UserOfferingAndRefundingAmounts = {
   userOfferingAmount: bigint
   userRefundingAmount: bigint
-  userTaxAmount: bigint
 }
 
 const useViewUserOfferingAndRefundingAmounts = () => {
@@ -101,21 +87,17 @@ const useViewUserOfferingAndRefundingAmounts = () => {
     queryKey: ['idoUserOfferingAndRefundingAmounts', idoContract?.address, account, latestTxReceipt],
     queryFn: async (): Promise<[UserOfferingAndRefundingAmounts, UserOfferingAndRefundingAmounts]> => {
       if (!idoContract || !account) throw new Error('IDO contract not found')
-      const [
-        [userOfferingAmount0, userRefundingAmount0, userTaxAmount0],
-        [userOfferingAmount1, userRefundingAmount1, userTaxAmount1],
-      ] = await idoContract.read.viewUserOfferingAndRefundingAmountsForPools([account, [0, 1]])
+      const [[userOfferingAmount0, userRefundingAmount0], [userOfferingAmount1, userRefundingAmount1]] =
+        await idoContract.read.viewUserOfferingAndRefundingAmountsForPools([account, [0, 1]])
 
       return [
         {
           userOfferingAmount: userOfferingAmount0,
           userRefundingAmount: userRefundingAmount0,
-          userTaxAmount: userTaxAmount0,
         },
         {
           userOfferingAmount: userOfferingAmount1,
           userRefundingAmount: userRefundingAmount1,
-          userTaxAmount: userTaxAmount1,
         },
       ]
     },

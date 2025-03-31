@@ -28,7 +28,6 @@ export type IDOPublicData = {
   userClaimableAmount?: CurrencyAmount<Currency>
   userStakedAmount?: CurrencyAmount<Currency>
   userStakedRefund?: CurrencyAmount<Currency>
-  userStakedTax?: CurrencyAmount<Currency>
   userClaimed?: boolean
 }
 
@@ -43,7 +42,6 @@ export const useIdoPublicData = (): [IDOPublicData, IDOPublicData] | [IDOPublicD
   const {
     stakedAmount: userStakedAmount,
     stakeRefund: userStakedRefund,
-    stakeTax: userStakedTax,
     claimableAmount: userClaimableAmount,
     claimed: userClaimed,
   } = userStatus0 ?? {}
@@ -76,7 +74,6 @@ export const useIdoPublicData = (): [IDOPublicData, IDOPublicData] | [IDOPublicD
       saleAmount: saleAmounts[0],
       userStakedAmount,
       userStakedRefund,
-      userStakedTax,
       userClaimableAmount,
       userClaimed,
     },
@@ -98,7 +95,6 @@ export const useIdoPublicData = (): [IDOPublicData, IDOPublicData] | [IDOPublicD
       saleAmount: saleAmounts[1],
       userStakedAmount: userStatus1?.stakedAmount,
       userStakedRefund: userStatus1?.stakeRefund,
-      userStakedTax: userStatus1?.stakeTax,
       userClaimableAmount: userStatus1?.claimableAmount,
       userClaimed: userStatus1?.claimed,
     },
