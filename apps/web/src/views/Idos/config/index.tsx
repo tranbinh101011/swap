@@ -423,4 +423,84 @@ export const idoConfigDict: Record<string, IDOConfig> = {
       },
     ],
   },
+  pump: {
+    id: 'pump',
+    projectUrl: 'https://pumpbtc.xyz/',
+    icon: '/images/ido/pump.svg',
+    chainId: ChainId.BSC,
+    bannerUrl: `${ASSET_CDN}/web/ido/purgent-banner.png`,
+    contractAddress: '0x2b1CaFd7aD06A548B13E2CfCaC4775FC4c3891AC',
+    tgeTitle: <Trans>Purgent's Token Generation Event</Trans>,
+    tgeSubtitle: <Trans>Exclusively via Binance Keyless Wallet</Trans>,
+    description: (
+      <>
+        <Trans>
+          PumpBTC is building an modular, multi-chain, AI-driven staking and liquidity operating system that seamlessly
+          integrates with DeFi to help Bitcoin holders maximize returns.
+        </Trans>
+        <br />
+        <br />
+        <Trans>Website</Trans>:{' '}
+        <a href="https://mainnet.pumpbtc.xyz/" target="_blank" rel="noreferrer noopener">
+          https://mainnet.pumpbtc.xyz/
+        </a>
+        <br />
+        X:{' '}
+        <a href="https://x.com/Pumpbtcxyz" target="_blank" rel="noreferrer noopener">
+          https://x.com/Pumpbtcxyz
+        </a>
+        <br />
+      </>
+    ),
+    faqs: [
+      {
+        title: <Trans>1. When can I claim my tokens?</Trans>,
+        description: (
+          <>
+            <Trans>
+              You can claim your tokens immediately once the TGE ends by clicking the Claim button. Alternatively, you
+              can return to the TGE page at any time afterward to claim your tokens—there is no fixed claim period.
+            </Trans>
+            <Trans>On the TGE page, you will also find key details, including:</Trans>
+            <ul>
+              <li>
+                <Trans>The number of tokens available for claiming</Trans>
+              </li>
+              <li>
+                <Trans>The TGE duration</Trans>
+              </li>
+              <li>
+                <Trans>The total amount of BNB subscribed</Trans>
+              </li>
+              <li>
+                <Trans>The total amount of refunded BNB (if applicable)</Trans>
+              </li>
+              <li>
+                <Trans>The TGE status (e.g., oversubscribed or not)</Trans>
+              </li>
+            </ul>
+          </>
+        ),
+      },
+      {
+        title: <Trans>2. How many tokens will I receive?</Trans>,
+        description: (
+          <Trans>
+            During the TGE, users can subscribe up to a maximum of 3 BNB. The final token allocation is determined based
+            on the proportion of BNB a user contributed relative to the total BNB subscribed by all participants at the
+            time the sale ends.
+          </Trans>
+        ),
+      },
+      {
+        title: <Trans>3. Will I receive a refund if the pool is oversubscribed?</Trans>,
+        description: (
+          <Trans>
+            Yes. If the TGE is oversubscribed, any excess BNB that was not used to purchase tokens will be automatically
+            refunded to your wallet when you claim your tokens.
+          </Trans>
+        ),
+      },
+    ],
+  },
 }
