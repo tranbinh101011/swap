@@ -108,7 +108,7 @@ export const Menu = (props) => {
       {isClient ? (
         <MenuWrapper>
           <UIMenu
-            logoComponent={<Logo href="/swap" />}
+            logoComponent={<Logo href="https://pancakeswap.finance/home" />}
             linkComponent={LinkComponent}
             chainId={chainId}
             links={menuItems}

@@ -9,7 +9,6 @@ import { AdCard } from '../Card'
 import { getImageUrl } from '../utils'
 
 const learnMoreLink = 'https://blog.pancakeswap.finance/articles/expanding-solana-s-accessibility'
-const actionLink = '/swap'
 
 export const AdPCSxSolana = (props: Omit<AdPlayerProps, 'config'>) => {
   const { t } = useTranslation()
@@ -21,10 +20,6 @@ export const AdPCSxSolana = (props: Omit<AdPlayerProps, 'config'>) => {
           {t('Swap Solana Tokens on PancakeSwap.')}
         </Text>
       </BodyText>
-
-      <AdButton variant="text" href={actionLink}>
-        {t('Swap Now!')}
-      </AdButton>
 
       <AdButton mt="16px" href={learnMoreLink} externalIcon isExternalLink>
         {t('Learn More')}
