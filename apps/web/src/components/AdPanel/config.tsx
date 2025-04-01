@@ -12,6 +12,7 @@ import { ExpandableAd } from './Expandable/ExpandableAd'
 import { shouldRenderOnPages } from './renderConditions'
 import { AdSlide } from './types'
 import { useShouldRenderAdIfo } from './useShouldRenderAdIfo'
+import { AdSolana } from './Ads/AdSolana'
 
 enum Priority {
   FIRST_AD = 6,
@@ -51,6 +52,10 @@ export const useAdConfig = () => {
         shouldRender: [shouldRenderOnPage],
       },
       ...commonAdConfigs,
+      {
+        id: 'ad-solana',
+        component: <AdSolana />,
+      },
       {
         id: 'ad-springboard',
         component: <AdSpringboard />,
