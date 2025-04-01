@@ -1,5 +1,13 @@
 import styled from 'styled-components'
-import { DropdownMenuItems, FlexGap, MenuItemsType, NavProps, ThemeSwitcher, Menu as UIMenu } from '@pancakeswap/uikit'
+import {
+  DropdownMenuItems,
+  FlexGap,
+  LinkProps,
+  Logo,
+  MenuItemsType,
+  ThemeSwitcher,
+  Menu as UIMenu,
+} from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { useActiveChainId } from 'hooks/useNetwork'
 import orderBy from 'lodash/orderBy'
@@ -37,11 +45,12 @@ export const getActiveSubMenuItem = ({ pathname, menuItem }: { pathname: string;
   return mostSpecificMatch
 }
 
-const LinkComponent = (linkProps) => {
-  return <NextLinkFromReactRouter to={linkProps.href} {...linkProps} prefetch={false} />
-}
+const LinkComponent = (linkProps: LinkProps) => (
+  <NextLinkFromReactRouter to={linkProps.href} {...linkProps} prefetch={false} />
+)
 
 const languageList = []
+const menuItems = []
 
 const MenuWrapper = styled.div`
   .pcs-connect-btn {
@@ -66,7 +75,6 @@ const MenuWrapper = styled.div`
 `
 
 export const Menu = (props) => {
-  const menuItems = useMemo(() => [], [])
   const { pathname } = useRouter()
   const activeMenuItem = getActiveMenuItem({ menuConfig: menuItems, pathname })
   const activeSubMenuItem = getActiveSubMenuItem({ menuItem: activeMenuItem, pathname })
@@ -100,6 +108,7 @@ export const Menu = (props) => {
       {isClient ? (
         <MenuWrapper>
           <UIMenu
+            logoComponent={<Logo href="/swap" />}
             linkComponent={LinkComponent}
             chainId={chainId}
             links={menuItems}
