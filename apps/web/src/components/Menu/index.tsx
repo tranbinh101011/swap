@@ -1,7 +1,6 @@
 import { languageList, useTranslation } from '@pancakeswap/localization'
-import { Text, Menu as UikitMenu, footerLinks, useModal } from '@pancakeswap/uikit'
+import { Menu as UikitMenu, footerLinks, useModal } from '@pancakeswap/uikit'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import { usePhishingBanner } from '@pancakeswap/utils/user'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import USCitizenConfirmModal from 'components/Modal/USCitizenConfirmModal'
 import { NetworkSwitcher } from 'components/NetworkSwitcher'
@@ -14,7 +13,6 @@ import { useWebNotifications } from 'hooks/useWebNotifications'
 import { useRouter } from 'next/router'
 import { Suspense, lazy, useCallback, useMemo } from 'react'
 import { styled } from 'styled-components'
-import { getOptionsUrl } from 'utils/getOptionsUrl'
 import GlobalSettings from './GlobalSettings'
 import { SettingsMode } from './GlobalSettings/types'
 import UserMenu from './UserMenu'
@@ -36,30 +34,12 @@ const Menu = (props) => {
   const { pathname } = useRouter()
   const perpUrl = usePerpUrl({ chainId, isDark, languageCode: currentLanguage.code })
   const [perpConfirmed] = useUserNotUsCitizenAcknowledgement(IdType.PERPETUALS)
-  const [optionsConfirmed] = useUserNotUsCitizenAcknowledgement(IdType.OPTIONS)
 
   const [onPerpConfirmModalPresent] = useModal(
     <USCitizenConfirmModal title={t('PancakeSwap Perpetuals')} id={IdType.PERPETUALS} href={perpUrl} />,
     true,
     false,
     'perpConfirmModal',
-  )
-  const [onOptionsConfirmModalPresent] = useModal(
-    <USCitizenConfirmModal
-      title={t('PancakeSwap Options')}
-      id={IdType.OPTIONS}
-      href={getOptionsUrl()}
-      desc={
-        <Text mt="0.5rem">
-          {t(
-            'Please note that you are being redirected to an externally hosted website associated with our partner Stryke (formerly Dopex).',
-          )}
-        </Text>
-      }
-    />,
-    true,
-    false,
-    'optionsConfirmModal',
   )
   const onSubMenuClick = useCallback<NonNullable<UseMenuItemsParams['onClick']>>(
     (e, item) => {
@@ -70,16 +50,10 @@ const Menu = (props) => {
       if (item.confirmModalId === 'perpConfirmModal' && !perpConfirmed) {
         preventRedirect()
         onPerpConfirmModalPresent()
-        return
-      }
-      if (item.confirmModalId === 'optionsConfirmModal' && !optionsConfirmed) {
-        preventRedirect()
-        onOptionsConfirmModalPresent()
       }
     },
-    [perpConfirmed, optionsConfirmed, onPerpConfirmModalPresent, onOptionsConfirmModalPresent],
+    [perpConfirmed, onPerpConfirmModalPresent],
   )
-  const [showPhishingWarningBanner] = usePhishingBanner()
 
   const menuItems = useMenuItems({
     onClick: onSubMenuClick,

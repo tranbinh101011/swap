@@ -36,7 +36,6 @@ import { ZKSyncAirdropModalWithAutoPopup } from 'components/ClaimZksyncAirdropMo
 import { useDataDogRUM } from 'hooks/useDataDogRUM'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
 import useInitNotificationsClient from 'hooks/useInitNotificationsClient'
-import useOptionsSunsetNotification from 'hooks/useOptionsSunsetNotification'
 import { useVercelFeatureFlagOverrides } from 'hooks/useVercelToolbar'
 import { useWalletConnectRouterSync } from 'hooks/useWalletConnectRouterSync'
 import { useWeb3WalletView } from 'hooks/useWeb3WalletView'
@@ -72,7 +71,6 @@ function GlobalHooks() {
   useLockedEndNotification()
   useInitNotificationsClient()
   useWalletConnectRouterSync()
-  useOptionsSunsetNotification()
   return null
 }
 
