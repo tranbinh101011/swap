@@ -1977,6 +1977,7 @@
   "%days% days": "%days% days",
   "1 day": "1 day",
   "< 1 day": "< 1 day",
+  "< 1 min": "< 1 min",
   "Newest First": "Newest First",
   "Oldest First": "Oldest First",
   "Choose “Default” to use the settings from your current blockchain RPC node.": "Choose “Default” to use the settings from your current blockchain RPC node.",
@@ -3542,7 +3543,7 @@
   "Disconnected from Binance Wallet": "Disconnected from Binance Wallet",
   "MyShell is an AI creator platform for everyone to build, share, and own AI agents. Our vision is to create a unified platform that provides product-driven value for web2 users and offers the crypto community participating ownership in practical AI applications, bridging the gap between frontier AI applications and blockchain technology.": "MyShell is an AI creator platform for everyone to build, share, and own AI agents. Our vision is to create a unified platform that provides product-driven value for web2 users and offers the crypto community participating ownership in practical AI applications, bridging the gap between frontier AI applications and blockchain technology.",
   "hours": "hours",
-  "< 1 hour": "< 1 hour",
+  "mins": "mins",
   "Trade Perpetual v2 to Win $10,000.": "Trade Perpetual v2 to Win $10,000.",
   "Trade $TST, $PEPE, and More on Perpetual V2 to Win $10,000.": "Trade $TST, $PEPE, and More on Perpetual V2 to Win $10,000.",
   "Deleted": "Deleted",
@@ -3695,5 +3696,8 @@
   "KiloEx platform provides traders with lightning-fast trades, real-time tracking of market activity, and an intuitive trading experience, while offering liquidity providers risk-neutral positions and LP-friendly solutions.": "KiloEx platform provides traders with lightning-fast trades, real-time tracking of market activity, and an intuitive trading experience, while offering liquidity providers risk-neutral positions and LP-friendly solutions.",
   "PumpBTC is building an modular, multi-chain, AI-driven staking and liquidity operating system that seamlessly integrates with DeFi to help Bitcoin holders maximize returns.": "PumpBTC is building an modular, multi-chain, AI-driven staking and liquidity operating system that seamlessly integrates with DeFi to help Bitcoin holders maximize returns.",
   "Purgent's Token Generation Event": "Purgent's Token Generation Event",
-  "Website": "Website"
+  "Website": "Website",
+  "StakeStone Token Generation Event": "StakeStone Token Generation Event",
+  "StakeStone is a decentralized omnichain liquidity infrastructure protocol designed to transform how liquidity is acquired, distributed, and utilized across blockchain ecosystems. Its core mission is to deliver efficient, sustainable, and organic liquidity flows that adapt to the needs of an increasingly modular and multi-chain DeFi landscape.": "StakeStone is a decentralized omnichain liquidity infrastructure protocol designed to transform how liquidity is acquired, distributed, and utilized across blockchain ecosystems. Its core mission is to deliver efficient, sustainable, and organic liquidity flows that adapt to the needs of an increasingly modular and multi-chain DeFi landscape.",
+  "StakeStone powers a growing suite of products including STONE (yield-bearing liquid ETH), SBTC and STONEBTC (liquid and yield-generating BTC assets), and LiquidityPad, a customizable liquidity vault platform for emerging chains. Together, these offerings form the foundation of StakeStone’s Omnichain Liquidity Layer, enabling frictionless capital deployment and value accrual across ecosystems.": "StakeStone powers a growing suite of products including STONE (yield-bearing liquid ETH), SBTC and STONEBTC (liquid and yield-generating BTC assets), and LiquidityPad, a customizable liquidity vault platform for emerging chains. Together, these offerings form the foundation of StakeStone’s Omnichain Liquidity Layer, enabling frictionless capital deployment and value accrual across ecosystems."
 }

@@ -503,4 +503,94 @@ export const idoConfigDict: Record<string, IDOConfig> = {
       },
     ],
   },
+  stakestone: {
+    id: 'stakestone',
+    projectUrl: 'https://stakestone.io/',
+    icon: '/images/ido/stakestone.svg', // Token Icon updated from provided assets
+    chainId: ChainId.BSC,
+    bannerUrl: `${ASSET_CDN}/web/ido/stakestone-banner.png`, // Updated Banner URL
+    contractAddress: '0xf87c2D0869e4864788e3EfF1f0354d9d3B19907b', // Updated IDO Contract Address
+    tgeTitle: <Trans>StakeStone Token Generation Event</Trans>,
+    tgeSubtitle: <Trans>Exclusively via Binance Keyless Wallet</Trans>,
+    description: (
+      <>
+        <Trans>
+          StakeStone is a decentralized omnichain liquidity infrastructure protocol designed to transform how liquidity
+          is acquired, distributed, and utilized across blockchain ecosystems. Its core mission is to deliver efficient,
+          sustainable, and organic liquidity flows that adapt to the needs of an increasingly modular and multi-chain
+          DeFi landscape.
+        </Trans>
+        <br />
+        <br />
+        <Trans>
+          StakeStone powers a growing suite of products including STONE (yield-bearing liquid ETH), SBTC and STONEBTC
+          (liquid and yield-generating BTC assets), and LiquidityPad, a customizable liquidity vault platform for
+          emerging chains. Together, these offerings form the foundation of StakeStone’s Omnichain Liquidity Layer,
+          enabling frictionless capital deployment and value accrual across ecosystems.
+        </Trans>
+        <br />
+        <br />
+        <Trans>Website</Trans>:{' '}
+        <a href="https://stakestone.io/" target="_blank" rel="noreferrer noopener">
+          https://stakestone.io/
+        </a>
+        <br />
+        X:{' '}
+        <a href="https://x.com/Stake_Stone" target="_blank" rel="noreferrer noopener">
+          https://x.com/Stake_Stone
+        </a>
+        <br />
+      </>
+    ),
+    faqs: [
+      {
+        title: <Trans>1. When can I claim my tokens?</Trans>,
+        description: (
+          <>
+            <Trans>
+              You can claim your tokens immediately once the TGE ends by clicking the Claim button. Alternatively, you
+              can return to the TGE page at any time afterward to claim your tokens—there is no fixed claim period.
+            </Trans>
+            <Trans>On the TGE page, you will also find key details, including:</Trans>
+            <ul>
+              <li>
+                <Trans>The number of tokens available for claiming</Trans>
+              </li>
+              <li>
+                <Trans>The TGE duration</Trans>
+              </li>
+              <li>
+                <Trans>The total amount of BNB subscribed</Trans>
+              </li>
+              <li>
+                <Trans>The total amount of refunded BNB (if applicable)</Trans>
+              </li>
+              <li>
+                <Trans>The TGE status (e.g., oversubscribed or not)</Trans>
+              </li>
+            </ul>
+          </>
+        ),
+      },
+      {
+        title: <Trans>2. How many tokens will I receive?</Trans>,
+        description: (
+          <Trans>
+            During the TGE, users can subscribe up to a maximum of 3 BNB. The final token allocation is determined based
+            on the proportion of BNB a user contributed relative to the total BNB subscribed by all participants at the
+            time the sale ends.
+          </Trans>
+        ),
+      },
+      {
+        title: <Trans>3. Will I receive a refund if the pool is oversubscribed?</Trans>,
+        description: (
+          <Trans>
+            Yes. If the TGE is oversubscribed, any excess BNB that was not used to purchase tokens will be automatically
+            refunded to your wallet when you claim your tokens.
+          </Trans>
+        ),
+      },
+    ],
+  },
 }
