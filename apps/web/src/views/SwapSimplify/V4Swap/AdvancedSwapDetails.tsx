@@ -14,12 +14,12 @@ import {
   Text,
 } from '@pancakeswap/uikit'
 import { formatAmount, formatFraction } from '@pancakeswap/utils/formatFractions'
-import { useUserSlippage } from '@pancakeswap/utils/user'
 import { memo, useState } from 'react'
 
 import { NumberDisplay } from '@pancakeswap/widgets-internal'
 import { RowBetween, RowFixed } from 'components/Layout/Row'
 import { RoutingSettingsButton } from 'components/Menu/GlobalSettings/SettingsModalV2'
+import { useAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
 import { Field } from 'state/swap/actions'
 import { styled } from 'styled-components'
 import FormattedPriceImpact from '../../Swap/components/FormattedPriceImpact'
@@ -46,6 +46,7 @@ export const TradeSummary = memo(function TradeSummary({
   realizedLPFee,
   isX = false,
   loading = false,
+  trade,
 }: {
   hasStablePair?: boolean
   inputAmount?: CurrencyAmount<Currency>
@@ -56,11 +57,12 @@ export const TradeSummary = memo(function TradeSummary({
   realizedLPFee?: CurrencyAmount<Currency> | null
   isX?: boolean
   loading?: boolean
+  trade?: any
 }) {
   const { t } = useTranslation()
   const isExactIn = tradeType === TradeType.EXACT_INPUT
   const { feeSavedAmount, feeSavedUsdValue } = useFeeSaved(inputAmount, outputAmount)
-  const [allowedSlippage] = useUserSlippage()
+  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback(trade)
 
   return (
     <AutoColumn px="4px">
@@ -179,7 +181,7 @@ export const TradeSummary = memo(function TradeSummary({
             <DetailsTitle>{t('Slippage Tolerance')}</DetailsTitle>
           </QuestionHelperV2>
         </RowFixed>
-        <SlippageButton slippage={allowedSlippage} />
+        <SlippageButton slippage={allowedSlippage} trade={trade} />
       </RowBetween>
 
       {(realizedLPFee || isX) && (

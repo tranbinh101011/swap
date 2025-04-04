@@ -6,7 +6,6 @@ import { WrappedTokenInfo } from '@pancakeswap/token-lists'
 import { Box, BscScanIcon, Flex, InjectedModalProps, Link } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import truncateHash from '@pancakeswap/utils/truncateHash'
-import { useUserSlippage } from '@pancakeswap/utils/user'
 import {
   ApproveModalContent,
   ConfirmModalState,
@@ -22,13 +21,14 @@ import { wrappedCurrency } from 'utils/wrappedCurrency'
 import ConfirmSwapModalContainer from 'views/Swap/components/ConfirmSwapModalContainer'
 import { SwapTransactionErrorContent } from 'views/Swap/components/SwapTransactionErrorContent'
 
+import { useAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
 import { Hash } from 'viem'
 import { InterfaceOrder, isXOrder } from 'views/Swap/utils'
 import { TransactionConfirmSwapContent } from '../components'
+import { useSlippageAdjustedAmounts } from '../hooks'
 import { ConfirmAction } from '../hooks/useConfirmModalState'
 import { AllowedAllowanceState } from '../types'
 import { ApproveStepFlow } from './ApproveStepFlow'
-import { useSlippageAdjustedAmounts } from '../hooks'
 
 export const useApprovalPhaseStepTitles: ({ trade }: { trade: InterfaceOrder['trade'] | undefined }) => {
   [step in AllowedAllowanceState]: string
@@ -78,7 +78,7 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapModalProps> = ({
 }) => {
   const { t } = useTranslation()
   const { chainId } = useActiveChainId()
-  const [allowedSlippage] = useUserSlippage()
+  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback(originalOrder?.trade)
   const slippageAdjustedAmounts = useSlippageAdjustedAmounts(originalOrder)
   const { recipient } = useSwapState()
   const loadingAnimationVisible = useMemo(() => {

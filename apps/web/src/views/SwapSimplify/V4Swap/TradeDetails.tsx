@@ -61,6 +61,7 @@ export const TradeDetails = memo(function TradeDetails({ loaded, order }: Props)
           realizedLPFee={lpFeeAmount ?? undefined}
           hasStablePair={hasStablePool}
           loading={!loaded}
+          trade={isXOrder(order) ? order.ammTrade : order?.trade}
         />
         <Box mt="10px" pl="4px">
           {isXOrder(order) ? (

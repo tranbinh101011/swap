@@ -3,12 +3,12 @@ import { Currency, CurrencyAmount, Price, Trade, TradeType } from '@pancakeswap/
 import { CAKE, STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
 import { PairDataTimeWindowEnum } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
-import { useUserSlippage } from '@pancakeswap/utils/user'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_INPUT_CURRENCY } from 'config/constants/exchange'
 import dayjs from 'dayjs'
 import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
 import { useBestAMMTrade } from 'hooks/useBestAMMTrade'
 import { useGetENSAddressByName } from 'hooks/useGetENSAddressByName'
 import useNativeCurrency from 'hooks/useNativeCurrency'
@@ -168,8 +168,8 @@ export function useDerivedSwapInfo(
   ) {
     inputError = inputError ?? t('Invalid recipient')
   }
-
-  const [allowedSlippage] = useUserSlippage()
+  // @ts-ignore
+  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback(v2Trade)
 
   const slippageAdjustedAmounts = v2Trade && allowedSlippage && computeSlippageAdjustedAmounts(v2Trade, allowedSlippage)
 

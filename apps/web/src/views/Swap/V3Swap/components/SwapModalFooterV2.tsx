@@ -177,7 +177,7 @@ export const SwapModalFooterV2 = memo(function SwapModalFooterV2({
                 <DottedHelpText fontSize="14px">{t('Slippage Tolerance')}</DottedHelpText>
               </QuestionHelperV2>
             </RowFixed>
-            <SlippageButton slippage={allowedSlippage} />
+            <SlippageButton slippage={allowedSlippage} trade={order?.trade} />
           </RowBetween>
         )}
         <RowBetween mb="8px">

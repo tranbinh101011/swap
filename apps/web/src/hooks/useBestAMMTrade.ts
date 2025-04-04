@@ -13,7 +13,6 @@ import {
 } from '@pancakeswap/smart-router'
 import { BigintIsh } from '@pancakeswap/swap-sdk-core'
 import { AbortControl } from '@pancakeswap/utils/abortControl'
-import { useUserSlippage } from '@pancakeswap/utils/user'
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import qs from 'qs'
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from 'react'
@@ -33,6 +32,7 @@ import { EXPERIMENTAL_FEATURES } from 'config/experimentalFeatures'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 
 import { QUOTING_API } from 'config/constants/endpoints'
+import { useInputBasedAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
 import {
   CommonPoolsParams,
   PoolsWithState,
@@ -559,7 +559,7 @@ export function useBestTradeFromApi({
   v3Swap,
   retry = false,
 }: Options) {
-  const [slippage] = useUserSlippage()
+  const { slippageTolerance: slippage } = useInputBasedAutoSlippageWithFallback(amount)
   const poolTypes = useMemo(() => {
     const types: PoolType[] = []
     if (v2Swap) {
@@ -690,7 +690,7 @@ export function useBestTradeFromApiShadow(
   const prefix = queryType === 'quote-api-ori' ? QUOTING_API_PREFIX_ORIGINAL : QUOTING_API_PREFIX_OPTIMIZED
   const { enabled: featureFlag } = useExperimentalFeature(EXPERIMENTAL_FEATURES.OPTIMIZED_AMM_TRADE)
 
-  const [slippage] = useUserSlippage()
+  const { slippageTolerance: slippage } = useInputBasedAutoSlippageWithFallback(amount)
   const poolTypes = useMemo(() => {
     const types: PoolType[] = []
     if (v2Swap) {

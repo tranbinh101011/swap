@@ -4,8 +4,6 @@ import { TradeType } from '@pancakeswap/sdk'
 import { SmartRouter } from '@pancakeswap/smart-router'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import truncateHash from '@pancakeswap/utils/truncateHash'
-import { useUserSlippage } from '@pancakeswap/utils/user'
-import { INITIAL_ALLOWED_SLIPPAGE } from 'config/constants'
 import { useMemo } from 'react'
 import { useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -24,8 +22,9 @@ import {
 } from 'viem'
 import { useSendTransaction } from 'wagmi'
 
-import { usePaymaster } from 'hooks/usePaymaster'
 import { ClassicOrder } from '@pancakeswap/price-api-sdk'
+import { useAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
+import { usePaymaster } from 'hooks/usePaymaster'
 import { logger } from 'utils/datadog'
 import { viemClients } from 'utils/viem'
 import { isZero } from '../utils/isZero'
@@ -68,7 +67,8 @@ export default function useSendSwapTransaction(
   const addTransaction = useTransactionAdder()
   const { sendTransactionAsync } = useSendTransaction()
   const publicClient = viemClients[chainId as ChainId]
-  const [allowedSlippage] = useUserSlippage() || [INITIAL_ALLOWED_SLIPPAGE]
+  // @ts-ignore
+  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback(trade)
   const { recipient } = useSwapState()
   const recipientAddress = recipient === null ? account : recipient
 

@@ -27,15 +27,16 @@ export function useUserInsufficientBalance(order: PriceOrder | undefined): boole
     if (!account || !order || !tradeLoaded) {
       return false
     }
-    const [balanceIn, amountIn] = [
-      currencyBalances[Field.INPUT],
-      slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null,
-    ]
-    if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
+
+    // use the actual input amount instead of the slippage adjusted amount
+    const balanceIn = currencyBalances[Field.INPUT]
+    const actualInputAmount = order.trade?.inputAmount
+
+    if (balanceIn && actualInputAmount && balanceIn.lessThan(actualInputAmount)) {
       return true
     }
     return false
-  }, [account, relevantTokenBalances, slippageAdjustedAmounts, order, tradeLoaded])
+  }, [account, relevantTokenBalances, order, tradeLoaded])
 
   return isInsufficientBalance
 }

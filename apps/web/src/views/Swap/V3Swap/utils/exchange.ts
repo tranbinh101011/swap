@@ -9,7 +9,7 @@ import {
   TradeType,
   ZERO,
 } from '@pancakeswap/sdk'
-import { Route, SmartRouter, SmartRouterTrade } from '@pancakeswap/smart-router'
+import { Route, SmartRouter, SmartRouterTrade, V4Router } from '@pancakeswap/smart-router'
 import { formatPrice, parseNumberToFraction } from '@pancakeswap/utils/formatFractions'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 
@@ -20,6 +20,11 @@ import { InterfaceOrder } from 'views/Swap/utils'
 
 export type SlippageAdjustedAmounts = {
   [field in Field]?: CurrencyAmount<Currency> | null
+}
+
+// Helper function to check if a trade is V4Trade
+const isV4Trade = (trade: any): trade is V4Router.V4TradeWithoutGraph<TradeType> => {
+  return trade && 'gasUseEstimate' in trade
 }
 
 // computes the minimum amount out and maximum amount in for a trade given a user specified allowed slippage in bips
@@ -35,7 +40,9 @@ export function computeSlippageAdjustedAmounts(
   }
 
   const pct = basisPointsToPercent(allowedSlippage)
+  const trade = order?.trade
 
+  // For regular SmartRouterTrade
   return {
     [Field.INPUT]: order?.trade && SmartRouter.maximumAmountIn(order.trade, pct),
     [Field.OUTPUT]: order?.trade && SmartRouter.minimumAmountOut(order.trade, pct),

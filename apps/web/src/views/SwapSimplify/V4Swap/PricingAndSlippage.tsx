@@ -2,25 +2,28 @@ import { useModal } from '@pancakeswap/uikit'
 import { SwapUIV2 } from '@pancakeswap/widgets-internal'
 
 import { Currency, Price } from '@pancakeswap/sdk'
-import { useUserSlippage } from '@pancakeswap/utils/user'
 import { memo } from 'react'
 
 import SettingsModal from 'components/Menu/GlobalSettings/SettingsModal'
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
+import { useAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
 import { useIsWrapping } from '../../Swap/V3Swap/hooks'
 
 interface Props {
   showSlippage?: boolean
   priceLoading?: boolean
   price?: Price<Currency, Currency>
+  trade?: any // Accept any trade type
 }
 
 export const PricingAndSlippage = memo(function PricingAndSlippage({
   priceLoading,
   price,
   showSlippage = true,
+  trade,
 }: Props) {
-  const [allowedSlippage] = useUserSlippage()
+  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback(trade)
+
   const isWrapping = useIsWrapping()
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={SettingsMode.SWAP_LIQUIDITY} />)
 
