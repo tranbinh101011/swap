@@ -14,7 +14,7 @@ import {
 import GlobalSettings from 'components/Menu/GlobalSettings'
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
 import { useAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
-import { ReactElement, useMemo } from 'react'
+import { ReactElement } from 'react'
 import styled from 'styled-components'
 import { basisPointsToPercent } from 'utils/exchange'
 
@@ -52,24 +52,19 @@ export const SlippageButton = ({ slippage, trade }: SlippageButtonProps) => {
   const isRiskyVeryHigh = slippageTolerance > 2000
 
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    !isAuto
-      ? isRiskyLow
-        ? t('Your transaction may fail. Reset settings to avoid potential loss')
-        : isRiskyHigh
-        ? t('Your transaction may be frontrun. Reset settings to avoid potential loss')
-        : ''
+    isRiskyLow
+      ? t('Your transaction may fail. Reset settings to avoid potential loss')
+      : isRiskyHigh
+      ? t('Your transaction may be frontrun. Reset settings to avoid potential loss')
       : '',
     { placement: 'top' },
   )
 
-  const color = useMemo(() => {
-    if (isAuto) return theme.colors.primary60
-    return isRiskyVeryHigh
-      ? theme.colors.failure
-      : isRiskyLow || isRiskyHigh
-      ? theme.colors.yellow
-      : theme.colors.primary60
-  }, [theme, isRiskyVeryHigh, isRiskyLow, isRiskyHigh, isAuto])
+  const color = isRiskyVeryHigh
+    ? theme.colors.failure
+    : isRiskyLow || isRiskyHigh
+    ? theme.colors.yellow
+    : theme.colors.primary60
 
   return (
     <>
@@ -83,13 +78,11 @@ export const SlippageButton = ({ slippage, trade }: SlippageButtonProps) => {
               <TertiaryButton
                 $color={color}
                 startIcon={
-                  !isAuto ? (
-                    isRiskyVeryHigh ? (
-                      <RiskAlertIcon color={color} width={16} />
-                    ) : isRiskyLow || isRiskyHigh ? (
-                      <WarningIcon color={color} width={16} />
-                    ) : null
-                  ) : null
+                  isRiskyVeryHigh ? (
+                    <RiskAlertIcon color={color} width={16} />
+                  ) : isRiskyLow || isRiskyHigh ? (
+                    <WarningIcon color={color} width={16} />
+                  ) : undefined
                 }
                 endIcon={<PencilIcon color={color} width={12} />}
                 onClick={onClick}
@@ -102,7 +95,7 @@ export const SlippageButton = ({ slippage, trade }: SlippageButtonProps) => {
               </TertiaryButton>
             </div>
 
-            {!isAuto && (isRiskyLow || isRiskyHigh) && tooltipVisible && tooltip}
+            {(isRiskyLow || isRiskyHigh) && tooltipVisible && tooltip}
           </div>
         )}
       />

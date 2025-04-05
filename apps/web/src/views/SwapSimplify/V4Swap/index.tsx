@@ -48,7 +48,7 @@ export function V4SwapForm() {
   } = useAllTypeBestTrade()
 
   const isWrapping = useIsWrapping()
-  const { chainId: activeChainId } = useActiveChainId()
+  const { chainId: activeChianId } = useActiveChainId()
   const isUserInsufficientBalance = useUserInsufficientBalance(bestOrder)
   const { shouldShowBuyCrypto, buyCryptoLink } = useBuyCryptoInfo(bestOrder)
 
@@ -119,8 +119,8 @@ export function V4SwapForm() {
   const inputCurrency = useCurrency(inputCurrencyId)
   const outputCurrency = useCurrency(outputCurrencyId)
 
-  const { slippageTolerance: userSlippageTolerance, isAuto } = useAutoSlippageWithFallback(bestOrder?.trade)
-  const isSlippageTooHigh = useMemo(() => !isAuto && userSlippageTolerance > 500, [isAuto, userSlippageTolerance])
+  const { slippageTolerance: userSlippageTolerance } = useAutoSlippageWithFallback(bestOrder?.trade)
+  const isSlippageTooHigh = useMemo(() => userSlippageTolerance > 500, [userSlippageTolerance])
   const shouldRiskPanelDisplay = useShouldRiskPanelDisplay(inputCurrency?.wrapped, outputCurrency?.wrapped)
   const token0Risk = useTokenRisk(inputCurrency?.wrapped)
   const token1Risk = useTokenRisk(outputCurrency?.wrapped)
@@ -175,7 +175,7 @@ export function V4SwapForm() {
               <RefreshButton
                 onRefresh={refreshOrder}
                 refreshDisabled={refreshDisabled}
-                chainId={activeChainId}
+                chainId={activeChianId}
                 loading={!tradeLoaded}
               />
               <PricingAndSlippage
