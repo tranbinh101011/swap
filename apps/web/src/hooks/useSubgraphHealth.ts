@@ -25,7 +25,15 @@ export type SubgraphHealthState = {
 const NOT_OK_BLOCK_DIFFERENCE = 200 // ~15 minutes delay
 const WARNING_BLOCK_DIFFERENCE = 50 // ~2.5 minute delay
 
-const useSubgraphHealth = ({ chainId: propChainId, subgraph }: { chainId: ChainId; subgraph?: string }) => {
+const useSubgraphHealth = ({
+  chainId: propChainId,
+  subgraph,
+  checkApiInstead,
+}: {
+  chainId: ChainId
+  subgraph?: string
+  checkApiInstead?: boolean
+}) => {
   const { chainId } = useActiveChainId()
   const [sgHealth, setSgHealth] = useState<SubgraphHealthState>({
     status: SubgraphStatus.UNKNOWN,
@@ -35,6 +43,7 @@ const useSubgraphHealth = ({ chainId: propChainId, subgraph }: { chainId: ChainI
     blockDifference: 0,
   })
   const [deploymentId, setDeploymentId] = useState<string | undefined>()
+  const [indexingErrors, setIndexingErrors] = useState<boolean | undefined>()
 
   useEffect(() => {
     let unmounted = false
@@ -47,13 +56,14 @@ const useSubgraphHealth = ({ chainId: propChainId, subgraph }: { chainId: ChainI
 
     const fetchDeploymentId = async () => {
       const {
-        _meta: { deployment },
+        _meta: { deployment, hasIndexingErrors },
       } = await request(
         subgraph,
         gql`
           query MyQuery {
             _meta {
               deployment
+              hasIndexingErrors
             }
           }
         `,
@@ -63,14 +73,37 @@ const useSubgraphHealth = ({ chainId: propChainId, subgraph }: { chainId: ChainI
         return
       }
       setDeploymentId(deployment)
+      setIndexingErrors(hasIndexingErrors)
     }
 
     fetchDeploymentId()
     return unmount
-  }, [subgraph])
+  }, [subgraph, checkApiInstead])
 
   useSlowRefreshEffect(
     (currentBlockNumber) => {
+      if (checkApiInstead) {
+        if (!deploymentId || indexingErrors) {
+          setSgHealth({
+            status: SubgraphStatus.DOWN,
+            currentBlock: -1,
+            chainHeadBlock: 0,
+            latestBlock: -1,
+            blockDifference: 0,
+          })
+        } else {
+          console.info('Asdjasd')
+          // Block info is not known when checking api only
+          setSgHealth({
+            status: SubgraphStatus.OK,
+            currentBlock: -1,
+            chainHeadBlock: 0,
+            latestBlock: -1,
+            blockDifference: 0,
+          })
+        }
+        return
+      }
       if (!deploymentId) {
         return
       }
@@ -161,7 +194,7 @@ const useSubgraphHealth = ({ chainId: propChainId, subgraph }: { chainId: ChainI
         getSubgraphHealth()
       }
     },
-    [subgraph, deploymentId, propChainId, chainId],
+    [subgraph, deploymentId, propChainId, chainId, checkApiInstead, indexingErrors],
   )
 
   return sgHealth

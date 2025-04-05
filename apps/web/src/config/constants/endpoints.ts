@@ -31,7 +31,7 @@ const BLOCKS_SUBGRAPH_URLS = {
 }
 
 export const GRAPH_API_NFTMARKET = `${THE_GRAPH_PROXY_API}/nft-marketplace-bsc`
-export const GRAPH_HEALTH = 'https://api.thegraph.com/index-node/graphql'
+export const GRAPH_HEALTH = 'https://indexer.upgrade.thegraph.com/status'
 
 export const TC_MOBOX_SUBGRAPH = `${THE_GRAPH_PROXY_API}/trading-competition-v3`
 export const TC_MOD_SUBGRAPH = `${THE_GRAPH_PROXY_API}/trading-competition-v4`
