@@ -37,7 +37,8 @@ export const multiQuery = async (
     }
     return fetchedData
   } catch (error) {
-    console.error('Failed to fetch info data', error)
+    console.warn('Failed to fetch info data', error)
+
     return null
   }
 }
