@@ -15,7 +15,6 @@ function RiskDisclaimer() {
   const [onPresentRiskDisclaimer, onDismiss] = useModal(
     <DisclaimerModal
       id="predictions-risk-disclaimer"
-      header={t('This Product is in beta.')}
       subtitle={t('Once you enter a position, you cannot cancel or adjust it.')}
       checks={[
         {
@@ -23,10 +22,6 @@ function RiskDisclaimer() {
           content: t(
             'I understand that I am using this product at my own risk. Any losses incurred due to my actions are my own responsibility.',
           ),
-        },
-        {
-          key: 'beta-checkbox',
-          content: t('I understand that this product is still in beta. I am participating at my own risk'),
         },
       ]}
       onSuccess={handleSuccess}

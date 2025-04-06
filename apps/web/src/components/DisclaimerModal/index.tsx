@@ -28,7 +28,7 @@ interface RiskDisclaimerProps extends InjectedModalProps {
   bodyMaxWidth?: ModalProps['maxWidth']
   onSuccess: () => void
   checks: CheckType[]
-  header: ReactNode
+  header?: ReactNode
   modalHeader?: string
   id: string
   footer?: ReactNode
@@ -43,9 +43,6 @@ const GradientModalHeader = styled(ModalHeader)`
   padding-bottom: 24px;
   padding-top: 24px;
 `
-
-// TODO: Copy from src/views/Predictions/components/RiskDisclaimer.tsx
-// Will replace that with this modal.
 
 const DisclaimerModal: React.FC<React.PropsWithChildren<RiskDisclaimerProps>> = ({
   id,
@@ -95,9 +92,11 @@ const DisclaimerModal: React.FC<React.PropsWithChildren<RiskDisclaimerProps>> = 
       </GradientModalHeader>
       <ModalBody p="24px" maxWidth={bodyMaxWidth ?? ['100%', '100%', '100%', '400px']}>
         <Box maxHeight={bodyMaxHeight || '300px'} overflowY="auto">
-          <Heading as="h3" mb="24px" style={headerStyle}>
-            {header}
-          </Heading>
+          {header ? (
+            <Heading as="h3" mb="24px" style={headerStyle}>
+              {header}
+            </Heading>
+          ) : null}
           {subtitle && (
             <Text as="p" color="textSubtle" mb="24px">
               {subtitle}
