@@ -35,13 +35,9 @@ const StyledTagGroup = styled(Flex)`
 const ArticleInfo = () => {
   const router = useRouter()
   const { data: article } = useQuery<ArticleDataType>({
-    queryKey: ['/article'],
+    queryKey: ['/article', router?.query?.slug],
     enabled: false,
   })
-
-  const handleClickTag = (category: string) => {
-    router.push(`/?category=${category}#all`)
-  }
 
   return (
     <Flex
@@ -59,7 +55,7 @@ const ArticleInfo = () => {
           {article?.categories.map((category: string) => (
             <Text
               style={{ cursor: 'pointer' }}
-              onClick={() => handleClickTag(category)}
+              onClick={() => router.push(`/?category=${category}#all`)}
               key={category}
               bold
               color="textSubtle"

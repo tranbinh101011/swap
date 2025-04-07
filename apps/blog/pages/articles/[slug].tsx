@@ -10,6 +10,7 @@ import { NextSeo } from 'next-seo'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { filterTagArray } from 'utils/filterTagArray'
+import { ArticleDataType } from '@pancakeswap/blog'
 
 export async function getStaticPaths() {
   return {
@@ -39,7 +40,7 @@ export const getStaticProps = (async ({ params, previewData }) => {
   }
 
   const article = await queryClient.fetchQuery({
-    queryKey: ['/article'],
+    queryKey: ['/article', slug],
     queryFn: async () =>
       getSingleArticle({
         url: `/slugify/slugs/article/${slug}`,
@@ -55,8 +56,8 @@ export const getStaticProps = (async ({ params, previewData }) => {
       }),
   })
 
-  const similarArticles = await queryClient.fetchQuery({
-    queryKey: ['/similarArticles'],
+  await queryClient.prefetchQuery({
+    queryKey: ['/similarArticles', slug],
     queryFn: async () =>
       getArticle({
         url: '/articles',
@@ -85,8 +86,6 @@ export const getStaticProps = (async ({ params, previewData }) => {
     props: {
       dehydratedState: dehydrate(queryClient),
       fallback: {
-        '/article': article,
-        '/similarArticles': similarArticles,
         isPreviewMode: !!isPreviewMode,
       },
     },
@@ -96,7 +95,9 @@ export const getStaticProps = (async ({ params, previewData }) => {
 
 const ArticlePage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ fallback, dehydratedState }) => {
   const router = useRouter()
-  if (!router.isFallback && !fallback?.['/article']?.title) {
+  const article = dehydratedState?.queries?.find((query) => query?.queryKey?.includes(router?.query?.slug))?.state
+    ?.data as ArticleDataType
+  if (!router.isFallback && !article?.title) {
     return (
       <NotFound LinkComp={Link}>
         <NextSeo title="404" />
@@ -104,7 +105,7 @@ const ArticlePage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({
     )
   }
 
-  const { title, description, imgUrl } = fallback['/article']
+  const { title, description, imgUrl } = article
 
   return (
     <>
