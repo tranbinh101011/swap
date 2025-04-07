@@ -119,7 +119,7 @@ const DataRow = ({ poolData, index }: { poolData: PoolData; index: number }) => 
 }
 
 interface PoolTableProps {
-  poolDatas: (PoolData | undefined)[]
+  poolDatas: PoolData[] | undefined
   loading?: boolean // If true shows indication that SOME pools are loading, but the ones already fetched will be shown
 }
 

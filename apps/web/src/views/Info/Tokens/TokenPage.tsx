@@ -47,6 +47,7 @@ import PoolTable from 'views/Info/components/InfoTables/PoolsTable'
 import TransactionTable from 'views/Info/components/InfoTables/TransactionsTable'
 import Percent from 'views/Info/components/Percent'
 import useCMCLink from 'views/Info/hooks/useCMCLink'
+import { atomWithAsyncRetry } from 'utils/atomWithAsyncRetry'
 
 dayjs.extend(duration)
 
@@ -79,17 +80,27 @@ interface TokenInfoParams {
 }
 
 interface TokenQueryResponse {
-  token: TokenData
-  pool: (PoolData | undefined)[]
+  token: TokenData | undefined
+  pool: PoolData[] | undefined
   transactions: Transaction[] | undefined
   chartVolume: VolumeChartEntry[] | undefined
   chartTvl: TvlChartEntry[] | undefined
 }
 const tokenInfoAtom = atomFamily((params: TokenInfoParams) => {
-  return atom(async () => {
-    const resp = await fetch(`/api/token/${params.type}/${params.chain}/${params.address}`)
-    const json = await resp.json()
-    return json as TokenQueryResponse
+  return atomWithAsyncRetry({
+    asyncFn: async () => {
+      const resp = await fetch(`/api/token/${params.type}/${params.chain}/${params.address}`)
+      if (!resp.ok) throw new Error('Fetch error')
+      const json = await resp.json()
+      return json as TokenQueryResponse
+    },
+    fallbackValue: {
+      token: undefined,
+      pool: undefined,
+      transactions: undefined,
+      chartVolume: undefined,
+      chartTvl: undefined,
+    },
   })
 }, isEqual)
 

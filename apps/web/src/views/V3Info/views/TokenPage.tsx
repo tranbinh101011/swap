@@ -31,7 +31,7 @@ import { formatAmount } from 'utils/formatInfoNumbers'
 
 import isUndefinedOrNull from '@pancakeswap/utils/isUndefinedOrNull'
 import truncateHash from '@pancakeswap/utils/truncateHash'
-import { atom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import isEqual from 'lodash/isEqual'
 import { ChainLinkSupportChains, multiChainId, multiChainScan } from 'state/info/constant'
@@ -42,6 +42,7 @@ import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import useCMCLink from 'views/Info/hooks/useCMCLink'
 import { chainNames } from '@pancakeswap/chains'
+import { atomWithAsyncRetry } from 'utils/atomWithAsyncRetry'
 import BarChart from '../components/BarChart/alt'
 import { LocalLoader } from '../components/Loader'
 import Percent from '../components/Percent'
@@ -85,17 +86,21 @@ interface TokenPageParams {
 }
 
 interface TokenQueryResponse {
-  token: TokenDataForView
-  pool: PoolDataForView[]
-  transactions: Transaction[]
-  charts: TokenChartEntry[]
+  token: TokenDataForView | undefined
+  pool: PoolDataForView[] | undefined
+  transactions: Transaction[] | undefined
+  charts: TokenChartEntry[] | undefined
 }
 
 const tokenPageDataAtom = atomFamily((params: TokenPageParams) => {
-  return atom(async () => {
-    const resp = await fetch(`/api/token/v3/${params.chain || 'bsc'}/${params.address}`)
-    const json = await resp.json()
-    return json as TokenQueryResponse
+  return atomWithAsyncRetry({
+    asyncFn: async () => {
+      const resp = await fetch(`/api/token/v3/${params.chain || 'bsc'}/${params.address}`)
+      if (!resp.ok) throw new Error('Fetch error')
+      const json = await resp.json()
+      return json as TokenQueryResponse
+    },
+    fallbackValue: { token: undefined, pool: undefined, transactions: undefined, charts: undefined },
   })
 }, isEqual)
 
