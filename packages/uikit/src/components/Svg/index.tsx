@@ -29,6 +29,7 @@ export { default as BnbUsdtPairTokenIcon } from "./Icons/BnbUsdtPairToken";
 export { default as BraveIcon } from "./Icons/Brave";
 export { default as BridgeIcon } from "./Icons/BridgeIcon";
 export { default as BscScanIcon } from "./Icons/BscScan";
+export { default as BscTraceIcon } from "./Icons/BscTrace";
 export { default as BulbIcon } from "./Icons/Bulb";
 export { default as BunnyCardsIcon } from "./Icons/BunnyCards";
 export { default as BunnyFillIcon } from "./Icons/BunnyFill";

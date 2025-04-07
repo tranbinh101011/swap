@@ -31,7 +31,7 @@ export const useIDOClaimCallback = () => {
         )
         if (receipt?.status) {
           setLatestTxReceipt(receipt)
-          toastSuccess(t('Claim successful'), <ToastDescriptionWithTx txHash={receipt.transactionHash} />)
+          toastSuccess(t('Claim successful'), <ToastDescriptionWithTx bscTrace txHash={receipt.transactionHash} />)
           logGTMIdoClaimEvent()
         }
       } catch (error) {

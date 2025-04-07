@@ -82,7 +82,7 @@ export const useIDODepositCallback = () => {
         })
         if (receipt?.status) {
           setLatestTxReceipt(receipt)
-          toastSuccess(t('Deposit successful'), <ToastDescriptionWithTx txHash={receipt.transactionHash} />)
+          toastSuccess(t('Deposit successful'), <ToastDescriptionWithTx bscTrace txHash={receipt.transactionHash} />)
         }
       } catch (error) {
         if (error instanceof W3WSignRestrictedError) {
