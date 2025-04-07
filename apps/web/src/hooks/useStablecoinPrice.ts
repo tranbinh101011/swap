@@ -115,10 +115,12 @@ export const useStablecoinPriceAmount = (
 ): number | undefined => {
   const stablePrice = useStablecoinPrice(currency, { enabled: !!currency, ...config })
 
-  if (amount) {
-    if (stablePrice) {
-      return multiplyPriceByAmount(stablePrice, amount)
+  return useMemo(() => {
+    if (amount) {
+      if (stablePrice) {
+        return multiplyPriceByAmount(stablePrice, amount)
+      }
     }
-  }
-  return undefined
+    return undefined
+  }, [amount, stablePrice])
 }
