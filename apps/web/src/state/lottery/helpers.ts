@@ -6,7 +6,7 @@ import { LotteryStatus, LotteryTicket } from 'config/constants/types'
 import { LotteryResponse } from 'state/types'
 import { getLotteryV2Address } from 'utils/addressHelpers'
 import { getLotteryV2Contract } from 'utils/contractHelpers'
-import { notEmpty } from 'utils/notEmpty'
+import { isNotUndefinedOrNull } from 'utils/isNotUndefinedOrNull'
 import { publicClient } from 'utils/wagmi'
 import { AbiStateMutability, ContractFunctionReturnType } from 'viem'
 
@@ -101,7 +101,7 @@ export const fetchMultipleLotteries = async (lotteryIds: string[]): Promise<Lott
     })) as { result: ContractFunctionReturnType<typeof lotteryV2ABI, AbiStateMutability, 'viewLottery'> }[]
 
     const processedResponses = multicallRes
-      .filter(notEmpty)
+      .filter(isNotUndefinedOrNull)
       .map((res, index) => processViewLotterySuccessResponse(res.result, lotteryIds[index]))
     return processedResponses
   } catch (error) {

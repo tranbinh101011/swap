@@ -3,6 +3,7 @@ import { DialogProvider, ModalProvider, UIKitProvider, dark, light } from '@panc
 import { Store } from '@reduxjs/toolkit'
 import { HydrationBoundary, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HistoryManagerProvider } from 'contexts/HistoryContext'
+import { W3WConfigProvider } from 'contexts/W3WConfigContext'
 import { ThemeProvider as NextThemeProvider, useTheme as useNextTheme } from 'next-themes'
 import { useMemo } from 'react'
 import { Provider } from 'react-redux'
@@ -32,21 +33,23 @@ const Providers: React.FC<
   const wagmiConfig = useMemo(() => (w3wWagmiConfig ? createW3WWagmiConfig() : createWagmiConfig()), [w3wWagmiConfig])
   return (
     <WagmiProvider reconnectOnMount config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <HydrationBoundary state={dehydratedState}>
-          <Provider store={store}>
-            <NextThemeProvider>
-              <LanguageProvider>
-                <StyledUIKitProvider>
-                  <HistoryManagerProvider>
-                    <ModalProvider portalProvider={DialogProvider}>{children}</ModalProvider>
-                  </HistoryManagerProvider>
-                </StyledUIKitProvider>
-              </LanguageProvider>
-            </NextThemeProvider>
-          </Provider>
-        </HydrationBoundary>
-      </QueryClientProvider>
+      <W3WConfigProvider value={w3wWagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <HydrationBoundary state={dehydratedState}>
+            <Provider store={store}>
+              <NextThemeProvider>
+                <LanguageProvider>
+                  <StyledUIKitProvider>
+                    <HistoryManagerProvider>
+                      <ModalProvider portalProvider={DialogProvider}>{children}</ModalProvider>
+                    </HistoryManagerProvider>
+                  </StyledUIKitProvider>
+                </LanguageProvider>
+              </NextThemeProvider>
+            </Provider>
+          </HydrationBoundary>
+        </QueryClientProvider>
+      </W3WConfigProvider>
     </WagmiProvider>
   )
 }

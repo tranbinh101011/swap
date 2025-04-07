@@ -2,7 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Box, ButtonMenu, ButtonMenuItem, Grid, PaginationButton, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import Container from 'components/Layout/Container'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { notEmpty } from 'utils/notEmpty'
+import { isNotUndefinedOrNull } from 'utils/isNotUndefinedOrNull'
 import { Incentives } from 'views/TradingReward/hooks/useAllTradingRewardPair'
 import { MAX_PER_PAGE, useRankList } from 'views/TradingReward/hooks/useRankList'
 import { timeFormat } from 'views/TradingReward/utils/timeFormat'
@@ -52,7 +52,7 @@ const Leaderboard: React.FC<React.PropsWithChildren<LeaderboardProps>> = ({ camp
               }
             : undefined,
         )
-        .filter(notEmpty)
+        .filter(isNotUndefinedOrNull)
         .sort((a, b) => Number(b.campaignId) - Number(a.campaignId)),
     [campaignIdsIncentive],
   )

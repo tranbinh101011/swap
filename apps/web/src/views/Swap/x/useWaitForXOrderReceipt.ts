@@ -1,5 +1,5 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
-import { viemClientsPublicNodes } from 'hooks/usePublicNodeWaitForTransaction'
+import { getViemClientsPublicNodes } from 'hooks/usePublicNodeWaitForTransaction'
 import { logger } from 'utils/datadog'
 import { createQueryKey, type UseQueryParameters } from 'utils/reactQuery'
 import type { Hash, TransactionReceipt } from 'viem'
@@ -47,7 +47,7 @@ export function useWaitForXOrderReceipt<selectData = GetXOrderReceiptReturnType>
         })
 
         if (result.transactionHash) {
-          const client = viemClientsPublicNodes[chainId as keyof typeof viemClientsPublicNodes]
+          const client = getViemClientsPublicNodes()[chainId as keyof ReturnType<typeof getViemClientsPublicNodes>]
           if (!client) {
             throw new Error('No client found')
           }

@@ -1,7 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { getNodeRealUrl } from 'utils/node/nodeReal'
 import { getGroveUrl } from 'utils/node/pokt'
-import { notEmpty } from 'utils/notEmpty'
 import {
   arbitrum,
   arbitrumGoerli,
@@ -25,7 +24,7 @@ const ARBITRUM_NODES = [
   ...arbitrum.rpcUrls.default.http,
   'https://arbitrum-one.publicnode.com',
   'https://arbitrum.llamarpc.com',
-].filter(notEmpty)
+].filter(Boolean)
 
 export const SERVER_NODES = {
   [ChainId.BSC]: [
@@ -36,7 +35,7 @@ export const SERVER_NODES = {
     'https://binance.llamarpc.com',
     'https://bsc-dataseed1.defibit.io',
     'https://bsc-dataseed1.binance.org',
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.BSC_TESTNET]: ['https://data-seed-prebsc-1-s1.binance.org:8545'],
   [ChainId.ETHEREUM]: [
     getNodeRealUrl(ChainId.ETHEREUM, process.env.SERVER_NODE_REAL_API_ETH) || '',
@@ -47,14 +46,14 @@ export const SERVER_NODES = {
   [ChainId.GOERLI]: [
     getNodeRealUrl(ChainId.GOERLI, process.env.SERVER_NODE_REAL_API_GOERLI) || '',
     'https://eth-goerli.public.blastapi.io',
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.ARBITRUM_ONE]: ARBITRUM_NODES,
   [ChainId.ARBITRUM_GOERLI]: arbitrumGoerli.rpcUrls.default.http,
   [ChainId.POLYGON_ZKEVM]: [
     'https://f2562de09abc5efbd21eefa083ff5326.zkevm-rpc.com/',
     process.env.NEXT_PUBLIC_NODIES_POLYGON_ZKEVM || '',
     ...polygonZkEvm.rpcUrls.default.http,
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.POLYGON_ZKEVM_TESTNET]: [
     'https://polygon-zkevm-testnet.rpc.thirdweb.com',
     ...polygonZkEvmTestnet.rpcUrls.default.http,
@@ -62,7 +61,7 @@ export const SERVER_NODES = {
   [ChainId.ZKSYNC]: [
     ...zkSync.rpcUrls.default.http,
     getNodeRealUrl(ChainId.ZKSYNC, process.env.SERVER_NODE_REAL_API_ETH) || '',
-  ],
+  ].filter(Boolean),
   [ChainId.ZKSYNC_TESTNET]: zksyncSepoliaTestnet.rpcUrls.default.http,
   [ChainId.LINEA]: linea.rpcUrls.default.http,
   [ChainId.LINEA_TESTNET]: [
@@ -74,7 +73,7 @@ export const SERVER_NODES = {
   [ChainId.OPBNB]: [
     ...opBNB.rpcUrls.default.http,
     getNodeRealUrl(ChainId.OPBNB, process.env.SERVER_NODE_REAL_API_ETH) || '',
-  ],
+  ].filter(Boolean),
   [ChainId.BASE]: [
     'https://base.publicnode.com',
     // process.env.NEXT_PUBLIC_NODE_REAL_BASE_PRODUCTION,
@@ -101,11 +100,11 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
     'https://binance.llamarpc.com',
     'https://bsc-dataseed1.defibit.io',
     'https://bsc-dataseed1.binance.org',
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.BSC_TESTNET]: [
     getNodeRealUrl(ChainId.BSC_TESTNET, process.env.SERVER_NODE_REAL_API_ETH) || '',
     'https://data-seed-prebsc-1-s1.binance.org:8545',
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.ETHEREUM]: [
     getNodeRealUrl(ChainId.ETHEREUM, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
     process.env.NEXT_PUBLIC_NODIES_ETH || '',
@@ -113,24 +112,24 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
     'https://ethereum.publicnode.com',
     'https://eth.llamarpc.com',
     'https://cloudflare-eth.com',
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.GOERLI]: [
     getNodeRealUrl(ChainId.GOERLI, process.env.NEXT_PUBLIC_NODE_REAL_API_GOERLI) || '',
     'https://eth-goerli.public.blastapi.io',
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.ARBITRUM_ONE]: [
     ...ARBITRUM_NODES,
     process.env.NEXT_PUBLIC_NODIES_ARB || '',
     getNodeRealUrl(ChainId.ARBITRUM_ONE, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
     getGroveUrl(ChainId.ARBITRUM_ONE, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.ARBITRUM_GOERLI]: arbitrumGoerli.rpcUrls.default.http,
   [ChainId.POLYGON_ZKEVM]: [
     process.env.NEXT_PUBLIC_NODIES_POLYGON_ZKEVM || '',
     ...polygonZkEvm.rpcUrls.default.http,
     'https://f2562de09abc5efbd21eefa083ff5326.zkevm-rpc.com/',
     getGroveUrl(ChainId.POLYGON_ZKEVM, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.POLYGON_ZKEVM_TESTNET]: [
     ...polygonZkEvmTestnet.rpcUrls.default.http,
     'https://polygon-zkevm-testnet.rpc.thirdweb.com',
@@ -139,7 +138,7 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
     ...zkSync.rpcUrls.default.http,
     process.env.NEXT_PUBLIC_QUICK_NODE_ZKSYNC || '',
     getNodeRealUrl(ChainId.ZKSYNC, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
-  ],
+  ].filter(Boolean),
   [ChainId.ZKSYNC_TESTNET]: zksyncSepoliaTestnet.rpcUrls.default.http,
   [ChainId.LINEA]: linea.rpcUrls.default.http,
   [ChainId.LINEA_TESTNET]: [
@@ -152,14 +151,14 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
     ...opBNB.rpcUrls.default.http,
     getNodeRealUrl(ChainId.OPBNB, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
     'https://opbnb.publicnode.com',
-  ],
+  ].filter(Boolean),
   [ChainId.BASE]: [
     'https://base.publicnode.com',
     process.env.NEXT_PUBLIC_NODIES_BASE || '',
     getGroveUrl(ChainId.BASE, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
     // process.env.NEXT_PUBLIC_NODE_REAL_BASE_PRODUCTION,
     ...base.rpcUrls.default.http,
-  ].filter(notEmpty),
+  ].filter(Boolean),
   [ChainId.BASE_TESTNET]: baseGoerli.rpcUrls.default.http,
   [ChainId.SCROLL_SEPOLIA]: scrollSepolia.rpcUrls.default.http,
   [ChainId.SEPOLIA]: sepolia.rpcUrls.default.http,

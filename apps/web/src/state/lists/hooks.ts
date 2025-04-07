@@ -18,7 +18,7 @@ import mapValues from 'lodash/mapValues'
 import _pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
 import { useMemo } from 'react'
-import { notEmpty } from 'utils/notEmpty'
+import { isNotUndefinedOrNull } from 'utils/isNotUndefinedOrNull'
 import DEFAULT_TOKEN_LIST from '../../config/constants/tokenLists/pancake-default.tokenlist.json'
 import ONRAMP_TOKEN_LIST from '../../config/constants/tokenLists/pancake-supported-onramp-currency-list.json'
 import UNSUPPORTED_TOKEN_LIST from '../../config/constants/tokenLists/pancake-unsupported.tokenlist.json'
@@ -167,7 +167,7 @@ export function listToTokenMap(list: TokenList, key?: string): TokenAddressMap {
       }
       return null
     })
-    .filter(notEmpty)
+    .filter(isNotUndefinedOrNull)
 
   const groupedTokenMap: { [chainId: string]: WrappedTokenInfo[] } = groupBy(tokenMap, 'chainId')
 

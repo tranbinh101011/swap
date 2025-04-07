@@ -6,7 +6,7 @@ import { NUM_ROUNDS_TO_CHECK_FOR_REWARDS } from 'config/constants/lottery'
 import { LotteryStatus, LotteryTicket, LotteryTicketClaimData } from 'config/constants/types'
 import { LotteryRoundGraphEntity, LotteryUserGraphEntity } from 'state/types'
 import { getLotteryV2Address } from 'utils/addressHelpers'
-import { notEmpty } from 'utils/notEmpty'
+import { isNotUndefinedOrNull } from 'utils/isNotUndefinedOrNull'
 import { publicClient } from 'utils/wagmi'
 import { MAX_LOTTERIES_REQUEST_SIZE } from './getLotteriesData'
 import { fetchUserTicketsForMultipleRounds } from './getUserTicketsData'
@@ -174,7 +174,7 @@ const fetchUnclaimedUserRewards = async (
     // Filter to only rounds with unclaimed tickets
     const roundsWithUnclaimedWinningTickets = roundsWithWinningTickets
       .filter((winningTicketData) => winningTicketData?.ticketsWithUnclaimedRewards)
-      .filter(notEmpty)
+      .filter(isNotUndefinedOrNull)
 
     return roundsWithUnclaimedWinningTickets
   }

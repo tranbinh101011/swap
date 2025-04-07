@@ -3,7 +3,7 @@ import { SerializedFarm } from '@pancakeswap/farms'
 import { masterChefV2ABI } from 'config/abi/masterchefV2'
 import chunk from 'lodash/chunk'
 import { farmFetcher } from 'state/farms'
-import { notEmpty } from 'utils/notEmpty'
+import { isNotUndefinedOrNull } from 'utils/isNotUndefinedOrNull'
 import { publicClient } from 'utils/wagmi'
 import { AbiStateMutability, ContractFunctionReturnType } from 'viem'
 import { SerializedFarmConfig } from '../../config/constants/types'
@@ -67,7 +67,7 @@ export const fetchMasterChefData = async (
   const masterChefAggregatedCalls = masterChefCalls
     .filter((masterChefCall) => masterChefCall[0] !== null && masterChefCall[1] !== null)
     .flat()
-    .filter(notEmpty)
+    .filter(isNotUndefinedOrNull)
 
   const multiCallChainId = farmFetcher.isTestnet(chainId) ? ChainId.BSC_TESTNET : ChainId.BSC
   const client = publicClient({ chainId: multiCallChainId })
