@@ -13,9 +13,11 @@ import { useGasPrice } from 'state/user/hooks'
 import useNativeCurrency from './useNativeCurrency'
 import { useStablecoinPrice, useStablecoinPriceAmount } from './useStablecoinPrice'
 
+const MIN_SLIPPAGE_NUMERATOR = 50
+const MAX_SLIPPAGE_NUMERATOR = 500
 const DEFAULT_AUTO_SLIPPAGE = new Percent(50, 10_000) // 0.5%
-const MIN_AUTO_SLIPPAGE_TOLERANCE = new Percent(50, 10_000) // 0.5%
-const MAX_AUTO_SLIPPAGE_TOLERANCE = new Percent(550, 10_000) // 5.5%
+const MIN_AUTO_SLIPPAGE_TOLERANCE = new Percent(MIN_SLIPPAGE_NUMERATOR, 10_000) // 0.5%
+const MAX_AUTO_SLIPPAGE_TOLERANCE = new Percent(MAX_SLIPPAGE_NUMERATOR, 10_000) // 5%
 
 // Helper functions
 const isL2ChainId = (chainId?: number): boolean => {
@@ -109,7 +111,11 @@ const calculateSlippageFromDollarValues = (dollarCostToUse: number, outputDollar
 }
 
 // Apply slippage tolerance limits
-const applySlippageLimits = (calculatedSlippage: Percent, min = 50, max = 550) => {
+const applySlippageLimits = (
+  calculatedSlippage: Percent,
+  min = MIN_SLIPPAGE_NUMERATOR,
+  max = MAX_SLIPPAGE_NUMERATOR,
+) => {
   if (calculatedSlippage.greaterThan(new Percent(max, 10_000))) {
     console.log('Auto Slippage: Using MAX_AUTO_SLIPPAGE_TOLERANCE', new Percent(max, 10_000).toFixed(2))
     return new Percent(max, 10_000)
@@ -249,11 +255,7 @@ export function useInputBasedAutoSlippage(inputAmount?: CurrencyAmount<Currency>
         // For input-based calculation, we use a different formula
         // We want to ensure the slippage covers the gas cost relative to the input amount
         const calculatedSlippage = calculateSlippageFromDollarValues(gasCostUSDValue, inputDollarValue)
-        return applySlippageLimits(
-          calculatedSlippage,
-          Number(MIN_AUTO_SLIPPAGE_TOLERANCE.numerator),
-          Number(MAX_AUTO_SLIPPAGE_TOLERANCE.numerator),
-        )
+        return applySlippageLimits(calculatedSlippage)
       }
 
       return DEFAULT_AUTO_SLIPPAGE
