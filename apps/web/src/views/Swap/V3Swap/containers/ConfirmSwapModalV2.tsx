@@ -79,7 +79,7 @@ export const ConfirmSwapModalV2: React.FC<ConfirmSwapModalV2Props> = ({
   const { t } = useTranslation()
   const { chainId } = useActiveChainId()
   // @ts-ignore
-  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback(originalOrder?.trade)
+  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback()
 
   const slippageAdjustedAmounts = useSlippageAdjustedAmounts(originalOrder)
   const { recipient } = useSwapState()

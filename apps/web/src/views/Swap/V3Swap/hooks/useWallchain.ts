@@ -131,7 +131,7 @@ export function useWallchainApi(
   const { data: walletClient } = useWalletClient()
   const { account } = useAccountActiveChain()
 
-  const { slippageTolerance: allowedSlippageRaw } = useAutoSlippageWithFallback(trade)
+  const { slippageTolerance: allowedSlippageRaw } = useAutoSlippageWithFallback()
   const allowedSlippage = useMemo(() => basisPointsToPercent(allowedSlippageRaw), [allowedSlippageRaw])
   const [lastUpdate, setLastUpdate] = useState(0)
   const useUniversalRouter = true

@@ -35,7 +35,7 @@ const CakeInput: React.FC<{
       showUSDPrice
       showCommonBases
       showMaxButton={false}
-      value={value?.toString()}
+      defaultValue={value?.toString()}
       onUserInput={onInput}
       title={
         <Text color="textSubtle" fontSize={12} bold>

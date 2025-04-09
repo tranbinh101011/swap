@@ -119,7 +119,7 @@ export function V4SwapForm() {
   const inputCurrency = useCurrency(inputCurrencyId)
   const outputCurrency = useCurrency(outputCurrencyId)
 
-  const { slippageTolerance: userSlippageTolerance } = useAutoSlippageWithFallback(bestOrder?.trade)
+  const { slippageTolerance: userSlippageTolerance } = useAutoSlippageWithFallback()
   const isSlippageTooHigh = useMemo(() => userSlippageTolerance > 500, [userSlippageTolerance])
   const shouldRiskPanelDisplay = useShouldRiskPanelDisplay(inputCurrency?.wrapped, outputCurrency?.wrapped)
   const token0Risk = useTokenRisk(inputCurrency?.wrapped)
@@ -182,7 +182,6 @@ export function V4SwapForm() {
                 priceLoading={!tradeLoaded}
                 price={executionPrice ?? undefined}
                 showSlippage={false}
-                trade={bestOrder?.trade}
               />
             </FlexGap>
             <TradingFee loaded={tradeLoaded} order={bestOrder} />

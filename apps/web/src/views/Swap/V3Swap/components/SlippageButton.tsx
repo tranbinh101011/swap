@@ -1,7 +1,5 @@
 import { useTheme } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { TradeType } from '@pancakeswap/sdk'
-import { SmartRouterTrade, V4Router } from '@pancakeswap/smart-router'
 import {
   Button,
   PencilIcon,
@@ -35,16 +33,15 @@ const AutoSlippageText = styled(Text)`
 
 interface SlippageButtonProps {
   slippage?: number | ReactElement
-  trade?: SmartRouterTrade<TradeType> | V4Router.V4TradeWithoutGraph<TradeType>
 }
 
-export const SlippageButton = ({ slippage, trade }: SlippageButtonProps) => {
+export const SlippageButton = ({ slippage }: SlippageButtonProps) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { isMobile } = useMatchBreakpoints()
 
   // Calculate auto slippage
-  const { slippageTolerance, isAuto } = useAutoSlippageWithFallback(trade)
+  const { slippageTolerance, isAuto } = useAutoSlippageWithFallback()
 
   const isRiskyLow = slippageTolerance < 50
 

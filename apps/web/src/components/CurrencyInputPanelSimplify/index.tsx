@@ -147,7 +147,7 @@ const useSizeAdaption = (value: string, currencySymbol?: string, otherCurrencySy
 }
 
 interface CurrencyInputPanelProps {
-  value: string | undefined
+  defaultValue: string | undefined
   onUserInput: (value: string) => void
   onInputBlur?: () => void
   onPercentInput?: (percent: number) => void
@@ -168,6 +168,7 @@ interface CurrencyInputPanelProps {
   commonBasesType?: string
   showSearchInput?: boolean
   beforeButton?: React.ReactNode
+  isDependent?: boolean
   disabled?: boolean
   error?: boolean | string
   showUSDPrice?: boolean
@@ -183,7 +184,7 @@ interface CurrencyInputPanelProps {
   isUserInsufficientBalance?: boolean
 }
 const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
-  value,
+  defaultValue,
   onUserInput,
   onInputBlur,
   onPercentInput,
@@ -213,6 +214,8 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
   isUserInsufficientBalance,
 }: CurrencyInputPanelProps) {
   const { address: account } = useAccount()
+  // const value = useRef<string | undefined>(defaultValue)
+  const [value, setValue] = useState<string | undefined>(defaultValue)
 
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const { t } = useTranslation()
@@ -223,6 +226,7 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
 
   const amountInDollar = useStablecoinPriceAmount(
     showUSDPrice ? currency ?? undefined : undefined,
+
     value !== undefined && Number.isFinite(+value) ? +value : undefined,
     {
       hideIfPriceImpactTooHigh: true,
@@ -250,12 +254,22 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
     otherCurrency?.symbol,
   )
 
-  const handleUserInput = useCallback(
-    (val: string) => {
-      onUserInput(val)
-    },
-    [onUserInput],
-  )
+  useEffect(() => {
+    if (isInputFocus) {
+      return
+    }
+    setValue(defaultValue)
+  }, [defaultValue, isInputFocus])
+
+  useEffect(() => {
+    if (isInputFocus) {
+      onUserInput(value ?? '')
+    }
+  }, [value, defaultValue, isInputFocus])
+
+  const handleUserInput = useCallback((val: string) => {
+    setValue(val)
+  }, [])
   const handleUserInputBlur = useCallback(() => {
     onInputBlur?.()
     setTimeout(() => setIsInputFocus(false), 300)

@@ -133,7 +133,7 @@ export function FormMainForHomePage({ inputAmount, outputAmount, tradeLoading, i
           inputLoading={!isWrapping && inputLoading}
           currencyLoading={!loadedUrlParams}
           label={!isTypingInput && !isWrapping ? t('From (estimated)') : t('From')}
-          value={isWrapping ? typedValue : inputValue}
+          defaultValue={isWrapping ? typedValue : inputValue}
           maxAmount={maxAmountInput}
           showQuickInputButton
           currency={inputCurrency}
@@ -159,7 +159,7 @@ export function FormMainForHomePage({ inputAmount, outputAmount, tradeLoading, i
           inputLoading={!isWrapping && outputLoading}
           currencyLoading={!loadedUrlParams}
           label={isTypingInput && !isWrapping ? t('To (estimated)') : t('To')}
-          value={isWrapping ? typedValue : outputValue}
+          defaultValue={isWrapping ? typedValue : outputValue}
           currency={outputCurrency}
           onUserInput={handleTypeOutput}
           onCurrencySelect={handleOutputSelect}

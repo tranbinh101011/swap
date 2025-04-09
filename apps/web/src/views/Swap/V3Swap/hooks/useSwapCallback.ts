@@ -48,8 +48,7 @@ export function useSwapCallback({
 }: UseSwapCallbackArgs): UseSwapCallbackReturns {
   const { t } = useTranslation()
   const { account, chainId } = useAccountActiveChain()
-  // @ts-ignore
-  const { slippageTolerance: allowedSlippageRaw } = useAutoSlippageWithFallback(trade)
+  const { slippageTolerance: allowedSlippageRaw } = useAutoSlippageWithFallback()
   const { recipient: recipientAddress } = useSwapState()
   const recipient = recipientAddress === null ? account : recipientAddress
 

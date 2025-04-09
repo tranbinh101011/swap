@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from 'react'
 
 import { MobileCard } from 'components/AdPanel/MobileCard'
 import { useCurrency } from 'hooks/Tokens'
+import { AutoSlippageProvider } from 'hooks/useAutoSlippageWithFallback'
 import { useSwapHotTokenDisplay } from 'hooks/useSwapHotTokenDisplay'
 import { Field } from 'state/swap/actions'
 import { useSingleTokenSwapInfo, useSwapState } from 'state/swap/hooks'
@@ -127,9 +128,11 @@ export default function V4Swap() {
             style={{ height: '100%' }}
             $isChartExpanded={isChartExpanded}
           >
-            <Wrapper height="100%">
-              <V4SwapForm />
-            </Wrapper>
+            <AutoSlippageProvider>
+              <Wrapper height="100%">
+                <V4SwapForm />
+              </Wrapper>
+            </AutoSlippageProvider>
           </StyledSwapContainer>
         </Flex>
       </Flex>

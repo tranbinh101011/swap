@@ -68,7 +68,7 @@ export default function useSendSwapTransaction(
   const { sendTransactionAsync } = useSendTransaction()
   const publicClient = viemClients[chainId as ChainId]
   // @ts-ignore
-  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback(trade)
+  const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback()
   const { recipient } = useSwapState()
   const recipientAddress = recipient === null ? account : recipient
 

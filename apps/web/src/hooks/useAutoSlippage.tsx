@@ -13,11 +13,11 @@ import { useGasPrice } from 'state/user/hooks'
 import useNativeCurrency from './useNativeCurrency'
 import { useStablecoinPrice, useStablecoinPriceAmount } from './useStablecoinPrice'
 
-const MIN_SLIPPAGE_NUMERATOR = 50
-const MAX_SLIPPAGE_NUMERATOR = 500
-const DEFAULT_AUTO_SLIPPAGE = new Percent(50, 10_000) // 0.5%
-const MIN_AUTO_SLIPPAGE_TOLERANCE = new Percent(MIN_SLIPPAGE_NUMERATOR, 10_000) // 0.5%
-const MAX_AUTO_SLIPPAGE_TOLERANCE = new Percent(MAX_SLIPPAGE_NUMERATOR, 10_000) // 5%
+export const MIN_DEFAULT_SLIPPAGE_NUMERATOR = 50
+export const MAX_SLIPPAGE_NUMERATOR = 500
+export const DEFAULT_AUTO_SLIPPAGE = new Percent(MIN_DEFAULT_SLIPPAGE_NUMERATOR, 10_000) // 0.5%
+export const MIN_AUTO_SLIPPAGE_TOLERANCE = new Percent(MIN_DEFAULT_SLIPPAGE_NUMERATOR, 10_000) // 0.5%
+export const MAX_AUTO_SLIPPAGE_TOLERANCE = new Percent(MAX_SLIPPAGE_NUMERATOR, 10_000) // 5%
 
 // Helper functions
 const isL2ChainId = (chainId?: number): boolean => {
@@ -113,7 +113,7 @@ const calculateSlippageFromDollarValues = (dollarCostToUse: number, outputDollar
 // Apply slippage tolerance limits
 const applySlippageLimits = (
   calculatedSlippage: Percent,
-  min = MIN_SLIPPAGE_NUMERATOR,
+  min = MIN_DEFAULT_SLIPPAGE_NUMERATOR,
   max = MAX_SLIPPAGE_NUMERATOR,
 ) => {
   if (calculatedSlippage.greaterThan(new Percent(max, 10_000))) {
@@ -138,7 +138,7 @@ type SupportedTrade =
 export default function useClassicAutoSlippageTolerance(trade?: SupportedTrade): Percent {
   const { chainId } = useActiveChainId()
   const onL2 = isL2ChainId(chainId)
-  const inputBasedSlippage = useInputBasedAutoSlippage(trade?.inputAmount)
+  const { inputBasedSlippage, inputDollarValue } = useInputBasedAutoSlippage(trade?.inputAmount)
 
   // Get USD price of output amount
   const outputCurrency = trade?.outputAmount?.currency
@@ -190,18 +190,28 @@ export default function useClassicAutoSlippageTolerance(trade?: SupportedTrade):
 
       if (outputDollarValue && dollarCostToUse) {
         const calculatedSlippage = calculateSlippageFromDollarValues(dollarCostToUse, outputDollarValue)
+        const outputBaseSlippage = applySlippageLimits(calculatedSlippage)
+        // input usd has value and the usd value difference is 5% up, this is for some edge case
+        const shouldUseInputBase =
+          inputDollarValue &&
+          Math.abs(inputDollarValue - outputDollarValue) > outputDollarValue * 0.05 &&
+          outputBaseSlippage.lessThan(inputBasedSlippage)
+
+        const finalSlippage = shouldUseInputBase ? inputBasedSlippage : outputBaseSlippage
 
         console.info('Auto Slippage: Calculated result', {
+          shouldUseInputBase,
+          inputBasedSlippage,
+          outputBaseSlippage,
           dollarCostToUse,
+          inputDollarValue,
           outputDollarValue,
           fraction: dollarCostToUse / outputDollarValue,
           resultBasisPoints: Math.floor((dollarCostToUse / outputDollarValue) * 10000),
-          result: calculatedSlippage.toFixed(2),
+          result: finalSlippage.toFixed(2),
         })
 
-        return calculatedSlippage.lessThan(inputBasedSlippage)
-          ? inputBasedSlippage
-          : applySlippageLimits(calculatedSlippage)
+        return finalSlippage
       }
 
       console.log('Auto Slippage: Using DEFAULT_AUTO_SLIPPAGE because missing outputDollarValue or dollarCostToUse')
@@ -216,7 +226,10 @@ export default function useClassicAutoSlippageTolerance(trade?: SupportedTrade):
 }
 
 // Calculate slippage based on input dollar value
-export function useInputBasedAutoSlippage(inputAmount?: CurrencyAmount<Currency>): Percent {
+export function useInputBasedAutoSlippage(inputAmount?: CurrencyAmount<Currency>): {
+  inputBasedSlippage: Percent
+  inputDollarValue: number | undefined
+} {
   const { chainId } = useActiveChainId()
   const onL2 = isL2ChainId(chainId)
 
@@ -242,7 +255,7 @@ export function useInputBasedAutoSlippage(inputAmount?: CurrencyAmount<Currency>
     ],
     queryFn: () => {
       // If no input amount or on L2 chain, use default
-      if (!inputAmount || onL2) return DEFAULT_AUTO_SLIPPAGE
+      if (!inputAmount || onL2) return { inputBasedSlippage: DEFAULT_AUTO_SLIPPAGE, inputDollarValue: undefined }
 
       const inputAmountValue = inputAmount?.toSignificant(6)
       const inputDollarValue =
@@ -255,14 +268,14 @@ export function useInputBasedAutoSlippage(inputAmount?: CurrencyAmount<Currency>
         // For input-based calculation, we use a different formula
         // We want to ensure the slippage covers the gas cost relative to the input amount
         const calculatedSlippage = calculateSlippageFromDollarValues(gasCostUSDValue, inputDollarValue)
-        return applySlippageLimits(calculatedSlippage)
+        return { inputBasedSlippage: applySlippageLimits(calculatedSlippage), inputDollarValue }
       }
 
-      return DEFAULT_AUTO_SLIPPAGE
+      return { inputBasedSlippage: DEFAULT_AUTO_SLIPPAGE, inputDollarValue: undefined }
     },
     placeholderData: keepPreviousData,
     staleTime: Infinity,
     gcTime: 0, // Remove data from cache immediately after unmount
   })
-  return data ?? DEFAULT_AUTO_SLIPPAGE
+  return data ?? { inputBasedSlippage: DEFAULT_AUTO_SLIPPAGE, inputDollarValue: undefined }
 }
