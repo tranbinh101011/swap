@@ -377,7 +377,7 @@ export const IdoDepositButton: React.FC<{
                 ) : null}
                 <Text color="textSubtle" fontSize="12px">
                   {t(
-                    'Some Rules/ T&C context or information that user need to know before locking BNB/ participating in IDO, show here.',
+                    'Some Rules/ T&C context or information that user need to know before locking BNB/ participating in TGE, show here.',
                   )}
                 </Text>
                 <Button

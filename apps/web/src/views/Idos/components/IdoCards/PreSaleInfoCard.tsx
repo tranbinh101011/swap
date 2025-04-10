@@ -36,7 +36,7 @@ export const PreSaleInfoCard: React.FC = () => {
       <Text>
         💡{' '}
         {t(
-          'Please make sure you have a keyless Binance Wallet in order to participate in this sale when the IDO goes live.',
+          'Please make sure you have a keyless Binance Wallet in order to participate in this sale when the TGE goes live.',
         )}
       </Text>
     </CardWrapper>
@@ -52,7 +52,7 @@ export const PreSaleEligibleCard: React.FC = () => {
         <FlexGap>
           <CheckmarkCircleIcon color="success" width="24px" />
         </FlexGap>
-        <Text>{t('You are eligible to join this sale when IDO goes live!')}</Text>
+        <Text>{t('You are eligible to join this sale when TGE goes live!')}</Text>
       </FlexGap>
     </CardWrapper>
   )
