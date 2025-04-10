@@ -12,6 +12,7 @@ export enum VerifyStatus {
   ineligible = 'ineligible',
   eligible = 'eligible',
   restricted = 'restricted',
+  snapshotNotPass = 'snapshot-not-pass',
 }
 
 const verifyW3WAccount = async (address: Address): Promise<{ status: VerifyStatus; code: string }> => {
@@ -37,6 +38,10 @@ const verifyW3WAccount = async (address: Address): Promise<{ status: VerifyStatu
 
     if (result?.code === '351083') {
       return { status: VerifyStatus.restricted, code: result.code }
+    }
+
+    if (result?.code === '351010') {
+      return { status: VerifyStatus.snapshotNotPass, code: result.code }
     }
 
     if (result.code === '000000' && result.success && result.data) {

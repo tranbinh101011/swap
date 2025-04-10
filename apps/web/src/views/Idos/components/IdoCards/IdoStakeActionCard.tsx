@@ -6,6 +6,7 @@ import useTheme from 'hooks/useTheme'
 import { useMemo } from 'react'
 import { logGTMIdoConnectWalletEvent } from 'utils/customGTMEventTracking'
 import type { IDOStatus } from 'views/Idos/hooks/ido/usdIDOStatus'
+import { useCurrentIDOConfig } from 'views/Idos/hooks/ido/useCurrentIDOConfig'
 import { useIDOConfig } from 'views/Idos/hooks/ido/useIDOConfig'
 import { useIDOCurrencies } from 'views/Idos/hooks/ido/useIDOCurrencies'
 import type { IDOUserStatus } from 'views/Idos/hooks/ido/useIDOUserStatus'
@@ -14,7 +15,7 @@ import { useAccount } from 'wagmi'
 import { ClaimDisplay } from './ClaimDisplay'
 import { Divider } from './Divider'
 import { IdoDepositButton } from './IdoDepositButton'
-import { ComplianceCard, PreSaleEligibleCard, PreSaleInfoCard } from './PreSaleInfoCard'
+import { ComplianceCard, PreSaleEligibleCard, PreSaleInfoCard, SnapshotNotPassCard } from './PreSaleInfoCard'
 import { StakedDisplay } from './StakedDisplay'
 
 export const IdoStakeActionCard: React.FC<{
@@ -32,6 +33,7 @@ export const IdoStakeActionCard: React.FC<{
   const userHasStaked = userStatus?.stakedAmount?.greaterThan(0)
 
   const { status, raiseAmounts, pricePerTokens, saleAmounts } = useIDOConfig()
+  const { id } = useCurrentIDOConfig() ?? {}
 
   const [raiseAmount, pricePerToken, saleAmount] = useMemo(() => {
     if (pid === 0) {
@@ -74,9 +76,13 @@ export const IdoStakeActionCard: React.FC<{
                       <PreSaleEligibleCard />
                     ) : verifyStatus === VerifyStatus.restricted ? (
                       <ComplianceCard />
+                    ) : verifyStatus === VerifyStatus.snapshotNotPass ? (
+                      <SnapshotNotPassCard projectId={id} />
                     ) : (
                       <PreSaleInfoCard />
                     )
+                  ) : ['idle', 'live'].includes(status) && verifyStatus === VerifyStatus.snapshotNotPass ? (
+                    <SnapshotNotPassCard projectId={id} />
                   ) : (
                     <IdoDepositButton userStatus={userStatus} type="deposit" pid={pid} />
                   )
