@@ -698,6 +698,7 @@ export const idoConfigDict: Record<string, IDOConfig> = {
         <a href="https://www.mindnetwork.xyz/" target="_blank" rel="noreferrer noopener">
           https://www.mindnetwork.xyz/
         </a>
+        <br />
         X:
         <a href="https://x.com/mindnetwork_xyz" target="_blank" rel="noreferrer noopener">
           https://x.com/mindnetwork_xyz
