@@ -14,6 +14,4 @@ CurrentIdoPage.chains = IDO_SUPPORT_CHAINS
 
 CurrentIdoPage.mp = true
 
-CurrentIdoPage.w3wWagmiConfig = true
-
 export default CurrentIdoPage
