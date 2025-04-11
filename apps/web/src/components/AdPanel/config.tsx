@@ -1,5 +1,5 @@
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
-import { AdTradingCompetitionEos, AdTradingCompetitionMerl } from 'components/AdPanel/Ads/AdTradingCompetition'
+import { useTradingCompetitionAds } from 'components/AdPanel/Ads/AdTradingCompetition'
 import { AdsIds, useAdsConfigs } from 'components/AdPanel/hooks/useAdsConfig'
 import { useMemo } from 'react'
 import { AdCakeStaking } from './Ads/AdCakeStaking'
@@ -29,6 +29,7 @@ export const useAdConfig = () => {
   const MAX_ADS = isDesktop ? 6 : 4
   const shouldRenderAdIfo = useShouldRenderAdIfo()
   const configs = useAdsConfigs()
+  const tradingCompetitionAds = useTradingCompetitionAds()
   const commonAdConfigs = useMemo(() => {
     return Object.entries(configs)
       .map(([key, value]) => {
@@ -60,14 +61,7 @@ export const useAdConfig = () => {
         id: 'ad-springboard',
         component: <AdSpringboard />,
       },
-      {
-        id: 'ad-merl-tc',
-        component: <AdTradingCompetitionMerl />,
-      },
-      {
-        id: 'ad-eos-tc',
-        component: <AdTradingCompetitionEos />,
-      },
+      ...tradingCompetitionAds,
       {
         id: 'ad-ifo',
         component: <AdIfo />,
@@ -82,7 +76,7 @@ export const useAdConfig = () => {
         component: <AdCakeStaking />,
       },
     ],
-    [shouldRenderOnPage, shouldRenderAdIfo, commonAdConfigs],
+    [shouldRenderOnPage, shouldRenderAdIfo, commonAdConfigs, tradingCompetitionAds],
   )
 
   return useMemo(

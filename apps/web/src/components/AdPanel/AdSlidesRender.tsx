@@ -54,7 +54,7 @@ export const AdSlidesRender = ({
   const handleSlideChange = useCallback((event: any) => {
     if (swiperRef.current) {
       const activeIndex = swiperRef.current.swiper.realIndex
-      const bullets = swiperRef.current.swiper.pagination.bullets
+      const { bullets } = swiperRef.current.swiper.pagination
 
       bullets.forEach((bullet: HTMLElement) => {
         bullet.classList.remove('played')
