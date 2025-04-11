@@ -88,11 +88,11 @@ const HomeV2Inner = () => {
     <>
       <Container>
         <RowLayout sidePadding="0">
-          <FavoriteDEXBanner chains={chains} />
           <LazyAnimatePresence features={domAnimation}>
+            <FavoriteDEXBanner chains={chains} />
             <MotionBox
               style={{
-                willChange: 'transform',
+                willChange: 'transform, opacity',
                 flexShrink: 0,
                 flex: 1,
                 width: '100%',

@@ -56,45 +56,47 @@ export const FavoriteDEXBanner: React.FC<FavoriteDEXBannerProps> = ({ chains }) 
   const { isMobile, isTablet } = useMatchBreakpoints()
 
   return (
-    <LazyAnimatePresence features={domAnimation}>
-      <Wrapper
-        isMobile={isMobile}
-        isTablet={isTablet}
-        initial={{ opacity: 0, scale: 0.3, y: 50 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.8, y: 50 }}
-        transition={{ type: 'spring', delay: 0.3, stiffness: 100, damping: 12, duration: 0.5 }}
+    <Wrapper
+      isMobile={isMobile}
+      isTablet={isTablet}
+      style={{
+        willChange: 'transform, opacity',
+      }}
+      initial={{ opacity: 0, scale: 0.3, y: 50 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.8, y: 50 }}
+      transition={{ type: 'spring', delay: 0.3, stiffness: 100, damping: 12, duration: 0.5 }}
+    >
+      <TitleText as={isMobile ? 'span' : 'h2'} isMobile={isMobile} isTablet={isTablet}>
+        {t("Everyone's")}{' '}
+      </TitleText>
+      <HighlightedText as={isMobile ? 'span' : 'h2'} isMobile={isMobile} isTablet={isTablet}>
+        {t('Favorite DEX')}
+      </HighlightedText>
+      <DescriptionText isMobile={isMobile} isTablet={isTablet}>
+        {t('Trade Crypto Instantly Across %count%+ Chains', { count: chains.length })}
+      </DescriptionText>
+      <Flex
+        alignItems="center"
+        justifyContent={isMobile || isTablet ? 'center' : 'flex-start'}
+        style={{
+          position: 'relative',
+          height: isMobile ? '10px' : '56px',
+          overflow: 'hidden',
+        }}
       >
-        <TitleText as={isMobile ? 'span' : 'h2'} isMobile={isMobile} isTablet={isTablet}>
-          {t("Everyone's")}{' '}
-        </TitleText>
-        <HighlightedText as={isMobile ? 'span' : 'h2'} isMobile={isMobile} isTablet={isTablet}>
-          {t('Favorite DEX')}
-        </HighlightedText>
-        <DescriptionText isMobile={isMobile} isTablet={isTablet}>
-          {t('Trade Crypto Instantly Across %count%+ Chains', { count: chains.length })}
-        </DescriptionText>
-        <Flex
-          alignItems="center"
-          justifyContent={isMobile || isTablet ? 'center' : 'flex-start'}
-          style={{
-            position: 'relative',
-            height: isMobile ? '10px' : '56px',
-          }}
-        >
-          <Box style={{ position: isMobile ? 'static' : 'absolute', marginTop: '0px' }}>
-            <MultipleLogos
-              clickExpand={{
-                logos: isMobile ? chains.map((x) => x.logoM) : chains.map((x) => x.logoL),
-              }}
-              borderRadius="12px"
-              gap={isMobile ? -8 : 20}
-              logos={chains.map((x) => x.logo)}
-              maxDisplay={20}
-            />
-          </Box>
-        </Flex>
-      </Wrapper>
-    </LazyAnimatePresence>
+        <Box style={{ position: isMobile ? 'static' : 'absolute', marginTop: '0px' }}>
+          <MultipleLogos
+            clickExpand={{
+              logos: isMobile ? chains.map((x) => x.logoM) : chains.map((x) => x.logoL),
+            }}
+            borderRadius="12px"
+            gap={isMobile ? -8 : 20}
+            logos={chains.map((x) => x.logo)}
+            maxDisplay={20}
+          />
+        </Box>
+      </Flex>
+    </Wrapper>
   )
 }

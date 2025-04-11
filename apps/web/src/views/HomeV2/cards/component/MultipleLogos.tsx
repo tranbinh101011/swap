@@ -44,6 +44,7 @@ const ImageContainerExpandable = styled.div<{
   width: ${isActive ? size * 2 : size}px;
   height: ${size}px;
   transition: all 0.3s;
+  will-change: opacity;
   &:not(:first-child) {
     margin-left: ${gap}px;
   }
@@ -111,6 +112,7 @@ const OverlapLogo = styled.img<{
     flex-shrink: 0;
     border: ${gap < 0 ? `3px solid ${theme.colors.card}` : 'none'};
     border-radius: ${borderRadius};
+    will-change: opacity;
   `
 })
 
@@ -129,7 +131,6 @@ const ExpandLogo = styled.img<{
     position: absolute;
     top: 0;
     left: 0;
-    transition: all 0.3s;
     width: ${isMobile ? logoSize : 'auto'};
     height: ${!isMobile ? `${logoSize} !important` : 'auto'};
     max-width: none !important;
@@ -138,7 +139,7 @@ const ExpandLogo = styled.img<{
     transition: all 0.3s;
     transform: scale(${isActive ? 2 : 1});
     transform-origin: ${isMobile ? 'top left' : 'center'};
-    will-change: transform;
+    will-change: transform, opacity;
     height: auto;
     flex-shrink: 0;
     border-radius: '16px';
