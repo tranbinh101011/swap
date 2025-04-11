@@ -1,5 +1,4 @@
-import { Box, getPortalRoot, useMatchBreakpoints } from '@pancakeswap/uikit'
-import { createPortal } from 'react-dom'
+import { Box, useMatchBreakpoints } from '@pancakeswap/uikit'
 import styled from 'styled-components'
 import { AdPlayer } from './AdPlayer'
 import { AdPlayerProps } from './types'
@@ -17,22 +16,19 @@ export const DesktopCard = ({
   forceMobile = false,
   ...props
 }: DesktopCardProps) => {
-  const portalRoot = getPortalRoot()
   const { isDesktop } = useMatchBreakpoints()
   const [show] = useShowAdPanel()
 
-  return portalRoot && shouldRender && isDesktop && show
-    ? createPortal(
-        <FloatingContainer>
-          <AdPlayer isDismissible={isDismissible} forceMobile={forceMobile} {...props} />
-        </FloatingContainer>,
-        portalRoot,
-      )
-    : null
+  return shouldRender && isDesktop && show ? (
+    <FloatingContainer>
+      <AdPlayer isDismissible={isDismissible} forceMobile={forceMobile} {...props} />
+    </FloatingContainer>
+  ) : null
 }
 
 const FloatingContainer = styled(Box)`
-  position: fixed;
+  position: absolute;
   right: 30px;
   bottom: 30px;
+  z-index: 10000;
 `
