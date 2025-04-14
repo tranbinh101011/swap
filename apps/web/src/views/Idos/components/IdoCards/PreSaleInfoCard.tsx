@@ -43,8 +43,11 @@ export const PreSaleInfoCard: React.FC = () => {
   )
 }
 
-export const PreSaleEligibleCard: React.FC = () => {
+export const PreSaleEligibleCard: React.FC<{ projectId: string | undefined }> = ({ projectId }) => {
   const { t } = useTranslation()
+  const link = useMemo(() => {
+    return getSnapshotDeepLink(projectId ?? '')
+  }, [projectId])
 
   return (
     <CardWrapper>
@@ -52,7 +55,15 @@ export const PreSaleEligibleCard: React.FC = () => {
         <FlexGap>
           <CheckmarkCircleIcon color="success" width="24px" />
         </FlexGap>
-        <Text>{t('You are eligible to join this sale when TGE goes live!')}</Text>
+        <FlexGap flexDirection="column">
+          <Text>{t('You are eligible to join this sale when TGE goes live!')}</Text>
+          <Flex onClick={() => window.open(link)}>
+            <Text color="positive60" bold>
+              {t('View Snapshots')}
+            </Text>
+            <ChevronRightIcon color="positive60" width="24px" ml="2px" />
+          </Flex>
+        </FlexGap>
       </FlexGap>
     </CardWrapper>
   )
