@@ -1,5 +1,11 @@
 # @pancakeswap/universal-router-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- 5d6c6e0: Add payerIsUser option
+
 ## 1.1.1
 
 ### Patch Changes
