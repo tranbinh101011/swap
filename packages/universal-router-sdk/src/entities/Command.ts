@@ -1,14 +1,7 @@
 import { RoutePlanner } from '../utils/routerCommands'
+import { PaymentOptions } from './types'
 
-export interface UniversalRouterOptions {
-  /**
-   * Whether the payer of the trade is the user. Defaults to true.
-   * NOTE: This option is ignored in WETH case. Because WETH is now owned by the router, the router pays for inputs.
-   */
-  payerIsUser?: boolean
-}
-
-export interface TradeConfig extends UniversalRouterOptions {
+export type TradeConfig = PaymentOptions & {
   allowRevert: boolean
 }
 
@@ -21,5 +14,5 @@ export enum RouterTradeType {
 // interface for entities that can be encoded as a Universal Router command
 export interface Command {
   tradeType: RouterTradeType
-  encode(planner: RoutePlanner, config: UniversalRouterOptions): void
+  encode(planner: RoutePlanner, config: PaymentOptions): void
 }
