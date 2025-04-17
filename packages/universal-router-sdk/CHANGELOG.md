@@ -1,5 +1,11 @@
 # @pancakeswap/universal-router-sdk
 
+## 1.3.0
+
+### Minor Changes
+
+- 5bcf3e0: Add payerIsUser option to erc20 swap calldata encoding
+
 ## 1.2.0
 
 ### Minor Changes
