@@ -4,6 +4,7 @@ import { useAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
 import { multicallReducerAtom } from 'state/multicall/reducer'
 import { Abi, Address, EncodeFunctionDataParameters, Hex, decodeFunctionResult, encodeFunctionData } from 'viem'
+import { useReadContracts } from 'wagmi'
 import {
   Call,
   ListenerOptions,
@@ -227,8 +228,35 @@ export type MultipleSameDataCallParameters<
   // FIXME: wagmiv2
   functionName: any
   options?: ListenerOptionsWithGas
+  chainIds?: number | number[]
 } & any
 // GetFunctionArgs<TAbi, TFunctionName>
+
+export function useMultipleContractSingleDataWagmi({
+  abi,
+  addresses,
+  chainIds,
+  functionName,
+  args,
+}: MultipleSameDataCallParameters) {
+  const contracts = useMemo(() => {
+    return addresses.map((address, index) => ({
+      abi,
+      address,
+      functionName,
+      args,
+      chainId: Array.isArray(chainIds) && addresses.length === chainIds.length ? chainIds[index] : chainIds,
+    }))
+  }, [abi, functionName, args, addresses, chainIds])
+
+  return useReadContracts({
+    // 2048 is the maximum batch size for wagmi.
+    // If not set, it will send large calldata in one request,
+    // it will also cause the request to fail.
+    batchSize: 2048,
+    contracts,
+  })
+}
 
 export function useMultipleContractSingleData<TAbi extends Abi | readonly unknown[], TFunctionName extends string>({
   abi,

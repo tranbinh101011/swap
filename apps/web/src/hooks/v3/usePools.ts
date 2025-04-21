@@ -1,13 +1,13 @@
 import { BigintIsh, Currency, Token } from '@pancakeswap/swap-sdk-core'
 import { DEPLOYER_ADDRESSES, FeeAmount, Pool, computePoolAddress } from '@pancakeswap/v3-sdk'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { v3PoolStateABI } from 'config/abi/v3PoolState'
+import { QUERY_SETTINGS_IMMUTABLE, QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH } from 'config/constants'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMemo } from 'react'
-import { Address } from 'viem'
+import { useMultipleContractSingleDataWagmi } from 'state/multicall/hooks'
 import { publicClient } from 'utils/viem'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH, QUERY_SETTINGS_IMMUTABLE } from 'config/constants'
-import { useMultipleContractSingleData } from 'state/multicall/hooks'
+import { Address } from 'viem'
 import { PoolState } from './types'
 
 // Classes are expensive to instantiate, so this caches the recently instantiated pools.
@@ -81,7 +81,14 @@ class PoolCache {
 export function usePools(
   poolKeys: [Currency | undefined | null, Currency | undefined | null, FeeAmount | undefined][],
 ): [PoolState, Pool | null][] {
-  const { chainId } = useActiveChainId()
+  const { chainId: activeChainId } = useActiveChainId()
+
+  const poolChainId = useMemo(() => {
+    return poolKeys.find(([currencyA]) => currencyA?.wrapped.chainId)?.[0]?.wrapped.chainId
+  }, [poolKeys])
+
+  // TODO: improve this by only using poolChainId.
+  const chainId = poolChainId ?? activeChainId
 
   const poolTokens: ([Token, Token, FeeAmount] | undefined)[] = useMemo(() => {
     if (!chainId) return new Array(poolKeys.length)
@@ -105,37 +112,53 @@ export function usePools(
     return poolTokens.map((value) => value && PoolCache.getPoolAddress(v3CoreDeployerAddress, ...value))
   }, [chainId, poolTokens])
 
-  const slot0s = useMultipleContractSingleData({
+  const { data: slot0s, isLoading: slot0Loading } = useMultipleContractSingleDataWagmi({
     addresses: poolAddresses,
+    chainIds: chainId,
     abi: v3PoolStateABI,
     functionName: 'slot0',
   })
-  const liquidities = useMultipleContractSingleData({
+
+  const { data: liquidities, isLoading: liquidityLoading } = useMultipleContractSingleDataWagmi({
     addresses: poolAddresses,
+    chainIds: chainId,
     abi: v3PoolStateABI,
     functionName: 'liquidity',
   })
 
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
+      if (slot0Loading || liquidityLoading) return [PoolState.LOADING, null]
+
       const tokens = poolTokens[index]
+
       if (!tokens) return [PoolState.INVALID, null]
+
       const [token0, token1, fee] = tokens
 
-      if (!slot0s[index]) return [PoolState.INVALID, null]
-      const { result: slot0, loading: slot0Loading, valid: slot0Valid } = slot0s[index]
+      // TODO: need to have generic type for the result
+      const slot0Result = slot0s?.[index] as
+        | { result: [bigint, number, number, number, number, number, boolean]; status: 'success' | 'error' }
+        | undefined
 
-      if (!liquidities[index]) return [PoolState.INVALID, null]
-      const { result: liquidity, loading: liquidityLoading, valid: liquidityValid } = liquidities[index]
+      if (!slot0Result) return [PoolState.INVALID, null]
+      const { result: slot0 } = slot0Result
 
-      if (!tokens || !slot0Valid || !liquidityValid) return [PoolState.INVALID, null]
-      if (slot0Loading || liquidityLoading) return [PoolState.LOADING, null]
+      const liquidityResult = liquidities?.[index]
+
+      if (!liquidityResult) return [PoolState.INVALID, null]
+      const { result: liquidity } = liquidityResult as { result: bigint; status: 'success' | 'error' }
+
+      if (!tokens || slot0Result.status !== 'success' || liquidityResult.status !== 'success')
+        return [PoolState.INVALID, null]
       if (!slot0 || typeof liquidity === 'undefined') return [PoolState.NOT_EXISTS, null]
+
       const [sqrtPriceX96, tick, , , , feeProtocol] = slot0
       if (!sqrtPriceX96 || sqrtPriceX96 === 0n) return [PoolState.NOT_EXISTS, null]
 
       try {
         const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceX96, liquidity, tick, feeProtocol)
+
         return [PoolState.EXISTS, pool]
       } catch (error) {
         console.error('Error when constructing the pool', error)
