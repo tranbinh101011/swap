@@ -1,10 +1,10 @@
+import { useReadContracts } from '@pancakeswap/wagmi'
 import { useQueryClient } from '@tanstack/react-query'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
 import { multicallReducerAtom } from 'state/multicall/reducer'
 import { Abi, Address, EncodeFunctionDataParameters, Hex, decodeFunctionResult, encodeFunctionData } from 'viem'
-import { useReadContracts } from 'wagmi'
 import {
   Call,
   ListenerOptions,
@@ -225,29 +225,41 @@ export type MultipleSameDataCallParameters<
 > = {
   addresses: (Address | undefined)[]
   abi: TAbi
-  // FIXME: wagmiv2
-  functionName: any
+  functionName?: string | undefined
   options?: ListenerOptionsWithGas
-  chainIds?: number | number[]
-} & any
+  args?: readonly unknown[] | undefined
+}
 // GetFunctionArgs<TAbi, TFunctionName>
+
+export type MultipleSameDataCallParametersWagmi<TAbi extends Abi | readonly unknown[] = Abi> = {
+  addresses: (Address | undefined)[]
+  abi: TAbi
+  functionName?: string | undefined
+  options?: {
+    enabled?: boolean
+    watch?: boolean
+  }
+  chainId?: number
+  args?: readonly unknown[] | undefined
+}
 
 export function useMultipleContractSingleDataWagmi({
   abi,
   addresses,
-  chainIds,
+  chainId,
   functionName,
   args,
-}: MultipleSameDataCallParameters) {
+  options,
+}: MultipleSameDataCallParametersWagmi) {
   const contracts = useMemo(() => {
-    return addresses.map((address, index) => ({
+    return addresses.map((address) => ({
       abi,
       address,
       functionName,
       args,
-      chainId: Array.isArray(chainIds) && addresses.length === chainIds.length ? chainIds[index] : chainIds,
+      chainId,
     }))
-  }, [abi, functionName, args, addresses, chainIds])
+  }, [abi, functionName, args, addresses, chainId])
 
   return useReadContracts({
     // 2048 is the maximum batch size for wagmi.
@@ -255,6 +267,8 @@ export function useMultipleContractSingleDataWagmi({
     // it will also cause the request to fail.
     batchSize: 2048,
     contracts,
+    watch: options?.watch,
+    query: { enabled: options?.enabled },
   })
 }
 
