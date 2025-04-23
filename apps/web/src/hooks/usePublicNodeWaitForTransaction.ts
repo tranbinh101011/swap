@@ -106,11 +106,13 @@ export function usePublicNodeWaitForTransaction() {
           throw error
         }
       }
+      const bufferedAvgBlockTime =
+        (selectedChain ? AVERAGE_CHAIN_BLOCK_TIMES[selectedChain] : BSC_BLOCK_TIME) * 1000 + 1000
       return retry(getTransaction, {
         n: 10,
-        minWait: 5000,
-        maxWait: 10000,
-        delay: (selectedChain ? AVERAGE_CHAIN_BLOCK_TIMES[selectedChain] : BSC_BLOCK_TIME) * 1000 + 1000,
+        minWait: bufferedAvgBlockTime,
+        maxWait: bufferedAvgBlockTime * 1.1,
+        delay: bufferedAvgBlockTime,
       }).promise as Promise<TransactionReceipt>
     },
     [chainId, provider, refetchBlockData, w3WConfig],
