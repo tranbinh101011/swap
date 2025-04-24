@@ -1,9 +1,9 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { Box, BunnyPlaceholderIcon, Flex, Text } from '@pancakeswap/uikit'
+import { Box, BunnyPlaceholderIcon, Flex, Spinner, Text } from '@pancakeswap/uikit'
 import { BarChartLoader } from 'components/ChartLoaders'
 import TradingView, { useTradingViewEvent } from 'components/TradingView'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { styled } from 'styled-components'
 
 interface TradingViewChartProps {
@@ -96,7 +96,22 @@ const TradingViewChart = ({ outputSymbol, inputSymbol, isDark, onTwChartSymbol }
       )}
       {!hasNoData && (
         <TradingViewWrapper $show={!isLoading}>
-          {symbol && <TradingView id={ID} symbol={`${SYMBOL_PREFIX}${symbol}`} />}
+          {symbol && (
+            <Suspense
+              fallback={
+                <Flex
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Spinner />
+                </Flex>
+              }
+            >
+              <TradingView id={ID} symbol={`${SYMBOL_PREFIX}${symbol}`} />
+            </Suspense>
+          )}
         </TradingViewWrapper>
       )}
     </Box>

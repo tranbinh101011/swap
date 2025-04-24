@@ -1,8 +1,10 @@
 import { Box, FlexProps, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { useAtomValue } from 'jotai'
 import { useTranslation } from '@pancakeswap/localization'
 import Script from 'next/script'
 import { useEffect } from 'react'
 import { DefaultTheme, useTheme } from 'styled-components'
+import { atomWithAsyncRetry } from 'utils/atomWithAsyncRetry'
 import { ChartByLabel } from './Chart/ChartbyLabel'
 
 /**
@@ -56,10 +58,21 @@ interface TradingViewProps {
   symbol: string
 }
 
+const integrityAtom = atomWithAsyncRetry({
+  asyncFn: async () => {
+    const response = await fetch('/api/integrity?id=tv')
+    if (!response.ok) throw new Error('Failed to fetch TradingView integrity hash')
+    const data = await response.json()
+    return data.integrity as string
+  },
+  fallbackValue: '',
+})
+
 const TradingView = ({ id, symbol }: TradingViewProps) => {
   const { currentLanguage } = useTranslation()
   const theme = useTheme()
   const { isMobile } = useMatchBreakpoints()
+  const integrity = useAtomValue(integrityAtom)
 
   useEffect(() => {
     const opts: any = {
@@ -89,7 +102,7 @@ const TradingView = ({ id, symbol }: TradingViewProps) => {
     <Box overflow="hidden" className="tradingview_container">
       <Script
         src="https://s3.tradingview.com/tv.js"
-        integrity="sha384-k8vrFVf3QD6I0K1QIeOVPIlQS4zqjhpkVWb178bEtoDRZtLZeDCNlJaoGhlQaL27"
+        integrity={integrity}
         crossOrigin="anonymous"
         strategy="lazyOnload"
         id="tv.js"
@@ -98,7 +111,6 @@ const TradingView = ({ id, symbol }: TradingViewProps) => {
     </Box>
   )
 }
-
 export function useTradingViewEvent({
   id,
   onNoDataEvent,
