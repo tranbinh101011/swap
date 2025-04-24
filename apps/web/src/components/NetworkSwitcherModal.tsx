@@ -25,14 +25,22 @@ import useTheme from 'hooks/useTheme'
 import { atom, useAtom } from 'jotai'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useUserShowTestnet } from 'state/user/hooks/useUserShowTestnet'
 import { chainNameConverter } from 'utils/chainNameConverter'
 import { chains as evmChains } from 'utils/wagmi'
 import { useAccount } from 'wagmi'
+import { Chain } from 'wagmi/chains'
 import { ChainLogo } from './Logo/ChainLogo'
 
-const NON_EVM_CHAINS = [
+interface NonEvmChain {
+  id: number
+  name: string
+  link: string
+  image: string
+}
+
+const NON_EVM_CHAINS: NonEvmChain[] = [
   {
     id: 1,
     name: 'Aptos',
@@ -56,11 +64,55 @@ interface NetworkSelectProps {
   onDismiss: () => void
 }
 
+type Network = (Chain & { isEvm: true }) | (NonEvmChain & { isEvm: false })
+
+function getSortedChains(chainId: ChainId, showTestnet: boolean): Network[] {
+  const chainOrder = [
+    'BNB Smart Chain', // BSC
+    'Ethereum', // ETH
+    'Solana', // SOL
+    'Base', // Base
+    'Arbitrum One', // ARB
+    'ZKsync Era', // ZKsync
+    'Linea Mainnet', // Linea
+    'Aptos', // Aptos
+    'opBNB', // Opbnb
+    'Polygon zkEVM', // ZKevm
+  ] as const
+
+  const chainRnk: Record<string, number> = {}
+  chainOrder.forEach((chain, i) => {
+    chainRnk[chain] = i
+  })
+
+  // 1) filter your EVM list based on the same logic you had...
+  const filteredEvm = evmChains.filter((chain) => {
+    if (chain.id === chainId) return true
+    if ('testnet' in chain && chain.testnet && chain.id !== ChainId.MONAD_TESTNET) {
+      return showTestnet
+    }
+    return true
+  })
+
+  // 2) build a single `networks` array
+  const networks: Network[] = [
+    ...filteredEvm.map((chain) => ({ ...chain, isEvm: true } as Network)), // mark as EVM
+    ...NON_EVM_CHAINS.map((chain) => ({ ...chain, isEvm: false } as Network)), // mark as non-EVM
+  ].sort((a, b) => {
+    const rnkA = chainRnk[a.name] ?? 1000
+    const rnkB = chainRnk[b.name] ?? 1000
+    return rnkA - rnkB
+  })
+  return networks
+}
+
 const NetworkSelect = ({ switchNetwork, chainId, isWrongNetwork, onDismiss }: NetworkSelectProps) => {
   const { t } = useTranslation()
   const [showTestnet] = useUserShowTestnet()
   const { theme } = useTheme()
   const { isMobile } = useMatchBreakpoints()
+  const networks = useMemo(() => getSortedChains(chainId, showTestnet), [chainId, showTestnet])
+
   return (
     <Box borderRadius={isMobile ? '32px' : '32px 32px 0 0'} overflow="hidden">
       <ModalHeader background={theme.colors.gradientCardHeader}>
@@ -71,50 +123,46 @@ const NetworkSelect = ({ switchNetwork, chainId, isWrongNetwork, onDismiss }: Ne
         </ModalTitle>
         <ModalCloseButton onDismiss={onDismiss} />
       </ModalHeader>
+
       <Box maxHeight="70vh" overflow="auto" padding="16px 0">
-        {evmChains
-          .filter((chain) => {
-            if (chain.id === chainId) return true
-            if ('testnet' in chain && chain.testnet && chain.id !== ChainId.MONAD_TESTNET) {
-              return showTestnet
-            }
-            return true
-          })
-          .map((chain) => (
+        {networks.map((net) =>
+          net.isEvm ? (
+            // EVM item: switch in-wallet
             <UserMenuItem
-              key={chain.id}
+              key={net.id}
               style={{ justifyContent: 'flex-start', cursor: 'pointer', padding: '0px 24px' }}
               onClick={() => {
-                if (chain.id !== chainId || isWrongNetwork) {
-                  switchNetwork(chain.id)
+                if (net.id !== chainId || isWrongNetwork) {
+                  switchNetwork(net.id)
                 }
                 onDismiss()
               }}
             >
-              <ChainLogo chainId={chain.id} />
+              <ChainLogo chainId={net.id} />
               <Text
-                color={chain.id === chainId && !isWrongNetwork ? 'secondary' : 'text'}
-                bold={chain.id === chainId && !isWrongNetwork}
+                color={net.id === chainId && !isWrongNetwork ? 'secondary' : 'text'}
+                bold={net.id === chainId && !isWrongNetwork}
                 pl="12px"
               >
-                {chainNameConverter(chain.name)}
+                {chainNameConverter(net.name)}
               </Text>
             </UserMenuItem>
-          ))}
-        {NON_EVM_CHAINS.map((chain) => (
-          <UserMenuItem
-            key={`${chain.name}-${chain.id}`}
-            style={{ justifyContent: 'flex-start', cursor: 'pointer', padding: '0px 24px' }}
-            as="a"
-            target="_blank"
-            href={chain.link}
-          >
-            <Image src={chain.image} width={24} height={24} unoptimized alt={`chain-${chain.name}-${chain.id}`} />{' '}
-            <Text color="text" pl="12px">
-              {chain.name}
-            </Text>
-          </UserMenuItem>
-        ))}
+          ) : (
+            // non-EVM item: external link
+            <UserMenuItem
+              key={`non-evm-${net.id}`}
+              as="a"
+              href={net.link}
+              target="_blank"
+              style={{ justifyContent: 'flex-start', cursor: 'pointer', padding: '0px 24px' }}
+            >
+              <Image src={net.image} width={24} height={24} unoptimized alt={net.name} />
+              <Text color="text" pl="12px">
+                {net.name}
+              </Text>
+            </UserMenuItem>
+          ),
+        )}
       </Box>
     </Box>
   )
