@@ -1,5 +1,14 @@
 # @pancakeswap/pcsx-sdk
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies [5f264c5]
+- Updated dependencies [0436fec]
+  - @pancakeswap/chains@0.5.1
+  - @pancakeswap/permit2-sdk@1.1.1
+
 ## 1.0.3
 
 ### Patch Changes

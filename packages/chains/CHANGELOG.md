@@ -1,5 +1,12 @@
 # @pancakeswap/chains
 
+## 0.5.1
+
+### Patch Changes
+
+- 5f264c5: chore: Change opbnb bnb testnet block times
+- 0436fec: chore: Update opbnb block time
+
 ## 0.5.0
 
 ### Minor Changes

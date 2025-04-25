@@ -1,5 +1,11 @@
 # @pancakeswap/v4-sdk
 
+## 0.1.8
+
+### Patch Changes
+
+- @pancakeswap/v3-sdk@3.9.1
+
 ## 0.1.7
 
 ### Patch Changes

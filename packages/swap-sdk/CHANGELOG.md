@@ -1,5 +1,15 @@
 # @pancakeswap/sdk
 
+## 5.8.12
+
+### Patch Changes
+
+- Updated dependencies [5f264c5]
+- Updated dependencies [0436fec]
+  - @pancakeswap/chains@0.5.1
+  - @pancakeswap/swap-sdk-evm@1.1.1
+  - @pancakeswap/v2-sdk@1.1.1
+
 ## 5.8.11
 
 ### Patch Changes
