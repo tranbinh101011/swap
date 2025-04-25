@@ -125,10 +125,10 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
   ].filter(Boolean),
   [ChainId.ARBITRUM_GOERLI]: arbitrumGoerli.rpcUrls.default.http,
   [ChainId.POLYGON_ZKEVM]: [
+    getGroveUrl(ChainId.POLYGON_ZKEVM, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
     process.env.NEXT_PUBLIC_NODIES_POLYGON_ZKEVM || '',
     ...polygonZkEvm.rpcUrls.default.http,
     'https://f2562de09abc5efbd21eefa083ff5326.zkevm-rpc.com/',
-    getGroveUrl(ChainId.POLYGON_ZKEVM, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
   ].filter(Boolean),
   [ChainId.POLYGON_ZKEVM_TESTNET]: [
     ...polygonZkEvmTestnet.rpcUrls.default.http,
