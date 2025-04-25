@@ -2,7 +2,6 @@ import { useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Message, MessageText, Text, Link } from '@pancakeswap/uikit'
 import { usePotteryFetch } from 'state/pottery/hook'
-import Banner from 'views/Pottery/components/Banner/index'
 import Pot from 'views/Pottery/components/Pot/index'
 import { useTranslation } from '@pancakeswap/localization'
 import SubgraphHealthIndicator from 'components/SubgraphHealthIndicator'
@@ -20,13 +19,6 @@ const Pottery: React.FC<React.PropsWithChildren> = () => {
 
   usePotteryFetch()
   const potWrapperEl = useRef<HTMLDivElement>(null)
-
-  const handleScroll = () => {
-    window.scrollTo({
-      top: potWrapperEl?.current?.offsetTop,
-      behavior: 'smooth',
-    })
-  }
 
   return (
     <Box position="relative">
@@ -46,7 +38,6 @@ const Pottery: React.FC<React.PropsWithChildren> = () => {
           </MessageText>
         </Message>
       </Box>
-      <Banner handleScroll={handleScroll} />
       <Box ref={potWrapperEl}>
         <Pot />
       </Box>

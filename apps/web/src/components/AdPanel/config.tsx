@@ -2,7 +2,6 @@ import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useTradingCompetitionAds } from 'components/AdPanel/Ads/AdTradingCompetition'
 import { AdsIds, useAdsConfigs } from 'components/AdPanel/hooks/useAdsConfig'
 import { useMemo } from 'react'
-import { AdCakeStaking } from './Ads/AdCakeStaking'
 import { AdCommon } from './Ads/AdCommon'
 import { AdIfo } from './Ads/AdIfo'
 import { AdPCSX } from './Ads/AdPCSX'
@@ -70,10 +69,6 @@ export const useAdConfig = () => {
       {
         id: 'pcsx',
         component: <AdPCSX />,
-      },
-      {
-        id: 'cake-staking',
-        component: <AdCakeStaking />,
       },
     ],
     [shouldRenderOnPage, shouldRenderAdIfo, commonAdConfigs, tradingCompetitionAds],

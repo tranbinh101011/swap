@@ -22,16 +22,14 @@ import Page from 'components/Layout/Page'
 import PinnedFAQButton from 'components/PinnedFAQButton'
 import { TokenPairImage } from 'components/TokenImage'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { usePoolsPageFetch, usePoolsWithVault } from 'state/pools/hooks'
+import { usePoolsPageFetch, usePools } from 'state/pools/hooks'
 import { StyledPageHeader } from 'views/CakeStaking'
 import { useAccount } from 'wagmi'
-import CakeVaultCard from './components/CakeVaultCard'
 import AprRow from './components/PoolCard/AprRow'
 import CardActions from './components/PoolCard/CardActions'
 import CardFooter from './components/PoolCard/CardFooter'
 import PoolControls from './components/PoolControls'
-import PoolRow, { VaultPoolRow } from './components/PoolsTable/PoolRow'
-import { VeCakeFourYearCard } from './components/VeCakeFourYearCard'
+import PoolRow from './components/PoolsTable/PoolRow'
 import faqConfig from './faqConfig'
 
 const CardLayout = styled(FlexLayout)`
@@ -56,7 +54,7 @@ const Pools: React.FC<React.PropsWithChildren> = () => {
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const { chainId } = useActiveChainId()
-  const { pools, userDataLoaded } = usePoolsWithVault()
+  const { pools, userDataLoaded } = usePools()
   const { isMobile } = useMatchBreakpoints()
 
   usePoolsPageFetch()
@@ -86,60 +84,47 @@ const Pools: React.FC<React.PropsWithChildren> = () => {
           )}
           {viewMode === ViewMode.CARD ? (
             <CardLayout>
-              {chosenPools.map((pool) =>
-                pool.vaultKey ? (
-                  <CakeVaultCard key={pool.vaultKey} pool={pool} showStakedOnly={stakedOnly} />
-                ) : (
-                  <Pool.PoolCard<Token>
-                    key={pool.sousId}
-                    pool={pool}
-                    isBoostedPool={Boolean(chainId && checkIsBoostedPool(pool.contractAddress, chainId))}
-                    isStaked={Boolean(pool?.userData?.stakedBalance?.gt(0))}
-                    cardContent={
-                      account ? (
-                        <CardActions pool={pool} stakedBalance={pool?.userData?.stakedBalance} />
-                      ) : (
-                        <>
-                          <Text mb="10px" textTransform="uppercase" fontSize="12px" color="textSubtle" bold>
-                            {t('Start earning')}
-                          </Text>
-                          <ConnectWalletButton />
-                        </>
-                      )
-                    }
-                    tokenPairImage={
-                      <TokenPairImage
-                        primaryToken={pool.earningToken}
-                        secondaryToken={pool.stakingToken}
-                        width={64}
-                        height={64}
-                      />
-                    }
-                    cardFooter={<CardFooter pool={pool} account={account ?? ''} />}
-                    aprRow={<AprRow pool={pool} stakedBalance={pool?.userData?.stakedBalance} />}
-                  />
-                ),
-              )}
+              {chosenPools.map((pool) => (
+                <Pool.PoolCard<Token>
+                  key={pool.sousId}
+                  pool={pool}
+                  isBoostedPool={Boolean(chainId && checkIsBoostedPool(pool.contractAddress, chainId))}
+                  isStaked={Boolean(pool?.userData?.stakedBalance?.gt(0))}
+                  cardContent={
+                    account ? (
+                      <CardActions pool={pool} stakedBalance={pool?.userData?.stakedBalance} />
+                    ) : (
+                      <>
+                        <Text mb="10px" textTransform="uppercase" fontSize="12px" color="textSubtle" bold>
+                          {t('Start earning')}
+                        </Text>
+                        <ConnectWalletButton />
+                      </>
+                    )
+                  }
+                  tokenPairImage={
+                    <TokenPairImage
+                      primaryToken={pool.earningToken}
+                      secondaryToken={pool.stakingToken}
+                      width={64}
+                      height={64}
+                    />
+                  }
+                  cardFooter={<CardFooter pool={pool} account={account ?? ''} />}
+                  aprRow={<AprRow pool={pool} stakedBalance={pool?.userData?.stakedBalance} />}
+                />
+              ))}
             </CardLayout>
           ) : (
             <Pool.PoolsTable>
-              {chosenPools.map((pool) =>
-                pool.vaultKey ? (
-                  <VaultPoolRow
-                    initialActivity={normalizedUrlSearch.toLowerCase() === pool.earningToken.symbol?.toLowerCase()}
-                    key={pool.vaultKey}
-                    vaultKey={pool.vaultKey}
-                    account={account ?? ''}
-                  />
-                ) : (
-                  <PoolRow
-                    initialActivity={normalizedUrlSearch.toLowerCase() === pool.earningToken.symbol?.toLowerCase()}
-                    key={pool.sousId}
-                    sousId={pool.sousId}
-                    account={account ?? ''}
-                  />
-                ),
-              )}
+              {chosenPools.map((pool) => (
+                <PoolRow
+                  initialActivity={normalizedUrlSearch.toLowerCase() === pool.earningToken.symbol?.toLowerCase()}
+                  key={pool.sousId}
+                  sousId={pool.sousId}
+                  account={account ?? ''}
+                />
+              ))}
             </Pool.PoolsTable>
           )}
           <Image
@@ -186,7 +171,6 @@ const Pools: React.FC<React.PropsWithChildren> = () => {
                 {t('High APR, low risk.')}
               </Heading>
             </Flex>
-            <VeCakeFourYearCard />
           </Flex>
         </PageHeader>
       )}

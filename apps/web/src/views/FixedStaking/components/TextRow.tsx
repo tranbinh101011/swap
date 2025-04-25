@@ -1,11 +1,15 @@
 import { Text, Flex } from '@pancakeswap/uikit'
+import { styled } from 'styled-components'
 import isUndefinedOrNull from '@pancakeswap/utils/isUndefinedOrNull'
-import CrossText from './CrossText'
 
 interface DiffTextPropsType {
   value: string
   newValue?: string
 }
+
+const CrossText = styled(Text)`
+  text-decoration: line-through;
+`
 
 const DiffText: React.FC<React.PropsWithChildren<DiffTextPropsType>> = ({ value, newValue }) => {
   if (isUndefinedOrNull(newValue) || isUndefinedOrNull(value) || value === newValue) {

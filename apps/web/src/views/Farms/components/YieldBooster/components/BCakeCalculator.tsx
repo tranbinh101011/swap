@@ -1,4 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
+import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import {
   BalanceInput,
   Box,
@@ -52,7 +53,7 @@ const BCakeCalculator: React.FC<React.PropsWithChildren<BCakeCalculatorProps>> =
   const [isShow, setIsShow] = useState(true)
   const { t } = useTranslation()
   const [duration, setDuration] = useState(() => weeksToSeconds(1))
-  const { isLoading, lockedAmount, lockedStart, lockedEnd } = useUserLockedCakeStatus()
+  const { isLoading, lockedAmount = BIG_ZERO, lockedStart, lockedEnd } = useUserLockedCakeStatus()
   const { state, setPrincipalFromUSDValue, setPrincipalFromTokenValue, toggleEditingCurrency, setCalculatorMode } =
     useRoiCalculatorReducer(
       { stakingTokenPrice: earningTokenPrice, earningTokenPrice, autoCompoundFrequency: 0 },

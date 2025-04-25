@@ -1,14 +1,10 @@
-import { bCakeSupportedChainId } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import {
-  Box,
   Button,
   Flex,
   Heading,
   HelpIcon,
   LinkExternal,
-  Message,
-  MessageText,
   PageHeader,
   Text,
   useMatchBreakpoints,
@@ -16,8 +12,6 @@ import {
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import useTheme from 'hooks/useTheme'
 import { memo, useCallback } from 'react'
-import { BCakeBoosterCard } from 'views/Farms/components/YieldBooster/components/bCakeV3/BCakeBoosterCard'
-import { BCakeMigrationBanner } from 'views/Home/components/Banners/BCakeMigrationBanner'
 
 export const Header = memo(function Header() {
   const { t } = useTranslation()
@@ -36,11 +30,6 @@ export const Header = memo(function Header() {
 
   return (
     <PageHeader style={isMobile ? { padding: '16px 0' } : undefined}>
-      {!isMobile && (
-        <Box mb="32px" mt="16px">
-          <BCakeMigrationBanner />
-        </Box>
-      )}
       <Flex justifyContent="space-between" alignItems="flex-start" flexDirection="row" flexWrap="nowrap">
         <Flex
           flex="1"
@@ -73,7 +62,6 @@ export const Header = memo(function Header() {
           )}
         </Flex>
 
-        {isDesktop && bCakeSupportedChainId.includes(chainId) && <BCakeBoosterCard variants="pm" />}
         {isMobile && (
           <Button width="40px" height="40px" variant="subtle" px="16px" scale="md" onClick={redirectToDocs}>
             <HelpIcon color={theme.isDark ? '#280D5F' : 'white'} />
@@ -83,20 +71,3 @@ export const Header = memo(function Header() {
     </PageHeader>
   )
 })
-
-export const DefiEdgeWarning = () => {
-  const { t } = useTranslation()
-  return (
-    <Box maxWidth="1200px" m="0 auto">
-      <Message variant="warning">
-        <MessageText fontSize="17px">
-          <Text color="warning" as="span" bold>
-            {t(
-              'DeFiEdge will stop maintaining its vaults from 10 Oct 2024 onwards. Please remove your funds before that to avoid any issues. Beyond 10 Oct, they will place the liquidity in a wide range, and will no longer actively manage it.',
-            )}
-          </Text>
-        </MessageText>
-      </Message>
-    </Box>
-  )
-}

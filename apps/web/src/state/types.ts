@@ -28,11 +28,6 @@ export const GAS_PRICE_GWEI = {
   testnet: parseEther(GAS_PRICE.testnet, 'gwei').toString(),
 }
 
-export interface BigNumberToJson {
-  type: 'BigNumber'
-  hex: string
-}
-
 export type SerializedBigNumber = string
 
 export enum VaultKey {
@@ -66,10 +61,6 @@ export interface SerializedVaultFees {
   withdrawalFeePeriod: number
 }
 
-export interface DeserializedVaultFees extends SerializedVaultFees {
-  performanceFeeAsDecimal: number
-}
-
 export interface SerializedVaultUser {
   isLoading: boolean
   userShares: SerializedBigNumber
@@ -86,47 +77,6 @@ export interface SerializedLockedVaultUser extends SerializedVaultUser {
   lockedAmount: SerializedBigNumber
   currentPerformanceFee: SerializedBigNumber
   currentOverdueFee: SerializedBigNumber
-}
-
-export interface DeserializedVaultUser {
-  isLoading: boolean
-  userShares: BigNumber
-  cakeAtLastUserAction: BigNumber
-  lastDepositedTime: string
-  lastUserActionTime: string
-  lockedAmount: BigNumber
-  balance: {
-    cakeAsNumberBalance: number
-    cakeAsBigNumber: BigNumber
-    cakeAsDisplayBalance: string
-  }
-}
-
-export interface DeserializedLockedVaultUser extends DeserializedVaultUser {
-  lastDepositedTime: string
-  lastUserActionTime: string
-  lockStartTime: string
-  lockEndTime: string
-  burnStartTime: string
-  userBoostedShare: BigNumber
-  locked: boolean
-  lockedAmount: BigNumber
-  currentPerformanceFee: BigNumber
-  currentOverdueFee: BigNumber
-}
-
-export interface DeserializedCakeVault {
-  totalShares?: BigNumber
-  totalLockedAmount?: BigNumber
-  pricePerFullShare?: BigNumber
-  totalCakeInVault?: BigNumber
-  fees?: DeserializedVaultFees
-  userData?: DeserializedVaultUser
-}
-
-export interface DeserializedLockedCakeVault extends Omit<DeserializedCakeVault, 'userData'> {
-  totalLockedAmount?: BigNumber
-  userData?: DeserializedLockedVaultUser
 }
 
 export interface SerializedLockedCakeVault extends Omit<SerializedCakeVault, 'userData'> {
@@ -202,11 +152,6 @@ export interface Round {
   bets?: Bet[]
 
   AIPrice?: number
-}
-
-export interface Market {
-  paused: boolean
-  epoch: number
 }
 
 export interface Bet {
@@ -372,11 +317,6 @@ export interface VoteWhere {
   voter_in?: string[]
   proposal?: string
   proposal_in?: string[]
-}
-
-export enum SnapshotCommand {
-  PROPOSAL = 'proposal',
-  VOTE = 'vote',
 }
 
 export enum ProposalType {

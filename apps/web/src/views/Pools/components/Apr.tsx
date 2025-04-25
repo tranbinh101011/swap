@@ -1,7 +1,6 @@
 import { getBoostedPoolConfig } from '@pancakeswap/pools'
 import { Token } from '@pancakeswap/sdk'
 import { Pool } from '@pancakeswap/widgets-internal'
-import { vaultPoolConfig } from 'config/constants/pools'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCurrentBlock } from 'state/block/hooks'
 import { getPoolBlockInfo } from 'views/Pools/helpers'
@@ -15,8 +14,6 @@ const withShownApr = (AprComp) => (props) => {
   const currentBlock = useCurrentBlock()
 
   const { shouldShowBlockCountdown, hasPoolStarted } = getPoolBlockInfo(props.pool, currentBlock)
-
-  const autoCompoundFrequency = vaultPoolConfig[props.pool.vaultKey]?.autoCompoundFrequency ?? 0
 
   const boostedApr = useBoostedPoolApr({
     chainId,
@@ -32,7 +29,7 @@ const withShownApr = (AprComp) => (props) => {
       account={account}
       boostedApr={boostedApr}
       boostedTooltipsText={boostedPoolConfig ? boostedPoolConfig.tooltipsText : ''}
-      autoCompoundFrequency={autoCompoundFrequency}
+      autoCompoundFrequency={0}
     />
   )
 }

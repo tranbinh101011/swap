@@ -36,18 +36,6 @@ export const useBakeV3farmCanBoost = (farmPid: number) => {
   return { farmCanBoost: data }
 }
 
-export const useIsBoostedPoolLegacy = (tokenId?: string) => {
-  const { chainId } = useActiveChainId()
-  const farmBoosterV3Contract = useBCakeFarmBoosterV3Contract()
-  const { data, refetch } = useQuery({
-    queryKey: [`v3/bcake/isBoostedPoolLegacy/${chainId}/${tokenId}`],
-    queryFn: () => farmBoosterV3Contract.read.isBoostedPool([BigInt(tokenId ?? 0)]),
-    enabled: Boolean(chainId && tokenId && tokenId !== 'undefined'),
-    ...QUERY_SETTINGS_WITHOUT_REFETCH,
-  })
-  return { isBoosted: data?.[0], pid: Number(data?.[1]), mutate: refetch }
-}
-
 export const useIsBoostedPool = (tokenId?: string) => {
   const { chainId } = useActiveChainId()
   const farmBoosterV3Contract = useBCakeFarmBoosterVeCakeContract()

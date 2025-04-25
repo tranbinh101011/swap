@@ -22,14 +22,7 @@ export const VeCakeMigrateCard: React.FC<{ isTableView?: boolean; lockEndTime?: 
           <img src="/images/cake-staking/token-vecake.png" alt="token-vecake" width="38px" />
           <Box>
             <Text color="white" bold fontSize={14} pr="20px">
-              {isMigratedToVeCake ? (
-                t('Your CAKE pool position has been migrated to veCAKE.')
-              ) : (
-                <>
-                  {t('All fixed term staking positions must migrate to veCAKE to continue receiving rewards.')}
-                  <LearnMoreLink />
-                </>
-              )}
+              {isMigratedToVeCake ? t('Your CAKE pool position has been migrated to veCAKE.') : null}
             </Text>
             {isMigratedToVeCake && (
               <Text mt="10px" color="white" bold fontSize={14} pr="20px">

@@ -28,7 +28,6 @@ import orderBy from 'lodash/orderBy'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFarms, usePollFarmsWithUserData } from 'state/farms/hooks'
-import { useCakeVaultUserData } from 'state/pools/hooks'
 import { ViewMode } from 'state/user/actions'
 import { useUserFarmStakedOnly, useUserFarmsViewMode } from 'state/user/hooks'
 import { styled } from 'styled-components'
@@ -40,7 +39,6 @@ import { useAccount } from 'wagmi'
 import { V2Farm } from './FarmsV3'
 import Table from './components/FarmTable/FarmTable'
 import { FarmTypesFilter } from './components/FarmTypesFilter'
-import { BCakeBoosterCard } from './components/YieldBooster/components/bCakeV3/BCakeBoosterCard'
 import { FarmsContext } from './context'
 import useMultiChainHarvestModal from './hooks/useMultiChainHarvestModal'
 
@@ -176,8 +174,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const isArchived = pathname.includes('archived')
   const isInactive = pathname.includes('history')
   const isActive = !isInactive && !isArchived
-
-  useCakeVaultUserData()
 
   usePollFarmsWithUserData()
 
@@ -360,11 +356,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
                 {t('Stake LP tokens to earn.')}
               </FarmH2>
             </Box>
-            {chainId === ChainId.BSC && (
-              <Box>
-                <BCakeBoosterCard />
-              </Box>
-            )}
           </FarmFlexWrapper>
         </Flex>
       </PageHeader>

@@ -2,9 +2,7 @@ import { formatUnits } from "viem";
 
 import orderBy from "lodash/orderBy";
 
-import { DeserializedPool, DeserializedPoolVault, VaultKey, DeserializedPoolLockedVault } from "../types";
-
-import { getCakeVaultEarnings } from "./getCakeVaultEarnings";
+import { DeserializedPool } from "../types";
 
 export function sortPools<T>(account: string, sortOption: string, poolsToSort: DeserializedPool<T>[]) {
   switch (sortOption) {
@@ -18,25 +16,6 @@ export function sortPools<T>(account: string, sortOption: string, poolsToSort: D
           if (!pool.userData || !pool.earningTokenPrice) {
             return 0;
           }
-
-          if (pool.vaultKey) {
-            const { userData, pricePerFullShare } = pool as DeserializedPoolVault<T>;
-            if (!userData || !userData.userShares) {
-              return 0;
-            }
-            return getCakeVaultEarnings(
-              account,
-              userData.cakeAtLastUserAction,
-              userData.userShares,
-              pricePerFullShare,
-              pool.earningTokenPrice,
-              pool.vaultKey === VaultKey.CakeVault
-                ? (pool as DeserializedPoolLockedVault<T>)?.userData?.currentPerformanceFee?.plus(
-                    (pool as DeserializedPoolLockedVault<T>)?.userData?.currentOverdueFee || 0
-                  )
-                : undefined
-            ).autoUsdToDisplay;
-          }
           return pool.userData.pendingReward.times(pool.earningTokenPrice).toNumber();
         },
         "desc"
@@ -46,14 +25,7 @@ export function sortPools<T>(account: string, sortOption: string, poolsToSort: D
         poolsToSort,
         (pool: DeserializedPool<T>) => {
           let totalStaked = Number.NaN;
-          if (pool.vaultKey) {
-            const vault = pool as DeserializedPoolVault<T>;
-            if (pool.stakingTokenPrice && vault?.totalCakeInVault?.isFinite()) {
-              totalStaked =
-                +formatUnits(BigInt(vault.totalCakeInVault.toString()), pool?.stakingToken?.decimals) *
-                pool.stakingTokenPrice;
-            }
-          } else if (pool.totalStaked?.isFinite() && pool.stakingTokenPrice) {
+          if (pool.totalStaked?.isFinite() && pool.stakingTokenPrice) {
             totalStaked =
               +formatUnits(BigInt(pool.totalStaked.toString()), pool?.stakingToken?.decimals) * pool.stakingTokenPrice;
           }

@@ -1,8 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Balance, Box, Flex, Text } from '@pancakeswap/uikit'
+import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { getBalanceNumber } from '@pancakeswap/utils/formatBalance'
 import BigNumber from 'bignumber.js'
-import { useVaultApy } from 'hooks/useVaultApy'
 import { useMemo } from 'react'
 import { DeserializedPotteryUserData, DeserializedPublicData, PotteryDepositStatus } from 'state/types'
 import { styled } from 'styled-components'
@@ -23,9 +23,8 @@ interface CardFooterProps {
 
 const CardFooter: React.FC<React.PropsWithChildren<CardFooterProps>> = ({ account, publicData, userData }) => {
   const { t } = useTranslation()
-  const { getBoostFactor } = useVaultApy()
 
-  const boostFactor = useMemo(() => getBoostFactor(weeksToSeconds(10)), [getBoostFactor])
+  const boostFactor = useMemo(() => BIG_ZERO, [])
   const boostFactorDisplay = useMemo(() => `X${Number(boostFactor).toFixed(2)}`, [boostFactor])
 
   const totalValueLocked = getBalanceNumber(publicData.totalLockCake)

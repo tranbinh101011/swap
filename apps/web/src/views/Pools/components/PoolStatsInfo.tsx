@@ -2,7 +2,6 @@ import { Flex, LinkExternal, ScanLink, Skeleton, Text } from '@pancakeswap/uikit
 import { Pool } from '@pancakeswap/widgets-internal'
 
 import { useTranslation } from '@pancakeswap/localization'
-import { DeserializedLockedCakeVault } from '@pancakeswap/pools'
 import { Token } from '@pancakeswap/sdk'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import AddToWalletButton, { AddToWalletTextOptions } from 'components/AddToWallet/AddToWalletButton'
@@ -10,13 +9,10 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import { memo, useMemo } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
 import { getTokenInfoPath } from 'state/info/utils'
-import { useVaultPoolByKey } from 'state/pools/hooks'
-import { VaultKey } from 'state/types'
 import { getBlockExploreLink } from 'utils'
-import { getVaultPoolAddress } from 'utils/addressHelpers'
 import { getPoolBlockInfo } from 'views/Pools/helpers'
 import MaxStakeRow from './MaxStakeRow'
-import { AprInfo, DurationAvg, TotalLocked } from './Stat'
+import { AprInfo } from './Stat'
 
 interface ExpandedFooterProps {
   pool: Pool.DeserializedPool<Token>
@@ -44,7 +40,6 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
     stakingLimit,
     stakingLimitEndTimestamp,
     contractAddress,
-    vaultKey,
     profileRequirement,
     isFinished,
     userData: poolUserData,
@@ -52,13 +47,8 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
 
   const stakedBalance = poolUserData?.stakedBalance ? poolUserData.stakedBalance : BIG_ZERO
 
-  const { totalCakeInVault, totalLockedAmount } = useVaultPoolByKey(
-    vaultKey as Pool.VaultKey,
-  ) as DeserializedLockedCakeVault
-
   const tokenAddress = earningToken.address || ''
   const poolContractAddress = contractAddress
-  const cakeVaultContractAddress = vaultKey ? getVaultPoolAddress(vaultKey, chainId) : ''
 
   const { shouldShowBlockCountdown, timeUntilStart, timeRemaining, hasPoolStarted } = getPoolBlockInfo(
     pool,
@@ -84,19 +74,15 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
           </Text>
         </Flex>
       )}
-      {!vaultKey && <AprInfo pool={pool} stakedBalance={stakedBalance} />}
+      <AprInfo pool={pool} stakedBalance={stakedBalance} />
       {showTotalStaked && (
         <Pool.TotalStaked
-          totalStaked={(vaultKey ? totalCakeInVault : totalStaked) || BIG_ZERO}
+          totalStaked={totalStaked || BIG_ZERO}
           tokenDecimals={stakingToken.decimals}
           symbol={stakingToken.symbol}
           decimalsToShow={0}
         />
       )}
-      {vaultKey === VaultKey.CakeVault && (
-        <TotalLocked totalLocked={totalLockedAmount || BIG_ZERO} lockedToken={stakingToken} />
-      )}
-      {vaultKey === VaultKey.CakeVault && <DurationAvg />}
       {!isFinished && stakingLimit && stakingLimit.gt(0) && (
         <MaxStakeRow
           small
@@ -123,31 +109,14 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
           {t('See Token Info')}
         </LinkExternal>
       </Flex>
-      {!vaultKey && (
-        <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-          <LinkExternal href={earningToken.projectLink} bold={false} small>
-            {t('View Project Site')}
-          </LinkExternal>
-        </Flex>
-      )}
-      {vaultKey && (
-        <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-          <LinkExternal href="https://docs.pancakeswap.finance/products/vecake/how-to-get-vecake" bold={false} small>
-            {t('View Tutorial')}
-          </LinkExternal>
-        </Flex>
-      )}
+      <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
+        <LinkExternal href={earningToken.projectLink} bold={false} small>
+          {t('View Project Site')}
+        </LinkExternal>
+      </Flex>
       {poolContractAddress && (
         <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-          <ScanLink
-            href={getBlockExploreLink(
-              (vaultKey ? cakeVaultContractAddress : poolContractAddress) ?? '',
-              'address',
-              chainId,
-            )}
-            bold={false}
-            small
-          >
+          <ScanLink href={getBlockExploreLink(poolContractAddress ?? '', 'address', chainId)} bold={false} small>
             {t('View Contract')}
           </ScanLink>
         </Flex>

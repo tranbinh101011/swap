@@ -1,11 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
-import {
-  FarmWithStakedValue,
-  bCakeSupportedChainId,
-  filterFarmsByQuery,
-  supportedChainIdV2,
-  supportedChainIdV3,
-} from '@pancakeswap/farms'
+import { FarmWithStakedValue, filterFarmsByQuery, supportedChainIdV2, supportedChainIdV3 } from '@pancakeswap/farms'
 import { useIntersectionObserver } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import {
@@ -38,17 +32,14 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFarms, usePollFarmsAvgInfo, usePollFarmsWithUserData } from 'state/farms/hooks'
 import { V2FarmWithoutStakedValue, V3FarmWithoutStakedValue, type V3Farm } from 'state/farms/types'
 import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
-import { useCakeVaultUserData } from 'state/pools/hooks'
 import { ViewMode } from 'state/user/actions'
 import { useUserFarmStakedOnly, useUserFarmsViewMode } from 'state/user/hooks'
 import { styled } from 'styled-components'
 import { getFarmApr } from 'utils/apr'
 import { getStakedFarms } from 'views/Farms/utils/getStakedFarms'
-import { BCakeMigrationBanner } from 'views/Home/components/Banners/BCakeMigrationBanner'
 import { useAccount } from 'wagmi'
 import Table from './components/FarmTable/FarmTable'
 import { FarmTypesFilter } from './components/FarmTypesFilter'
-import { BCakeBoosterCard } from './components/YieldBooster/components/bCakeV3/BCakeBoosterCard'
 import { FarmsV3Context } from './context'
 import { FarmFlexWrapper, FarmH1, FarmH2 } from './styled'
 
@@ -212,8 +203,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const isArchived = pathname.includes('archived')
   const isInactive = pathname.includes('history')
   const isActive = !isInactive && !isArchived
-
-  useCakeVaultUserData()
 
   usePollFarmsWithUserData()
 
@@ -407,9 +396,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <FarmsV3Context.Provider value={providerValue}>
       <PageHeader>
-        <Box mb="32px" mt="16px">
-          <BCakeMigrationBanner />
-        </Box>
         <Flex flexDirection="column">
           <FarmFlexWrapper>
             <Box style={{ flex: '1 1 100%' }}>
@@ -420,7 +406,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
                 {t('Stake LP tokens to earn.')}
               </FarmH2>
             </Box>
-            <Box>{bCakeSupportedChainId.includes(chainId) && <BCakeBoosterCard />}</Box>
           </FarmFlexWrapper>
         </Flex>
       </PageHeader>

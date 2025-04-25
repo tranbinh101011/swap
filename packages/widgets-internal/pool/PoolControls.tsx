@@ -10,7 +10,7 @@ import { styled } from "styled-components";
 
 import { sortPools } from "./helpers";
 import PoolTabButtons from "./PoolTabButtons";
-import { DeserializedPool, DeserializedPoolVault } from "./types";
+import { DeserializedPool } from "./types";
 
 const PoolControlsView = styled.div`
   display: flex;
@@ -112,20 +112,12 @@ export function PoolControls<T>({
   const stakedOnlyFinishedPools = useMemo(
     () =>
       finishedPools.filter((pool) => {
-        if (pool.vaultKey) {
-          const vault = pool as DeserializedPoolVault<T>;
-          return vault?.userData?.userShares?.gt(0);
-        }
         return pool.userData && new BigNumber(pool.userData.stakedBalance).isGreaterThan(0);
       }),
     [finishedPools]
   );
   const stakedOnlyOpenPools = useCallback(() => {
     return openPoolsWithStartBlockFilter.filter((pool) => {
-      if (pool.vaultKey) {
-        const vault = pool as DeserializedPoolVault<T>;
-        return vault?.userData?.userShares?.gt(0);
-      }
       return pool.userData && new BigNumber(pool.userData.stakedBalance).isGreaterThan(0);
     });
   }, [openPoolsWithStartBlockFilter]);

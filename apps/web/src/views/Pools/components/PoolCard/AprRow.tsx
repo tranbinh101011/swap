@@ -8,7 +8,6 @@ interface AprRowProps {
   stakedBalance: BigNumber
   performanceFee?: number
   showIcon?: boolean
-  vaultKey?: boolean
 }
 
 const AprRow: React.FC<React.PropsWithChildren<AprRowProps>> = ({

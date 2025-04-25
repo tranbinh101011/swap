@@ -22,10 +22,6 @@ export const footerLinks: (t: ContextApi['t']) => FooterLinkType[] = (t) => [
         href: 'https://pancakeswap.finance/prediction',
       },
       {
-        label: t('veCAKE'),
-        href: 'https://pancakeswap.finance/cake-staking',
-      },
-      {
         label: t('Merchandise'),
         href: 'https://merch.pancakeswap.finance/',
       },
