@@ -11,11 +11,11 @@ import { useAtom } from 'jotai'
 import groupBy from 'lodash/groupBy'
 import keyBy from 'lodash/keyBy'
 import { useEffect, useMemo, useState } from 'react'
+import { useUserShowTestnet } from 'state/user/hooks/useUserShowTestnet'
 import { isInfinityProtocol } from 'utils/protocols'
 import { publicClient } from 'utils/viem'
 import { isAddress, zeroAddress } from 'viem'
 import { Address } from 'viem/accounts'
-import { useUserShowTestnet } from 'state/user/hooks/useUserShowTestnet'
 
 import { PoolInfo, StablePoolInfo, V2PoolInfo } from '../type'
 import { farmPoolsAtom } from './atom'
@@ -42,8 +42,12 @@ export const useFarmPools = () => {
   const { isLoading } = useQuery({
     queryKey: ['fetchFarmPools', ...chainId],
     queryFn: async ({ signal }) => {
-      const data = await fetchFarmPools({ chainId, protocols: DEFAULT_PROTOCOLS }, signal)
-      setPools(data)
+      try {
+        const data = await fetchFarmPools({ chainId, protocols: DEFAULT_PROTOCOLS }, signal)
+        setPools(data)
+      } catch (error) {
+        console.error('Error fetching farm pools:', error)
+      }
     },
     refetchOnMount: false,
     refetchOnReconnect: false,

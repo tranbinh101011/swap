@@ -224,10 +224,10 @@ export const fetchFarmPools = async (
       const pool = remotePools?.find((p) => {
         return (
           p.chainId === farm.chainId &&
-          (isInfinityProtocol(p.protocol)
-            ? (p as InfinityPoolInfo).poolId === (farm as UniversalFarmConfigV4).poolId
-            : isAddressEqual(p.lpAddress, farm.lpAddress)) &&
           p.protocol === farm.protocol &&
+          (isInfinityProtocol(p.protocol)
+            ? (p as InfinityPoolInfo).poolId.toLowerCase() === (farm as UniversalFarmConfigV4).poolId.toLowerCase()
+            : isAddressEqual(p.lpAddress, farm.lpAddress)) &&
           (p.protocol === Protocol.V3 ? p.pid === farm.pid : true)
         )
       })
