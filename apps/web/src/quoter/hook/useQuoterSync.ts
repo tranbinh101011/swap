@@ -128,7 +128,7 @@ export const useQuoterSync = () => {
   }, [quoteQuery.hash, paused, quoteResult.loading])
 
   useEffect(() => {
-    if (quoteResult.data?.trade && quoteResult.placeholderHash) {
+    if (quoteResult.data?.trade && quoteResult.placeholderHash && !quoteResult.loading) {
       setPlaceholder(quoteResult.placeholderHash, quoteResult.data)
     }
 

@@ -120,7 +120,13 @@ export const bestQuoteAtom = atomFamily((_option: QuoteQuery) => {
     const result = get(bestQuoteWithoutHashAtom(_option))
     if (!result.data?.trade && _option.placeholderHash) {
       const placeHolder = get(placeholderAtom(_option.placeholderHash))
-      return { ...result, data: placeHolder, hash: _option.hash, placeholderHash: _option.placeholderHash }
+      return {
+        ...result,
+        data: placeHolder,
+        hash: _option.hash,
+        placeholderHash: _option.placeholderHash,
+        loading: !placeHolder,
+      }
     }
     return { ...result, hash: _option.hash, placeholderHash: _option.placeholderHash }
   })

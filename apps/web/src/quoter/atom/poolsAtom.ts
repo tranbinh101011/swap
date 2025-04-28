@@ -17,7 +17,7 @@ import {
 } from '../utils/poolQueries'
 
 export const commonPoolsOnChainAtom = atomFamily((query: PoolQuery) => {
-  return atom(async (get) => {
+  return atom(async () => {
     try {
       const poolsArray = await Promise.all([
         getStableSwapPools(query),
