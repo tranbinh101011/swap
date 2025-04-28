@@ -1,5 +1,12 @@
 # @pancakeswap/permit2-sdk
 
+## 1.1.2
+
+### Patch Changes
+
+- Updated dependencies [cb44715]
+  - @pancakeswap/sdk@5.8.13
+
 ## 1.1.1
 
 ### Patch Changes

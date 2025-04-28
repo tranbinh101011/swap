@@ -1,5 +1,12 @@
 # @pancakeswap/token-lists
 
+## 0.0.15
+
+### Patch Changes
+
+- Updated dependencies [cb44715]
+  - @pancakeswap/swap-sdk-core@1.4.0
+
 ## 0.0.14
 
 ### Patch Changes
