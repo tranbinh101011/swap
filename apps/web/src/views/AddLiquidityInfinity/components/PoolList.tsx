@@ -20,7 +20,7 @@ import { useFetchPools } from 'state/farmsV4/hooks'
 import type { InfinityPoolInfo } from 'state/farmsV4/state/type'
 import styled from 'styled-components'
 import { getHookByAddress } from 'utils/getHookByAddress'
-import { Address, Chain } from 'viem'
+import { Address, Chain, zeroAddress } from 'viem'
 import { usePoolFeatureAndType, usePoolTypeQuery } from 'views/AddLiquiditySelector/hooks/usePoolTypeQuery'
 import {
   Card,
@@ -35,6 +35,7 @@ import { useOrderChainIds } from 'views/universalFarms/hooks/useMultiChains'
 
 import { ALL_PROTOCOLS, Protocol } from '@pancakeswap/farms'
 import { HOOK_CATEGORY } from '@pancakeswap/infinity-sdk'
+import { isAddressEqual } from 'utils'
 import { TokenFilterContainer } from './styles'
 
 const PoolsContent = styled.div`
@@ -254,11 +255,13 @@ export const PoolList = () => {
           isMatchedProtocol = true
         }
 
+        const hookData = getHookByAddress(chainId, pool.hookAddress)
+        const hasWhitelistHook = !pool.hookAddress || isAddressEqual(pool.hookAddress, zeroAddress) ? true : !!hookData
+
         if (features.length === 0 || isSelectAllFeatures) {
-          return isMatchedChain && isMatchedCurrency && isMatchedProtocol
+          return isMatchedChain && isMatchedCurrency && isMatchedProtocol && hasWhitelistHook
         }
 
-        const hookData = getHookByAddress(chainId, pool.hookAddress)
         const isMatchedPoolFeatures = hookData && features.some((q) => hookData.category?.includes(q as HOOK_CATEGORY))
 
         return isMatchedChain && isMatchedCurrency && isMatchedProtocol && isMatchedPoolFeatures
