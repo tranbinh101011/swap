@@ -29,7 +29,7 @@ export const encodeCLPositionManagerMintCalldata = (
   }
 
   planner.add(ACTIONS.CL_MINT_POSITION, [encodedPositionConfig, liquidity, amount0Max, amount1Max, recipient, hookData])
-  const calls = planner.finalizeModifyLiquidityWithSettlePair(positionConfig.poolKey)
+  const calls = planner.finalizeModifyLiquidityWithSettlePair(positionConfig.poolKey, recipient)
 
   return encodeFunctionData({
     abi: CLPositionManagerAbi,

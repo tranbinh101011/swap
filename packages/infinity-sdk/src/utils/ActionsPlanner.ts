@@ -117,8 +117,11 @@ export class ActionsPlanner {
    * Pay and settle currency pair. User's token0 and token1 will be transferred from user and paid.
    * This is commonly used for increase liquidity or mint action.
    */
-  public finalizeModifyLiquidityWithSettlePair(poolKey: PoolKey) {
+  public finalizeModifyLiquidityWithSettlePair(poolKey: PoolKey, sweepRecipient: Address) {
     this.add(ACTIONS.SETTLE_PAIR, [poolKey.currency0, poolKey.currency1])
+    if (poolKey.currency0 === zeroAddress) {
+      this.add(ACTIONS.SWEEP, [poolKey.currency0, sweepRecipient])
+    }
 
     return this.encode()
   }
