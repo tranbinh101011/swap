@@ -15,6 +15,7 @@ import { formatPrice } from '@pancakeswap/utils/formatFractions'
 import {
   FeeCalculator,
   Pool,
+  TICK_SPACINGS,
   TickMath,
   encodeSqrtRatioX96,
   isPoolTickInRange,
@@ -113,7 +114,10 @@ export function AprCalculator({
     () => (sqrtRatioX96 ? TickMath.getTickAtSqrtRatio(sqrtRatioX96) : undefined),
     [sqrtRatioX96],
   )
-  const activeTick = useMemo(() => getActiveTick(tickCurrent, feeAmount), [tickCurrent, feeAmount])
+  const activeTick = useMemo(
+    () => (feeAmount ? getActiveTick(tickCurrent, TICK_SPACINGS[feeAmount]) : undefined),
+    [tickCurrent, feeAmount],
+  )
   const { ticks: data } = useAllV3Ticks({ currencyA: baseCurrency, currencyB: quoteCurrency, feeAmount, activeTick })
   const volume24H = usePoolAvgTradingVolume({
     address: poolAddress,

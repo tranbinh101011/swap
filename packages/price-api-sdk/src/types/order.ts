@@ -1,5 +1,5 @@
 import type { ExclusiveDutchOrderInfoJSON, ExclusiveDutchOrderTrade } from '@pancakeswap/pcsx-sdk'
-import type { V4Router } from '@pancakeswap/smart-router'
+import type { InfinityRouter } from '@pancakeswap/smart-router'
 import type { Currency, TradeType } from '@pancakeswap/swap-sdk-core'
 import type { AMMOrder } from './amm'
 import { Hex } from './common'
@@ -32,12 +32,12 @@ export type XOrder<
 > = {
   type: OrderType.DUTCH_LIMIT
   trade: ExclusiveDutchOrderTrade<input, output>
-  ammTrade?: V4Router.V4TradeWithoutGraph<tradeType>
+  ammTrade?: InfinityRouter.InfinityTradeWithoutGraph<tradeType>
 }
 
 export type ClassicOrder<tradeType extends TradeType = TradeType> = {
   type: OrderType.PCS_CLASSIC
-  trade: V4Router.V4TradeWithoutGraph<tradeType>
+  trade: InfinityRouter.InfinityTradeWithoutGraph<tradeType>
 }
 
 export type PriceOrder<

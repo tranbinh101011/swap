@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { WorkerInstance, createWorker } from 'utils/worker'
 
-const globalWorkerAtom = atom<WorkerInstance | undefined>(undefined)
+export const globalWorkerAtom = atom<WorkerInstance | undefined>(undefined)
 
 function createUseWorkerHook(shared?: boolean) {
   const useWorkerState = shared ? () => useAtom(globalWorkerAtom) : useState

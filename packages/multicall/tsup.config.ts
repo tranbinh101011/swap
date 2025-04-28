@@ -5,7 +5,7 @@ export default defineConfig((options) => ({
   entry: {
     index: './src/index.ts',
   },
-  sourcemap: true,
+  sourcemap: false,
   skipNodeModulesBundle: true,
   noExternal: ['@pancakeswap/utils'],
   format: ['esm', 'cjs'],

@@ -20,8 +20,11 @@ export const usePermit2Details = (
   owner: Address | undefined,
   token: Token | undefined,
   spender: Address | undefined,
+  overrideChainId?: number,
 ) => {
-  const { chainId } = useActiveChainId()
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainId = overrideChainId ?? activeChainId
+
   const inputs = useMemo<[Address, Address, Address]>(
     () => [owner ?? zeroAddress, token?.address ?? zeroAddress, spender ?? zeroAddress],
     [owner, spender, token?.address],

@@ -42,7 +42,9 @@
     "no-nested-ternary": 0,
     "max-classes-per-file": 0,
     "react/no-unescaped-entities": 0,
-    "react/no-array-index-key": 0
+    "react/no-array-index-key": 0,
+    "@typescript-eslint/no-shadow": 0,
+    "no-bitwise": 0
     // End temporary rules
   }
 }

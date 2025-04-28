@@ -7,6 +7,7 @@ import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { PERSIST_CHAIN_KEY } from 'config/constants'
+import { getAddInfinityLiquidityURL } from 'config/constants/liquidity'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type { PoolInfo } from 'state/farmsV4/state/type'
 import { multiChainPaths } from 'state/info/constant'
@@ -52,7 +53,7 @@ export const PoolListItemAction = memo(({ pool }: { pool: PoolInfo }) => {
 })
 
 export const getPoolDetailPageLink = async (
-  pool: Pick<PoolInfo, 'protocol' | 'chainId' | 'stableSwapAddress' | 'lpAddress'>,
+  pool: Pick<PoolInfo, 'protocol' | 'chainId' | 'lpAddress'> & { stableSwapAddress?: string },
 ) => {
   const linkPrefix = `/liquidity/pool${multiChainPaths[pool.chainId] || '/bsc'}`
   if (pool.protocol === Protocol.STABLE) {
@@ -95,14 +96,18 @@ export const ActionItems = ({ pool, icon }: { pool: PoolInfo; icon?: React.React
   const [detailLink, setDetailLink] = useState('')
 
   // Memoize the addLiquidityLink since it does not require async handling
-  const addLiquidityLink = useMemo(
-    () =>
-      addQueryToPath(`/add/${pool.token0.wrapped.address}/${pool.token1.address}`, {
-        chain: CHAIN_QUERY_NAME[pool.chainId],
-        [PERSIST_CHAIN_KEY]: '1',
-      }),
-    [pool.token0.wrapped.address, pool.token1.address, pool.chainId],
-  )
+  const addLiquidityLink = useMemo(() => {
+    if ([Protocol.InfinityBIN, Protocol.InfinityCLAMM].includes(pool.protocol)) {
+      return getAddInfinityLiquidityURL({
+        chainId: pool.chainId,
+        poolId: pool.lpAddress,
+      })
+    }
+    return addQueryToPath(`/add/${pool.token0.wrapped.address}/${pool.token1.address}`, {
+      chain: CHAIN_QUERY_NAME[pool.chainId],
+      [PERSIST_CHAIN_KEY]: '1',
+    })
+  }, [pool.protocol, pool.token0.wrapped.address, pool.token1.address, pool.chainId, pool.lpAddress])
 
   // Fetch the infoLink and detailLink asynchronously
   useEffect(() => {
@@ -140,12 +145,14 @@ export const ActionItems = ({ pool, icon }: { pool: PoolInfo; icon?: React.React
           </StyledButton>
         </NextLinkFromReactRouter>
       )}
-      <NextLinkFromReactRouter to={infoLink}>
-        <StyledButton scale="sm" variant="text">
-          {t('View Info Page')}
-          {icon}
-        </StyledButton>
-      </NextLinkFromReactRouter>
+      {[Protocol.InfinityBIN, Protocol.InfinityCLAMM].includes(pool.protocol) ? null : (
+        <NextLinkFromReactRouter to={infoLink}>
+          <StyledButton scale="sm" variant="text">
+            {t('View Info Page')}
+            {icon}
+          </StyledButton>
+        </NextLinkFromReactRouter>
+      )}
     </Flex>
   )
 }

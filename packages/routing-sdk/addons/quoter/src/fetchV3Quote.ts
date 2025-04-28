@@ -9,7 +9,7 @@ import { V3_QUOTER_ADDRESSES } from './constants'
 import type { FetchQuote, QuoteRoute } from './types'
 import { encodeRouteToPath } from './utils'
 
-export type SupportedPool = V3Pool | V2Pool | StablePool
+type SupportedPool = V3Pool | V2Pool | StablePool
 
 export function buildV3QuoteCall<P extends SupportedPool = SupportedPool>(route: QuoteRoute<P>) {
   const { path, amount } = route

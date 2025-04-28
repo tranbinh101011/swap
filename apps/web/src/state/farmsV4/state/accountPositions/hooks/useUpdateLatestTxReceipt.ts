@@ -1,9 +1,9 @@
-import { useEffect } from 'react'
-import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
-import { useInitialBlockTimestamp } from 'state/block/hooks'
 import { useAtom } from 'jotai/index'
+import { useEffect } from 'react'
+import { useInitialBlockTimestamp } from 'state/block/hooks'
 import { txReceiptAtom } from 'state/farmsV4/state/accountPositions/atom'
 import { TransactionType } from 'state/transactions/actions'
+import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
 
 const LIQUIDITY_TRANSACTION_TYPES: TransactionType[] = [
   'add-liquidity',
@@ -12,6 +12,10 @@ const LIQUIDITY_TRANSACTION_TYPES: TransactionType[] = [
   'remove-liquidity',
   'increase-liquidity-v3',
   'zap-liquidity-v3',
+  'add-liquidity-infinity-bin',
+  'add-liquidity-infinity-cl',
+  'remove-liquidity-infinity-bin',
+  'remove-liquidity-infinity-cl',
 ]
 
 export const useUpdateLatestTxReceipt = () => {

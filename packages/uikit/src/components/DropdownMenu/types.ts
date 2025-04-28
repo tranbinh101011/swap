@@ -4,6 +4,7 @@ import { BoxProps } from "../Box";
 
 export interface DropdownMenuProps extends BoxProps {
   items?: DropdownMenuItems[];
+  itemKey?: (item: Required<DropdownMenuItems>["items"][number]) => string | undefined;
   isDisabled?: boolean;
   activeItem?: string;
   activeSubItemChildItem?: string;
@@ -37,6 +38,7 @@ export interface LinkStatus {
 }
 
 export interface DropdownMenuItemsDetails {
+  key?: string;
   label?: string | React.ReactNode;
   href?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;

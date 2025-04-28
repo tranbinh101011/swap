@@ -41,15 +41,49 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/cached/tx/v4/{chainName}/recent': {
+  '/cached/tx/infinity/{chainName}/recent': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /** Get recent v4 transaction */
-    get: operations['getCachedTxV4ByChainNameRecent']
+    /** Get recent infinity transaction */
+    get: operations['getCachedTxInfinityByChainNameRecent']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/tx/infinityBin/{chainName}/recent': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get recent infinityBin transaction */
+    get: operations['getCachedTxInfinityBinByChainNameRecent']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/tx/infinityCl/{chainName}/recent': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get recent infinityCl transaction */
+    get: operations['getCachedTxInfinityClByChainNameRecent']
     put?: never
     post?: never
     delete?: never
@@ -248,6 +282,40 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/cached/tokens/infinityBin/{chainName}/{address}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityBin token data */
+    get: operations['getCachedTokensInfinityBinByChainNameByAddress']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/tokens/infinityCl/{chainName}/{address}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityCl token data */
+    get: operations['getCachedTokensInfinityClByChainNameByAddress']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/cached/tokens/v3/{chainName}/{address}': {
     parameters: {
       query?: never
@@ -291,6 +359,57 @@ export interface paths {
     }
     /** Get stable token data */
     get: operations['getCachedTokensStableByChainNameByAddress']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/tokens/infinityBin/{chainName}/list/top': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityBin top tokens */
+    get: operations['getCachedTokensInfinityBinByChainNameListTop']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/tokens/infinity/{chainName}/list/top': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinity top tokens */
+    get: operations['getCachedTokensInfinityByChainNameListTop']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/tokens/infinityCl/{chainName}/list/top': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityCl top tokens */
+    get: operations['getCachedTokensInfinityClByChainNameListTop']
     put?: never
     post?: never
     delete?: never
@@ -350,15 +469,15 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/cached/pools/ticks/v3/{chainName}/{pool}': {
+  '/cached/pools/ticks/{protocol}/{chainName}/{pool}': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /** Get all ticks from v3 pool */
-    get: operations['getCachedPoolsTicksV3ByChainNameByPool']
+    /** Get all ticks from v3/infinity pool */
+    get: operations['getCachedPoolsTicksByProtocolByChainNameByPool']
     put?: never
     post?: never
     delete?: never
@@ -384,15 +503,15 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/cached/pools/chart/v3/{chainName}/{address}/rate': {
+  '/cached/pools/positions/infinityBin/{chainName}/{pool}/{owner}': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /** Get v3 pool rate chart */
-    get: operations['getCachedPoolsChartV3ByChainNameByAddressRate']
+    /** Get infinityBin pool user liquidity data */
+    get: operations['getCachedPoolsPositionsInfinityBinByChainNameByPoolByOwner']
     put?: never
     post?: never
     delete?: never
@@ -401,7 +520,75 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/cached/pools/chart/v3/{chainName}/{address}/fees': {
+  '/cached/pools/positions/infinityBin/{chainName}/{pool}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityBin pools with tvl>0 */
+    get: operations['getCachedPoolsPositionsInfinityBinByChainNameByPool']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/positions/infinityCl/{chainName}/{owner}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityCl positions by user */
+    get: operations['getCachedPoolsPositionsInfinityClByChainNameByOwner']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/positions/infinityBin/{chainName}/poolsByOwner/{owner}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityBin positions by user */
+    get: operations['getCachedPoolsPositionsInfinityBinByChainNamePoolsByOwnerByOwner']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/chart/{protocol}/{chainName}/{address}/rate': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get v3/infinity pool rate chart */
+    get: operations['getCachedPoolsChartByProtocolByChainNameByAddressRate']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/chart/{protocol}/{chainName}/{address}/fees': {
     parameters: {
       query?: never
       header?: never
@@ -409,7 +596,24 @@ export interface paths {
       cookie?: never
     }
     /** Get v3 pool fees chart */
-    get: operations['getCachedPoolsChartV3ByChainNameByAddressFees']
+    get: operations['getCachedPoolsChartByProtocolByChainNameByAddressFees']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/chart/{protocol}/{chainName}/{address}/dynamic/fees': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get dynamic fee chart */
+    get: operations['getCachedPoolsChartByProtocolByChainNameByAddressDynamicFees']
     put?: never
     post?: never
     delete?: never
@@ -452,15 +656,32 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/cached/pools/apr/v4/{chainName}/{id}': {
+  '/cached/pools/apr/infinityBin/{chainName}/{id}': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /** Get v4 lp apr */
-    get: operations['getCachedPoolsAprV4ByChainNameById']
+    /** Get infinity lp apr */
+    get: operations['getCachedPoolsAprInfinityBinByChainNameById']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/apr/infinityCl/{chainName}/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinity lp apr */
+    get: operations['getCachedPoolsAprInfinityClByChainNameById']
     put?: never
     post?: never
     delete?: never
@@ -622,6 +843,40 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/cached/pools/infinityBin/{chainName}/{address}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityBin pool data */
+    get: operations['getCachedPoolsInfinityBinByChainNameByAddress']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/infinityCl/{chainName}/{address}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityCl pool data */
+    get: operations['getCachedPoolsInfinityClByChainNameByAddress']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/cached/pools/v3/{chainName}/{address}': {
     parameters: {
       query?: never
@@ -682,6 +937,125 @@ export interface paths {
     }
     /** Get simple v3 pools list */
     get: operations['getCachedPoolsV3ByChainNameListSimple']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/infinityBin/{chainName}/list/simple': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get simple infinity bin pools list */
+    get: operations['getCachedPoolsInfinityBinByChainNameListSimple']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/infinityCl/{chainName}/list/simple': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get simple infinity cl pools list */
+    get: operations['getCachedPoolsInfinityClByChainNameListSimple']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/infinityBin/{chainName}/list/top': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get top infinityBin pools */
+    get: operations['getCachedPoolsInfinityBinByChainNameListTop']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/infinity/{chainName}/list/top': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get top infinity pools */
+    get: operations['getCachedPoolsInfinityByChainNameListTop']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/infinity/{chainName}/claim/{address}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinity last claim by user */
+    get: operations['getCachedPoolsInfinityByChainNameClaimByAddress']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/infinityBin/{chainName}/liquidity/{pool}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get infinityBin data */
+    get: operations['getCachedPoolsInfinityBinByChainNameLiquidityByPool']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cached/pools/infinityCl/{chainName}/list/top': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get top infinityCl pools */
+    get: operations['getCachedPoolsInfinityClByChainNameListTop']
     put?: never
     post?: never
     delete?: never
@@ -908,22 +1282,6 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/doc/json': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get: operations['getDocJson']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -937,7 +1295,7 @@ export interface components {
      * @description Protocol version
      * @enum {string}
      */
-    Protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+    Protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
     transactions: {
       id: string
       transactionHash: string
@@ -957,8 +1315,8 @@ export interface components {
       amount0: string
       amount1: string
       amountUSD: string
-      origin: null | string
-      recipient: null | string
+      origin: string | null
+      recipient: string | null
       timestamp: Record<string, never> | string
     }[]
     transactionsWithType: {
@@ -982,8 +1340,8 @@ export interface components {
       amount0: string
       amount1: string
       amountUSD: string
-      origin: null | string
-      recipient: null | string
+      origin: string | null
+      recipient: string | null
       timestamp: Record<string, never> | string
     }[]
     v3TokenData: {
@@ -1002,9 +1360,9 @@ export interface components {
       priceUSD7d: string
       /** @description Total volume in USD */
       totalVolumeUSD: string
-      volumeUSD24h: null | string
-      volumeUSD48h: null | string
-      volumeUSD7d: null | string
+      volumeUSD24h: string | null
+      volumeUSD48h: string | null
+      volumeUSD7d: string | null
       tvlUSD: string
       tvlUSD24h: string
       tvlUSD48h: string
@@ -1034,9 +1392,9 @@ export interface components {
       priceUSD7d: string
       /** @description Total volume in USD */
       totalVolumeUSD: string
-      volumeUSD24h: null | string
-      volumeUSD48h: null | string
-      volumeUSD7d: null | string
+      volumeUSD24h: string | null
+      volumeUSD48h: string | null
+      volumeUSD7d: string | null
       tvlUSD: string
       tvlUSD24h: string
       tvlUSD48h: string
@@ -1053,7 +1411,7 @@ export interface components {
        * @description Protocol version
        * @enum {string}
        */
-      protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+      protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
       tvlUSD: string
       timestamp: Record<string, never> | string
     }
@@ -1097,17 +1455,86 @@ export interface components {
         upperTickIdx: number
       }[]
     }
+    InfinityBinPoolPositions: {
+      /** @description Cursor for pagination start */
+      startCursor?: string
+      /** @description Cursor for pagination end */
+      endCursor?: string
+      /** @description Has next page */
+      hasNextPage?: boolean
+      /** @description Has previous page */
+      hasPrevPage?: boolean
+      rows: {
+        id: string
+        binId: number
+        liquidity: string
+        /** @description Ethereum address */
+        owner: string
+        /** @description Infinity pool ID */
+        pool: string
+      }[]
+    }
+    InfinityBinPoolLatest: {
+      /** @description Cursor for pagination start */
+      startCursor?: string
+      /** @description Cursor for pagination end */
+      endCursor?: string
+      /** @description Has next page */
+      hasNextPage?: boolean
+      /** @description Has previous page */
+      hasPrevPage?: boolean
+      rows: {
+        id: string
+        binId: number
+        totalSupply: string
+        reserveX: string
+        reserveY: string
+        totalShares: string
+        tvlToken0: string
+        tvlToken1: string
+        liquidity: string
+        /** @description Infinity pool ID */
+        pool: string
+      }[]
+    }
+    InfinityBinPoolPositionData: {
+      rows: {
+        /** @description Infinity pool ID */
+        poolId: string
+        totalNumberOfBins: number
+        reserveOfBins: {
+          binId: number
+          reserveX: string
+          reserveY: string
+          totalShares: string
+          binLiquidity: string
+          userSharesOfBin: string
+        }[]
+      }[]
+      pageInfo: {
+        /** @description Cursor for pagination start */
+        startCursor?: string
+        /** @description Cursor for pagination end */
+        endCursor?: string
+        /** @description Has next page */
+        hasNextPage?: boolean
+        /** @description Has previous page */
+        hasPrevPage?: boolean
+      }
+    }
     /**
      * @description Chart period
      * @enum {string}
      */
     ChartPeriod: '1H' | '1D' | '1W' | '1M' | '1Y'
-    AprSchema: {
-      apr24h: string
-      apr7d: string
-      volumeUSD24h: string
-      volumeUSD7d: string
-    }
+    AprSchema:
+      | {
+          apr24h: string
+          apr7d: string
+          volumeUSD24h: string
+          volumeUSD7d: string
+        }
+      | Record<string, never>
     ProtocolQuery: {
       /**
        * @description Chart group by
@@ -1231,8 +1658,8 @@ export interface operations {
               amount0: string
               amount1: string
               amountUSD: string
-              origin: null | string
-              recipient: null | string
+              origin: string | null
+              recipient: string | null
               timestamp: Record<string, never> | string
             }[]
           }
@@ -1264,8 +1691,8 @@ export interface operations {
               amount0: string
               amount1: string
               amountUSD: string
-              origin: null | string
-              recipient: null | string
+              origin: string | null
+              recipient: string | null
               timestamp: Record<string, never> | string
             }[]
           }
@@ -1297,8 +1724,8 @@ export interface operations {
               amount0: string
               amount1: string
               amountUSD: string
-              origin: null | string
-              recipient: null | string
+              origin: string | null
+              recipient: string | null
               timestamp: Record<string, never> | string
             }[]
           }
@@ -1306,7 +1733,7 @@ export interface operations {
       }
     }
   }
-  getCachedTxV4ByChainNameRecent: {
+  getCachedTxInfinityByChainNameRecent: {
     parameters: {
       query?: {
         /** @description Filter by token address */
@@ -1338,6 +1765,84 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['transactionsWithType']
+          'multipart/form-data': components['schemas']['transactionsWithType']
+          'text/plain': components['schemas']['transactionsWithType']
+        }
+      }
+    }
+  }
+  getCachedTxInfinityBinByChainNameRecent: {
+    parameters: {
+      query?: {
+        /** @description Filter by token address */
+        token?: string
+        /** @description Filter by pool id */
+        pool?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['transactionsWithType']
+          'multipart/form-data': components['schemas']['transactionsWithType']
+          'text/plain': components['schemas']['transactionsWithType']
+        }
+      }
+    }
+  }
+  getCachedTxInfinityClByChainNameRecent: {
+    parameters: {
+      query?: {
+        /** @description Filter by token address */
+        token?: string
+        /** @description Filter by pool id */
+        pool?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['transactionsWithType']
+          'multipart/form-data': components['schemas']['transactionsWithType']
+          'text/plain': components['schemas']['transactionsWithType']
         }
       }
     }
@@ -1374,6 +1879,8 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['transactionsWithType']
+          'multipart/form-data': components['schemas']['transactionsWithType']
+          'text/plain': components['schemas']['transactionsWithType']
         }
       }
     }
@@ -1410,6 +1917,8 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['transactionsWithType']
+          'multipart/form-data': components['schemas']['transactionsWithType']
+          'text/plain': components['schemas']['transactionsWithType']
         }
       }
     }
@@ -1436,6 +1945,8 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['transactionsWithType']
+          'multipart/form-data': components['schemas']['transactionsWithType']
+          'text/plain': components['schemas']['transactionsWithType']
         }
       }
     }
@@ -1475,10 +1986,10 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            open: null | string
-            close: null | string
-            high: null | string
-            low: null | string
+            open: string | null
+            close: string | null
+            high: string | null
+            low: string | null
           }[]
         }
       }
@@ -1504,7 +2015,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
         /** @description Ethereum address */
         address: string
       }
@@ -1519,10 +2030,10 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            open: null | string
-            close: null | string
-            high: null | string
-            low: null | string
+            open: string | null
+            close: string | null
+            high: string | null
+            low: string | null
           }[]
         }
       }
@@ -1561,10 +2072,10 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            open: null | string
-            close: null | string
-            high: null | string
-            low: null | string
+            open: string | null
+            close: string | null
+            high: string | null
+            low: string | null
           }[]
         }
       }
@@ -1590,7 +2101,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
         /** @description Ethereum address */
         address: string
       }
@@ -1605,7 +2116,7 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            volumeUSD: null | string
+            volumeUSD: string | null
           }[]
         }
       }
@@ -1631,7 +2142,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
         /** @description Ethereum address */
         address: string
       }
@@ -1646,7 +2157,7 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            tvlUSD: null | string
+            tvlUSD: string | null
           }[]
         }
       }
@@ -1685,7 +2196,7 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            tvlUSD: null | string
+            tvlUSD: string | null
           }[]
         }
       }
@@ -1718,7 +2229,9 @@ export interface operations {
       query?: {
         timestamp?: string | number
         /** @description Array of protocol versions */
-        protocols?: ('v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable') | ('v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable')[]
+        protocols?:
+          | ('v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable')
+          | ('v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable')[]
       }
       header?: never
       path: {
@@ -1754,6 +2267,72 @@ export interface operations {
         }
         content: {
           'application/json': unknown
+        }
+      }
+    }
+  }
+  getCachedTokensInfinityBinByChainNameByAddress: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Ethereum address */
+        address: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['v3TokenData']
+        }
+      }
+    }
+  }
+  getCachedTokensInfinityClByChainNameByAddress: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Ethereum address */
+        address: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['v3TokenData']
         }
       }
     }
@@ -1847,6 +2426,192 @@ export interface operations {
       }
     }
   }
+  getCachedTokensInfinityBinByChainNameListTop: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Token address */
+            id: string
+            symbol: string
+            name: string
+            decimals: number
+            totalTxCount: number
+            txCount24h: number
+            txCount48h: number
+            txCount7d: number
+            priceUSD: string
+            priceUSD24h: string
+            priceUSD48h: string
+            priceUSD7d: string
+            /** @description Total volume in USD */
+            totalVolumeUSD: string
+            volumeUSD24h: string | null
+            volumeUSD48h: string | null
+            volumeUSD7d: string | null
+            tvlUSD: string
+            tvlUSD24h: string
+            tvlUSD48h: string
+            tvlUSD7d: string
+            tvl: string
+            tvl24h: string
+            tvl48h: string
+            tvl7d: string
+            totalFeeUSD: string
+            feeUSD24h: string
+            feeUSD48h: string
+            feeUSD7d: string
+          }[]
+        }
+      }
+    }
+  }
+  getCachedTokensInfinityByChainNameListTop: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Token address */
+            id: string
+            symbol: string
+            name: string
+            decimals: number
+            totalTxCount: number
+            txCount24h: number
+            txCount48h: number
+            txCount7d: number
+            priceUSD: string
+            priceUSD24h: string
+            priceUSD48h: string
+            priceUSD7d: string
+            /** @description Total volume in USD */
+            totalVolumeUSD: string
+            volumeUSD24h: string | null
+            volumeUSD48h: string | null
+            volumeUSD7d: string | null
+            tvlUSD: string
+            tvlUSD24h: string
+            tvlUSD48h: string
+            tvlUSD7d: string
+            tvl: string
+            tvl24h: string
+            tvl48h: string
+            tvl7d: string
+            totalFeeUSD: string
+            feeUSD24h: string
+            feeUSD48h: string
+            feeUSD7d: string
+          }[]
+        }
+      }
+    }
+  }
+  getCachedTokensInfinityClByChainNameListTop: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Token address */
+            id: string
+            symbol: string
+            name: string
+            decimals: number
+            totalTxCount: number
+            txCount24h: number
+            txCount48h: number
+            txCount7d: number
+            priceUSD: string
+            priceUSD24h: string
+            priceUSD48h: string
+            priceUSD7d: string
+            /** @description Total volume in USD */
+            totalVolumeUSD: string
+            volumeUSD24h: string | null
+            volumeUSD48h: string | null
+            volumeUSD7d: string | null
+            tvlUSD: string
+            tvlUSD24h: string
+            tvlUSD48h: string
+            tvlUSD7d: string
+            tvl: string
+            tvl24h: string
+            tvl48h: string
+            tvl7d: string
+            totalFeeUSD: string
+            feeUSD24h: string
+            feeUSD48h: string
+            feeUSD7d: string
+          }[]
+        }
+      }
+    }
+  }
   getCachedTokensV3ByChainNameListTop: {
     parameters: {
       query?: never
@@ -1889,9 +2654,9 @@ export interface operations {
             priceUSD7d: string
             /** @description Total volume in USD */
             totalVolumeUSD: string
-            volumeUSD24h: null | string
-            volumeUSD48h: null | string
-            volumeUSD7d: null | string
+            volumeUSD24h: string | null
+            volumeUSD48h: string | null
+            volumeUSD7d: string | null
             tvlUSD: string
             tvlUSD24h: string
             tvlUSD48h: string
@@ -1951,9 +2716,9 @@ export interface operations {
             priceUSD7d: string
             /** @description Total volume in USD */
             totalVolumeUSD: string
-            volumeUSD24h: null | string
-            volumeUSD48h: null | string
-            volumeUSD7d: null | string
+            volumeUSD24h: string | null
+            volumeUSD48h: string | null
+            volumeUSD7d: string | null
             tvlUSD: string
             tvlUSD24h: string
             tvlUSD48h: string
@@ -1999,9 +2764,9 @@ export interface operations {
             priceUSD7d: string
             /** @description Total volume in USD */
             totalVolumeUSD: string
-            volumeUSD24h: null | string
-            volumeUSD48h: null | string
-            volumeUSD7d: null | string
+            volumeUSD24h: string | null
+            volumeUSD48h: string | null
+            volumeUSD7d: string | null
             tvlUSD: string
             tvlUSD24h: string
             tvlUSD48h: string
@@ -2015,7 +2780,7 @@ export interface operations {
       }
     }
   }
-  getCachedPoolsTicksV3ByChainNameByPool: {
+  getCachedPoolsTicksByProtocolByChainNameByPool: {
     parameters: {
       query?: {
         /** @description Cursor for pagination before */
@@ -2025,6 +2790,8 @@ export interface operations {
       }
       header?: never
       path: {
+        /** @description Only v3 and infinity Protocol version */
+        protocol: 'v3' | 'infinityBin' | 'infinityCl'
         /** @description Chain name */
         chainName:
           | 'bsc'
@@ -2094,49 +2861,7 @@ export interface operations {
       }
     }
   }
-  getCachedPoolsChartV3ByChainNameByAddressRate: {
-    parameters: {
-      query: {
-        /** @description Chart period */
-        period: '1H' | '1D' | '1W' | '1M' | '1Y'
-      }
-      header?: never
-      path: {
-        /** @description Chain name */
-        chainName:
-          | 'bsc'
-          | 'bsc-testnet'
-          | 'ethereum'
-          | 'base'
-          | 'opbnb'
-          | 'zksync'
-          | 'polygon-zkevm'
-          | 'linea'
-          | 'arbitrum'
-        /** @description Ethereum address */
-        address: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': {
-            bucket: Record<string, never> | string
-            open: null | string
-            close: null | string
-            high: null | string
-            low: null | string
-          }[]
-        }
-      }
-    }
-  }
-  getCachedPoolsChartV3ByChainNameByAddressFees: {
+  getCachedPoolsPositionsInfinityBinByChainNameByPoolByOwner: {
     parameters: {
       query?: never
       header?: never
@@ -2152,7 +2877,202 @@ export interface operations {
           | 'polygon-zkevm'
           | 'linea'
           | 'arbitrum'
+        /** @description Infinity pool ID */
+        pool: string
         /** @description Ethereum address */
+        owner: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['InfinityBinPoolPositions']
+        }
+      }
+    }
+  }
+  getCachedPoolsPositionsInfinityBinByChainNameByPool: {
+    parameters: {
+      query?: {
+        /** @description Cursor for pagination before */
+        before?: string
+        /** @description Cursor for pagination after */
+        after?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Infinity pool ID */
+        pool: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['InfinityBinPoolLatest']
+        }
+      }
+    }
+  }
+  getCachedPoolsPositionsInfinityClByChainNameByOwner: {
+    parameters: {
+      query?: {
+        /** @description Cursor for pagination before */
+        before?: string
+        /** @description Cursor for pagination after */
+        after?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Ethereum address */
+        owner: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CLPositions']
+        }
+      }
+    }
+  }
+  getCachedPoolsPositionsInfinityBinByChainNamePoolsByOwnerByOwner: {
+    parameters: {
+      query?: {
+        /** @description Cursor for pagination before */
+        before?: string
+        /** @description Cursor for pagination after */
+        after?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Ethereum address */
+        owner: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['InfinityBinPoolPositionData']
+        }
+      }
+    }
+  }
+  getCachedPoolsChartByProtocolByChainNameByAddressRate: {
+    parameters: {
+      query: {
+        /** @description Chart period */
+        period: '1H' | '1D' | '1W' | '1M' | '1Y'
+      }
+      header?: never
+      path: {
+        /** @description Only v3 and infinity Protocol version */
+        protocol: 'v3' | 'infinityBin' | 'infinityCl'
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Pool ID */
+        address: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            bucket: Record<string, never> | string
+            open: string | null
+            close: string | null
+            high: string | null
+            low: string | null
+          }[]
+        }
+      }
+    }
+  }
+  getCachedPoolsChartByProtocolByChainNameByAddressFees: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Only v3 and infinity Protocol version */
+        protocol: 'v3' | 'infinityBin' | 'infinityCl'
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Pool ID */
         address: string
       }
       cookie?: never
@@ -2167,6 +3087,46 @@ export interface operations {
           'application/json': {
             bucket: Record<string, never> | string
             feeUSD: string
+          }[]
+        }
+      }
+    }
+  }
+  getCachedPoolsChartByProtocolByChainNameByAddressDynamicFees: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Only infinity Protocol version */
+        protocol: 'infinityBin' | 'infinityCl'
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Infinity pool ID */
+        address: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            bucket: Record<string, never> | string
+            high: number
+            low: number
+            average: string
           }[]
         }
       }
@@ -2192,8 +3152,8 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
-        /** @description Ethereum address */
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
+        /** @description Pool ID */
         address: string
       }
       cookie?: never
@@ -2207,7 +3167,7 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            tvlUSD: null | string
+            tvlUSD: string | null
           }[]
         }
       }
@@ -2233,8 +3193,8 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
-        /** @description Ethereum address */
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
+        /** @description Pool ID */
         address: string
       }
       cookie?: never
@@ -2248,19 +3208,44 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            volumeUSD: null | string
+            volumeUSD: string | null
           }[]
         }
       }
     }
   }
-  getCachedPoolsAprV4ByChainNameById: {
+  getCachedPoolsAprInfinityBinByChainNameById: {
     parameters: {
       query?: never
       header?: never
       path: {
         chainName: 'bsc-testnet'
-        /** @description V4 pool ID */
+        /** @description Infinity pool ID */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AprSchema']
+          'multipart/form-data': components['schemas']['AprSchema']
+          'text/plain': components['schemas']['AprSchema']
+        }
+      }
+    }
+  }
+  getCachedPoolsAprInfinityClByChainNameById: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        chainName: 'bsc-testnet'
+        /** @description Infinity pool ID */
         id: string
       }
       cookie?: never
@@ -2543,7 +3528,7 @@ export interface operations {
                 feeTier: number
                 liquidity: string
                 sqrtPrice: string
-                tick: null | number
+                tick: number | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -2563,7 +3548,7 @@ export interface operations {
               }
             | {
                 /** @constant */
-                protocol: 'v4bin'
+                protocol: 'infinityBin'
                 /** @description Pool id */
                 id: string
                 token0: {
@@ -2604,11 +3589,15 @@ export interface operations {
                 tvlUSD7d: string
                 /** @description Pool created at timestamp */
                 createdAtTimestamp: Record<string, never> | string
-                feeTier: number
-                binStep: number
-                activeId: number
+                feeTier?: number
+                binStep?: number
+                activeId?: number
+                liquidity?: string
+                sqrtPrice?: string
+                /** @description Current tick */
+                tick?: number
                 isDynamicFee: boolean
-                hookId: null | string
+                hookAddress: string | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -2625,10 +3614,18 @@ export interface operations {
                 protocolFeeUSD48h: string
                 /** @description Protocol fee in USD in 7d */
                 protocolFeeUSD7d: string
+                /** @description Total lp fee in USD */
+                lpFeeUSD?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD24h?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD48h?: string
+                /** @description lp fee in USD in 7d */
+                lpFeeUSD7d?: string
               }
             | {
                 /** @constant */
-                protocol: 'v4cl'
+                protocol: 'infinityCl'
                 /** @description Pool id */
                 id: string
                 token0: {
@@ -2669,12 +3666,15 @@ export interface operations {
                 tvlUSD7d: string
                 /** @description Pool created at timestamp */
                 createdAtTimestamp: Record<string, never> | string
-                hookId: null | string
-                feeTier: number
+                feeTier?: number
+                binStep?: number
+                activeId?: number
+                liquidity?: string
+                sqrtPrice?: string
+                /** @description Current tick */
+                tick?: number
                 isDynamicFee: boolean
-                liquidity: string
-                sqrtPrice: string
-                tick: null | number
+                hookAddress: string | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -2691,6 +3691,14 @@ export interface operations {
                 protocolFeeUSD48h: string
                 /** @description Protocol fee in USD in 7d */
                 protocolFeeUSD7d: string
+                /** @description Total lp fee in USD */
+                lpFeeUSD?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD24h?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD48h?: string
+                /** @description lp fee in USD in 7d */
+                lpFeeUSD7d?: string
               }
             | {
                 /** @constant */
@@ -2781,9 +3789,9 @@ export interface operations {
                 createdAtTimestamp: Record<string, never> | string
                 lpAddress: string
                 virtualPrice: string
-                virtualPrice24h: null | string
-                virtualPrice48h: null | string
-                virtualPrice7d: null | string
+                virtualPrice24h: string | null
+                virtualPrice48h: string | null
+                virtualPrice7d: string | null
               }
           'multipart/form-data':
             | {
@@ -2832,7 +3840,7 @@ export interface operations {
                 feeTier: number
                 liquidity: string
                 sqrtPrice: string
-                tick: null | number
+                tick: number | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -2852,7 +3860,7 @@ export interface operations {
               }
             | {
                 /** @constant */
-                protocol: 'v4bin'
+                protocol: 'infinityBin'
                 /** @description Pool id */
                 id: string
                 token0: {
@@ -2893,11 +3901,15 @@ export interface operations {
                 tvlUSD7d: string
                 /** @description Pool created at timestamp */
                 createdAtTimestamp: Record<string, never> | string
-                feeTier: number
-                binStep: number
-                activeId: number
+                feeTier?: number
+                binStep?: number
+                activeId?: number
+                liquidity?: string
+                sqrtPrice?: string
+                /** @description Current tick */
+                tick?: number
                 isDynamicFee: boolean
-                hookId: null | string
+                hookAddress: string | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -2914,10 +3926,18 @@ export interface operations {
                 protocolFeeUSD48h: string
                 /** @description Protocol fee in USD in 7d */
                 protocolFeeUSD7d: string
+                /** @description Total lp fee in USD */
+                lpFeeUSD?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD24h?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD48h?: string
+                /** @description lp fee in USD in 7d */
+                lpFeeUSD7d?: string
               }
             | {
                 /** @constant */
-                protocol: 'v4cl'
+                protocol: 'infinityCl'
                 /** @description Pool id */
                 id: string
                 token0: {
@@ -2958,12 +3978,15 @@ export interface operations {
                 tvlUSD7d: string
                 /** @description Pool created at timestamp */
                 createdAtTimestamp: Record<string, never> | string
-                hookId: null | string
-                feeTier: number
+                feeTier?: number
+                binStep?: number
+                activeId?: number
+                liquidity?: string
+                sqrtPrice?: string
+                /** @description Current tick */
+                tick?: number
                 isDynamicFee: boolean
-                liquidity: string
-                sqrtPrice: string
-                tick: null | number
+                hookAddress: string | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -2980,6 +4003,14 @@ export interface operations {
                 protocolFeeUSD48h: string
                 /** @description Protocol fee in USD in 7d */
                 protocolFeeUSD7d: string
+                /** @description Total lp fee in USD */
+                lpFeeUSD?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD24h?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD48h?: string
+                /** @description lp fee in USD in 7d */
+                lpFeeUSD7d?: string
               }
             | {
                 /** @constant */
@@ -3070,9 +4101,9 @@ export interface operations {
                 createdAtTimestamp: Record<string, never> | string
                 lpAddress: string
                 virtualPrice: string
-                virtualPrice24h: null | string
-                virtualPrice48h: null | string
-                virtualPrice7d: null | string
+                virtualPrice24h: string | null
+                virtualPrice48h: string | null
+                virtualPrice7d: string | null
               }
           'text/plain':
             | {
@@ -3121,7 +4152,7 @@ export interface operations {
                 feeTier: number
                 liquidity: string
                 sqrtPrice: string
-                tick: null | number
+                tick: number | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -3141,7 +4172,7 @@ export interface operations {
               }
             | {
                 /** @constant */
-                protocol: 'v4bin'
+                protocol: 'infinityBin'
                 /** @description Pool id */
                 id: string
                 token0: {
@@ -3182,11 +4213,15 @@ export interface operations {
                 tvlUSD7d: string
                 /** @description Pool created at timestamp */
                 createdAtTimestamp: Record<string, never> | string
-                feeTier: number
-                binStep: number
-                activeId: number
+                feeTier?: number
+                binStep?: number
+                activeId?: number
+                liquidity?: string
+                sqrtPrice?: string
+                /** @description Current tick */
+                tick?: number
                 isDynamicFee: boolean
-                hookId: null | string
+                hookAddress: string | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -3203,10 +4238,18 @@ export interface operations {
                 protocolFeeUSD48h: string
                 /** @description Protocol fee in USD in 7d */
                 protocolFeeUSD7d: string
+                /** @description Total lp fee in USD */
+                lpFeeUSD?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD24h?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD48h?: string
+                /** @description lp fee in USD in 7d */
+                lpFeeUSD7d?: string
               }
             | {
                 /** @constant */
-                protocol: 'v4cl'
+                protocol: 'infinityCl'
                 /** @description Pool id */
                 id: string
                 token0: {
@@ -3247,12 +4290,15 @@ export interface operations {
                 tvlUSD7d: string
                 /** @description Pool created at timestamp */
                 createdAtTimestamp: Record<string, never> | string
-                hookId: null | string
-                feeTier: number
+                feeTier?: number
+                binStep?: number
+                activeId?: number
+                liquidity?: string
+                sqrtPrice?: string
+                /** @description Current tick */
+                tick?: number
                 isDynamicFee: boolean
-                liquidity: string
-                sqrtPrice: string
-                tick: null | number
+                hookAddress: string | null
                 /** @description Total fee in USD */
                 totalFeeUSD: string
                 /** @description Fee in USD in 24h */
@@ -3269,6 +4315,14 @@ export interface operations {
                 protocolFeeUSD48h: string
                 /** @description Protocol fee in USD in 7d */
                 protocolFeeUSD7d: string
+                /** @description Total lp fee in USD */
+                lpFeeUSD?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD24h?: string
+                /** @description lp fee in USD in 24h */
+                lpFeeUSD48h?: string
+                /** @description lp fee in USD in 7d */
+                lpFeeUSD7d?: string
               }
             | {
                 /** @constant */
@@ -3359,9 +4413,9 @@ export interface operations {
                 createdAtTimestamp: Record<string, never> | string
                 lpAddress: string
                 virtualPrice: string
-                virtualPrice24h: null | string
-                virtualPrice48h: null | string
-                virtualPrice7d: null | string
+                virtualPrice24h: string | null
+                virtualPrice48h: string | null
+                virtualPrice7d: string | null
               }
         }
       }
@@ -3372,7 +4426,9 @@ export interface operations {
       query: {
         orderBy: 'tvlUSD' | 'volumeUSD24h' | 'apr24h'
         /** @description Array of protocol versions */
-        protocols: ('v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable') | ('v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable')[]
+        protocols:
+          | ('v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable')
+          | ('v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable')[]
         /** @description Array of chain names */
         chains:
           | ('bsc' | 'bsc-testnet' | 'ethereum' | 'base' | 'opbnb' | 'zksync' | 'polygon-zkevm' | 'linea' | 'arbitrum')
@@ -3431,7 +4487,7 @@ export interface operations {
                * @description Protocol version
                * @enum {string}
                */
-              protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+              protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
               feeTier: number
               token0: {
                 id: string
@@ -3445,6 +4501,8 @@ export interface operations {
                 name: string
                 decimals: number
               }
+              isDynamicFee?: boolean
+              hookAddress?: string | null
             }[]
           }
         }
@@ -3455,7 +4513,9 @@ export interface operations {
     parameters: {
       query: {
         /** @description Array of protocol versions */
-        protocols: ('v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable') | ('v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable')[]
+        protocols:
+          | ('v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable')
+          | ('v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable')[]
         /** @description Array of chain names */
         chains:
           | ('bsc' | 'bsc-testnet' | 'ethereum' | 'base' | 'opbnb' | 'zksync' | 'polygon-zkevm' | 'linea' | 'arbitrum')
@@ -3497,7 +4557,7 @@ export interface operations {
              * @description Protocol version
              * @enum {string}
              */
-            protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+            protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
             feeTier: number
             token0: {
               id: string
@@ -3511,7 +4571,223 @@ export interface operations {
               name: string
               decimals: number
             }
+            isDynamicFee?: boolean
+            hookAddress?: string | null
           }[]
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityBinByChainNameByAddress: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Infinity pool ID */
+        address: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Pool id */
+            id: string
+            token0: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            token1: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            /** @description Total volume in USD */
+            totalVolumeUSD: string
+            /** @description Token0 price to token1 */
+            token0Price: string
+            /** @description Token1 price to token0 */
+            token1Price: string
+            /** @description Total value locked in token0 */
+            tvlToken0: string
+            /** @description Total value locked in token1 */
+            tvlToken1: string
+            /** @description Volume in USD in 24h */
+            volumeUSD24h: string
+            /** @description Volume in USD in 24h */
+            volumeUSD48h: string
+            /** @description Volume in USD in 7d */
+            volumeUSD7d: string
+            /** @description Total value locked in USD */
+            tvlUSD: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD24h: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD48h: string
+            /** @description Total value locked in USD 7d ago */
+            tvlUSD7d: string
+            /** @description Pool created at timestamp */
+            createdAtTimestamp: Record<string, never> | string
+            feeTier?: number
+            binStep?: number
+            activeId?: number
+            liquidity?: string
+            sqrtPrice?: string
+            /** @description Current tick */
+            tick?: number
+            isDynamicFee: boolean
+            hookAddress: string | null
+            /** @description Total fee in USD */
+            totalFeeUSD: string
+            /** @description Fee in USD in 24h */
+            feeUSD24h: string
+            /** @description Fee in USD in 24h */
+            feeUSD48h: string
+            /** @description Fee in USD in 7d */
+            feeUSD7d: string
+            /** @description Total protocol fee in USD */
+            totalProtocolFeeUSD: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD24h: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD48h: string
+            /** @description Protocol fee in USD in 7d */
+            protocolFeeUSD7d: string
+            /** @description Total lp fee in USD */
+            lpFeeUSD?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD24h?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD48h?: string
+            /** @description lp fee in USD in 7d */
+            lpFeeUSD7d?: string
+          }
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityClByChainNameByAddress: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Infinity pool ID */
+        address: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Pool id */
+            id: string
+            token0: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            token1: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            /** @description Total volume in USD */
+            totalVolumeUSD: string
+            /** @description Token0 price to token1 */
+            token0Price: string
+            /** @description Token1 price to token0 */
+            token1Price: string
+            /** @description Total value locked in token0 */
+            tvlToken0: string
+            /** @description Total value locked in token1 */
+            tvlToken1: string
+            /** @description Volume in USD in 24h */
+            volumeUSD24h: string
+            /** @description Volume in USD in 24h */
+            volumeUSD48h: string
+            /** @description Volume in USD in 7d */
+            volumeUSD7d: string
+            /** @description Total value locked in USD */
+            tvlUSD: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD24h: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD48h: string
+            /** @description Total value locked in USD 7d ago */
+            tvlUSD7d: string
+            /** @description Pool created at timestamp */
+            createdAtTimestamp: Record<string, never> | string
+            feeTier?: number
+            binStep?: number
+            activeId?: number
+            liquidity?: string
+            sqrtPrice?: string
+            /** @description Current tick */
+            tick?: number
+            isDynamicFee: boolean
+            hookAddress: string | null
+            /** @description Total fee in USD */
+            totalFeeUSD: string
+            /** @description Fee in USD in 24h */
+            feeUSD24h: string
+            /** @description Fee in USD in 24h */
+            feeUSD48h: string
+            /** @description Fee in USD in 7d */
+            feeUSD7d: string
+            /** @description Total protocol fee in USD */
+            totalProtocolFeeUSD: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD24h: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD48h: string
+            /** @description Protocol fee in USD in 7d */
+            protocolFeeUSD7d: string
+            /** @description Total lp fee in USD */
+            lpFeeUSD?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD24h?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD48h?: string
+            /** @description lp fee in USD in 7d */
+            lpFeeUSD7d?: string
+          }
         }
       }
     }
@@ -3588,7 +4864,7 @@ export interface operations {
             feeTier: number
             liquidity: string
             sqrtPrice: string
-            tick: null | number
+            tick: number | null
             /** @description Total fee in USD */
             totalFeeUSD: string
             /** @description Fee in USD in 24h */
@@ -3745,9 +5021,9 @@ export interface operations {
             createdAtTimestamp: Record<string, never> | string
             lpAddress: string
             virtualPrice: string
-            virtualPrice24h: null | string
-            virtualPrice48h: null | string
-            virtualPrice7d: null | string
+            virtualPrice24h: string | null
+            virtualPrice48h: string | null
+            virtualPrice7d: string | null
           }
         }
       }
@@ -3818,6 +5094,551 @@ export interface operations {
               tvlToken1: string
             }[]
           }
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityBinByChainNameListSimple: {
+    parameters: {
+      query?: {
+        /** @description Filter by Token0 address */
+        token0?: string
+        /** @description Filter by Token1 address */
+        token1?: string
+        /** @description Cursor for pagination before */
+        before?: string
+        /** @description Cursor for pagination after */
+        after?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Cursor for pagination start */
+            startCursor?: string
+            /** @description Cursor for pagination end */
+            endCursor?: string
+            /** @description Has next page */
+            hasNextPage?: boolean
+            /** @description Has previous page */
+            hasPrevPage?: boolean
+            rows: {
+              id: string
+              feeTier: number
+              token0: {
+                id: string
+                symbol: string
+                name: string
+                decimals: number
+              }
+              token1: {
+                id: string
+                symbol: string
+                name: string
+                decimals: number
+              }
+              totalVolumeUSD: string
+              tvlUSD: string
+              tvlToken0: string
+              tvlToken1: string
+            }[]
+          }
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityClByChainNameListSimple: {
+    parameters: {
+      query?: {
+        /** @description Filter by Token0 address */
+        token0?: string
+        /** @description Filter by Token1 address */
+        token1?: string
+        /** @description Cursor for pagination before */
+        before?: string
+        /** @description Cursor for pagination after */
+        after?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Cursor for pagination start */
+            startCursor?: string
+            /** @description Cursor for pagination end */
+            endCursor?: string
+            /** @description Has next page */
+            hasNextPage?: boolean
+            /** @description Has previous page */
+            hasPrevPage?: boolean
+            rows: {
+              id: string
+              feeTier: number
+              token0: {
+                id: string
+                symbol: string
+                name: string
+                decimals: number
+              }
+              token1: {
+                id: string
+                symbol: string
+                name: string
+                decimals: number
+              }
+              totalVolumeUSD: string
+              tvlUSD: string
+              tvlToken0: string
+              tvlToken1: string
+            }[]
+          }
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityBinByChainNameListTop: {
+    parameters: {
+      query?: {
+        /** @description Filter by Token address */
+        token?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Pool id */
+            id: string
+            token0: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            token1: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            /** @description Total volume in USD */
+            totalVolumeUSD: string
+            /** @description Token0 price to token1 */
+            token0Price: string
+            /** @description Token1 price to token0 */
+            token1Price: string
+            /** @description Total value locked in token0 */
+            tvlToken0: string
+            /** @description Total value locked in token1 */
+            tvlToken1: string
+            /** @description Volume in USD in 24h */
+            volumeUSD24h: string
+            /** @description Volume in USD in 24h */
+            volumeUSD48h: string
+            /** @description Volume in USD in 7d */
+            volumeUSD7d: string
+            /** @description Total value locked in USD */
+            tvlUSD: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD24h: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD48h: string
+            /** @description Total value locked in USD 7d ago */
+            tvlUSD7d: string
+            /** @description Pool created at timestamp */
+            createdAtTimestamp: Record<string, never> | string
+            feeTier?: number
+            binStep?: number
+            activeId?: number
+            liquidity?: string
+            sqrtPrice?: string
+            /** @description Current tick */
+            tick?: number
+            isDynamicFee: boolean
+            hookAddress: string | null
+            /** @description Total fee in USD */
+            totalFeeUSD: string
+            /** @description Fee in USD in 24h */
+            feeUSD24h: string
+            /** @description Fee in USD in 24h */
+            feeUSD48h: string
+            /** @description Fee in USD in 7d */
+            feeUSD7d: string
+            /** @description Total protocol fee in USD */
+            totalProtocolFeeUSD: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD24h: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD48h: string
+            /** @description Protocol fee in USD in 7d */
+            protocolFeeUSD7d: string
+            /** @description Total lp fee in USD */
+            lpFeeUSD?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD24h?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD48h?: string
+            /** @description lp fee in USD in 7d */
+            lpFeeUSD7d?: string
+          }[]
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityByChainNameListTop: {
+    parameters: {
+      query?: {
+        /** @description Filter by Token address */
+        token?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Pool id */
+            id: string
+            token0: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            token1: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            /** @description Total volume in USD */
+            totalVolumeUSD: string
+            /** @description Token0 price to token1 */
+            token0Price: string
+            /** @description Token1 price to token0 */
+            token1Price: string
+            /** @description Total value locked in token0 */
+            tvlToken0: string
+            /** @description Total value locked in token1 */
+            tvlToken1: string
+            /** @description Volume in USD in 24h */
+            volumeUSD24h: string
+            /** @description Volume in USD in 24h */
+            volumeUSD48h: string
+            /** @description Volume in USD in 7d */
+            volumeUSD7d: string
+            /** @description Total value locked in USD */
+            tvlUSD: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD24h: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD48h: string
+            /** @description Total value locked in USD 7d ago */
+            tvlUSD7d: string
+            /** @description Pool created at timestamp */
+            createdAtTimestamp: Record<string, never> | string
+            feeTier?: number
+            binStep?: number
+            activeId?: number
+            liquidity?: string
+            sqrtPrice?: string
+            /** @description Current tick */
+            tick?: number
+            isDynamicFee: boolean
+            hookAddress: string | null
+            /** @description Total fee in USD */
+            totalFeeUSD: string
+            /** @description Fee in USD in 24h */
+            feeUSD24h: string
+            /** @description Fee in USD in 24h */
+            feeUSD48h: string
+            /** @description Fee in USD in 7d */
+            feeUSD7d: string
+            /** @description Total protocol fee in USD */
+            totalProtocolFeeUSD: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD24h: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD48h: string
+            /** @description Protocol fee in USD in 7d */
+            protocolFeeUSD7d: string
+            /** @description Total lp fee in USD */
+            lpFeeUSD?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD24h?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD48h?: string
+            /** @description lp fee in USD in 7d */
+            lpFeeUSD7d?: string
+            /** @description protocol fee for infinity pools */
+            protocolFee?: string
+          }[]
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityByChainNameClaimByAddress: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Ethereum address */
+        address: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            user: string
+            token: string
+            amount: string
+            timestamp: Record<string, never> | string
+            block: number
+          }[]
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityBinByChainNameLiquidityByPool: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+        /** @description Pool ID */
+        pool: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            id: string
+            /** @description Infinity pool ID */
+            poolId: string
+            binId: number
+            liquidity: string
+            reserveY: string
+            reserveX: string
+            totalShares: string
+          }[]
+        }
+      }
+    }
+  }
+  getCachedPoolsInfinityClByChainNameListTop: {
+    parameters: {
+      query?: {
+        /** @description Filter by Token address */
+        token?: string
+      }
+      header?: never
+      path: {
+        /** @description Chain name */
+        chainName:
+          | 'bsc'
+          | 'bsc-testnet'
+          | 'ethereum'
+          | 'base'
+          | 'opbnb'
+          | 'zksync'
+          | 'polygon-zkevm'
+          | 'linea'
+          | 'arbitrum'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @description Pool id */
+            id: string
+            token0: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            token1: {
+              id: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+            /** @description Total volume in USD */
+            totalVolumeUSD: string
+            /** @description Token0 price to token1 */
+            token0Price: string
+            /** @description Token1 price to token0 */
+            token1Price: string
+            /** @description Total value locked in token0 */
+            tvlToken0: string
+            /** @description Total value locked in token1 */
+            tvlToken1: string
+            /** @description Volume in USD in 24h */
+            volumeUSD24h: string
+            /** @description Volume in USD in 24h */
+            volumeUSD48h: string
+            /** @description Volume in USD in 7d */
+            volumeUSD7d: string
+            /** @description Total value locked in USD */
+            tvlUSD: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD24h: string
+            /** @description Total value locked in USD 24h ago */
+            tvlUSD48h: string
+            /** @description Total value locked in USD 7d ago */
+            tvlUSD7d: string
+            /** @description Pool created at timestamp */
+            createdAtTimestamp: Record<string, never> | string
+            feeTier?: number
+            binStep?: number
+            activeId?: number
+            liquidity?: string
+            sqrtPrice?: string
+            /** @description Current tick */
+            tick?: number
+            isDynamicFee: boolean
+            hookAddress: string | null
+            /** @description Total fee in USD */
+            totalFeeUSD: string
+            /** @description Fee in USD in 24h */
+            feeUSD24h: string
+            /** @description Fee in USD in 24h */
+            feeUSD48h: string
+            /** @description Fee in USD in 7d */
+            feeUSD7d: string
+            /** @description Total protocol fee in USD */
+            totalProtocolFeeUSD: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD24h: string
+            /** @description Protocol fee in USD in 24h */
+            protocolFeeUSD48h: string
+            /** @description Protocol fee in USD in 7d */
+            protocolFeeUSD7d: string
+            /** @description Total lp fee in USD */
+            lpFeeUSD?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD24h?: string
+            /** @description lp fee in USD in 24h */
+            lpFeeUSD48h?: string
+            /** @description lp fee in USD in 7d */
+            lpFeeUSD7d?: string
+          }[]
         }
       }
     }
@@ -3895,7 +5716,7 @@ export interface operations {
             feeTier: number
             liquidity: string
             sqrtPrice: string
-            tick: null | number
+            tick: number | null
             /** @description Total fee in USD */
             totalFeeUSD: string
             /** @description Fee in USD in 24h */
@@ -4054,9 +5875,9 @@ export interface operations {
             createdAtTimestamp: Record<string, never> | string
             lpAddress: string
             virtualPrice: string
-            virtualPrice24h: null | string
-            virtualPrice48h: null | string
-            virtualPrice7d: null | string
+            virtualPrice24h: string | null
+            virtualPrice48h: string | null
+            virtualPrice7d: string | null
           }[]
         }
       }
@@ -4137,7 +5958,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
       }
       cookie?: never
     }
@@ -4150,7 +5971,7 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            volumeUSD: null | string
+            volumeUSD: string | null
           }[]
         }
       }
@@ -4176,7 +5997,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
       }
       cookie?: never
     }
@@ -4189,7 +6010,7 @@ export interface operations {
         content: {
           'application/json': {
             bucket: Record<string, never> | string
-            tvlUSD: null | string
+            tvlUSD: string | null
           }[]
         }
       }
@@ -4214,7 +6035,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
       }
       cookie?: never
     }
@@ -4279,7 +6100,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
       }
       cookie?: never
     }
@@ -4350,7 +6171,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
       }
       cookie?: never
     }
@@ -4394,7 +6215,7 @@ export interface operations {
           | 'linea'
           | 'arbitrum'
         /** @description Protocol version */
-        protocol: 'v2' | 'v3' | 'v4bin' | 'v4cl' | 'stable'
+        protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
       }
       cookie?: never
     }
@@ -4419,23 +6240,6 @@ export interface operations {
     }
   }
   'postWebhooksWeb-deployed': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content?: never
-      }
-    }
-  }
-  getDocJson: {
     parameters: {
       query?: never
       header?: never

@@ -1,5 +1,6 @@
 import { PoolIds } from '@pancakeswap/ifos'
 import { BetPosition } from '@pancakeswap/prediction'
+import { Currency, TradeType } from '@pancakeswap/swap-sdk-core'
 
 export enum GTMEvent {
   EventTracking = 'eventTracking',
@@ -34,6 +35,9 @@ export enum GTMEvent {
   IdoDeposit = 'idoDeposit',
   IdoClaim = 'idoClaim',
   IdoConnectWallet = 'idoConnectWallet',
+
+  // Quote
+  QUOTE_QRY = 'QUOTE_QRY',
 }
 
 export enum GTMCategory {
@@ -93,13 +97,16 @@ export enum GTMAction {
   ConfirmIDOClaim = 'Confirm IDO Claim After TGE',
   IDOConnectWalletPreTGE = 'IDO Connect Wallet Pre TGE',
   IDOConnectWalletDuringTGE = 'IDO Connect Wallet During TGE',
+
+  // Quote
+  QuoterQuery = 'Query price from Quoter',
 }
 
 interface CustomGTMDataLayer {
   event: GTMEvent
   category?: GTMCategory
   action?: GTMAction
-  label?: string
+  [key: string]: unknown
 }
 
 type WindowWithDataLayer = Window & {
@@ -385,5 +392,29 @@ export const logGTMIdoConnectWalletEvent = (preTGE: boolean) => {
     event: GTMEvent.IdoConnectWallet,
     action: preTGE ? GTMAction.IDOConnectWalletPreTGE : GTMAction.IDOConnectWalletDuringTGE,
     category: GTMCategory.IDO,
+  })
+}
+
+export const logGTMQuoteQueryEvent = (
+  type: 'start' | 'succ' | 'fail',
+  options: {
+    type: TradeType
+    chain?: number
+    currencyA?: Currency
+    currencyB?: Currency
+    time?: number
+  },
+) => {
+  const { chain, currencyA, currencyB, time } = options
+
+  window?.dataLayer?.push({
+    event: GTMEvent.QUOTE_QRY,
+    action: GTMAction.QuoterQuery,
+    category: GTMCategory.Swap,
+    chain,
+    currencyA: currencyA?.symbol || '',
+    currencyB: currencyB?.symbol || '',
+    type,
+    time,
   })
 }

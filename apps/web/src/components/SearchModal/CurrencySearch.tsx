@@ -38,8 +38,11 @@ interface CurrencySearchProps {
 function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
   const lists = useAllLists()
   const inactiveUrls = useInactiveListUrls()
+
   const { chainId } = useActiveChainId()
+
   const activeTokens = useAllTokens()
+
   return useMemo(() => {
     if (!search || search.trim().length === 0) return []
     const filterToken = createFilterToken(search, (address) => isAddress(address))

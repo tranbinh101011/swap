@@ -19,6 +19,26 @@ const ChartWrapper = styled.div`
   justify-content: center;
   align-content: center;
 `;
+export interface LiquidityRangeInputProps {
+  tickCurrent?: number;
+  liquidity?: bigint;
+  isLoading?: boolean;
+  error?: Error;
+  currencyA?: Currency | null;
+  currencyB?: Currency | null;
+  feeAmount?: FeeAmount;
+  ticks?: TickDataRaw[];
+  ticksAtLimit?: { [bound in Bound]?: boolean };
+  price?: number;
+  priceLower?: Price<Currency, Currency>;
+  priceUpper?: Price<Currency, Currency>;
+  onLeftRangeInput?: (typedValue: string) => void;
+  onRightRangeInput?: (typedValue: string) => void;
+  onBothRangeInput?: (leftTypedValue: string, rightTypedValue: string) => void;
+  interactive?: boolean;
+  zoomLevel?: ZoomLevels;
+  formattedData: ChartEntry[] | undefined;
+}
 
 export function LiquidityChartRangeInput({
   currencyA,
@@ -42,26 +62,7 @@ export function LiquidityChartRangeInput({
   error,
   zoomLevel,
   formattedData,
-}: {
-  tickCurrent?: number;
-  liquidity?: bigint;
-  isLoading?: boolean;
-  error?: Error;
-  currencyA?: Currency | null;
-  currencyB?: Currency | null;
-  feeAmount?: FeeAmount;
-  ticks?: TickDataRaw[];
-  ticksAtLimit?: { [bound in Bound]?: boolean };
-  price?: number;
-  priceLower?: Price<Currency, Currency>;
-  priceUpper?: Price<Currency, Currency>;
-  onLeftRangeInput?: (typedValue: string) => void;
-  onRightRangeInput?: (typedValue: string) => void;
-  onBothRangeInput?: (leftTypedValue: string, rightTypedValue: string) => void;
-  interactive?: boolean;
-  zoomLevel?: ZoomLevels;
-  formattedData: ChartEntry[] | undefined;
-}) {
+}: LiquidityRangeInputProps) {
   const { t } = useTranslation();
   const theme = useTheme();
 

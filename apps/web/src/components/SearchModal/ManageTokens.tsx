@@ -1,25 +1,25 @@
-import { useRef, RefObject, useCallback, useState, useMemo } from 'react'
+import { useTranslation } from '@pancakeswap/localization'
 import { Token } from '@pancakeswap/sdk'
 import {
-  Text,
+  AutoColumn,
+  BscScanIcon,
   Button,
+  Column,
   DeleteOutlineIcon,
   IconButton,
-  BscScanIcon,
   Input,
   Link,
-  AutoColumn,
-  Column,
+  Text,
 } from '@pancakeswap/uikit'
-import { styled } from 'styled-components'
 import Row, { RowBetween, RowFixed } from 'components/Layout/Row'
-import { useToken } from 'hooks/Tokens'
+import { CurrencyLogo } from 'components/Logo'
+import { useTokenByChainId } from 'hooks/Tokens'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { RefObject, useCallback, useMemo, useRef, useState } from 'react'
 import { useRemoveUserAddedToken } from 'state/user/hooks'
 import useUserAddedTokens from 'state/user/hooks/useUserAddedTokens'
-import { CurrencyLogo } from 'components/Logo'
+import { styled } from 'styled-components'
 import { getBlockExploreLink, safeGetAddress } from 'utils'
-import { useTranslation } from '@pancakeswap/localization'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import ImportRow from './ImportRow'
 import { CurrencyModalView } from './types'
 
@@ -42,11 +42,14 @@ const Footer = styled.div`
 export default function ManageTokens({
   setModalView,
   setImportToken,
+  chainId: chainIdProp,
 }: {
   setModalView: (view: CurrencyModalView) => void
   setImportToken: (token: Token) => void
+  chainId?: number
 }) {
-  const { chainId } = useActiveChainId()
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainId = chainIdProp || activeChainId
 
   const { t } = useTranslation()
 
@@ -61,10 +64,10 @@ export default function ManageTokens({
   }, [])
 
   // if they input an address, use it
-  const searchToken = useToken(searchQuery)
+  const searchToken = useTokenByChainId(searchQuery, chainId)
 
   // all tokens for local list
-  const userAddedTokens: Token[] = useUserAddedTokens()
+  const userAddedTokens: Token[] = useUserAddedTokens(chainId)
   const removeToken = useRemoveUserAddedToken()
 
   const handleRemoveAll = useCallback(() => {
@@ -130,6 +133,7 @@ export default function ManageTokens({
               showImportView={() => setModalView(CurrencyModalView.importToken)}
               setImportToken={setImportToken}
               style={{ height: 'fit-content' }}
+              chainId={chainId}
             />
           )}
         </AutoColumn>

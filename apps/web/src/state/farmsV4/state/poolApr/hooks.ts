@@ -2,19 +2,65 @@ import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { useQuery } from '@tanstack/react-query'
 import { SLOW_INTERVAL } from 'config/constants'
 import sha256 from 'crypto-js/sha256'
+import { useInfinityCakeAPR } from 'hooks/infinity/useInfinityCakeAPR'
 import { useCakePrice } from 'hooks/useCakePrice'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import memoize from 'lodash/memoize'
-import { useCallback } from 'react'
-import { extendPoolsAtom } from 'state/farmsV4/state/extendPools/atom'
-import { ChainIdAddressKey, PoolInfo } from '../type'
+import { useCallback, useEffect } from 'react'
+import { useExtendPoolsAtom } from 'state/farmsV4/state/extendPools/atom'
+import { isInfinityProtocol } from 'utils/protocols'
+import { ChainIdAddressKey, InfinityPoolInfo, PoolInfo } from '../type'
 import { CakeApr, cakeAprSetterAtom, emptyCakeAprPoolsAtom, merklAprAtom, poolAprAtom } from './atom'
 import { getAllNetworkMerklApr, getCakeApr, getLpApr } from './fetcher'
 
-const generatePoolKey = memoize((pools) => {
+const generatePoolKey = memoize((pools: PoolInfo[]) => {
   const poolData = pools.map((pool) => `${pool.chainId}:${pool.lpAddress}`).join(',')
   return sha256(poolData).toString()
 })
+
+const useCakeAPR = (key: ChainIdAddressKey | null, pool: PoolInfo | null) => {
+  const updateCakeApr = useSetAtom(cakeAprSetterAtom)
+  const poolApr = useAtomValue(poolAprAtom)[key ?? '']
+  const cakePrice = useCakePrice()
+
+  // for infinity
+  const infinityCakeAPR = useInfinityCakeAPR({
+    chainId: pool?.chainId,
+    poolId: (pool as InfinityPoolInfo)?.poolId,
+    cakePrice,
+    tvlUSD: pool?.tvlUsd,
+  })
+  useEffect(() => {
+    if (key && pool && isInfinityProtocol(pool?.protocol) && infinityCakeAPR.value) {
+      updateCakeApr({ [key]: infinityCakeAPR })
+    }
+  }, [key, pool, updateCakeApr, infinityCakeAPR])
+
+  // for v3,v2,ss
+  useQuery({
+    queryKey: ['cake apr', key],
+    queryFn: () => {
+      if (!pool) {
+        return undefined
+      }
+      return getCakeApr(pool, cakePrice).then((apr) => {
+        updateCakeApr(apr)
+        return apr
+      })
+    },
+    enabled:
+      !isInfinityProtocol(pool?.protocol) &&
+      typeof pool?.tvlUsd !== 'undefined' &&
+      !!key &&
+      cakePrice &&
+      cakePrice.gt(BIG_ZERO),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  })
+
+  return poolApr?.cakeApr
+}
 
 export const usePoolApr = (
   key: ChainIdAddressKey | null,
@@ -26,12 +72,13 @@ export const usePoolApr = (
   merklApr: `${number}`
   apr24h?: boolean
 } => {
-  const updatePools = useSetAtom(extendPoolsAtom)
-  const updateCakeApr = useSetAtom(cakeAprSetterAtom)
+  const { setPools } = useExtendPoolsAtom()
   const poolApr = useAtomValue(poolAprAtom)[key ?? '']
   const [merklAprs, updateMerklApr] = useAtom(merklAprAtom)
   const cakePrice = useCakePrice()
-  const getMerklApr = useCallback(() => {
+  const cakeAPR = useCakeAPR(key, pool)
+
+  const getMerklApr = useCallback(async () => {
     if (Object.values(merklAprs).length === 0) {
       return getAllNetworkMerklApr()
         .then((aprs) => {
@@ -45,50 +92,37 @@ export const usePoolApr = (
     }
     return merklAprs[key!] ?? '0'
   }, [key, merklAprs, updateMerklApr])
+
   const updateCallback = useCallback(async () => {
     try {
       if (!pool) {
         throw new Error('Pool not found')
       }
-      const [cakeApr, lpApr, merklApr] = await Promise.all([
-        getCakeApr(pool, cakePrice).then((apr) => {
-          updateCakeApr(apr)
-          return apr
-        }),
+      const [lpApr, merklApr] = await Promise.all([
         getLpApr(pool, apr24h)
           .then((apr) => {
-            updatePools([{ ...pool, lpApr: `${apr}` }])
+            setPools([{ ...pool, lpApr: `${apr}` }])
             return `${apr}`
           })
           .catch(() => {
             console.warn('error getLpApr', pool)
-            updatePools([{ ...pool, lpApr: '0' }])
+            setPools([{ ...pool, lpApr: '0' }])
             return '0'
           }),
         getMerklApr(),
       ])
       return {
         lpApr: `${lpApr}`,
-        cakeApr,
         merklApr,
-      } as {
-        lpApr: `${number}`
-        cakeApr: CakeApr[keyof CakeApr]
-        merklApr: `${number}`
-      }
+      } as const
     } catch (error) {
       console.warn('error usePoolApr', error)
       return {
         lpApr: '0',
-        cakeApr: { value: '0' },
         merklApr: '0',
-      } as {
-        lpApr: `${number}`
-        cakeApr: CakeApr[keyof CakeApr]
-        merklApr: `${number}`
-      }
+      } as const
     }
-  }, [getMerklApr, pool, updateCakeApr, updatePools, cakePrice])
+  }, [getMerklApr, pool, setPools, apr24h])
 
   useQuery({
     queryKey: ['apr', key],
@@ -104,7 +138,7 @@ export const usePoolApr = (
 
   return {
     lpApr: poolApr?.lpApr ?? '0',
-    cakeApr: poolApr?.cakeApr ?? { value: '0' },
+    cakeApr: poolApr?.cakeApr ?? cakeAPR ?? { value: '0' },
     merklApr: poolApr?.merklApr ?? '0',
   }
 }
@@ -130,9 +164,12 @@ export const usePoolAprUpdater = () => {
   useQuery({
     queryKey: ['apr', 'cake', 'fetchCakeApr', generatePoolKey(pools)],
     queryFn: () =>
-      Promise.all(pools.map((pool) => getCakeApr(pool, cakePrice))).then((aprList) => {
-        updateCakeApr(aprList.reduce((acc, apr) => Object.assign(acc, apr), {}))
-      }),
+      // we already get infinity apr by useCakeAPR, so filter infinity here
+      Promise.all(pools.filter((p) => !isInfinityProtocol(p.protocol)).map((pool) => getCakeApr(pool, cakePrice))).then(
+        (aprList) => {
+          updateCakeApr(aprList.reduce((acc, apr) => Object.assign(acc, apr), {}))
+        },
+      ),
     enabled: pools?.length > 0 && cakePrice && cakePrice.gt(BIG_ZERO),
     refetchInterval: SLOW_INTERVAL,
     refetchOnMount: false,

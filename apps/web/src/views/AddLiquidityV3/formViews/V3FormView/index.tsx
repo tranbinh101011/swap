@@ -17,10 +17,10 @@ import {
 } from '@pancakeswap/uikit'
 import {
   ConfirmationModalContent,
-  LiquidityChartRangeInput,
   NumericalInput,
   ZOOM_LEVELS,
   ZoomLevels,
+  LiquidityChartRangeInput,
 } from '@pancakeswap/widgets-internal'
 
 import { tryParsePrice } from 'hooks/v3/utils'

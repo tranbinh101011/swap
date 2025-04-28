@@ -83,21 +83,21 @@
   - @pancakeswap/multicall@3.5.10
   - @pancakeswap/tokens@0.6.29
   - @pancakeswap/v3-sdk@3.8.13
-  - @pancakeswap/v4-sdk@0.1.6
+  - @pancakeswap/infinity-sdk@0.1.6
 
 ## 6.2.1
 
 ### Patch Changes
 
 - Updated dependencies [6a9fd57]
-  - @pancakeswap/v4-sdk@0.1.5
+  - @pancakeswap/infinity-sdk@0.1.5
 
 ## 6.2.0
 
 ### Minor Changes
 
-- 176eb10: Add v4 pool types
-- 176eb10: Introduce v4 liquidity pools
+- 176eb10: Add Infinity pool types
+- 176eb10: Introduce Infinity liquidity pools
 
 ### Patch Changes
 
@@ -108,7 +108,7 @@
   - @pancakeswap/sdk@5.8.9
   - @pancakeswap/token-lists@0.0.14
   - @pancakeswap/v3-sdk@3.8.12
-  - @pancakeswap/v4-sdk@0.1.4
+  - @pancakeswap/infinity-sdk@0.1.4
   - @pancakeswap/gauges@2.0.2
   - @pancakeswap/multicall@3.5.9
   - @pancakeswap/tokens@0.6.28
@@ -480,13 +480,13 @@
 
 ### Patch Changes
 
-- ad51fb7: Add usage example for v4 router
+- ad51fb7: Add usage example for Infinity router
 
 ## 5.0.0
 
 ### Major Changes
 
-- 610a24a: Introduce v4 router with faster quoting speed
+- 610a24a: Introduce Infinity router with faster quoting speed
 
 ### Patch Changes
 

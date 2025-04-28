@@ -28,6 +28,8 @@
     "@pancakeswap/routing-sdk-addon-stable-swap": "workspace:*",
     "@pancakeswap/routing-sdk-addon-v2": "workspace:*",
     "@pancakeswap/routing-sdk-addon-v3": "workspace:*",
+    "@pancakeswap/routing-sdk-addon-infinity": "workspace:*",
+    "@pancakeswap/infinity-sdk": "workspace:*",
     "viem": "catalog:"
   },
   "peerDependenciesMeta": {
@@ -38,6 +40,9 @@
       "optional": true
     },
     "@pancakeswap/routing-sdk-addon-v3": {
+      "optional": true
+    },
+    "@pancakeswap/routing-sdk-addon-infinity": {
       "optional": true
     }
   },
@@ -52,7 +57,9 @@
     "@pancakeswap/routing-sdk-addon-stable-swap": "workspace:*",
     "@pancakeswap/routing-sdk-addon-v2": "workspace:*",
     "@pancakeswap/routing-sdk-addon-v3": "workspace:*",
+    "@pancakeswap/routing-sdk-addon-infinity": "workspace:*",
     "@pancakeswap/tsconfig": "workspace:*",
+    "@pancakeswap/infinity-sdk": "workspace:*",
     "tsup": "^6.7.0",
     "viem": "catalog:"
   },

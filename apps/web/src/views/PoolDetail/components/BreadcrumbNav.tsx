@@ -26,7 +26,7 @@ export const BreadcrumbNav: React.FC = () => {
           <Text mr="8px">{poolSymbol}</Text>
         </Flex>
       </Breadcrumbs>
-      <Flex justifyContent={[null, null, 'flex-end']} mt={['8px', '8px', 0]}>
+      <Flex justifyContent={[null, null, 'flex-end']}>
         <ScanLink
           useBscCoinFallback={ChainLinkSupportChains.includes(multiChainId[chainName])}
           mr="8px"

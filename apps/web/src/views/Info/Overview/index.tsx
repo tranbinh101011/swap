@@ -102,6 +102,7 @@ const Overview: React.FC<React.PropsWithChildren> = () => {
         {t('Top Pairs')}
       </Heading>
       <PoolTable poolDatas={poolsData} loading={somePoolsAreLoading} />
+
       <Heading scale="lg" mt="40px" mb="16px">
         {t('Transactions')}
       </Heading>

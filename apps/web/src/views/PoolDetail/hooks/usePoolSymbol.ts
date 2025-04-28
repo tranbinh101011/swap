@@ -1,26 +1,40 @@
+import { Token } from '@pancakeswap/swap-sdk-core'
+import { useCurrencyByChainId } from 'hooks/Tokens'
 import { useMemo } from 'react'
 import { useChainIdByQuery } from 'state/info/hooks'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
+import { zeroAddress } from 'viem'
 import { usePoolInfoByQuery } from './usePoolInfo'
 
 export const usePoolSymbol = () => {
   const poolInfo = usePoolInfoByQuery()
   const chainId = useChainIdByQuery()
 
+  const currency0 =
+    useCurrencyByChainId(poolInfo?.token0.isNative ? zeroAddress : (poolInfo?.token0 as Token)?.address, chainId) ??
+    undefined
+  const currency1 = useCurrencyByChainId(poolInfo?.token1.address, chainId) ?? undefined
+
   const [poolSymbol, symbol0, symbol1] = useMemo(() => {
-    const s0 = getTokenSymbolAlias(poolInfo?.token0.wrapped.address, chainId, poolInfo?.token0.wrapped.symbol) ?? ''
-    const s1 = getTokenSymbolAlias(poolInfo?.token1.wrapped.address, chainId, poolInfo?.token1.wrapped.symbol) ?? ''
+    const s0 = currency0?.isNative
+      ? currency0?.symbol
+      : getTokenSymbolAlias(currency0?.wrapped.address, chainId, currency0?.wrapped.symbol) ?? ''
+    const s1 = getTokenSymbolAlias(currency1?.wrapped.address, chainId, currency1?.wrapped.symbol) ?? ''
     return [`${s0} / ${s1}`, s0, s1]
   }, [
-    poolInfo?.token0.wrapped.address,
-    poolInfo?.token0.wrapped.symbol,
-    poolInfo?.token1.wrapped.address,
-    poolInfo?.token1.wrapped.symbol,
+    currency0?.isNative,
+    currency0?.symbol,
+    currency0?.wrapped.address,
+    currency0?.wrapped.symbol,
     chainId,
+    currency1?.wrapped.address,
+    currency1?.wrapped.symbol,
   ])
 
   return {
     poolSymbol,
+    currency0,
+    currency1,
     symbol0,
     symbol1,
   }

@@ -1,20 +1,20 @@
 import { ChainId } from '@pancakeswap/chains'
-import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { chainlinkOracleCAKE } from '@pancakeswap/prediction'
+import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
+import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { chainlinkOracleABI } from 'config/abi/chainlinkOracle'
+import { FAST_INTERVAL } from 'config/constants'
 import { publicClient } from 'utils/wagmi'
 import { formatUnits } from 'viem'
-import { FAST_INTERVAL } from 'config/constants'
-import { useQuery } from '@tanstack/react-query'
 
 // for migration to bignumber.js to avoid breaking changes
 export const useCakePrice = ({ enabled = true } = {}) => {
   const { data } = useQuery<BigNumber, Error>({
     queryKey: ['cakePrice'],
     queryFn: async () => new BigNumber(await getCakePriceFromOracle()),
-    staleTime: FAST_INTERVAL,
-    refetchInterval: FAST_INTERVAL,
+    staleTime: FAST_INTERVAL * 6,
+    refetchInterval: FAST_INTERVAL * 6,
     enabled,
   })
   return data ?? BIG_ZERO

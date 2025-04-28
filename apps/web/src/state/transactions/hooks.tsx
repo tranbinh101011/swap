@@ -19,16 +19,16 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useSafeTxHashTransformer } from 'hooks/useSafeTxHashTransformer'
 import {
-  FarmTransactionStatus,
   CrossChainFarmStepType,
   CrossChainFarmTransactionType,
+  FarmTransactionStatus,
   TransactionType,
   addTransaction,
 } from './actions'
 import { TransactionDetails } from './reducer'
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
-export function useTransactionAdder(): (
+export function useTransactionAdder(overrideChainId?: number): (
   response: { hash: Hash | string } | { transactionHash: Hash | string },
   customData?: {
     summary?: string
@@ -52,7 +52,9 @@ export function useTransactionAdder(): (
     expectedCurrencyOwed1?: string
   },
 ) => void {
-  const { account, chainId } = useAccountActiveChain()
+  const { account, chainId: activeChainId } = useAccountActiveChain()
+  const chainId = overrideChainId ?? activeChainId
+
   const dispatch = useAppDispatch()
   const safeTxHashTransformer = useSafeTxHashTransformer()
 
@@ -155,8 +157,9 @@ export function useAllSortedRecentTransactions(): { [chainId: number]: { [txHash
 }
 
 // returns all the transactions for the current chain
-export function useAllActiveChainTransactions(): { [txHash: string]: TransactionDetails } {
-  const { chainId } = useActiveChainId()
+export function useAllActiveChainTransactions(overrideChainId?: number): { [txHash: string]: TransactionDetails } {
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainId = overrideChainId ?? activeChainId
 
   return useAllChainTransactions(chainId)
 }
@@ -194,8 +197,12 @@ export function isTransactionRecent(tx: TransactionDetails): boolean {
 }
 
 // returns whether a token has a pending approval transaction
-export function useHasPendingApproval(tokenAddress: string | undefined, spender: string | undefined): boolean {
-  const allTransactions = useAllActiveChainTransactions()
+export function useHasPendingApproval(
+  tokenAddress: string | undefined,
+  spender: string | undefined,
+  overrideChainId?: number,
+): boolean {
+  const allTransactions = useAllActiveChainTransactions(overrideChainId)
   return useMemo(
     () =>
       typeof tokenAddress === 'string' &&

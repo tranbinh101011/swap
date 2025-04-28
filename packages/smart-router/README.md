@@ -9,13 +9,13 @@ $ pnpm add @pancakeswap/smart-router
 
 ```
 
-## Usage (V4Router)
+## Usage (InfinityRouter)
 
-**NOTE**: `V4Router` will be replaced by `@pancakeswap/routing-sdk` in the future
+**NOTE**: `InfinityRouter` will be replaced by `@pancakeswap/routing-sdk` in the future
 
-V4Router is utilize the new routing strategy introduced in smart router v5. Use BSC as an example. Here's how we use v4 router to find the best trade route swapping from BNB to CAKE.
+InfinityRouter is utilize the new routing strategy introduced in smart router v5. Use BSC as an example. Here's how we use Infinity router to find the best trade route swapping from BNB to CAKE.
 
-For working code example, please refer to [v4 router usage example](https://github.com/pancakeswap/smart-router-example).
+For working code example, please refer to [Infinity router usage example](https://github.com/pancakeswap/smart-router-example).
 
 0. Install other dependencies
 
@@ -43,13 +43,13 @@ const client = createPublicClient({
 
 ```typescript
 import { Native } from '@pancakeswap/sdk'
-import { V4Router } from '@pancakeswap/smart-router'
+import { InfinityRouter } from '@pancakeswap/smart-router'
 import { bscTokens } from '@pancakeswap/tokens'
 
 const swapFrom = Native.onChain(chainId)
 const swapTo = bscTokens.cake
 
-const v3Pools = await V4Router.getV3CandidatePools({
+const v3Pools = await InfinityRouter.getV3CandidatePools({
   clientProvider: () => client,
   currencyA: swapFrom,
   currencyB: swapTo,
@@ -64,7 +64,7 @@ import { CurrencyAmount, TradeType } from '@pancakeswap/sdk'
 // 0.01 BNB in our example
 const amount = CurrencyAmount.fromRawAmount(swapFrom, 10 ** 16)
 
-const trade = await V4Router.getBestTrade(amount, swapTo, TradeType.EXACT_INPUT, {
+const trade = await InfinityRouter.getBestTrade(amount, swapTo, TradeType.EXACT_INPUT, {
   gasPriceWei: () => client.getGasPrice(),
   candidatePools: v3Pools,
 })
@@ -178,8 +178,8 @@ const gasEstimate = await publicClient.estimateGas(tx)
 
 ## FAQ
 
-1. What's the difference between `SmartRouter` and `V4Router`?
+1. What's the difference between `SmartRouter` and `InfinityRouter`?
 
-`SmartRouter` is getting swap quotes by querying quoter contract on chain, while `V4Router` is getting the liquidity pool data from on chain and do the swap quote calculation off chain.
+`SmartRouter` is getting swap quotes by querying quoter contract on chain, while `InfinityRouter` is getting the liquidity pool data from on chain and do the swap quote calculation off chain.
 
-Compared to `SmartRouter`, `V4Router` has better quoting performance since the calculation is done off chain. Also, `V4Router` doesn't rely on subgraph for price reference. However, the downside of `V4Router` is that the estimated quote may not be as accurate as on chain quoter due to pool data out dated or potential extra fee applied during the swap.
+Compared to `SmartRouter`, `InfinityRouter` has better quoting performance since the calculation is done off chain. Also, `InfinityRouter` doesn't rely on subgraph for price reference. However, the downside of `InfinityRouter` is that the estimated quote may not be as accurate as on chain quoter due to pool data out dated or potential extra fee applied during the swap.

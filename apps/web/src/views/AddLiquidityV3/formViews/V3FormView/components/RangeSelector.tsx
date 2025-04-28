@@ -28,8 +28,8 @@ export default function RangeSelector({
   getIncrementLower: () => Price<Token, Token> | undefined
   getDecrementUpper: () => Price<Token, Token> | undefined
   getIncrementUpper: () => Price<Token, Token> | undefined
-  onLeftRangeInput: (typedValue: Price<Token, Token> | undefined) => void
-  onRightRangeInput: (typedValue: Price<Token, Token> | undefined) => void
+  onLeftRangeInput: (typedValue: Price<Currency, Currency> | undefined) => void
+  onRightRangeInput: (typedValue: Price<Currency, Currency> | undefined) => void
   currencyA?: Currency | undefined | null
   currencyB?: Currency | undefined | null
   feeAmount?: number

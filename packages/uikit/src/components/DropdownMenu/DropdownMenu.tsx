@@ -162,6 +162,7 @@ const DropdownMenu: React.FC<React.PropsWithChildren<DropdownMenuProps>> = ({
   activeItem = "",
   activeSubItemChildItem = "",
   items = [],
+  itemKey,
   index,
   setMenuOpenByIndex,
   isDisabled,
@@ -240,7 +241,7 @@ const DropdownMenu: React.FC<React.PropsWithChildren<DropdownMenuProps>> = ({
             .filter((item) => ((isMobile || isMd) && item.isMobileOnly) || !item.isMobileOnly)
             .map((item) => (
               <MenuItem
-                key={item?.label?.toString() || `delimiter${index}`}
+                key={itemKey?.(item) ?? item?.label?.toString() ?? `delimiter${index}`}
                 item={item}
                 activeItem={activeItem}
                 activeSubItemChildItem={activeSubItemChildItem}

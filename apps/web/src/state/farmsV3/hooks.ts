@@ -112,9 +112,8 @@ export const useFarmsV3Public = () => {
         return fallback
       }
     },
-
+    staleTime: Infinity,
     enabled: Boolean(farmFetcherV3.isChainSupported(chainId ?? -1)),
-    refetchInterval: FAST_INTERVAL * 3,
     initialData: fallback,
   })
 }

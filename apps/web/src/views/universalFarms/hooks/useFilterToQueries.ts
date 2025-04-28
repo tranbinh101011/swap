@@ -1,25 +1,19 @@
-import { useCallback, useEffect, useMemo } from 'react'
-import intersection from 'lodash/intersection'
-import { isAddress } from 'viem'
-import { useRouter } from 'next/router'
 import { SORT_ORDER } from '@pancakeswap/uikit'
-import { useAllTokensByChainIds } from 'hooks/Tokens'
+import intersection from 'lodash/intersection'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo } from 'react'
+import { POSITION_STATUS } from 'state/farmsV4/state/accountPositions/type'
 import { PoolInfo } from 'state/farmsV4/state/type'
+import { isAddress } from 'viem'
 import { IPoolsFilterPanelProps } from '../components'
+import { usePoolProtocols } from '../constants'
 import { useAllChainIds } from './useMultiChains'
-
-export enum V3_STATUS {
-  ALL,
-  ACTIVE,
-  INACTIVE,
-  CLOSED,
-}
 
 type filtersParams = Partial<
   IPoolsFilterPanelProps['value'] & {
     sortOrder: SORT_ORDER
     sortField: keyof PoolInfo | null
-    positionStatus: V3_STATUS
+    positionStatus: POSITION_STATUS
     farmsOnly: boolean
   }
 >
@@ -27,7 +21,6 @@ type filtersParams = Partial<
 export const useFilterToQueries = () => {
   const nextRouter = useRouter()
   const allChainIds = useAllChainIds()
-  const allTokensMap = useAllTokensByChainIds(allChainIds)
 
   const {
     type,
@@ -40,7 +33,7 @@ export const useFilterToQueries = () => {
   } = nextRouter.query
 
   const positionStatus = useMemo(
-    () => (status ? Number(Array.isArray(status) ? status[0] : status) : V3_STATUS.ACTIVE),
+    () => (status ? Number(Array.isArray(status) ? status[0] : status) : POSITION_STATUS.ACTIVE),
     [status],
   )
 
@@ -49,7 +42,8 @@ export const useFilterToQueries = () => {
     [queryFarmsOnly],
   )
 
-  const selectedTypeIndex = useMemo(() => (type ? Number(Array.isArray(type) ? type[0] : type) : 0), [type])
+  const selectedProtocolIndex = useMemo(() => (type ? Number(Array.isArray(type) ? type[0] : type) : 0), [type])
+  const allProtocols = usePoolProtocols()
 
   const selectedNetwork = useMemo(
     () => (network ? (Array.isArray(network) ? network : [network]).map((i) => Number(i)) : allChainIds),
@@ -62,10 +56,10 @@ export const useFilterToQueries = () => {
         : [queryTokenParams]
       : []
     return queryTokens.filter((t) => {
-      const [chainId, tokenAddress] = t.split(':')
-      return !!(isAddress(tokenAddress) && allTokensMap[chainId]?.[tokenAddress])
+      const [, tokenAddress] = t.split(':')
+      return isAddress(tokenAddress)
     })
-  }, [queryTokenParams, allTokensMap])
+  }, [queryTokenParams])
   const [sortOrder, sortField] = useMemo(() => {
     if (!sort) {
       return [SORT_ORDER.NULL, null]
@@ -77,11 +71,11 @@ export const useFilterToQueries = () => {
   const replaceURLQueriesByFilter = useCallback(
     (filters: filtersParams) => {
       const params: { [key: string]: string | string[] } = {}
-      if (typeof filters.positionStatus !== 'undefined' && filters.positionStatus !== V3_STATUS.ACTIVE) {
+      if (typeof filters.positionStatus !== 'undefined' && filters.positionStatus !== POSITION_STATUS.ACTIVE) {
         params.status = filters.positionStatus.toString()
       }
-      if (filters.selectedTypeIndex && filters.selectedTypeIndex !== 0) {
-        params.type = filters.selectedTypeIndex.toString()
+      if (filters.selectedProtocolIndex && filters.selectedProtocolIndex !== 0) {
+        params.type = filters.selectedProtocolIndex.toString()
       }
       if (filters.farmsOnly) {
         params.farmsOnly = '1'
@@ -118,15 +112,15 @@ export const useFilterToQueries = () => {
     if (Array.isArray(status)) {
       queriesReset.positionStatus = positionStatus
     }
-    if (!Object.values(V3_STATUS).includes(positionStatus)) {
-      queriesReset.positionStatus = V3_STATUS.ACTIVE
+    if (!Object.values(POSITION_STATUS).includes(positionStatus)) {
+      queriesReset.positionStatus = POSITION_STATUS.ACTIVE
     }
 
     if (Array.isArray(type)) {
-      queriesReset.selectedTypeIndex = selectedTypeIndex
+      queriesReset.selectedProtocolIndex = selectedProtocolIndex
     }
-    if (![0, 1, 2, 3].includes(selectedTypeIndex)) {
-      queriesReset.selectedTypeIndex = 0
+    if (selectedProtocolIndex >= allProtocols.length) {
+      queriesReset.selectedProtocolIndex = 0
     }
 
     if (!selectedNetwork.every((i) => allChainIds.includes(i))) {
@@ -153,7 +147,7 @@ export const useFilterToQueries = () => {
 
     if (Object.keys(queriesReset).length) {
       replaceURLQueriesByFilter({
-        selectedTypeIndex,
+        selectedProtocolIndex,
         selectedNetwork,
         selectedTokens,
         sortOrder,
@@ -170,7 +164,7 @@ export const useFilterToQueries = () => {
     type,
     positionStatus,
     replaceURLQueriesByFilter,
-    selectedTypeIndex,
+    selectedProtocolIndex,
     selectedNetwork,
     selectedTokens,
     sortOrder,
@@ -178,10 +172,11 @@ export const useFilterToQueries = () => {
     farmsOnly,
     allChainIds,
     queryTokenParams,
+    allProtocols.length,
   ])
 
   return {
-    selectedTypeIndex,
+    selectedProtocolIndex,
     selectedNetwork,
     selectedTokens,
     sortOrder,

@@ -67,6 +67,7 @@ export const CopyButton: React.FC<React.PropsWithChildren<CopyButtonProps>> = ({
           variant="text"
           style={{ width: "auto", position: "relative" }}
         >
+          {props.children}
           <Icon color={buttonColor} width={width} {...props} />
         </IconButton>
       </div>

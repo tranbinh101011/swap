@@ -1,5 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
-import { Currency, Token } from '@pancakeswap/sdk'
+import { Currency, Token, WBNB } from '@pancakeswap/sdk'
 import {
   ImageProps,
   TokenImage as UIKitTokenImage,
@@ -10,10 +10,12 @@ import {
 import uriToHttp from '@pancakeswap/utils/uriToHttp'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { useMemo } from 'react'
+import { isAddressEqual } from 'utils'
+import { zeroAddress } from 'viem'
 
 interface TokenPairImageProps extends Omit<UIKitTokenPairImageProps, 'primarySrc' | 'secondarySrc'> {
   primaryToken: Currency
-  secondaryToken: Token
+  secondaryToken: Currency
   withChainLogo?: boolean
 }
 
@@ -29,7 +31,10 @@ export const tokenImageChainNameMapping = {
 }
 
 export const getImageUrlFromToken = (token: Currency) => {
-  const address = token?.isNative ? token.wrapped.address : token?.address
+  let address = token?.isNative ? token.wrapped.address : token?.address
+  if (token && token.chainId === ChainId.BSC && !token.isNative && isAddressEqual(token.address, zeroAddress)) {
+    address = WBNB[ChainId.BSC].wrapped.address
+  }
 
   return token
     ? token.isNative && token.chainId !== ChainId.BSC

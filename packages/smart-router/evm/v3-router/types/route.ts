@@ -9,8 +9,8 @@ export enum RouteType {
   STABLE,
   MIXED,
   MM,
-  V4CL,
-  V4BIN,
+  InfinityCL,
+  InfinityBIN,
 }
 
 export interface BaseRoute {

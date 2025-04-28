@@ -1,6 +1,6 @@
 import 'utils/workerPolyfill'
 
-import { SmartRouter, V4Router } from '@pancakeswap/smart-router'
+import { InfinityRouter, SmartRouter } from '@pancakeswap/smart-router'
 import { Call } from 'state/multicall/actions'
 import { fetchChunk } from 'state/multicall/fetchChunk'
 import { getLogger } from 'utils/datadog'
@@ -76,7 +76,7 @@ export type WorkerGetBestTradeOffchainEvent = [
   id: number,
   message: {
     cmd: 'getBestTradeOffchain'
-    params: V4Router.APISchema.RouterPostParams
+    params: InfinityRouter.APISchema.RouterPostParams
   },
 ]
 
@@ -210,7 +210,7 @@ addEventListener('message', (event: MessageEvent<WorkerEvent>) => {
   }
 
   if (message.cmd === 'getBestTradeOffchain') {
-    const parsed = V4Router.APISchema.zRouterPostParams.safeParse(message.params)
+    const parsed = InfinityRouter.APISchema.zRouterPostParams.safeParse(message.params)
     if (parsed.success === false) {
       postMessage([
         id,
@@ -234,7 +234,7 @@ addEventListener('message', (event: MessageEvent<WorkerEvent>) => {
       ? BigInt(gasPriceWei)
       : async () => BigInt((await onChainProvider({ chainId }).getGasPrice()).toString())
 
-    V4Router.getBestTrade(currencyAAmount, currencyB, tradeType, {
+    InfinityRouter.getBestTrade(currencyAAmount, currencyB, tradeType, {
       gasPriceWei: gasPrice,
       maxHops,
       maxSplits,
@@ -246,7 +246,7 @@ addEventListener('message', (event: MessageEvent<WorkerEvent>) => {
           id,
           {
             success: true,
-            result: res && V4Router.Transformer.serializeTrade(res),
+            result: res && InfinityRouter.Transformer.serializeTrade(res),
           },
         ])
       })

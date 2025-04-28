@@ -82,3 +82,13 @@ export function isTokenOnList(defaultTokens: TokenAddressMap<ChainId>, currency?
   if (currency?.isNative) return true
   return Boolean(currency?.isToken && defaultTokens[currency.chainId]?.[currency.address])
 }
+
+export function truncateText(text: string | undefined, maxLength: number = 200) {
+  if (!text) return ''
+
+  if (text.length > maxLength) {
+    return `${text.slice(0, maxLength)}...`
+  }
+
+  return text
+}

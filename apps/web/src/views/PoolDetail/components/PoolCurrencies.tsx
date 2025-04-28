@@ -1,13 +1,13 @@
+import { Protocol } from '@pancakeswap/farms'
 import { Currency } from '@pancakeswap/swap-sdk-core'
 import { Flex, Text } from '@pancakeswap/uikit'
-import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
+import { CurrencyLogo, NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { useMemo } from 'react'
 import { PoolInfo } from 'state/farmsV4/state/type'
-import { useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
+import { useMultiChainPath } from 'state/info/hooks'
 import styled from 'styled-components'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { getTokenSymbolAlias } from 'utils/getTokenAlias'
-import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
+import { usePoolSymbol } from '../hooks/usePoolSymbol'
 
 const TokenButton = styled(Flex)`
   padding: 8px 0px;
@@ -29,10 +29,18 @@ function getTokenUrls(chainPath: string, poolInfo?: PoolInfo | null) {
 
   const { protocol } = poolInfo
   const stableSwapUrlQuery = protocol === 'stable' ? '?type=stableSwap' : ''
+  const infinityUrl = (token: Currency) => `/info/infinity${chainPath}/tokens/${token.wrapped.address}`
 
   const v2Url = (token: Currency) => `/info${chainPath}/tokens/${token.wrapped.address}${stableSwapUrlQuery}`
 
   const v3Url = (token: Currency) => `/info/${protocol}/${chainPath}/tokens/${token.wrapped.address}`
+
+  if (protocol === Protocol.InfinityBIN || protocol === Protocol.InfinityCLAMM) {
+    return {
+      token0Url: infinityUrl(poolInfo.token0.wrapped),
+      token1Url: infinityUrl(poolInfo.token1.wrapped),
+    }
+  }
 
   if (protocol === 'stable' || protocol === 'v2') {
     return {
@@ -48,21 +56,10 @@ function getTokenUrls(chainPath: string, poolInfo?: PoolInfo | null) {
 }
 export const PoolCurrencies: React.FC<PoolCurrenciesProps> = ({ poolInfo }) => {
   const chainPath = useMultiChainPath()
-  const chainName = useChainNameByQuery()
   const stableSwapUrlQuery = useMemo(() => {
     return poolInfo?.protocol === 'stable' ? '?type=stableSwap' : ''
   }, [poolInfo?.protocol])
-  const [symbol0, symbol1] = useMemo(() => {
-    const s0 = getTokenSymbolAlias(poolInfo?.token0.wrapped.address, poolInfo?.chainId, poolInfo?.token0.symbol)
-    const s1 = getTokenSymbolAlias(poolInfo?.token1.wrapped.address, poolInfo?.chainId, poolInfo?.token1.symbol)
-    return [s0, s1]
-  }, [
-    poolInfo?.chainId,
-    poolInfo?.token0.symbol,
-    poolInfo?.token0.wrapped.address,
-    poolInfo?.token1.symbol,
-    poolInfo?.token1.wrapped.address,
-  ])
+  const { symbol0, symbol1, currency0, currency1 } = usePoolSymbol()
 
   const infoUrls = useMemo(() => {
     return getTokenUrls(chainPath, poolInfo)
@@ -82,7 +79,7 @@ export const PoolCurrencies: React.FC<PoolCurrenciesProps> = ({ poolInfo }) => {
       <Flex flexDirection={['column', 'column', 'row']}>
         <NextLinkFromReactRouter to={infoUrls.token0Url}>
           <TokenButton>
-            <CurrencyLogo address={poolInfo.token0.wrapped.address} size="24px" chainName={chainName} />
+            <CurrencyLogo currency={currency0} size="24px" />
             <Text fontSize="16px" ml="4px" style={{ whiteSpace: 'nowrap' }} width="fit-content">
               {`1 ${symbol0} =  ${formatAmount(Number(poolInfo.token1Price ?? 0), {
                 notation: 'standard',
@@ -94,7 +91,7 @@ export const PoolCurrencies: React.FC<PoolCurrenciesProps> = ({ poolInfo }) => {
         </NextLinkFromReactRouter>
         <NextLinkFromReactRouter to={infoUrls.token1Url}>
           <TokenButton ml={[null, null, '10px']}>
-            <CurrencyLogo address={poolInfo.token1.address} size="24px" chainName={chainName} />
+            <CurrencyLogo currency={currency1} size="24px" />
             <Text fontSize="16px" ml="4px" style={{ whiteSpace: 'nowrap' }} width="fit-content">
               {`1 ${symbol1} =  ${formatAmount(Number(poolInfo.token0Price ?? 0), {
                 notation: 'standard',

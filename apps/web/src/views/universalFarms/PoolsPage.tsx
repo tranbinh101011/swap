@@ -5,13 +5,17 @@ import { toTokenValueByCurrency } from '@pancakeswap/widgets-internal'
 import { useAllTokensByChainIds } from 'hooks/Tokens'
 import flatMap from 'lodash/flatMap'
 import groupBy from 'lodash/groupBy'
+import intersection from 'lodash/intersection'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PoolSortBy } from 'state/farmsV4/atom'
 import { useExtendPools, useFarmPools, usePoolsApr } from 'state/farmsV4/hooks'
 import { getCombinedApr } from 'state/farmsV4/state/poolApr/utils'
-import type { PoolInfo } from 'state/farmsV4/state/type'
+import type { InfinityPoolInfo, PoolInfo } from 'state/farmsV4/state/type'
 import styled from 'styled-components'
+import { getHookByAddress } from 'utils/getHookByAddress'
+import { isInfinityProtocol } from 'utils/protocols'
+import { usePoolFeatureAndType } from 'views/AddLiquiditySelector/hooks/usePoolTypeQuery'
 
 import {
   Card,
@@ -23,7 +27,7 @@ import {
   ListView,
   PoolsFilterPanel,
   useColumnConfig,
-  useSelectedPoolTypes,
+  useSelectedProtocols,
 } from './components'
 import { AddLiquidityButton } from './components/AddLiquidityButton'
 import { useFilterToQueries } from './hooks/useFilterToQueries'
@@ -45,19 +49,19 @@ export const PoolsPage = () => {
 
   const columns = useColumnConfig()
   const allChainIds = useAllChainIds()
-  const { selectedTypeIndex, selectedNetwork, selectedTokens, sortOrder, sortField, replaceURLQueriesByFilter } =
+  const { selectedProtocolIndex, selectedNetwork, selectedTokens, sortOrder, sortField, replaceURLQueriesByFilter } =
     useFilterToQueries()
 
   const poolsFilter = useMemo(
     () => ({
-      selectedTypeIndex,
+      selectedProtocolIndex,
       selectedNetwork,
       selectedTokens,
     }),
-    [selectedTypeIndex, selectedNetwork, selectedTokens],
+    [selectedProtocolIndex, selectedNetwork, selectedTokens],
   )
 
-  const selectedPoolTypes = useSelectedPoolTypes(selectedTypeIndex)
+  const selectedProtocols = useSelectedProtocols(selectedProtocolIndex)
   const { observerRef, isIntersecting } = useIntersectionObserver()
   const [cursorVisible, setCursorVisible] = useState(NUMBER_OF_FARMS_VISIBLE)
   const [isPoolListExtended, setIsPoolListExtended] = useState(false)
@@ -104,11 +108,11 @@ export const PoolsPage = () => {
     if (cursorVisible >= poolList.length && !disabledExtendPools) {
       fetchPoolList({
         chains: selectedNetwork,
-        protocols: selectedPoolTypes,
+        protocols: selectedProtocols,
         orderBy: PoolSortBy.VOL,
       })
     }
-  }, [cursorVisible, poolList, fetchPoolList, selectedPoolTypes, disabledExtendPools, selectedNetwork])
+  }, [cursorVisible, poolList, fetchPoolList, selectedProtocols, disabledExtendPools, selectedNetwork])
 
   const handleFilterChange: IPoolsFilterPanelProps['onChange'] = useCallback(
     (newFilters) => {
@@ -151,17 +155,40 @@ export const PoolsPage = () => {
     return [item.chainId, item.protocol, item.pid, item.lpAddress].join(':')
   }, [])
 
+  const { features, protocols, isSelectAllFeatures, isSelectAllProtocols } = usePoolFeatureAndType()
+
   const filteredData = useMemo(() => {
-    return poolList.filter(
-      (farm) =>
+    return poolList.filter((farm) => {
+      return (
+        // network filter
         selectedNetwork.includes(farm.chainId) &&
+        // tokens filter
         (!selectedTokens?.length ||
           selectedTokens?.find(
             (token) => token === toTokenValueByCurrency(farm.token0) || token === toTokenValueByCurrency(farm.token1),
           )) &&
-        selectedPoolTypes.includes(farm.protocol),
-    )
-  }, [poolList, selectedTokens, selectedNetwork, selectedPoolTypes])
+        // protocol filter
+        selectedProtocols.includes(farm.protocol) &&
+        // pool type and pool feature filter
+        (isSelectAllProtocols || !protocols.length || protocols.includes(farm.protocol)) &&
+        (isSelectAllFeatures ||
+          !features.length ||
+          (isInfinityProtocol(farm.protocol) &&
+            (farm as InfinityPoolInfo).hookAddress &&
+            intersection(features, getHookByAddress(farm.chainId, (farm as InfinityPoolInfo).hookAddress)?.category)
+              .length))
+      )
+    })
+  }, [
+    poolList,
+    selectedTokens,
+    selectedNetwork,
+    selectedProtocols,
+    features,
+    protocols,
+    isSelectAllProtocols,
+    isSelectAllFeatures,
+  ])
 
   const dataByChain = useMemo(() => {
     return groupBy(filteredData, 'chainId')

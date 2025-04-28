@@ -3,7 +3,7 @@ import { AddIcon, Box, BoxProps, Button, ButtonProps } from '@pancakeswap/uikit'
 
 export const AddLiquidityButton: React.FC<ButtonProps & { wrapperProps?: BoxProps; to?: string }> = ({
   wrapperProps,
-  to = '/add',
+  to = '/liquidity/select',
   ...props
 }) => {
   const { t } = useTranslation()

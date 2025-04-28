@@ -1,13 +1,15 @@
+import { Currency, CurrencyAmount, Fraction, Token, TradeType } from '@pancakeswap/swap-sdk-core'
 import { formatFraction } from '@pancakeswap/utils/formatFractions'
-import { Token, Currency, CurrencyAmount, Fraction, TradeType } from '@pancakeswap/swap-sdk-core'
 import invariant from 'tiny-invariant'
 
+import { RemoteLogger } from '@pancakeswap/utils/RemoteLogger'
 import { PriceCalculator, createGraph, createPriceCalculator, getNeighbour } from './graph'
-import { Edge, Graph, Pool, Route, TradeConfig, TradeWithGraph, Vertice } from './types'
 import { isSameRoute, mergeRoute } from './route'
-import { groupPoolsByType } from './utils/groupPoolsByType'
-import { getBetterTrade } from './utils/getBetterTrade'
 import { DEFAULT_STREAM, getBestStreamsConfig } from './stream'
+import { Edge, Graph, Pool, Route, TradeConfig, TradeWithGraph, Vertice } from './types'
+import { getBetterTrade } from './utils/getBetterTrade'
+import { groupPoolsByType } from './utils/groupPoolsByType'
+import { logAmts, logPools, logRouteForSplit, logTrade } from './utils/loggers'
 
 export type FindBestTradeByStreamsParams = TradeConfig & {
   amount: CurrencyAmount<Currency>
@@ -21,6 +23,7 @@ export type FindBestTradeByStreamsParams = TradeConfig & {
 
   // If graph is provided, will use it directly without creating new graph from candidatePools
   graph?: Graph
+  quoteId?: string
 }
 
 export type FindBestTradeParams = Omit<FindBestTradeByStreamsParams, 'streams'>
@@ -31,36 +34,50 @@ export async function findBestTrade({
 }: FindBestTradeParams): Promise<TradeWithGraph<TradeType> | undefined> {
   // NOTE: there's no max split cap right now. This option is only used to control the on/off of multiple splits
   const splitDisabled = maxSplits !== undefined && maxSplits === 0
-
+  RemoteLogger.getLogger(params.quoteId).debug(`FindBestTrade with quoteId=${params.quoteId}`)
   let bestTrade: TradeWithGraph<TradeType> | undefined
   try {
-    bestTrade = await findBestTradeByStreams({
-      ...params,
-      streams: 1,
-    })
-  } catch (e) {
-    if (splitDisabled) {
-      throw e
+    try {
+      bestTrade = await findBestTradeByStreams({
+        ...params,
+        streams: 1,
+      })
+    } catch (e) {
+      if (splitDisabled) {
+        throw e
+      }
+      bestTrade = await findBestTradeByStreams({
+        ...params,
+        streams: DEFAULT_STREAM,
+      })
     }
-    bestTrade = await findBestTradeByStreams({
+    if (splitDisabled) {
+      return bestTrade
+    }
+    const streams = getBestStreamsConfig(bestTrade)
+    if (streams === 1) {
+      logTrade(params.quoteId, bestTrade)
+      return bestTrade
+    }
+    const bestTradeWithStreams = await findBestTradeByStreams({
       ...params,
-      streams: DEFAULT_STREAM,
+      streams,
     })
-  }
 
-  if (splitDisabled) {
-    return bestTrade
+    const betterTrade = getBetterTrade(bestTrade, bestTradeWithStreams)
+    logTrade(params.quoteId, betterTrade)
+    return betterTrade
+  } catch (ex: any) {
+    if (ex instanceof Error) {
+      RemoteLogger.getLogger(params.quoteId).debug(ex.message)
+      RemoteLogger.getLogger(params.quoteId).debug(`FindBestTrade error: ${ex.toString()}`)
+    } else {
+      RemoteLogger.getLogger(params.quoteId).debug(`FindBestTrade error: ${ex.toString()}`)
+    }
+    throw ex
+  } finally {
+    RemoteLogger.getLogger(params.quoteId).flush()
   }
-  const streams = getBestStreamsConfig(bestTrade)
-  if (streams === 1) {
-    return bestTrade
-  }
-  const bestTradeWithStreams = await findBestTradeByStreams({
-    ...params,
-    streams,
-  })
-
-  return getBetterTrade(bestTrade, bestTradeWithStreams)
 }
 
 export async function findBestTradeByStreams(
@@ -100,6 +117,7 @@ async function getBestTrade({
   streams,
   graph: graphOverride,
   tradeType,
+  quoteId,
   maxHops = 10,
 }: FindBestTradeByStreamsParams): Promise<TradeWithGraph<TradeType> | undefined> {
   const isExactIn = tradeType === TradeType.EXACT_INPUT
@@ -110,6 +128,15 @@ async function getBestTrade({
   const amounts = getStreamedAmounts(totalAmount, streams)
 
   const gasPrice = BigInt(typeof gasPriceWei === 'function' ? await gasPriceWei() : gasPriceWei)
+  const logger = RemoteLogger.getLogger(quoteId)
+  logger.debug(`[gasprice]: ${gasPrice}`)
+  logger.debug(`Sub [FindBestTrade]`, 1)
+  logger.debug(
+    `[params] isExactIn: ${isExactIn}, gasPrice: ${gasPrice}, baseCurrency=${baseCurrency.symbol}, quoteCurrency=${
+      quoteCurrency.symbol
+    }, amount=${totalAmount.toExact()}, streams=${streams}, maxHops=${maxHops}`,
+    2,
+  )
 
   // 1. Set static prices for each vertices
   const start = graph.getVertice(baseCurrency)
@@ -325,7 +352,12 @@ async function getBestTrade({
               : e.vertice0.currency,
           })
           // console.log(`Get quote success ${quoteResult?.quote.toExact()}`)
-          invariant(quoteResult !== undefined, 'Invalid quote result')
+          if (quoteResult === undefined) {
+            logger.debug(
+              `Get quote failed, no enough liquidity id=${e.pool.getId()}, amt=${bestAmount.toExact()}, isExactIn=${isExactIn}`,
+            )
+            throw new Error('Invalid quote result')
+          }
           const { quote } = quoteResult
           const gasPriceInV2 = priceCalculator.getGasPriceInBase(v2)
           invariant(gasPriceInV2 !== undefined, 'Invalid gas price in v2')
@@ -374,28 +406,38 @@ async function getBestTrade({
 
   let routeMerged = false
   const routes: Route[] = []
-  for (const { amount, percent } of amounts) {
+  logAmts(quoteId, amounts)
+  logPools(quoteId, candidatePools)
+  for (const [i, { amount, percent }] of Object.entries(amounts)) {
+    logger.debug(`check route #${i}, amt=${amount} percent=${percent}%`, 2)
     // eslint-disable-next-line no-await-in-loop
     const route = await findBestRoute(amount)
-    invariant(
-      route !== undefined,
-      `No valid route found for base amount ${amount.toExact()} ${amount.currency.symbol} and quote currency ${
-        quoteCurrency.symbol
-      }`,
-    )
+    if (route === undefined) {
+      const errmsg = `No valid route found for base amount ${amount.toExact()} ${
+        amount.currency.symbol
+      } and quote currency ${quoteCurrency.symbol}`
+      logger.debug(errmsg, 3)
+      logger.debug('\n')
+      throw new Error(errmsg)
+    }
+
     // eslint-disable-next-line no-await-in-loop
     await graph.applySwap({ route, isExactIn })
     const newRoute = {
       ...route,
       percent,
     }
+    logRouteForSplit(quoteId, newRoute, amount.toExact(), percent.toString())
+
     const index = routes.findIndex((r) => isSameRoute(r, newRoute))
     if (index < 0) {
       routes.push(newRoute)
     } else {
       routes[index] = mergeRoute(routes[index], newRoute)
       routeMerged = true
+      logger.debug('route merged', 2)
     }
+    logger.debug('\n')
   }
   // No valid route found
   if (!routes.length) {

@@ -7,3 +7,4 @@ dist
 packages/farms/lists
 packages/smart-router/evm/abis/types
 packages/pools/src/abis/types
+apps/web/_next-typesafe-url_.d.ts

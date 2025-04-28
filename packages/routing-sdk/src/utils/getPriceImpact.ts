@@ -24,9 +24,9 @@ export function getMidPrice({ path, pools }: Pick<Route, 'path' | 'pools'>) {
   for (const pool of pools) {
     const input = path[i].wrapped
     const output = path[i + 1].wrapped
-    const poolPrice = pool.getCurrentPrice(input, output)
+    const poolPrice = pool.getCurrentPrice(input, output).wrapped
 
-    price = price ? price.multiply(poolPrice) : poolPrice
+    price = price ? price.wrapped.multiply(poolPrice) : poolPrice
     i += 1
   }
 

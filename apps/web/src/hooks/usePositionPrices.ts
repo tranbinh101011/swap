@@ -41,18 +41,16 @@ export function usePositionPrices({
 
   const tickLowerPrice = useMemo(
     () =>
-      currencyA?.wrapped &&
-      currencyB?.wrapped &&
-      typeof tickLower === 'number' &&
-      tickToPrice(currencyA.wrapped, currencyB.wrapped, tickLower),
+      currencyA?.wrapped && currencyB?.wrapped && typeof tickLower === 'number'
+        ? tickToPrice(currencyA.wrapped, currencyB.wrapped, tickLower)
+        : undefined,
     [tickLower, currencyA, currencyB],
   )
   const tickUpperPrice = useMemo(
     () =>
-      currencyA?.wrapped &&
-      currencyB?.wrapped &&
-      typeof tickUpper === 'number' &&
-      tickToPrice(currencyA.wrapped, currencyB.wrapped, tickUpper),
+      currencyA?.wrapped && currencyB?.wrapped && typeof tickUpper === 'number'
+        ? tickToPrice(currencyA.wrapped, currencyB.wrapped, tickUpper)
+        : undefined,
     [tickUpper, currencyA, currencyB],
   )
   const [priceLower, priceUpper] = useMemo(
@@ -61,10 +59,9 @@ export function usePositionPrices({
   )
   const priceCurrent = useMemo(
     () =>
-      currencyA?.wrapped &&
-      currencyB?.wrapped &&
-      typeof tickCurrent === 'number' &&
-      tickToPrice(currencyA.wrapped, currencyB.wrapped, tickCurrent),
+      currencyA?.wrapped && currencyB?.wrapped && typeof tickCurrent === 'number'
+        ? tickToPrice(currencyA.wrapped, currencyB.wrapped, tickCurrent)
+        : undefined,
     [tickCurrent, currencyA, currencyB],
   )
 

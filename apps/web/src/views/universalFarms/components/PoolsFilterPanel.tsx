@@ -1,22 +1,25 @@
 import { getChainNameInKebabCase } from '@pancakeswap/chains'
 import { Protocol } from '@pancakeswap/farms'
-import { useTranslation } from '@pancakeswap/localization'
 import { Flex } from '@pancakeswap/uikit'
 import {
   INetworkProps,
-  IPoolTypeMenuProps,
+  IPoolTypeFilterProps,
+  IProtocolMenuProps,
   ITokenProps,
   NetworkFilter,
-  PoolTypeMenu,
-  TokenFilter,
+  PoolTypeFilter,
+  ProtocolMenu,
+  TokenFilter as TokenFilterWidget,
 } from '@pancakeswap/widgets-internal'
-import { ASSET_CDN } from 'config/constants/endpoints'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import isEmpty from 'lodash/isEmpty'
+import isUndefined from 'lodash/isUndefined'
 import React, { useMemo } from 'react'
 import { UpdaterByChainId } from 'state/lists/updater'
 import styled from 'styled-components'
-import { MAINNET_CHAINS } from '../hooks/useMultiChains'
+import { usePoolTypeQuery } from 'views/AddLiquiditySelector/hooks/usePoolTypeQuery'
+import { usePoolProtocols, usePoolTypes } from '../constants'
+import { MAINNET_CHAINS, useAllChainsOpts } from '../hooks/useMultiChains'
 import { useMultiChainsTokens } from '../hooks/useMultiChainsTokens'
 import { getChainFullName } from '../utils'
 
@@ -60,71 +63,66 @@ export const useSelectedChainsName = (chainIds: number[]) => {
   return useMemo(() => chainIds.map((id) => getChainNameInKebabCase(id)), [chainIds])
 }
 
-const chainsOpts = MAINNET_CHAINS.map((chain) => ({
-  icon: `${ASSET_CDN}/web/chains/${chain.id}.png`,
-  value: chain.id,
-  label: chain.name,
-}))
-
-export const usePoolTypes = () => {
-  const { t } = useTranslation()
-  return useMemo(
-    () => [
-      {
-        label: t('All'),
-        value: null,
-      },
-      {
-        label: 'V3',
-        value: Protocol.V3,
-      },
-      {
-        label: 'V2',
-        value: Protocol.V2,
-      },
-      {
-        label: t('StableSwap'),
-        value: Protocol.STABLE,
-      },
-    ],
-    [t],
-  )
-}
-
-export const useSelectedPoolTypes = (selectedIndex: number): Protocol[] => {
-  const allTypes = usePoolTypes()
+export const useSelectedProtocols = (selectedIndex: number): Protocol[] => {
+  const allProtocols = usePoolProtocols()
   return useMemo(() => {
-    if (selectedIndex === 0 || selectedIndex > allTypes.length - 1) {
-      return allTypes.slice(1).map((t) => t.value) as unknown as Protocol[]
+    const { value } = allProtocols[selectedIndex]
+    if (value === null || selectedIndex === 0 || selectedIndex > allProtocols.length - 1) {
+      return allProtocols.filter((t) => t.value !== null).flatMap((t) => t.value) as NonNullable<Protocol[]>
     }
-    return [allTypes[selectedIndex].value] as unknown as Protocol[]
-  }, [selectedIndex, allTypes])
+    return Array.isArray(value) ? value : [value]
+  }, [selectedIndex, allProtocols])
 }
 
-export interface IPoolsFilterPanelProps {
-  value: {
-    selectedTypeIndex: IPoolTypeMenuProps['activeIndex']
-    selectedNetwork: INetworkProps['value']
-    selectedTokens: ITokenProps['value']
-  }
-  onChange: (value: Partial<IPoolsFilterPanelProps['value']>) => void
-}
-export const PoolsFilterPanel: React.FC<React.PropsWithChildren<IPoolsFilterPanelProps>> = ({
-  value,
-  children,
-  onChange,
-}) => {
-  const { chainId: activeChainId } = useActiveChainId()
-  const { selectedTokens, selectedNetwork, selectedTypeIndex: selectedType } = value
-
+export const TokenFilter = ({
+  selectedNetwork,
+  selectedTokens,
+  ...others
+}: {
+  selectedNetwork: INetworkProps['value']
+  selectedTokens: ITokenProps['value']
+} & Omit<ITokenProps, 'data' | 'value' | 'getChainName'>) => {
   const allTokens = useMultiChainsTokens()
   const filteredTokens = useMemo(
     () => allTokens.filter((token) => selectedNetwork.includes(token.chainId)),
     [selectedNetwork, allTokens],
   )
 
-  const handleTypeIndexChange: IPoolTypeMenuProps['onChange'] = (index) => {
-    onChange({ selectedTypeIndex: index })
+  return <TokenFilterWidget data={filteredTokens} value={selectedTokens} getChainName={getChainFullName} {...others} />
+}
+
+export interface IPoolsFilterPanelProps {
+  value: {
+    selectedProtocolIndex?: IProtocolMenuProps['activeIndex']
+    selectedNetwork?: INetworkProps['value']
+    selectedTokens?: ITokenProps['value']
+  }
+  onChange: (value: Partial<IPoolsFilterPanelProps['value']>) => void
+  showTokenFilter?: boolean
+  showNetworkFilter?: boolean
+  showPoolFilter?: boolean
+  showProtocolMenu?: boolean
+}
+export const PoolsFilterPanel: React.FC<React.PropsWithChildren<IPoolsFilterPanelProps>> = ({
+  value,
+  children,
+  onChange,
+  showTokenFilter = true,
+  showNetworkFilter = true,
+  showPoolFilter = true,
+  showProtocolMenu = true,
+}) => {
+  const { chainId: activeChainId } = useActiveChainId()
+  const { selectedTokens, selectedNetwork, selectedProtocolIndex: selectedType } = value
+  const allChainsOpts = useAllChainsOpts()
+  const { poolType, setPoolType } = usePoolTypeQuery()
+
+  const handleProtocolIndexChange: IProtocolMenuProps['onChange'] = (index) => {
+    onChange({ selectedProtocolIndex: index })
+  }
+
+  const handlePoolFeatureChange: IPoolTypeFilterProps['onChange'] = (e) => {
+    setPoolType(e.value)
   }
 
   const handleNetworkChange: INetworkProps['onChange'] = (network, e) => {
@@ -140,6 +138,9 @@ export const PoolsFilterPanel: React.FC<React.PropsWithChildren<IPoolsFilterPane
     onChange({ selectedTokens: e.value })
   }
 
+  const protocols = usePoolProtocols()
+  const poolTypeData = usePoolTypes()
+
   const childrenCount = useMemo(() => 3 + React.Children.count(children), [children])
 
   return (
@@ -148,14 +149,22 @@ export const PoolsFilterPanel: React.FC<React.PropsWithChildren<IPoolsFilterPane
         <UpdaterByChainId key={c.id} chainId={c.id} />
       ))}
       <PoolsFilterContainer $childrenCount={childrenCount}>
-        <NetworkFilter data={chainsOpts} value={selectedNetwork} onChange={handleNetworkChange} />
-        <TokenFilter
-          data={filteredTokens}
-          value={selectedTokens}
-          onChange={handleTokensChange}
-          getChainName={getChainFullName}
-        />
-        <PoolTypeMenu data={usePoolTypes()} activeIndex={selectedType} onChange={handleTypeIndexChange} />
+        {showNetworkFilter && !isUndefined(selectedNetwork) && (
+          <NetworkFilter data={allChainsOpts} value={selectedNetwork} onChange={handleNetworkChange} />
+        )}
+        {showTokenFilter && !isUndefined(selectedNetwork) && (
+          <TokenFilter
+            selectedNetwork={selectedNetwork}
+            selectedTokens={selectedTokens}
+            onChange={handleTokensChange}
+          />
+        )}
+        {showPoolFilter && <PoolTypeFilter data={poolTypeData} value={poolType} onChange={handlePoolFeatureChange} />}
+        {showProtocolMenu && !isUndefined(selectedType) && (
+          <Flex alignSelf="flex-start">
+            <ProtocolMenu data={protocols} activeIndex={selectedType} onChange={handleProtocolIndexChange} />
+          </Flex>
+        )}
         {children}
       </PoolsFilterContainer>
     </>

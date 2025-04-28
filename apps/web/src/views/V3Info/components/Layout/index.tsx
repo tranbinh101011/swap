@@ -1,9 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
+import { INFINITY_SUPPORTED_CHAINS } from '@pancakeswap/infinity-sdk'
 import { SubMenuItems } from '@pancakeswap/uikit'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { multiChainQueryStableClient } from 'state/info/constant'
-import { useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
+import { useChainIdByQuery, useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
 import { v3InfoPath } from '../../constants'
 import InfoNav from './InfoNav'
 
@@ -13,6 +14,8 @@ export const InfoPageLayout = ({ children }) => {
   const chainPath = useMultiChainPath()
   const isV3 = router?.pathname?.includes(v3InfoPath)
   const { t } = useTranslation()
+  const chainId = useChainIdByQuery()
+  const isInfinitySupported = useMemo(() => INFINITY_SUPPORTED_CHAINS.includes(chainId as any), [chainId])
 
   const subMenuItems = useMemo(() => {
     const config = [
@@ -25,13 +28,20 @@ export const InfoPageLayout = ({ children }) => {
         href: `/info${chainPath}`,
       },
     ]
+    if (isInfinitySupported) {
+      config.unshift({
+        label: t('Infinity'),
+        href: `/info/infinity${chainPath}`,
+      })
+    }
+
     if (multiChainQueryStableClient[chainName])
       config.push({
         label: t('StableSwap'),
         href: `/info${chainPath}?type=stableSwap`,
       })
     return config
-  }, [t, chainPath, chainName])
+  }, [t, chainPath, chainName, isInfinitySupported])
 
   return (
     <>

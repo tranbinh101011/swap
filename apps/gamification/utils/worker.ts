@@ -1,9 +1,9 @@
-import { V4Router } from '@pancakeswap/smart-router'
+import { InfinityRouter } from '@pancakeswap/smart-router'
 
 import type { FetchChunkResult } from 'state/multicall/fetchChunk'
 
-import { createWorkerScriptLoader } from './workerScriptLoader'
 import { WorkerGetBestTradeEvent, WorkerGetBestTradeOffchainEvent, WorkerMultiChunkEvent } from './quote-worker'
+import { createWorkerScriptLoader } from './workerScriptLoader'
 
 class WorkerProxy {
   id = 0
@@ -94,7 +94,7 @@ class WorkerProxy {
       }
     })
 
-    return this.postMessage<V4Router.Transformer.SerializedV4Trade>(
+    return this.postMessage<InfinityRouter.Transformer.SerializedInfinityTrade>(
       {
         cmd: 'getBestTradeOffchain',
         params: restParams,

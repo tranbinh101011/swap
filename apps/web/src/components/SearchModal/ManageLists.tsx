@@ -31,7 +31,12 @@ import { useListState } from 'state/lists/lists'
 import { styled } from 'styled-components'
 
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { selectorByUrlsAtom, useActiveListUrls, useAllLists, useIsListActive } from '../../state/lists/hooks'
+import {
+  selectorByUrlsAtom,
+  useActiveListUrlsByChainId,
+  useAllListsByChainId,
+  useIsListActiveByChainId,
+} from '../../state/lists/hooks'
 
 import Row, { RowBetween, RowFixed } from '../Layout/Row'
 import { CurrencyModalView } from './types'
@@ -60,10 +65,12 @@ function listUrlRowHTMLId(listUrl: string) {
   return `list-row-${listUrl.replace(/\./g, '-')}`
 }
 
-const ListRow = memo(function ListRow({ listUrl }: { listUrl: string }) {
-  const { chainId } = useActiveChainId()
+const ListRow = memo(function ListRow({ listUrl, chainId: chainIdProp }: { listUrl: string; chainId?: number }) {
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainId = chainIdProp || activeChainId
+
   const { t } = useTranslation()
-  const isActive = useIsListActive(listUrl)
+  const isActive = useIsListActiveByChainId(listUrl, chainId)
 
   const listsByUrl = useAtomValue(selectorByUrlsAtom)
   const [, dispatch] = useListState()
@@ -168,22 +175,26 @@ function ManageLists({
   setModalView,
   setImportList,
   setListUrl,
+  chainId: chainIdProp,
 }: {
   setModalView: (view: CurrencyModalView) => void
   setImportList: (list: TokenList) => void
   setListUrl: (url: string) => void
+  chainId?: number
 }) {
   const [listUrlInput, setListUrlInput] = useState<string>('')
 
-  const { chainId } = useActiveChainId()
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainId = chainIdProp || activeChainId
 
   const { t } = useTranslation()
   const [, dispatch] = useListState()
 
-  const lists = useAllLists()
+  const lists = useAllListsByChainId(chainId)
 
   // sort by active but only if not visible
-  const activeListUrls = useActiveListUrls()
+  const activeListUrls = useActiveListUrlsByChainId(chainId)
+
   const [activeCopy, setActiveCopy] = useState<string[] | undefined>()
   useEffect(() => {
     if (!activeCopy && activeListUrls) {
@@ -327,7 +338,7 @@ function ManageLists({
       <ListContainer>
         <AutoColumn gap="md">
           {sortedLists.map((listUrl) => (
-            <ListRow key={listUrl} listUrl={listUrl} />
+            <ListRow key={listUrl} listUrl={listUrl} chainId={chainId} />
           ))}
         </AutoColumn>
       </ListContainer>

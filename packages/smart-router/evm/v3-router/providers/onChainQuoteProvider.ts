@@ -1,20 +1,27 @@
 import { ChainId } from '@pancakeswap/chains'
-import { BigintIsh, Currency, CurrencyAmount, getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
+import { BigintIsh, Currency, CurrencyAmount, getCurrencyAddress, getMatchedCurrency } from '@pancakeswap/swap-sdk-core'
 import { AbortControl, isAbortError } from '@pancakeswap/utils/abortControl'
 import retry from 'async-retry'
 import { Abi, Address } from 'viem'
 
+import { RemoteLogger } from '@pancakeswap/utils/RemoteLogger'
 import { binQuoterAbi } from '../../abis/IBinQuoter'
 import { clQuoterAbi } from '../../abis/ICLQuoter'
+import { infinityMixedRouteQuoterAbi } from '../../abis/IInfinityMixedRouteQuoter'
 import { mixedRouteQuoterV1ABI } from '../../abis/IMixedRouteQuoterV1'
 import { quoterV2ABI } from '../../abis/IQuoterV2'
-import { v4MixedRouteQuoterAbi } from '../../abis/IV4MixedRouteQuoter'
 import { MIXED_ROUTE_QUOTER_ADDRESSES, V3_QUOTER_ADDRESSES } from '../../constants'
+import {
+  INFI_BIN_QUOTER_ADDRESSES,
+  INFI_CL_QUOTER_ADDRESSES,
+  INFI_MIXED_QUOTER_ADDRESSES,
+} from '../../constants/infinity'
 import { BATCH_MULTICALL_CONFIGS } from '../../constants/multicall'
-import { V4_BIN_QUOTER_ADDRESSES, V4_CL_QUOTER_ADDRESSES, V4_MIXED_ROUTE_QUOTER_ADDRESSES } from '../../constants/v4'
 import { BatchMulticallConfigs, ChainMap } from '../../types'
 import {
   GasModel,
+  InfinityBinPool,
+  InfinityClPool,
   OnChainProvider,
   QuoteProvider,
   QuoteRetryOptions,
@@ -23,9 +30,10 @@ import {
   RouteWithoutQuote,
 } from '../types'
 import { encodeMixedRouteToPath, getQuoteCurrency, isStablePool, isV2Pool, isV3Pool } from '../utils'
-import { encodeV4MixedRouteActions } from '../utils/encodeV4MixedRouteActions'
-import { encodeV4MixedRouteParams } from '../utils/encodeV4MixedRouteParams'
-import { PathKey, encodeV4RouteToPath } from '../utils/encodeV4RouteToPath'
+import { encodeInfinityMixedRouteActions } from '../utils/encodeInfinityMixedRouteActions'
+import { encodeInfinityMixedRouteCurrencyPath } from '../utils/encodeInfinityMixedRouteCurrencyPath'
+import { encodeInfinityMixedRouteParams } from '../utils/encodeInfinityMixedRouteParams'
+import { PathKey, encodeInfinityRouteToPath } from '../utils/encodeInfinityRouteToPath'
 import { Result } from './multicallProvider'
 import { PancakeMulticallProvider } from './multicallSwapProvider'
 
@@ -55,7 +63,7 @@ const SUCCESS_RATE_CONFIG = {
   [ChainId.MONAD_TESTNET]: 0.1,
 } as const satisfies Record<ChainId, number>
 
-type V4ClInputs = [
+type InfinityClInputs = [
   {
     exactAmount: string
     exactCurrency: string
@@ -64,8 +72,8 @@ type V4ClInputs = [
 ]
 type V3Inputs = [string, string]
 type MixedInputs = [string, number[], string]
-type V4MixedInputs = [string[], string, string[], string]
-type CallInputs = V3Inputs | MixedInputs | V4ClInputs | V4MixedInputs
+type InfinityMixedInputs = [string[], string, string[], string]
+type CallInputs = V3Inputs | MixedInputs | InfinityClInputs | InfinityMixedInputs
 
 type AdjustQuoteForGasHandler = (params: {
   isExactIn?: boolean
@@ -152,8 +160,9 @@ function onChainQuoteProviderFactory({ getQuoteFunctionName, getQuoterAddress, a
 
       return async function getRoutesWithQuote(
         routes: RouteWithoutQuote[],
-        { blockNumber: blockNumberFromConfig, gasModel, retry: retryOptions, signal }: QuoterOptions,
+        { blockNumber: blockNumberFromConfig, gasModel, retry: retryOptions, signal, quoteId }: QuoterOptions,
       ): Promise<RouteWithQuote[]> {
+        const logger = RemoteLogger.getLogger(quoteId)
         if (!routes.length) {
           return []
         }
@@ -178,6 +187,10 @@ function onChainQuoteProviderFactory({ getQuoteFunctionName, getQuoterAddress, a
         const multicall2Provider = new PancakeMulticallProvider(chainId, chainProvider, defaultGasLimitPerCall)
         const inputs = routes.map<CallInputs>((route) => getCallInputs(route, isExactIn))
 
+        logger.debug(`Try quoter with Inputs: ${inputs.length}`, 3)
+        logger.debug(`:${quoterAddress} ${functionName}`, 3)
+        logger.debugJson(inputs[0], 3)
+        // logger.debugJson(inputs, 2)
         const retryOptionsWithDefault = {
           retries: DEFAULT_BATCH_RETRIES,
           minTimeout: 25,
@@ -207,6 +220,11 @@ function onChainQuoteProviderFactory({ getQuoteFunctionName, getQuoterAddress, a
                 },
               })
             const successRateError = validateSuccessRate(results, minSuccessRate)
+            // results.forEach((result) => {
+            //   if (!result.success) {
+            //     logger.debugJson(result, 3)
+            //   }
+            // })
             if (successRateError) {
               throw successRateError
             }
@@ -245,6 +263,7 @@ function onChainQuoteProviderFactory({ getQuoteFunctionName, getQuoterAddress, a
             })
             return quotes
           } catch (e: unknown) {
+            logger.debug(`Error getting quotes: ${e}`, 2)
             const error = e instanceof Error ? e : new Error(`Unexpected error type ${e}`)
             if (!shouldRetry(error)) {
               // bail is actually rejecting the promise on retry function
@@ -269,6 +288,8 @@ function onChainQuoteProviderFactory({ getQuoteFunctionName, getQuoterAddress, a
         }, retryOptionsWithDefault)
 
         if (!quoteResult) {
+          logger.debug(`Empty quote result`, 2)
+          logger.debugJson(quoteResult, 2)
           throw new Error(`Unexpected empty quote result ${quoteResult}`)
         }
 
@@ -458,40 +479,62 @@ export const createV3OnChainQuoteProvider = onChainQuoteProviderFactory({
   ],
 })
 
-export const createV4ClOnChainQuoteProvider = onChainQuoteProviderFactory({
-  getQuoterAddress: (chainId) => (V4_CL_QUOTER_ADDRESSES as any)[chainId],
+export const createInfinityClOnChainQuoteProvider = onChainQuoteProviderFactory({
+  getQuoterAddress: (chainId) => (INFI_CL_QUOTER_ADDRESSES as any)[chainId],
   getQuoteFunctionName: (isExactIn) => (isExactIn ? 'quoteExactInput' : 'quoteExactOutput'),
   abi: clQuoterAbi,
-  getCallInputs: (route, isExactIn) => [
-    {
-      exactCurrency: getCurrencyAddress(isExactIn ? route.input : route.output),
-      path: encodeV4RouteToPath(route, !isExactIn),
-      exactAmount: `0x${route.amount.quotient.toString(16)}`,
-    },
-  ],
+  getCallInputs: (route, isExactIn) => {
+    const firstPool = route.pools[isExactIn ? 0 : route.pools.length - 1] as InfinityClPool
+    const baseCurrency = getMatchedCurrency(isExactIn ? route.input : route.output, [
+      firstPool.currency0,
+      firstPool.currency1,
+    ])
+    if (!baseCurrency) {
+      throw new Error('CL_ONCHAIN_QUOTER_CALL_INPUTS: INVALID_POOL')
+    }
+    const exactCurrency = getCurrencyAddress(baseCurrency)
+    return [
+      {
+        exactCurrency,
+        path: encodeInfinityRouteToPath(route, !isExactIn),
+        exactAmount: `0x${route.amount.quotient.toString(16)}`,
+      },
+    ]
+  },
 })
 
 export const createMixedRouteOnChainQuoteProviderV2 = onChainQuoteProviderFactory({
-  getQuoterAddress: (chainId) => (V4_MIXED_ROUTE_QUOTER_ADDRESSES as any)[chainId],
+  getQuoterAddress: (chainId) => (INFI_MIXED_QUOTER_ADDRESSES as any)[chainId],
   getQuoteFunctionName: () => 'quoteMixedExactInput',
-  abi: v4MixedRouteQuoterAbi,
+  abi: infinityMixedRouteQuoterAbi,
   getCallInputs: (route) => [
-    route.path.map((p) => getCurrencyAddress(p)),
-    encodeV4MixedRouteActions(route),
-    encodeV4MixedRouteParams(route),
+    encodeInfinityMixedRouteCurrencyPath(route),
+    encodeInfinityMixedRouteActions(route),
+    encodeInfinityMixedRouteParams(route),
     `0x${route.amount.quotient.toString(16)}`,
   ],
 })
 
-export const createV4BinOnChainQuoteProvider = onChainQuoteProviderFactory({
-  getQuoterAddress: (chainId) => (V4_BIN_QUOTER_ADDRESSES as any)[chainId],
+export const createInfinityBinOnChainQuoteProvider = onChainQuoteProviderFactory({
+  getQuoterAddress: (chainId) => (INFI_BIN_QUOTER_ADDRESSES as any)[chainId],
   getQuoteFunctionName: (isExactIn) => (isExactIn ? 'quoteExactInput' : 'quoteExactOutput'),
   abi: binQuoterAbi,
-  getCallInputs: (route, isExactIn) => [
-    {
-      exactCurrency: getCurrencyAddress(isExactIn ? route.input : route.output),
-      path: encodeV4RouteToPath(route, !isExactIn),
-      exactAmount: `0x${route.amount.quotient.toString(16)}`,
-    },
-  ],
+  getCallInputs: (route, isExactIn) => {
+    const firstPool = route.pools[isExactIn ? 0 : route.pools.length - 1] as InfinityBinPool
+    const baseCurrency = getMatchedCurrency(isExactIn ? route.input : route.output, [
+      firstPool.currency0,
+      firstPool.currency1,
+    ])
+    if (!baseCurrency) {
+      throw new Error('BIN_ONCHAIN_QUOTER_CALL_INPUTS: INVALID_POOL')
+    }
+    const exactCurrency = getCurrencyAddress(baseCurrency)
+    return [
+      {
+        exactCurrency,
+        path: encodeInfinityRouteToPath(route, !isExactIn),
+        exactAmount: `0x${route.amount.quotient.toString(16)}`,
+      },
+    ]
+  },
 })

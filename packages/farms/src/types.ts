@@ -319,8 +319,11 @@ export enum Protocol {
   V2 = 'v2',
   V3 = 'v3',
   STABLE = 'stable',
-  V4BIN = 'v4bin',
+  InfinityBIN = 'infinityBin',
+  InfinityCLAMM = 'infinityCl',
 }
+
+export const ALL_PROTOCOLS = [Protocol.V2, Protocol.V3, Protocol.STABLE, Protocol.InfinityBIN, Protocol.InfinityCLAMM]
 
 export type FarmBaseConfig = {
   // @deprecated
@@ -348,11 +351,16 @@ export type UniversalFarmConfigV3 = {
   feeAmount: FeeAmount
 } & FarmBaseConfig
 
+export type UniversalFarmConfigV4 = {
+  pid: number
+  protocol: Protocol.InfinityCLAMM | Protocol.InfinityBIN
+  poolId: Address
+} & FarmBaseConfig
 /**
  * minimal pool info for a farm
  */
 export type UniversalFarmConfig = Prettify<
-  UniversalFarmConfigV2 | UniversalFarmConfigStableSwap | UniversalFarmConfigV3
+  UniversalFarmConfigV2 | UniversalFarmConfigStableSwap | UniversalFarmConfigV3 | UniversalFarmConfigV4
 >
 
 // only v2/ss farms have bCakeWrapperAddress

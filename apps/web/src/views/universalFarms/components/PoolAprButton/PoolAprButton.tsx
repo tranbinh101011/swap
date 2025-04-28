@@ -1,25 +1,43 @@
+import { Protocol } from '@pancakeswap/farms'
 import { useModalV2, useTooltip } from '@pancakeswap/uikit'
 import { useMemo } from 'react'
 import { CakeApr } from 'state/farmsV4/atom'
-import { PositionDetail } from 'state/farmsV4/state/accountPositions/type'
+import {
+  InfinityBinPositionDetail,
+  InfinityCLPositionDetail,
+  PositionDetail,
+} from 'state/farmsV4/state/accountPositions/type'
 import { ChainIdAddressKey, PoolInfo } from 'state/farmsV4/state/type'
 import { getMerklLink } from 'utils/getMerklLink'
+import { isInfinityProtocol } from 'utils/protocols'
+
 import { sumApr } from '../../utils/sumApr'
+import { InfinityPoolAprModal } from '../Modals/InfinityPoolAprModal'
+import { V2PoolAprModal } from '../Modals/V2PoolAprModal'
+import { V3PoolAprModal } from '../Modals/V3PoolAprModal'
 import { StopPropagation } from '../StopPropagation'
 import { AprButton } from './AprButton'
 import { AprTooltipContent, BCakeWrapperFarmAprTipContent } from './AprTooltipContent'
-import { V2PoolAprModal } from './V2PoolAprModal'
-import { V3PoolAprModal } from './V3PoolAprModal'
 
 type PoolGlobalAprButtonProps = {
   pool: PoolInfo
   lpApr: number
   cakeApr: CakeApr[ChainIdAddressKey]
   merklApr?: number
-  userPosition?: PositionDetail
+  userPosition?: PositionDetail | InfinityBinPositionDetail | InfinityCLPositionDetail
+  onAPRTextClick?: () => void
+  showApyButton?: boolean
 }
 
-export const PoolAprButton: React.FC<PoolGlobalAprButtonProps> = ({ pool, lpApr, cakeApr, merklApr, userPosition }) => {
+export const PoolAprButton: React.FC<PoolGlobalAprButtonProps> = ({
+  pool,
+  lpApr,
+  cakeApr,
+  merklApr,
+  userPosition,
+  onAPRTextClick,
+  showApyButton,
+}) => {
   const baseApr = useMemo(() => {
     return sumApr(lpApr, cakeApr?.value, merklApr)
   }, [lpApr, cakeApr?.value, merklApr])
@@ -50,7 +68,15 @@ export const PoolAprButton: React.FC<PoolGlobalAprButtonProps> = ({ pool, lpApr,
 
   return (
     <StopPropagation>
-      <AprButton ref={targetRef} baseApr={baseApr} boostApr={boostApr} onClick={() => modal.setIsOpen(true)} />
+      <AprButton
+        hasFarm={Number(cakeApr?.value) > 0}
+        ref={targetRef}
+        baseApr={baseApr}
+        boostApr={boostApr}
+        onClick={modal.onOpen}
+        onAPRTextClick={onAPRTextClick ?? modal.onOpen}
+        showApyButton={showApyButton}
+      />
       {tooltipVisible && tooltip}
       {hasBCake ? (
         <V2PoolAprModal
@@ -60,9 +86,21 @@ export const PoolAprButton: React.FC<PoolGlobalAprButtonProps> = ({ pool, lpApr,
           lpApr={Number(lpApr ?? 0)}
           boostMultiplier={cakeApr && cakeApr.boost ? Number(cakeApr.boost) / Number(cakeApr.value) : 0}
         />
-      ) : (
-        <V3PoolAprModal modal={modal} poolInfo={pool} cakeApr={cakeApr} userPosition={userPosition} />
-      )}
+      ) : pool.protocol === Protocol.V3 ? (
+        <V3PoolAprModal
+          modal={modal}
+          poolInfo={pool}
+          cakeApr={cakeApr}
+          positionDetail={userPosition as PositionDetail}
+        />
+      ) : isInfinityProtocol(pool.protocol) ? (
+        <InfinityPoolAprModal
+          modal={modal}
+          poolInfo={pool}
+          cakeApr={cakeApr}
+          positionDetail={userPosition as InfinityCLPositionDetail}
+        />
+      ) : null}
     </StopPropagation>
   )
 }

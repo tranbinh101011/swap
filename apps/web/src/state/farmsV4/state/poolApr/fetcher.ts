@@ -6,6 +6,7 @@ import { create, windowedFiniteBatchScheduler } from '@yornaath/batshit'
 import BigNumber from 'bignumber.js'
 import { SECONDS_PER_YEAR } from 'config'
 import { v2BCakeWrapperABI } from 'config/abi/v2BCakeWrapper'
+import { InfinityProtocol, NonInfinityProtocol } from 'config/constants/protocols'
 import dayjs from 'dayjs'
 import groupBy from 'lodash/groupBy'
 import set from 'lodash/set'
@@ -13,9 +14,11 @@ import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/ap
 import { safeGetAddress } from 'utils'
 import { usdPriceBatcher } from 'utils/batcher'
 import { getMasterChefV3Contract, getV2SSBCakeWrapperContract } from 'utils/contractHelpers'
+import { isInfinityProtocol } from 'utils/protocols'
 import { publicClient } from 'utils/wagmi'
 import { erc20Abi } from 'viem'
-import { PoolInfo, StablePoolInfo, V2PoolInfo, V3PoolInfo } from '../type'
+
+import { InfinityPoolInfo, PoolInfo, StablePoolInfo, V2PoolInfo, V3PoolInfo } from '../type'
 import { CakeApr, MerklApr } from './atom'
 
 export const getCakeApr = (pool: PoolInfo, cakePrice: BigNumber): Promise<CakeApr> => {
@@ -40,15 +43,16 @@ export const getLpApr = async (pool: PoolInfo, apr24h: boolean = false, signal?:
   const chainName = chainIdToExplorerInfoChainName[pool.chainId]
 
   const resp = await explorerApiClient.GET(
-    protocol === 'v4bin'
-      ? `/cached/pools/apr/v4/{chainName}/{id}`
-      : `/cached/pools/apr/${protocol}/{chainName}/{address}`,
+    isInfinityProtocol(protocol)
+      ? `/cached/pools/apr/${protocol as InfinityProtocol}/{chainName}/{id}`
+      : `/cached/pools/apr/${protocol as NonInfinityProtocol}/{chainName}/{address}`,
     {
       signal,
       params: {
         path: {
           address: pool.lpAddress,
           chainName,
+          id: (pool as InfinityPoolInfo).poolId,
         },
       },
     },

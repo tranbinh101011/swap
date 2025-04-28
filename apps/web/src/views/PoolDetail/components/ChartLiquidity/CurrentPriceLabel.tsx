@@ -4,7 +4,7 @@ import { RowFixed } from 'components/Layout/Row'
 import useTheme from 'hooks/useTheme'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import { styled } from 'styled-components'
-import { V3LiquidityChartData } from './type'
+import { LiquidityChartData } from './type'
 
 const Wrapper = styled.div`
   border-radius: 8px;
@@ -16,7 +16,7 @@ const Wrapper = styled.div`
 `
 
 interface CurrentPriceLabelProps {
-  data: V3LiquidityChartData[] | undefined
+  data: LiquidityChartData[] | undefined
   x?: number
   // y?: number
   index?: number
@@ -32,7 +32,7 @@ export const CurrentPriceLabel: React.FC<CurrentPriceLabelProps> = ({ data, x = 
     const { price1 } = entryData
     return (
       <g>
-        <foreignObject x={x - 80} y={290} width="100%" height={100} style={{ zIndex: 9999 }}>
+        <foreignObject x={Math.max(x - 80, 0)} y={290} width="100%" height={100} style={{ zIndex: 9999 }}>
           <Wrapper>
             <AutoColumn gap="2px">
               <RowFixed align="center">
@@ -49,9 +49,11 @@ export const CurrentPriceLabel: React.FC<CurrentPriceLabelProps> = ({ data, x = 
               </RowFixed>
               <Text>{`1 ${poolInfo?.token0.symbol} = ${Number(price0).toLocaleString(undefined, {
                 minimumSignificantDigits: 1,
+                maximumSignificantDigits: 3,
               })} ${poolInfo?.token1.symbol}`}</Text>
               <Text>{`1 ${poolInfo?.token1.symbol} = ${Number(price1).toLocaleString(undefined, {
                 minimumSignificantDigits: 1,
+                maximumSignificantDigits: 3,
               })} ${poolInfo?.token0.symbol}`}</Text>
             </AutoColumn>
           </Wrapper>

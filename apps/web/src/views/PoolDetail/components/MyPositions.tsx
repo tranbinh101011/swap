@@ -1,5 +1,6 @@
 import { Protocol } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
+import { CurrencyAmount, Token } from '@pancakeswap/swap-sdk-core'
 import {
   AddIcon,
   AutoColumn,
@@ -22,26 +23,43 @@ import {
   useToast,
 } from '@pancakeswap/uikit'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
+import { displayApr } from '@pancakeswap/utils/displayApr'
 import { formatFiatNumber } from '@pancakeswap/utils/formatFiatNumber'
-import { DoubleCurrencyLogo } from '@pancakeswap/widgets-internal'
+import { DoubleCurrencyLogo, Liquidity } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import Divider from 'components/Divider'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { PERSIST_CHAIN_KEY } from 'config/constants'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { getAddInfinityLiquidityURL } from 'config/constants/liquidity'
+import { usePoolById } from 'hooks/infinity/usePool'
+import { useCurrencyByChainId } from 'hooks/Tokens'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import { useTotalPriceUSD } from 'hooks/useTotalPriceUSD'
 import { usePoolByChainId } from 'hooks/v3/usePools'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useAccountPositionDetailByPool, useV2PoolsLength, useV3PoolsLength } from 'state/farmsV4/hooks'
-import { PositionDetail, StableLPDetail, V2LPDetail } from 'state/farmsV4/state/accountPositions/type'
-import { PoolInfo, StablePoolInfo, V2PoolInfo } from 'state/farmsV4/state/type'
+import { useAccountPositionDetailByPool, usePoolApr, useV2PoolsLength, useV3PoolsLength } from 'state/farmsV4/hooks'
+import {
+  InfinityCLPositionDetail,
+  PositionDetail,
+  StableLPDetail,
+  V2LPDetail,
+} from 'state/farmsV4/state/accountPositions/type'
+import {
+  InfinityBinPoolInfo,
+  InfinityCLPoolInfo,
+  InfinityPoolInfo,
+  PoolInfo,
+  StablePoolInfo,
+  V2PoolInfo,
+} from 'state/farmsV4/state/type'
 import { useChainIdByQuery } from 'state/info/hooks'
 import styled from 'styled-components'
 import { addQueryToPath } from 'utils/addQueryToPath'
+import { isInfinityProtocol } from 'utils/protocols'
+import { zeroAddress } from 'viem'
 import { useFarmsV3BatchHarvest } from 'views/Farms/hooks/v3/useFarmV3Actions'
 import {
   AddLiquidityButton,
@@ -51,12 +69,22 @@ import {
   V3PositionItem,
 } from 'views/universalFarms/components'
 import { checkHasReward } from 'views/universalFarms/components/FarmStatusDisplay/hooks'
+import { InfinityPositionActions } from 'views/universalFarms/components/PositionActions/InfinityPositionActions'
 import { RewardInfoCard } from 'views/universalFarms/components/RewardInfoCard'
 import { useCheckShouldSwitchNetwork } from 'views/universalFarms/hooks'
+import { useAPRBreakdown } from 'views/universalFarms/hooks/useAPRBreakdown'
 import { useV2CakeEarning, useV3CakeEarningsByPool } from 'views/universalFarms/hooks/useCakeEarning'
 import { useV2FarmActions } from 'views/universalFarms/hooks/useV2FarmActions'
-import { displayApr } from 'views/universalFarms/utils/displayApr'
 import { formatDollarAmount } from 'views/V3Info/utils/numbers'
+
+import { PositionMath } from '@pancakeswap/v3-sdk'
+import { useAtom } from 'jotai'
+import { InfinityBinPositionItem } from 'views/universalFarms/components/PositionItem/InfinityBinPositionItem'
+import { InfinityCLPositionItem } from 'views/universalFarms/components/PositionItem/InfinityCLPositionItem'
+import { useInfinityPositions } from 'views/universalFarms/hooks/useInfinityPositions'
+import { positionEarningAmountAtom } from 'views/universalFarms/hooks/usePositionEarningAmount'
+
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useV3Positions } from '../hooks/useV3Positions'
 import { MyPositionsProvider, useMyPositions } from './MyPositionsContext'
 import { V2PoolEarnings, V3PoolEarnings } from './PoolEarnings'
@@ -69,6 +97,9 @@ export enum PositionFilter {
 }
 
 const OverviewCard = styled(Card)`
+  ${({ theme }) => theme.mediaQueries.md} {
+    min-width: 340px;
+  }
   height: fit-content;
 `
 
@@ -87,10 +118,49 @@ const PositionCardBody = styled(CardBody)`
   max-height: 848px;
   overflow-y: auto;
   overflow-x: hidden;
+  padding: 4px;
+
+  ${({ theme }) => theme.mediaQueries.sm} {
+    padding: 16px;
+  }
 `
 
 const StyledImage = styled(Image)`
   margin: 76px auto;
+`
+
+const RewardsContainer = styled.div`
+  table {
+    tr {
+      th,
+      td {
+        padding: 4px;
+      }
+      th:last-child,
+      td:last-child {
+        padding-right: 4px;
+      }
+
+      th:first-child,
+      td:first-child {
+        padding-left: 4px;
+        & div {
+          font-size: 14px;
+          font-weight: 400;
+        }
+      }
+    }
+  }
+`
+
+const StyledButtonMenuItem = styled(ButtonMenuItem)`
+  padding: 0 8px;
+
+  ${({ theme }) => theme.mediaQueries.sm} {
+    padding: 0 16px;
+  }
+
+  ${({ isActive }) => (isActive ? `padding: 0 16px;` : '')};
 `
 
 export const MyPositions: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
@@ -123,17 +193,21 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
   )
 
   // Calculate count based on protocol
-  const count = useMemo(() => {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
     if (poolInfo.protocol === 'v3') {
-      return v3Data?.length ?? 0
+      setCount(v3Data?.length ?? 0)
     }
     if (['v2', 'stable'].includes(poolInfo.protocol)) {
-      if (!v2OrStableData) return 0
-      return [v2OrStableData.nativeBalance.greaterThan('0'), v2OrStableData.farmingBalance.greaterThan('0')].filter(
-        Boolean,
-      ).length
+      if (!v2OrStableData) {
+        setCount(0)
+        return
+      }
+      setCount(
+        [v2OrStableData.nativeBalance.greaterThan('0'), v2OrStableData.farmingBalance.greaterThan('0')].filter(Boolean)
+          .length,
+      )
     }
-    return 0
   }, [poolInfo.protocol, v3Data, v2OrStableData])
 
   const isLoading =
@@ -141,29 +215,32 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
 
   const [totalLiquidityUSD, setTotalLiquidityUSD] = useState('0')
   const [filter, setFilter] = useState(PositionFilter.All)
+
+  const { lpAddress, protocol, feeTier } = poolInfo
+
   const addLiquidityLink = useMemo(() => {
     const token0Token1 = `${poolInfo.token0.wrapped.address}/${poolInfo.token1.wrapped.address}`
     let link = ''
-    if (poolInfo.protocol === 'v3') {
-      link = `/add/${token0Token1}/${poolInfo.feeTier}`
+    if (protocol === 'v3') {
+      link = `/add/${token0Token1}/${feeTier}`
     }
-    if (poolInfo.protocol === 'v2') {
+    if (protocol === 'v2') {
       link = `/v2/add/${token0Token1}`
     }
-    if (poolInfo.protocol === 'stable') {
+    if (protocol === 'stable') {
       link = `/stable/add/${token0Token1}`
+    }
+    if (isInfinityProtocol(protocol)) {
+      link = getAddInfinityLiquidityURL({
+        chainId: poolInfo.chainId,
+        poolId: (poolInfo as InfinityPoolInfo).poolId,
+      })
     }
     return addQueryToPath(link, {
       chain: CHAIN_QUERY_NAME[poolInfo.chainId],
       [PERSIST_CHAIN_KEY]: '1',
     })
-  }, [
-    poolInfo.feeTier,
-    poolInfo.protocol,
-    poolInfo.token0.wrapped.address,
-    poolInfo.token1.wrapped.address,
-    poolInfo.chainId,
-  ])
+  }, [poolInfo, protocol, feeTier])
   const [_handleHarvestAll, setHandleHarvestAll] = useState(() => () => Promise.resolve())
   const [loading, setLoading] = useState(false)
   const { switchNetworkIfNecessary } = useCheckShouldSwitchNetwork()
@@ -185,7 +262,7 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
 
   const handleHarvestAll = useCallback(async () => {
     if (loading) return
-    const shouldSwitch = await switchNetworkIfNecessary(poolInfo.chainId)
+    const shouldSwitch = await switchNetworkIfNecessary(chainId)
     if (shouldSwitch) {
       return
     }
@@ -197,11 +274,89 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
       console.error(error)
       setLoading(false)
     }
-  }, [_handleHarvestAll, loading, setLoading, poolInfo.chainId, switchNetworkIfNecessary])
+  }, [_handleHarvestAll, loading, setLoading, chainId, switchNetworkIfNecessary])
 
   const { earningsBusd: v2EarningsBusd } = useV2CakeEarning(poolInfo)
   const { earningsBusd: v3EarningsBusd } = useV3CakeEarningsByPool(poolInfo)
   const { isMobile } = useMatchBreakpoints()
+
+  const currency0 =
+    useCurrencyByChainId(
+      poolInfo?.token0.isNative ? zeroAddress : (poolInfo?.token0 as Token)?.address,
+      poolInfo?.chainId,
+    ) ?? undefined
+  const currency1 = useCurrencyByChainId(poolInfo?.token1.address, poolInfo?.chainId) ?? undefined
+
+  const key = useMemo(() => `${chainId}:${lpAddress}` as const, [chainId, lpAddress])
+  const { cakeApr, merklApr } = usePoolApr(key, poolInfo)
+
+  const { totalLpApr, totalCakeApr } = useMemo(() => {
+    const [lpNumerator, lpDenominator, cakeNumerator, cakeDenominator] = Object.values(totalApr).reduce(
+      (acc, v) => {
+        return [
+          acc[0].plus(new BigNumber(v.lpApr ?? 0).times(v.denominator)),
+          acc[1].plus(v.denominator),
+          acc[2].plus(new BigNumber(v.cakeApr?.value ?? 0).times(v.denominator)),
+          acc[3].plus(v.denominator),
+        ]
+      },
+      [BIG_ZERO, BIG_ZERO, BIG_ZERO, BIG_ZERO],
+    )
+    return {
+      totalLpApr: lpDenominator.isZero() ? '0' : (lpNumerator.div(lpDenominator).toFixed() as `${number}`),
+      totalCakeApr: cakeDenominator.isZero() ? '0' : (cakeNumerator.div(cakeDenominator).toFixed() as `${number}`),
+    }
+  }, [totalApr])
+
+  const rewards = useAPRBreakdown({
+    poolId: (poolInfo as InfinityPoolInfo).poolId,
+    tvlUSD: denominator.isZero() ? '0' : (denominator.toFixed() as `${number}`),
+    currency0,
+    currency1,
+    lpApr: totalLpApr,
+    cakeApr: { ...cakeApr, value: totalCakeApr },
+    merklApr,
+  })
+
+  const infinityEarningCard = useMemo(
+    () => (
+      <RewardsContainer>
+        <Liquidity.RewardCard rewards={rewards} />
+      </RewardsContainer>
+    ),
+    [rewards],
+  )
+
+  const earningCard = useMemo(
+    () => (
+      <>
+        <Divider />
+        <Row justifyContent="space-between">
+          {protocol === 'v3' ? <V3PoolEarnings pool={poolInfo} /> : <V2PoolEarnings pool={poolInfo} />}
+          {count > 0 ? (
+            <Button
+              variant="secondary"
+              onClick={handleHarvestAll}
+              endIcon={loading ? <AutoRenewIcon spin color="currentColor" /> : null}
+              isLoading={loading}
+              disabled={loading || (protocol === Protocol.V3 ? !v3EarningsBusd : !v2EarningsBusd)}
+            >
+              {loading ? t('Harvesting') : t('Harvest')}
+            </Button>
+          ) : null}
+        </Row>
+      </>
+    ),
+    [count, handleHarvestAll, loading, poolInfo, protocol, t, v2EarningsBusd, v3EarningsBusd],
+  )
+
+  const [, setPositionEarningAmount] = useAtom(positionEarningAmountAtom)
+  useEffect(() => {
+    // clear position earning data when account update
+    setPositionEarningAmount({})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account])
+
   if (isLoading) {
     return (
       <AutoColumn gap="lg">
@@ -226,7 +381,7 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
       </AutoColumn>
     )
   }
-  if (count === 0 || !account) {
+  if ((count === 0 && !isInfinityProtocol(protocol)) || !account) {
     return (
       <Grid gridGap="24px" gridTemplateColumns={['1fr', '1fr', '1fr', hasPoolReward ? '1fr 2fr' : '1fr']}>
         {hasPoolReward && <RewardInfoCard />}
@@ -254,56 +409,49 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
       </Grid>
     )
   }
-
   return (
     <AutoColumn gap="lg">
       <Text as="h3" bold fontSize={24}>
         {t('My Positions')}
       </Text>
-      <Grid gridGap={24} gridTemplateColumns={['1fr', '1fr', '1fr', '1fr 2fr']}>
+      <Grid gridGap={24} gridTemplateColumns={['1fr', '1fr', '1fr', '1fr', '1fr 2fr']}>
         <Box>
-          <OverviewCard innerCardProps={{ p: 24 }}>
+          <OverviewCard innerCardProps={{ p: [16, null, null, 24] }}>
             <AutoColumn gap="lg">
               <AutoColumn gap="8px">
-                <Text color="secondary" fontWeight={600} textTransform="uppercase">
+                <Text color="secondary" fontSize={12} fontWeight={600} textTransform="uppercase">
                   {t('overview')}
                 </Text>
                 <Row justifyContent="space-between">
-                  <Text color="textSubtle">{t('My Liquidity Value')}</Text>
+                  <Text color="textSubtle" fontSize={14}>
+                    {t('My Liquidity Value')}
+                  </Text>
                   <Text>{formatDollarAmount(Number(totalLiquidityUSD))}</Text>
                 </Row>
                 <Row justifyContent="space-between">
-                  <Text color="textSubtle">{t('My Total APR')}</Text>
+                  <Text color="textSubtle" fontSize={14}>
+                    {t('My Total APR')}
+                  </Text>
                   <Text>{displayApr(totalAprValue)}</Text>
                 </Row>
                 <Row justifyContent="space-between">
-                  <Text color="textSubtle">{t('Earning')}</Text>
-                  <Flex>
-                    <Text mr="4px">{t('LP Fee')}</Text>
-                    <DoubleCurrencyLogo
-                      currency0={poolInfo.token0.wrapped}
-                      currency1={poolInfo.token1.wrapped}
-                      size={24}
-                      innerMargin="-8px"
-                    />
-                  </Flex>
+                  <Text color="textSubtle" fontSize={14}>
+                    {t('Earning')}
+                  </Text>
+                  {!isInfinityProtocol(protocol) && (
+                    <Flex>
+                      <Text mr="4px">{t('LP Fee')}</Text>
+                      <DoubleCurrencyLogo
+                        currency0={poolInfo.token0.wrapped}
+                        currency1={poolInfo.token1.wrapped}
+                        size={24}
+                        innerMargin="-8px"
+                      />
+                    </Flex>
+                  )}
                 </Row>
               </AutoColumn>
-              <Divider />
-              <Row justifyContent="space-between">
-                {poolInfo.protocol === 'v3' ? <V3PoolEarnings pool={poolInfo} /> : <V2PoolEarnings pool={poolInfo} />}
-                {count > 0 ? (
-                  <Button
-                    variant="secondary"
-                    onClick={handleHarvestAll}
-                    endIcon={loading ? <AutoRenewIcon spin color="currentColor" /> : null}
-                    isLoading={loading}
-                    disabled={loading || (poolInfo.protocol === Protocol.V3 ? !v3EarningsBusd : !v2EarningsBusd)}
-                  >
-                    {loading ? t('Harvesting') : t('Harvest')}
-                  </Button>
-                ) : null}
-              </Row>
+              {isInfinityProtocol(protocol) ? infinityEarningCard : earningCard}
               <Button as="a" href={addLiquidityLink}>
                 {t('Add Liquidity')}
                 <AddIcon ml="8px" color="var(--colors-invertedContrast)" />
@@ -348,16 +496,35 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
             </Row>
           </PositionCardHeader>
           <PositionCardBody>
-            {poolInfo.protocol === 'v3' ? (
+            {protocol === Protocol.InfinityCLAMM ? (
+              <MyInfinityCLPPositions
+                poolInfo={poolInfo as InfinityCLPoolInfo}
+                filter={filter}
+                setCount={setCount}
+                setTotalLiquidityUSD={setTotalLiquidityUSD}
+                setHandleHarvestAll={setHandleHarvestAll}
+              />
+            ) : null}
+            {protocol === Protocol.InfinityBIN ? (
+              <MyInfinityBinPositions
+                poolInfo={poolInfo as InfinityBinPoolInfo}
+                filter={filter}
+                setCount={setCount}
+                setTotalLiquidityUSD={setTotalLiquidityUSD}
+                setHandleHarvestAll={setHandleHarvestAll}
+              />
+            ) : null}
+            {protocol === 'v3' ? (
               <MyV3Positions
                 poolInfo={poolInfo}
                 filter={filter}
+                setCount={setCount}
                 v3Data={v3Data}
                 setTotalLiquidityUSD={setTotalLiquidityUSD}
                 setHandleHarvestAll={setHandleHarvestAll}
               />
             ) : null}
-            {['v2', 'stable'].includes(poolInfo.protocol) ? (
+            {['v2', 'stable'].includes(protocol) ? (
               <MyV2OrStablePositions
                 poolInfo={poolInfo as V2PoolInfo | StablePoolInfo}
                 v2OrStableData={v2OrStableData}
@@ -365,6 +532,7 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
                 setHandleHarvestAll={setHandleHarvestAll}
               />
             ) : null}
+
             {count === 0 && (
               <StyledImage src="/images/decorations/3dpan.png" alt="Pancake illustration" width={120} height={103} />
             )}
@@ -380,6 +548,7 @@ type V3Positions = Record<PositionFilter, PositionDetail[]> | null
 const MyV3Positions: React.FC<{
   poolInfo: PoolInfo
   filter: PositionFilter
+  setCount: (count: number) => void
   v3Data: PositionDetail[] | undefined
   setTotalLiquidityUSD: (value: string) => void
   setHandleHarvestAll: (fn: () => () => Promise<void>) => void
@@ -575,6 +744,224 @@ const MyV2OrStablePositions: React.FC<{
           poolLength={v2PoolsLength[chainId]}
         />
       ) : null}
+    </AutoColumn>
+  )
+}
+
+type InfinityCLPPositions = Record<PositionFilter, InfinityCLPositionDetail[]> | null
+
+const MyInfinityCLPPositions: React.FC<{
+  poolInfo: InfinityCLPoolInfo
+  filter: PositionFilter
+  setCount: (count: number) => void
+  setTotalLiquidityUSD: (value: string) => void
+  setHandleHarvestAll: (fn: () => () => Promise<void>) => void
+}> = ({ poolInfo, filter, setCount, setTotalLiquidityUSD }) => {
+  const { t } = useTranslation()
+  const chainId = useChainIdByQuery()
+  const { account } = useAccountActiveChain()
+  const [, pool] = usePoolById<'CL'>(poolInfo.poolId as `0x${string}`, chainId)
+  const { data: positionsInPool, isLoading } = useAccountPositionDetailByPool<Protocol.InfinityCLAMM>(
+    chainId,
+    account,
+    poolInfo,
+  )
+  const { data: infinityPositions } = useInfinityPositions()
+  const { data: price0Usd } = useCurrencyUsdPrice(poolInfo.token0, {
+    enabled: !!poolInfo.token0,
+  })
+  const { data: price1Usd } = useCurrencyUsdPrice(poolInfo.token1, {
+    enabled: !!poolInfo.token1,
+  })
+  const totalLiquidityUSD = useMemo(() => {
+    if (!positionsInPool) {
+      return '0'
+    }
+    const total = positionsInPool.reduce((acc, position) => {
+      const { tickLower, tickUpper, liquidity } = position
+      const amount0 = pool
+        ? CurrencyAmount.fromRawAmount(
+            pool.token0,
+            PositionMath.getToken0Amount(pool.tickCurrent, tickLower, tickUpper, pool.sqrtRatioX96, liquidity),
+          )
+        : undefined
+      const amount1 = pool
+        ? CurrencyAmount.fromRawAmount(
+            pool.token1,
+            PositionMath.getToken1Amount(pool.tickCurrent, tickLower, tickUpper, pool.sqrtRatioX96, liquidity),
+          )
+        : undefined
+      return new BigNumber(acc)
+        .plus(new BigNumber(amount0?.toExact() ?? 0).times(price0Usd?.toString() ?? 0))
+        .plus(new BigNumber(amount1?.toExact() ?? 0).times(price1Usd?.toString() ?? 0))
+        .toString()
+    }, '0')
+    return total
+  }, [pool, positionsInPool, price0Usd, price1Usd])
+
+  useEffect(() => {
+    setTotalLiquidityUSD(totalLiquidityUSD.toString())
+  }, [totalLiquidityUSD, setTotalLiquidityUSD])
+
+  const positions: InfinityCLPPositions = useMemo(() => {
+    if (!positionsInPool) {
+      return null
+    }
+    const p: InfinityCLPPositions = {
+      [PositionFilter.All]: [],
+      [PositionFilter.Active]: [],
+      [PositionFilter.Inactive]: [],
+      [PositionFilter.Closed]: [],
+    }
+
+    positionsInPool.forEach((position) => {
+      if (position.liquidity === 0n) {
+        p[PositionFilter.Closed].push(position)
+        return
+      }
+      const outOfRange = pool && (pool.tickCurrent < position.tickLower || pool.tickCurrent >= position.tickUpper)
+      if (outOfRange) {
+        p[PositionFilter.Inactive].push(position)
+      } else {
+        p[PositionFilter.Active].push(position)
+      }
+    })
+
+    p[PositionFilter.All] = p[PositionFilter.Active].concat(p[PositionFilter.Inactive], p[PositionFilter.Closed])
+
+    return p
+  }, [positionsInPool, pool])
+
+  useEffect(() => {
+    setCount(positions?.[filter].length ?? 0)
+  }, [filter, positions, setCount])
+
+  if (isLoading) {
+    return (
+      <>
+        <PositionItemSkeleton />
+        <PositionItemSkeleton />
+        <PositionItemSkeleton />
+      </>
+    )
+  }
+
+  if (!positions) {
+    return null
+  }
+  return (
+    <AutoColumn gap="lg">
+      {[PositionFilter.All, PositionFilter.Active].includes(filter) && positions?.[PositionFilter.Active]?.length ? (
+        <AutoColumn gap="sm">
+          <Text fontWeight={600} fontSize={12} color="secondary" textTransform="uppercase">
+            {positions?.[PositionFilter.Active].length}&nbsp;
+            {t('active')}
+          </Text>
+          {positions?.[PositionFilter.Active]?.map((position) => {
+            return (
+              <InfinityCLPositionItem
+                key={position.tokenId}
+                data={position}
+                action={<InfinityPositionActions pos={position} positionList={infinityPositions} />}
+              />
+            )
+          })}
+        </AutoColumn>
+      ) : null}
+      {[PositionFilter.All, PositionFilter.Inactive].includes(filter) &&
+      positions?.[PositionFilter.Inactive]?.length ? (
+        <AutoColumn gap="sm">
+          <Text fontWeight={600} fontSize={12} color="secondary" textTransform="uppercase">
+            {positions?.[PositionFilter.Inactive].length}&nbsp;
+            {t('inactive')}
+          </Text>
+          {positions?.[PositionFilter.Inactive].map((position) => {
+            return (
+              <InfinityCLPositionItem
+                key={position.tokenId}
+                data={position}
+                action={<InfinityPositionActions pos={position} positionList={infinityPositions} />}
+              />
+            )
+          })}
+        </AutoColumn>
+      ) : null}
+      {[PositionFilter.All, PositionFilter.Closed].includes(filter) && positions?.[PositionFilter.Closed]?.length ? (
+        <AutoColumn gap="sm">
+          <Text fontWeight={600} fontSize={12} color="secondary" textTransform="uppercase">
+            {positions?.[PositionFilter.Closed].length}&nbsp;
+            {t('closed')}
+          </Text>
+          {positions?.[PositionFilter.Closed]?.map((position) => {
+            return <InfinityCLPositionItem key={position.tokenId} data={position} />
+          })}
+        </AutoColumn>
+      ) : null}
+    </AutoColumn>
+  )
+}
+
+const MyInfinityBinPositions: React.FC<{
+  poolInfo: InfinityBinPoolInfo
+  filter: PositionFilter
+  setCount: (count: number) => void
+  setTotalLiquidityUSD: (value: string) => void
+  setHandleHarvestAll: (fn: () => () => Promise<void>) => void
+}> = ({ poolInfo, setCount, setTotalLiquidityUSD }) => {
+  const chainId = useChainIdByQuery()
+  const { account } = useAccountActiveChain()
+  const [, pool] = usePoolById<'Bin'>(poolInfo.poolId as `0x${string}`, chainId)
+  const { data, isLoading } = useAccountPositionDetailByPool<Protocol.InfinityBIN>(chainId, account, poolInfo)
+  const position = data?.[0]
+  const { data: infinityPositions } = useInfinityPositions()
+  const amount0 = useMemo(
+    () =>
+      position?.reserveX && pool?.token0 ? CurrencyAmount.fromRawAmount(pool.token0, position.reserveX) : undefined,
+    [position?.reserveX, pool?.token0],
+  )
+  const amount1 = useMemo(
+    () =>
+      position?.reserveY && pool?.token1 ? CurrencyAmount.fromRawAmount(pool.token1, position.reserveY) : undefined,
+    [position?.reserveY, pool?.token1],
+  )
+  const totalTVLUsd = useTotalPriceUSD({
+    currency0: pool?.token0,
+    currency1: pool?.token1,
+    amount0,
+    amount1,
+  })
+
+  useEffect(() => {
+    if (amount0?.greaterThan('0') || amount1?.greaterThan('0')) {
+      setTotalLiquidityUSD(formatFiatNumber(totalTVLUsd, ''))
+      setCount(1)
+    } else {
+      setTotalLiquidityUSD('')
+      setCount(0)
+    }
+  }, [amount0, amount1, totalTVLUsd, setTotalLiquidityUSD, setCount])
+
+  if (isLoading) {
+    return (
+      <>
+        <PositionItemSkeleton />
+        <PositionItemSkeleton />
+        <PositionItemSkeleton />
+      </>
+    )
+  }
+
+  if (!position) {
+    return null
+  }
+
+  return (
+    <AutoColumn gap="lg">
+      <InfinityBinPositionItem
+        detailMode
+        data={position}
+        action={<InfinityPositionActions pos={position} positionList={infinityPositions} />}
+      />
     </AutoColumn>
   )
 }

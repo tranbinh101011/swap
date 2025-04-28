@@ -1,7 +1,9 @@
-import { Currency } from '@pancakeswap/sdk'
+import { Currency, getCurrencyAddress } from '@pancakeswap/sdk'
 import { useQuery } from '@tanstack/react-query'
 
 import { SLOW_INTERVAL } from 'config/constants'
+import { atom } from 'jotai'
+import { atomFamily } from 'jotai/utils'
 import { usdPriceBatcher } from 'utils/batcher'
 
 type Config = {
@@ -22,3 +24,23 @@ export function useCurrencyUsdPrice(currency: Currency | undefined | null, { ena
     enabled: Boolean(enabled && currency),
   })
 }
+
+export const currencyUSDPriceAtom = atomFamily(
+  (currency?: Currency) => {
+    return atom(() => {
+      if (!currency) {
+        throw new Error('No currency provided')
+      }
+      return usdPriceBatcher.fetch(currency)
+    })
+  },
+  (a, b) => {
+    if (a === b) {
+      return true
+    }
+    if (!a || !b) {
+      return false
+    }
+    return getCurrencyAddress(a) === getCurrencyAddress(b)
+  },
+)

@@ -58,7 +58,10 @@ export const useV3CakeEarningsByPool = (pool: PoolInfo | null | undefined) => {
   )
   const tokenIds = useMemo(() => {
     if (!data?.length) return []
-    return data.filter((item) => item.isStaked).map((item) => item.tokenId)
+    return data
+      .filter((item) => item.isStaked)
+      .map((item) => item.tokenId)
+      .filter(Boolean)
   }, [data])
   const { earningsBusd, earningsAmount } = useV3CakeEarning(tokenIds, pool?.chainId ?? chainId)
   return {

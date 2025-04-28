@@ -1,5 +1,5 @@
+import { InfinityRouter, PoolType, SmartRouter } from '@pancakeswap/smart-router'
 import { TradeType } from '@pancakeswap/swap-sdk-core'
-import { PoolType, V4Router, SmartRouter } from '@pancakeswap/smart-router'
 
 import { OrderType } from './orderType'
 
@@ -22,7 +22,7 @@ export type TradeTypeKeys = UnionToTuple<TradeTypeKey>
 
 export type PoolTypeKeys = UnionToTuple<PoolTypeKey>
 
-export type AMMOrder = V4Router.Transformer.SerializedV4Trade & {
+export type AMMOrder = InfinityRouter.Transformer.SerializedInfinityTrade & {
   quoteGasAdjusted: SmartRouter.Transformer.SerializedCurrencyAmount
   gasUseEstimateUSD: string
 }

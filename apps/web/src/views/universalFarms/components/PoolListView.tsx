@@ -1,15 +1,11 @@
-import { BottomDrawer, Button, ChevronRightIcon, Column, FlexGap, MoreIcon } from '@pancakeswap/uikit'
-import { TokenOverview } from '@pancakeswap/widgets-internal'
-import { TokenPairImage } from 'components/TokenImage'
+import { BottomDrawer, Button, ChevronRightIcon, Column, MoreIcon } from '@pancakeswap/uikit'
+import { useRouter } from 'next/router'
 import { memo, ReactNode, useCallback, useState } from 'react'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import styled from 'styled-components'
-import { getChainFullName } from '../utils'
-import { RewardStatusDisplay } from './FarmStatusDisplay'
-import { checkHasReward } from './FarmStatusDisplay/hooks'
 import { PoolGlobalAprButton } from './PoolAprButton'
-import { ActionItems } from './PoolListItemAction'
-import { useColumnMobileConfig } from './useColumnConfig'
+import { ActionItems, getPoolDetailPageLink } from './PoolListItemAction'
+import { PoolTokenOverview, useColumnMobileConfig } from './useColumnConfig'
 
 const ListContainer = styled.ul``
 
@@ -27,53 +23,51 @@ const ListItemContainer = styled.li`
   }
 `
 
-interface IPoolListViewProps {
-  data: PoolInfo[]
+interface IPoolListViewProps<T extends PoolInfo> {
+  data: T[]
   onRowClick?: (item: PoolInfo) => void
+  getItemKey?: (item: T) => string
 }
-export const ListView: React.FC<IPoolListViewProps> = ({ data, onRowClick }) => {
+export const ListView = <T extends PoolInfo>({ data, getItemKey, onRowClick }: IPoolListViewProps<T>) => {
   const [openItem, setOpenItem] = useState<PoolInfo | null>(null)
   const handleDrawerChange = useCallback((status: boolean) => {
     if (!status) setOpenItem(null)
   }, [])
+  const router = useRouter()
+  const handleItemClick = useCallback(
+    async (item: PoolInfo) => {
+      const link = await getPoolDetailPageLink(item)
+      router.push(link)
+    },
+    [router],
+  )
+
+  const getListItemKey = useCallback(
+    (item: T) => (getItemKey ? getItemKey(item) : [item.chainId, item.protocol, item.lpAddress].join(':')),
+    [getItemKey],
+  )
+
+  const handleMoreClick = (e, item) => {
+    e.stopPropagation()
+    setOpenItem(item)
+  }
 
   return (
     <ListContainer>
-      {data.map((item) => {
-        const hasRewards = checkHasReward(item.chainId, item.lpAddress)
-        return (
-          <ListItemContainer key={`${item.chainId}-${item.lpAddress}`} onClick={() => onRowClick?.(item)}>
-            <Column gap="12px">
-              <TokenOverview
-                isReady
-                token={item.token0}
-                quoteToken={item.token1}
-                width="48px"
-                getChainName={getChainFullName}
-                icon={
-                  <TokenPairImage
-                    width={44}
-                    height={44}
-                    variant="inverted"
-                    primaryToken={item.token0}
-                    secondaryToken={item.token1}
-                  />
-                }
-              />
-              <FlexGap gap="4px">
-                <PoolGlobalAprButton pool={item} />
-                {hasRewards && <RewardStatusDisplay />}
-              </FlexGap>
-            </Column>
+      {data.map((item) => (
+        <ListItemContainer key={getListItemKey(item)} onClick={() => onRowClick?.(item)}>
+          <Column gap="12px" onClick={() => handleItemClick(item)}>
+            <PoolTokenOverview data={item} />
+            <PoolGlobalAprButton pool={item} />
+          </Column>
 
-            <Column>
-              <Button scale="xs" variant="text" onClick={() => setOpenItem(item)}>
-                <MoreIcon />
-              </Button>
-            </Column>
-          </ListItemContainer>
-        )
-      })}
+          <Column>
+            <Button scale="xs" variant="text" onClick={(e) => handleMoreClick(e, item)} py="2rem" pl="1rem">
+              <MoreIcon />
+            </Button>
+          </Column>
+        </ListItemContainer>
+      ))}
 
       <BottomDrawer
         drawerContainerStyle={{ height: 'auto' }}
@@ -156,22 +150,7 @@ const ListItemDetails: React.FC<IListItemDetailsProps> = memo(({ data }) => {
         <Grabber />
       </ItemDetailHeader>
       <ItemDetailBody>
-        <TokenOverview
-          isReady
-          token={data.token0}
-          quoteToken={data.token1}
-          width="48px"
-          getChainName={getChainFullName}
-          icon={
-            <TokenPairImage
-              width={44}
-              height={44}
-              variant="inverted"
-              primaryToken={data.token0}
-              secondaryToken={data.token1}
-            />
-          }
-        />
+        <PoolTokenOverview data={data} />
         {columns.map((col) => (
           <ListItem key={col.key}>
             <ListItemLabel>

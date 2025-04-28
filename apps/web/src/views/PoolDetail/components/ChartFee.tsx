@@ -1,6 +1,7 @@
 import { Flex, Text } from '@pancakeswap/uikit'
 import dayjs from 'dayjs'
 import { useState } from 'react'
+import { PoolInfo } from 'state/farmsV4/state/type'
 import styled from 'styled-components'
 import BarChart from 'views/V3Info/components/BarChart/alt'
 import { formatDollarAmount } from 'views/V3Info/utils/numbers'
@@ -12,10 +13,11 @@ const StyledBarChart = styled(BarChart)`
 
 type ChartVolumeProps = {
   address?: string
+  poolInfo?: PoolInfo | null
 }
 
-export const ChartFee: React.FC<ChartVolumeProps> = ({ address }) => {
-  const { data } = usePoolChartFeeData(address)
+export const ChartFee: React.FC<ChartVolumeProps> = ({ address, poolInfo }) => {
+  const { data } = usePoolChartFeeData(address, poolInfo?.protocol)
   const [latestValue, setLatestValue] = useState<number | undefined>()
   const [valueLabel, setValueLabel] = useState<string | undefined>()
 

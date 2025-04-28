@@ -1,44 +1,22 @@
+import { Column, Flex, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { TokenPairLogo } from 'components/TokenImage'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { PERSIST_CHAIN_KEY } from 'config/constants'
 import { useRouter } from 'next/router'
-import { Protocol } from '@pancakeswap/farms'
-import { Currency, CurrencyAmount, Token } from '@pancakeswap/swap-sdk-core'
-import { Column, Flex, useMatchBreakpoints } from '@pancakeswap/uikit'
-import { TokenPairLogo } from 'components/TokenImage'
-import { PositionDetail, StableLPDetail, V2LPDetail } from 'state/farmsV4/state/accountPositions/type'
 import React, { PropsWithChildren, useCallback, useMemo } from 'react'
-import { PoolInfo } from 'state/farmsV4/state/type'
 import styled from 'styled-components'
 import { addQueryToPath } from 'utils/addQueryToPath'
-import { PositionInfo } from './PositionInfo'
+import { PositionInfo, PositionInfoProps } from './PositionInfo'
 import { PositionItemSkeleton } from './PositionItemSkeleton'
 import { Container } from './styled'
 
-type PositionItemProps = {
-  chainId: number
-  currency0?: Currency
-  currency1?: Currency
-  removed: boolean
-  outOfRange: boolean
-  desc?: React.ReactNode
-  link?: string
-  tokenId?: bigint
-  fee: number
-  feeTierBase?: number
-  isStaked?: boolean
-  protocol: Protocol
-  totalPriceUSD: number
-  amount0?: CurrencyAmount<Token>
-  amount1?: CurrencyAmount<Token>
-  pool?: PoolInfo | null
-  detailMode?: boolean
-  userPosition?: PositionDetail | V2LPDetail | StableLPDetail
-}
+type PositionItemProps = PositionInfoProps
+
 export const PositionItem: React.FC<PropsWithChildren<PositionItemProps>> = (props) => {
-  const { link, currency0, currency1, chainId, children } = props
+  const { isDesktop } = useMatchBreakpoints()
+  const { link, currency0, currency1, chainId, children, miniMode = !isDesktop } = props
 
   const router = useRouter()
-  const { isDesktop } = useMatchBreakpoints()
   const linkWithChain = useMemo(
     () =>
       link
@@ -61,14 +39,14 @@ export const PositionItem: React.FC<PropsWithChildren<PositionItemProps>> = (pro
   }
 
   const content = (
-    <Container>
-      {isDesktop && (
+    <Container $withLink={Boolean(linkWithChain)}>
+      {!miniMode && (
         <TokenPairLogo
           width={48}
           height={48}
           variant="inverted"
           primaryToken={currency0}
-          secondaryToken={currency1.wrapped}
+          secondaryToken={currency1}
           withChainLogo
         />
       )}

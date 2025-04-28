@@ -16,7 +16,7 @@ import {
   useTooltip,
 } from '@pancakeswap/uikit'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import { Position, TickMath, encodeSqrtRatioX96 } from '@pancakeswap/v3-sdk'
+import { Position, TICK_SPACINGS, TickMath, encodeSqrtRatioX96 } from '@pancakeswap/v3-sdk'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import { RoiCalculatorModalV2, useRoi } from '@pancakeswap/widgets-internal/roi'
 import BigNumber from 'bignumber.js'
@@ -119,7 +119,7 @@ function FarmV3ApyButton_({
     () => (sqrtRatioX96 ? TickMath.getTickAtSqrtRatio(sqrtRatioX96) : undefined),
     [sqrtRatioX96],
   )
-  const activeTick = useMemo(() => getActiveTick(tickCurrent, feeAmount), [tickCurrent, feeAmount])
+  const activeTick = useMemo(() => getActiveTick(tickCurrent, TICK_SPACINGS[feeAmount]), [tickCurrent, feeAmount])
   const { ticks: data } = useAllV3Ticks({
     currencyA: baseCurrency,
     currencyB: quoteCurrency,

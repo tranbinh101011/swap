@@ -1,5 +1,6 @@
+import { Protocol } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
-import { QuestionHelper, Tag, TagProps, Flex } from '@pancakeswap/uikit'
+import { Flex, QuestionHelper, Tag, TagProps } from '@pancakeswap/uikit'
 import { styleVariants } from '@pancakeswap/uikit/components/Tag/theme'
 import { ReactNode } from 'react'
 
@@ -8,9 +9,10 @@ type IRangeTagType = {
   outOfRange: boolean
   children?: ReactNode
   lowContrast?: boolean
+  protocol?: Protocol
 } & TagProps
 
-export function RangeTag({ removed, outOfRange, children, lowContrast = false, ...props }: IRangeTagType) {
+export function RangeTag({ removed, outOfRange, protocol, children, lowContrast = false, ...props }: IRangeTagType) {
   const { t } = useTranslation()
 
   return removed ? (
@@ -26,9 +28,13 @@ export function RangeTag({ removed, outOfRange, children, lowContrast = false, .
             position="relative"
             top="1px"
             ml="4px"
-            text={t(
-              'The position is inactive and not earning trading fees due to the current price being out of the set price range.',
-            )}
+            text={
+              protocol === Protocol.InfinityBIN
+                ? t('The position is inactive and not generating fees because there is no liquidity in the active bin.')
+                : t(
+                    'The position is inactive and not earning trading fees due to the current price being out of the set price range.',
+                  )
+            }
             size="20px"
             color={styleVariants[lowContrast ? 'failureLowContrast' : 'failure'].color ?? 'white'}
             placement="bottom"

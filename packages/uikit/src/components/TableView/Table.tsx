@@ -22,6 +22,7 @@ export interface ITableViewProps<T extends BasicDataType> {
   rowKey?: string;
   columns: IColumnsType<T>[];
   data: T[];
+  rowStyle?: React.CSSProperties;
   onSort?: (parms: { dataIndex: IColumnsType<T>["dataIndex"]; order: ISortOrder }) => void;
   sortOrder?: ISortOrder;
   sortField?: IColumnsType<T>["dataIndex"];
@@ -34,7 +35,7 @@ const Table = styled.table`
   tr {
     th,
     td {
-      padding: 12px;
+      padding: 12px 6px;
       vertical-align: middle;
     }
     th:last-child,
@@ -120,6 +121,7 @@ export const TableView = <T extends BasicDataType>({
   sortOrder,
   sortField,
   onRowClick,
+  rowStyle,
 }: ITableViewProps<T>) => {
   const getRowKey = useCallback(
     (rowData: T) =>
@@ -151,7 +153,7 @@ export const TableView = <T extends BasicDataType>({
   return (
     <Table>
       <TableHeader>
-        <Row>
+        <Row style={rowStyle}>
           {columns.map((col) => (
             <th
               key={col.key}
@@ -179,7 +181,7 @@ export const TableView = <T extends BasicDataType>({
       </TableHeader>
       <TableBody>
         {data.map((item) => (
-          <Row $withLink={!!onRowClick} key={getRowKey(item)} onClick={(e) => handleClick(item, e)}>
+          <Row style={rowStyle} $withLink={!!onRowClick} key={getRowKey(item)} onClick={(e) => handleClick(item, e)}>
             {columns.map((col, idx) => (
               <TableCell col={col} data={item} idx={idx} key={col.key} />
             ))}

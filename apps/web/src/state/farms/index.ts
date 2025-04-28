@@ -62,6 +62,7 @@ const fetchFarmPublicDataPkg = async ({
                     address: farm.quoteToken.address,
                     chainName: chainIdToExplorerInfoChainName[chainId],
                   },
+                  query: {},
                 },
               })
               .then((resp) => resp.data)

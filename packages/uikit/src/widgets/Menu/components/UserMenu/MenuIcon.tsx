@@ -1,11 +1,13 @@
 import React from "react";
 import { styled } from "styled-components";
-import { Variant, variants } from "./types";
 import { Image } from "../../../../components/Image";
 import { RefreshIcon, WalletFilledIcon, WarningIcon } from "../../../../components/Svg";
 import { Colors } from "../../../../theme/types";
+import { Variant, variants } from "./types";
 
-const MenuIconWrapper = styled.div<{ borderColor: keyof Colors }>`
+const MenuIconWrapper = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "borderColor",
+})<{ borderColor: keyof Colors }>`
   align-items: center;
   background-color: ${({ theme }) => theme.colors.background};
   border-color: ${({ theme, borderColor }) => theme.colors[borderColor]};

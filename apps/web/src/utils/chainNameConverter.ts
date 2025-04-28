@@ -1,5 +1,5 @@
-import { MultiChainName } from 'state/info/constant'
-import { bsc, linea } from 'wagmi/chains'
+import { MultiChainNameExtend } from 'state/info/constant'
+import { bsc, bscTestnet, linea } from 'wagmi/chains'
 
 export const chainNameConverter = (name: string) => {
   switch (name) {
@@ -7,12 +7,14 @@ export const chainNameConverter = (name: string) => {
       return 'BNB Chain'
     case linea.name:
       return 'Linea'
+    case bscTestnet.name:
+      return 'BNB Chain Testnet'
     default:
       return name
   }
 }
 
-export const multiChainNameConverter = (name: MultiChainName) => {
+export const multiChainNameConverter = (name: MultiChainNameExtend) => {
   switch (name) {
     case 'BSC':
       return 'BNB Chain'

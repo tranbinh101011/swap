@@ -1,8 +1,11 @@
 import { ChainId } from '@pancakeswap/chains'
+import { Protocol } from '@pancakeswap/farms'
 import { GraphQLClient } from 'graphql-request'
 import { useMemo } from 'react'
+import { usePoolInfo } from 'state/farmsV4/hooks'
 import { multiChainId } from 'state/info/constant'
 import { useChainNameByQuery } from 'state/info/hooks'
+import { isAddress } from 'viem'
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
@@ -100,7 +103,13 @@ export const usePairPriceChartTokenData = (
     queryKey: [`v3/info/token/pairPriceChartToken/${address}/${duration}`, targetChainId ?? chainId],
 
     queryFn: async ({ signal }) => {
-      return fetchPairPriceChartTokenData(address!, chainIdToExplorerInfoChainName[chainId!], duration ?? 'day', signal)
+      return fetchPairPriceChartTokenData(
+        address!,
+        chainIdToExplorerInfoChainName[chainId!],
+        Protocol.V3,
+        duration ?? 'day',
+        signal,
+      )
     },
 
     enabled: Boolean(
@@ -229,15 +238,16 @@ export const useTokenChartData = (address: string): TokenChartEntry[] | undefine
 export const useTokenPriceData = (
   address: string,
   duration: 'day' | 'week' | 'month' | 'year',
+  protocol: 'v3' | 'infinityCl' | 'infinityBin' = 'v3',
 ): PriceChartEntry[] | undefined => {
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
   const explorerChainName = useExplorerChainNameByQuery()
 
   const { data } = useQuery({
-    queryKey: [`v3/info/token/tokenPriceData/${chainId}/${address}/${duration}`, chainId],
+    queryKey: [`${protocol}/info/token/tokenPriceData/${chainId}/${address}/${duration}`, chainId],
 
-    queryFn: ({ signal }) => fetchTokenPriceData(address, 'v3', duration, explorerChainName!, signal),
+    queryFn: ({ signal }) => fetchTokenPriceData(address, protocol, duration, explorerChainName!, signal),
 
     enabled: Boolean(explorerChainName && address && address !== 'undefined'),
     ...QUERY_SETTINGS_IMMUTABLE,
@@ -373,22 +383,76 @@ export const usePoolChartData = (address: string): PoolChartEntry[] | undefined 
 
   const { data } = useQuery({
     queryKey: [`v3/info/pool/poolChartData/${chainId}/${address}`, chainId],
-    queryFn: ({ signal }) => fetchPoolChartData('v3', explorerChainName!, address, signal),
+    queryFn: ({ signal }) => fetchPoolChartData(Protocol.V3, explorerChainName!, address, signal),
     enabled: Boolean(explorerChainName && address && address !== 'undefined'),
     ...QUERY_SETTINGS_IMMUTABLE,
   })
   return data?.data
 }
 
+const FEE_TIER_TO_TICK_SPACING = (feeTier: number): number => {
+  switch (feeTier) {
+    case 10000:
+      return 200
+    case 2500:
+      return 50
+    case 500:
+      return 10
+    case 100:
+      return 1
+    default:
+      throw Error(`Tick spacing for fee tier ${feeTier} undefined.`)
+  }
+}
+
 export const usePoolTickData = (address?: string): PoolTickData | undefined => {
+  const chainName = useChainNameByQuery()
+  const chainId = multiChainId[chainName]
+  const explorerChainName = useExplorerChainNameByQuery()
+  const poolInfo = usePoolInfo({ poolAddress: address && isAddress(address) ? address : undefined, chainId })
+
+  const { data } = useQuery({
+    queryKey: [`v3/info/pool/poolTickData/${chainId}/${address}`, chainId, poolInfo?.feeTier],
+    queryFn: ({ signal }) => {
+      if (!explorerChainName || !address || !poolInfo?.feeTier) {
+        return undefined
+      }
+      return fetchTicksSurroundingPrice({
+        poolAddress: address,
+        chainName: explorerChainName,
+        chainId,
+        signal,
+        protocol: Protocol.V3,
+        tickSpacing: FEE_TIER_TO_TICK_SPACING(poolInfo.feeTier),
+      })
+    },
+    enabled: Boolean(explorerChainName && address && poolInfo?.feeTier),
+    ...QUERY_SETTINGS_IMMUTABLE,
+  })
+  return data?.data ?? undefined
+}
+
+export const useInfinityCLPoolTickData = (address?: string, tickSpacing?: number): PoolTickData | undefined => {
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
   const explorerChainName = useExplorerChainNameByQuery()
 
   const { data } = useQuery({
-    queryKey: [`v3/info/pool/poolTickData/${chainId}/${address}`, chainId],
-    queryFn: ({ signal }) => fetchTicksSurroundingPrice(address!, explorerChainName!, chainId, undefined, signal),
-    enabled: Boolean(explorerChainName && address && address !== 'undefined'),
+    queryKey: [`info/pool/poolTickData`, chainId, address, Protocol.InfinityCLAMM, tickSpacing],
+    queryFn: ({ signal }) => {
+      if (!explorerChainName || !address || !tickSpacing) {
+        return undefined
+      }
+      return fetchTicksSurroundingPrice({
+        poolAddress: address,
+        chainName: explorerChainName,
+        chainId,
+        signal,
+        protocol: Protocol.InfinityCLAMM,
+        tickSpacing,
+      })
+    },
+    enabled: Boolean(explorerChainName && address && tickSpacing),
     ...QUERY_SETTINGS_IMMUTABLE,
   })
   return data?.data ?? undefined

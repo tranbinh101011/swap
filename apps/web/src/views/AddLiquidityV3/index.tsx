@@ -390,6 +390,7 @@ export function AddLiquidityV3Layout({
 }) {
   const { t } = useTranslation()
   const { chainId } = useActiveChainId()
+  const router = useRouter()
 
   const [selectType] = useAtom(selectTypeAtom)
   const { currencyIdA, currencyIdB, feeAmount } = useCurrencyParams()
@@ -423,7 +424,7 @@ export function AddLiquidityV3Layout({
     <BodyWrapper mb={isMobile ? '40px' : '0px'}>
       <AppHeader
         title={title}
-        backTo="/liquidity/positions"
+        backTo={router.back}
         IconSlot={
           <>
             {selectType === SELECTOR_TYPE.V3 && <AprCalculatorV2 derived pool={pool} inverted={inverted} />}

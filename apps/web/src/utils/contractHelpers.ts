@@ -1,4 +1,10 @@
 import { ChainId } from '@pancakeswap/chains'
+import {
+  BinPoolManagerAbi,
+  BinPositionManagerAbi,
+  CLPoolManagerAbi,
+  CLPositionManagerAbi,
+} from '@pancakeswap/infinity-sdk'
 import { CAKE } from '@pancakeswap/tokens'
 
 // Addresses
@@ -21,6 +27,7 @@ import {
   getFarmAuctionAddress,
   getFixedStakingAddress,
   getGaugesVotingAddress,
+  getInfinityPositionManagerAddress,
   getLotteryV2Address,
   getMasterChefV2Address,
   getMasterChefV3Address,
@@ -30,6 +37,7 @@ import {
   getPancakeSquadAddress,
   getPancakeVeSenderV2Address,
   getPointCenterIfoAddress,
+  getPoolManagerAddress,
   getPotteryDrawAddress,
   getPredictionsV1Address,
   getRevenueSharingCakePoolAddress,
@@ -79,6 +87,7 @@ import { bCakeFarmBoosterABI } from 'config/abi/bCakeFarmBooster'
 import { bCakeFarmBoosterProxyFactoryABI } from 'config/abi/bCakeFarmBoosterProxyFactory'
 import { bCakeProxyABI } from 'config/abi/bCakeProxy'
 import { bunnyFactoryABI } from 'config/abi/bunnyFactory'
+import { cakePoolAbi } from 'config/abi/cakePool'
 import { chainlinkOracleABI } from 'config/abi/chainlinkOracle'
 import { crossFarmingReceiverABI } from 'config/abi/crossFarmingReceiver'
 import { farmAuctionABI } from 'config/abi/farmAuction'
@@ -99,7 +108,6 @@ import { tradingCompetitionEasterABI } from 'config/abi/tradingCompetitionEaster
 import { tradingCompetitionFanTokenABI } from 'config/abi/tradingCompetitionFanToken'
 import { tradingCompetitionMoDABI } from 'config/abi/tradingCompetitionMoD'
 import { tradingCompetitionMoboxABI } from 'config/abi/tradingCompetitionMobox'
-import { cakePoolAbi } from 'config/abi/cakePool'
 import { tradingRewardABI } from 'config/abi/tradingReward'
 import { v2BCakeWrapperABI } from 'config/abi/v2BCakeWrapper'
 import { v3AirdropABI } from 'config/abi/v3Airdrop'
@@ -305,6 +313,42 @@ export const getZksyncAirDropContract = (signer?: WalletClient, chainId?: number
   return getContract({
     abi: zkSyncAirDropABI,
     address: getZkSyncAirDropAddress(chainId),
+    signer,
+    chainId,
+  })
+}
+
+export const getInfinityCLPoolManagerContract = (signer?: WalletClient, chainId?: number) => {
+  return getContract({
+    abi: CLPoolManagerAbi,
+    address: getPoolManagerAddress('CL', chainId),
+    signer,
+    chainId,
+  })
+}
+
+export const getInfinityBinPoolManagerContract = (signer?: WalletClient, chainId?: number) => {
+  return getContract({
+    abi: BinPoolManagerAbi,
+    address: getPoolManagerAddress('Bin', chainId),
+    signer,
+    chainId,
+  })
+}
+
+export const getInfinityCLPositionManagerContract = (signer?: WalletClient, chainId?: number) => {
+  return getContract({
+    abi: CLPositionManagerAbi,
+    address: getInfinityPositionManagerAddress('CL', chainId),
+    signer,
+    chainId,
+  })
+}
+
+export const getInfinityBinPositionManagerContract = (signer?: WalletClient, chainId?: number) => {
+  return getContract({
+    abi: BinPositionManagerAbi,
+    address: getInfinityPositionManagerAddress('Bin', chainId) ?? '0x',
     signer,
     chainId,
   })

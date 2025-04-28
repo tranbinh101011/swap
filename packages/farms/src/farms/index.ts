@@ -8,6 +8,7 @@ import { zkSyncTestnetFarmConfig } from './zkSyncTestnet'
 import { getFarmConfigKey } from '../utils'
 
 const chainIds: ChainId[] = [
+  ChainId.BSC_TESTNET,
   ChainId.BSC,
   ChainId.ETHEREUM,
   ChainId.POLYGON_ZKEVM,

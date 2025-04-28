@@ -129,9 +129,29 @@ export function sortCurrencies<T extends Currency>(currencies: T[]): T[] {
   })
 }
 
+export const isCurrencySorted = (currencyA: Currency, currencyB: Currency): boolean => {
+  const [currency0] = sortCurrencies([currencyA, currencyB])
+  return currency0 === currencyA
+}
+
 export function getCurrencyAddress(currency: Currency) {
   if (currency.isNative) {
     return ZERO_ADDRESS
   }
   return currency.address
+}
+
+export function getMatchedCurrency(
+  currency: Currency,
+  list: Currency[],
+  matchWrappedCurrency = true
+): Currency | undefined {
+  const c = matchWrappedCurrency ? currency.wrapped : currency
+  for (const current of list) {
+    const checkAgainst = matchWrappedCurrency ? current.wrapped : current
+    if (checkAgainst.equals(c)) {
+      return current
+    }
+  }
+  return undefined
 }

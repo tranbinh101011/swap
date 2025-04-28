@@ -267,3 +267,8 @@ export function useIsListActive(url: string): boolean {
   const activeListUrls = useActiveListUrls()
   return useMemo(() => Boolean(activeListUrls?.includes(url)), [activeListUrls, url])
 }
+
+export function useIsListActiveByChainId(url: string, chainId: number): boolean {
+  const activeListUrls = useActiveListUrlsByChainId(chainId)
+  return useMemo(() => Boolean(activeListUrls?.includes(url)), [activeListUrls, url])
+}

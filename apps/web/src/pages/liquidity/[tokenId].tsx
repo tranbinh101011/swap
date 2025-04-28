@@ -61,6 +61,7 @@ import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFr
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { useRouter } from 'next/router'
 import { ReactNode, memo, useCallback, useMemo, useState } from 'react'
 import { usePoolInfo } from 'state/farmsV4/state/extendPools/hooks'
@@ -82,7 +83,6 @@ import { AprCalculatorV2 } from 'views/AddLiquidityV3/components/AprCalculatorV2
 import RateToggle from 'views/AddLiquidityV3/formViews/V3FormView/components/RateToggle'
 import { PageWithoutFAQ } from 'views/Page'
 import { useSendTransaction, useWalletClient } from 'wagmi'
-import { redirect } from 'next/navigation'
 
 export const BodyWrapper = styled(Card)`
   border-radius: 24px;
@@ -547,7 +547,7 @@ export default function PoolPage() {
                             {t('Farming')}
                           </Tag>
                         )}
-                        <RangeTag ml="8px" removed={removed} outOfRange={!inRange} />
+                        <RangeTag ml="8px" removed={removed} outOfRange={!inRange} protocol={poolInfo?.protocol} />
                       </>
                     )}
                     <MerklTag poolAddress={poolAddress} />
@@ -564,7 +564,7 @@ export default function PoolPage() {
                             {t('Farming')}
                           </Tag>
                         ) : null}
-                        <RangeTag removed={removed} outOfRange={!inRange} />
+                        <RangeTag removed={removed} outOfRange={!inRange} protocol={poolInfo?.protocol} />
                       </Flex>
                     )}
                   </RowBetween>

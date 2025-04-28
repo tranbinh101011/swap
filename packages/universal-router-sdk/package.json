@@ -29,6 +29,8 @@
     "dev": "tsup --watch",
     "coverage": "vitest run --coverage",
     "test": "vitest --run",
+    "test:update": "vitest -u",
+    "test:label": "vitest -t label --run",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "format:check": "prettier --check --loglevel error \"{src,test}/**/*.{js,jsx,ts,tsx,json}\"",
     "format:write": "prettier --write \"{src,test}/**/*.{js,jsx,ts,tsx,json}\"",
@@ -39,7 +41,8 @@
     "@pancakeswap/tokens": "workspace:*",
     "@types/node": "^15.12.2",
     "tslib": "^2.3.0",
-    "tsup": "^6.7.0"
+    "tsup": "^6.7.0",
+    "@types/lodash": "*"
   },
   "dependencies": {
     "@pancakeswap/chains": "workspace:*",
@@ -47,8 +50,12 @@
     "@pancakeswap/sdk": "workspace:*",
     "@pancakeswap/smart-router": "workspace:*",
     "@pancakeswap/v3-sdk": "workspace:*",
-    "abitype": "^0.9.8",
-    "tiny-invariant": "^1.1.0",
-    "viem": "catalog:"
+    "@pancakeswap/infinity-sdk": "workspace:*"
+  },
+  "peerDependencies": {
+    "viem": "catalog:",
+    "tiny-invariant": "*",
+    "abitype": "*",
+    "lodash": "*"
   }
 }

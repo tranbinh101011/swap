@@ -1,9 +1,9 @@
 import {
   useAudioPlay,
   useExpertMode,
+  useSpeedQuote,
   useUserSingleHopOnly,
   useUserSlippage,
-  useSpeedQuote,
 } from '@pancakeswap/utils/user'
 
 import { useFeatureFlagEvaluation } from 'hooks/useDataDogRUM'
@@ -13,6 +13,7 @@ import { useGasPriceManager, useSubgraphHealthIndicatorManager, useUserUsernameV
 import { useUserChart } from 'state/user/hooks/useUserChart'
 import { useUserTokenRisk } from 'state/user/hooks/useUserTokenRisk'
 import {
+  useUserInfinitySwapEnable,
   useUserSplitRouteEnable,
   useUserStableSwapEnable,
   useUserV2SwapEnable,
@@ -49,12 +50,14 @@ export function useGlobalSettingsEvaluation() {
   const [isStableSwapByDefault] = useUserStableSwapEnable()
   const [v2Enable] = useUserV2SwapEnable()
   const [v3Enable] = useUserV3SwapEnable()
+  const [infinityEnable] = useUserInfinitySwapEnable()
   const [split] = useUserSplitRouteEnable()
   const [singleHopOnly] = useUserSingleHopOnly()
   const [speedQuote] = useSpeedQuote()
   useFeatureFlagEvaluation('global-settings-routing-stableswap', isStableSwapByDefault)
   useFeatureFlagEvaluation('global-settings-routing-v2', v2Enable)
   useFeatureFlagEvaluation('global-settings-routing-v3', v3Enable)
+  useFeatureFlagEvaluation('global-settings-routing-infinity', infinityEnable)
   useFeatureFlagEvaluation('global-settings-routing-split', split)
   useFeatureFlagEvaluation('global-settings-routing-single-hop', singleHopOnly)
   useFeatureFlagEvaluation('global-settings-speed-quote', speedQuote)

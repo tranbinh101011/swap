@@ -3,13 +3,13 @@ import utc from 'dayjs/plugin/utc'
 
 import { explorerApiClient } from 'state/info/api/client'
 import type { components } from 'state/info/api/schema'
-import { TokenChartEntry } from 'state/info/types'
+import type { TokenChartEntry } from '../../types'
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc)
 
 export async function fetchTokenChartData(
-  protocol: 'v2' | 'v3' | 'stable',
+  protocol: 'v2' | 'v3' | 'stable' | 'infinityCl' | 'infinityBin',
   chainName: components['schemas']['ChainName'],
   address: string,
   signal?: AbortSignal,

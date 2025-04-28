@@ -19,7 +19,7 @@ export const useInitialRange = (baseToken?: Token, quoteToken?: Token) => {
   }, [query])
 
   useEffect(() => {
-    if (!leftRangeTypedValue && !rightRangeTypedValue && minPrice && maxPrice) {
+    if (!leftRangeTypedValue && !rightRangeTypedValue && minPrice && maxPrice && baseToken && quoteToken) {
       onBothRangeInput({
         leftTypedValue: tryParsePrice(baseToken, quoteToken, minPrice),
         rightTypedValue: tryParsePrice(baseToken, quoteToken, maxPrice),

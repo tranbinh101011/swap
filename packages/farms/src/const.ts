@@ -4,6 +4,7 @@ import uniq from 'lodash/uniq'
 // @todo remove all other v2/v3 and type definitions
 export const supportedChainIdV4 = [
   ChainId.BSC,
+  ChainId.BSC_TESTNET,
   ChainId.ETHEREUM,
   ChainId.BASE,
   ChainId.OPBNB,

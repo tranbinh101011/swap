@@ -1,13 +1,13 @@
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
 import { FeeAmount, Tick } from '@pancakeswap/v3-sdk'
-import { Address } from 'viem'
+import { Address, Hex } from 'viem'
 
 export enum PoolType {
   V2,
   V3,
   STABLE,
-  V4CL,
-  V4BIN,
+  InfinityCL,
+  InfinityBIN,
 }
 
 export interface BasePool {
@@ -49,25 +49,29 @@ export interface V3Pool extends BasePool {
   reserve0?: CurrencyAmount<Currency>
   reserve1?: CurrencyAmount<Currency>
 }
-
-export type V4ClPool = BasePool & {
+export type BaseInfinityPool = BasePool & {
   id: `0x${string}`
-  type: PoolType.V4CL
   currency0: Currency
   currency1: Currency
   fee: number
+  protocolFee?: number
+  hooks?: Address
+  hooksRegistrationBitmap?: Hex | number
+  poolManager: Address
+
+  reserve0?: CurrencyAmount<Currency>
+  reserve1?: CurrencyAmount<Currency>
+}
+
+export type InfinityClPool = BaseInfinityPool & {
+  type: PoolType.InfinityCL
   tickSpacing: number
   liquidity: bigint
   sqrtRatioX96: bigint
   tick: number
-  hooks?: Address
-  poolManager: Address
 
   // Allow pool with no ticks data provided
   ticks?: Tick[]
-
-  reserve0?: CurrencyAmount<Currency>
-  reserve1?: CurrencyAmount<Currency>
 }
 
 type ActiveId = number
@@ -75,24 +79,16 @@ type Reserve = {
   reserveX: bigint
   reserveY: bigint
 }
-export type V4BinPool = BasePool & {
-  id: `0x${string}`
-  type: PoolType.V4BIN
-  currency0: Currency
-  currency1: Currency
-  fee: number
+
+export type InfinityBinPool = BaseInfinityPool & {
+  type: PoolType.InfinityBIN
   binStep: number
   activeId: ActiveId
 
-  hooks?: Address
-  poolManager: Address
   reserveOfBin?: Record<ActiveId, Reserve>
-
-  reserve0?: CurrencyAmount<Currency>
-  reserve1?: CurrencyAmount<Currency>
 }
 
-export type Pool = V2Pool | V3Pool | StablePool | V4BinPool | V4ClPool
+export type Pool = V2Pool | V3Pool | StablePool | InfinityBinPool | InfinityClPool
 
 export interface WithTvl {
   tvlUSD: bigint

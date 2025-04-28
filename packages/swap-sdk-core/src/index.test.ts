@@ -35,7 +35,9 @@ test('exports', () => {
       "computePriceImpact",
       "getTokenComparator",
       "sortCurrencies",
+      "isCurrencySorted",
       "getCurrencyAddress",
+      "getMatchedCurrency",
     ]
   `)
 })

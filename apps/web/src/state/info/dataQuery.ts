@@ -173,7 +173,7 @@ export async function fetchV2TransactionData({ signal, chainName, chainId, addre
     .then((data) => transformTransactionData(data))
 }
 
-function transformToken(d: any) {
+export function transformToken(d: any) {
   if (!d) {
     throw new Error('No data')
   }
@@ -189,14 +189,16 @@ function transformToken(d: any) {
     txCount: d.txCount24h,
     liquidityToken: +d.tvl,
     liquidityUSD: +d.tvlUSD,
+    tvlUSD: +d.tvlUSD,
     liquidityUSDChange: getPercentChange(+d.tvlUSD, +d.tvlUSD24h),
+    tvlUSDChange: getPercentChange(+d.tvlUSD, +d.tvlUSD24h),
     priceUSD: +d.priceUSD,
     priceUSDChange: getPercentChange(+d.priceUSD, +d.priceUSD24h),
     priceUSDChangeWeek: getPercentChange(+d.priceUSD, +d.priceUSD7d),
   }
 }
 
-function transformPoolsForToken(data_: any) {
+export function transformPoolsForToken(data_: any) {
   if (!data_) {
     throw new Error('No data')
   }
@@ -240,7 +242,7 @@ function transformPoolsForToken(data_: any) {
   })
 }
 
-function transformTransactionData(data_: any) {
+export function transformTransactionData(data_: any) {
   return data_?.map((d) => {
     return {
       hash: d.transactionHash,

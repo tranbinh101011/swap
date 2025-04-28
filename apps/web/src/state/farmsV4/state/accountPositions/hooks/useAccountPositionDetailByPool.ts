@@ -1,20 +1,37 @@
 import { Protocol } from '@pancakeswap/farms'
+import { getPoolId } from '@pancakeswap/infinity-sdk'
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
+import { usePositionsWithFarming } from 'hooks/infinity/useIsFarming'
 import { useCallback, useMemo } from 'react'
-import { useStableSwapPairsByChainId } from 'state/farmsV4/state/accountPositions/hooks'
 import { isAddressEqual } from 'utils'
-import { Address } from 'viem'
-import { PoolInfo } from '../../type'
+import { isInfinityProtocol } from 'utils/protocols'
+import { Address, Hex } from 'viem'
+
+import { SLOW_INTERVAL } from 'config/constants'
+import { InfinityCLPoolInfo, PoolInfo } from '../../type'
 import { getAccountV2LpDetails, getStablePairDetails } from '../fetcher'
+import { getAccountInfinityCLPositionsWithFallback } from '../fetcher/infinity'
+import { getAccountInfinityBinPositionByPoolId } from '../fetcher/infinity/getAccountInfinityBinPositionByPoolId'
 import { getAccountV3Positions } from '../fetcher/v3'
-import { PositionDetail, StableLPDetail, V2LPDetail } from '../type'
+import {
+  InfinityBinPositionDetail,
+  InfinityCLPositionDetail,
+  PositionDetail,
+  StableLPDetail,
+  V2LPDetail,
+} from '../type'
 import { useLatestTxReceipt } from './useLatestTxReceipt'
+import { useStableSwapPairsByChainId } from './useStableSwapPairsByChainId'
 
 type PoolPositionDetail = {
   [Protocol.STABLE]: StableLPDetail
   [Protocol.V2]: V2LPDetail
   [Protocol.V3]: PositionDetail[]
+  [Protocol.InfinityCLAMM]: InfinityCLPositionDetail[]
+  [Protocol.InfinityBIN]: InfinityBinPositionDetail[]
 }
+
+type InfinityPositionDetails = (InfinityCLPositionDetail | InfinityBinPositionDetail)[]
 
 export const useAccountPositionDetailByPool = <TProtocol extends keyof PoolPositionDetail>(
   chainId: number,
@@ -29,7 +46,7 @@ export const useAccountPositionDetailByPool = <TProtocol extends keyof PoolPosit
   const pairs = useStableSwapPairsByChainId(chainId, poolInfo?.protocol === 'stable')
   const [latestTxReceipt] = useLatestTxReceipt()
 
-  return useQuery({
+  const result: UseQueryResult<PoolPositionDetail[TProtocol]> = useQuery({
     queryKey: [
       'accountPosition',
       account,
@@ -54,6 +71,17 @@ export const useAccountPositionDetailByPool = <TProtocol extends keyof PoolPosit
       }
       if (poolInfo?.protocol === 'v3') {
         return getAccountV3Positions(chainId, account!)
+      }
+      if (poolInfo?.protocol === Protocol.InfinityCLAMM) {
+        return getAccountInfinityCLPositionsWithFallback(chainId, account!)
+      }
+
+      if (poolInfo?.protocol === Protocol.InfinityBIN) {
+        return getAccountInfinityBinPositionByPoolId({
+          chainId,
+          account: account as Address,
+          poolId: poolInfo?.lpAddress as Hex,
+        })
       }
       return Promise.resolve([])
     },
@@ -80,6 +108,15 @@ export const useAccountPositionDetailByPool = <TProtocol extends keyof PoolPosit
           })
           return d as PositionDetail[]
         }
+        if (poolInfo?.protocol === Protocol.InfinityCLAMM) {
+          return (data as InfinityCLPositionDetail[]).filter((position) => {
+            return (poolInfo as InfinityCLPoolInfo)?.poolId === getPoolId(position.poolKey)
+          })
+        }
+
+        if (poolInfo?.protocol === Protocol.InfinityBIN) {
+          return [data] as InfinityBinPositionDetail[]
+        }
 
         return data?.[0] && (data[0].nativeBalance.greaterThan('0') || data[0].farmingBalance.greaterThan('0'))
           ? data[0]
@@ -87,5 +124,18 @@ export const useAccountPositionDetailByPool = <TProtocol extends keyof PoolPosit
       },
       [poolInfo],
     ),
+    refetchInterval: (prevData) => (!prevData ? 1000 : SLOW_INTERVAL),
   })
+
+  const positionsWithFarming = usePositionsWithFarming({
+    positions: isInfinityProtocol(poolInfo?.protocol) ? (result.data as InfinityPositionDetails) : undefined,
+  })
+
+  if (isInfinityProtocol(poolInfo?.protocol)) {
+    return {
+      ...result,
+      data: positionsWithFarming,
+    } as unknown as UseQueryResult<PoolPositionDetail[TProtocol]>
+  }
+  return result
 }

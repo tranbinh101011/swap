@@ -6,9 +6,11 @@ import mapValues from 'lodash/mapValues.js'
 import FixedReverseHeap from 'mnemonist/fixed-reverse-heap.js'
 import Queue from 'mnemonist/queue.js'
 
+import { RemoteLogger } from '@pancakeswap/utils/RemoteLogger'
 import { usdGasTokensByChain } from '../../constants'
-import { BestRoutes, L1ToL2GasCosts, RouteWithQuote } from '../types'
-import { getPoolAddress, isStablePool, isV2Pool, isV3Pool, logger } from '../utils'
+import { BestRoutes, L1ToL2GasCosts, PoolType, RouteWithQuote } from '../types'
+import { getPoolAddress, isStablePool, isV2Pool, isV3Pool } from '../utils'
+import { poolInfoStr } from '../utils/remoteLogs'
 
 interface Config {
   minSplits?: number
@@ -21,7 +23,9 @@ export function getBestRouteCombinationByQuotes(
   routesWithQuote: RouteWithQuote[],
   tradeType: TradeType,
   config: Config,
+  quoteId?: string,
 ): BestRoutes | null {
+  const logger = RemoteLogger.getLogger(quoteId)
   // eslint-disable-next-line
   const chainId: ChainId = amount.currency.chainId
   // const now = Date.now()
@@ -38,6 +42,20 @@ export function getBestRouteCombinationByQuotes(
     percentToQuotes[routeWithQuote.percent]!.push(routeWithQuote)
   }
 
+  logger.debug('--- percentToQuotes ---')
+  logger.debugJson(
+    mapValues(percentToQuotes, (x) => {
+      return x.map((y) => {
+        return {
+          pools: y.pools.map((pool) => poolInfoStr(pool)),
+          quoteAdjustedForGas: y.quoteAdjustedForGas.info(),
+        }
+      })
+    }),
+    2,
+  )
+  logger.debug('--- END percentToQuotes ---')
+
   // metric.putMetric(
   //   'BuildRouteWithValidQuoteObjects',
   //   Date.now() - now,
@@ -52,10 +70,12 @@ export function getBestRouteCombinationByQuotes(
     chainId,
     (rq: RouteWithQuote) => rq.quoteAdjustedForGas,
     config,
+    quoteId,
   )
 
   // It is possible we were unable to find any valid route given the quotes.
   if (!swapRoute) {
+    logger.debug(`Could not find a valid swap route`)
     return null
   }
 
@@ -72,32 +92,28 @@ export function getBestRouteCombinationByQuotes(
 
   const missingAmount = amount.subtract(totalAmount)
   if (missingAmount.greaterThan(0)) {
-    logger.log(
-      "Optimal route's amounts did not equal exactIn/exactOut total. Adding missing amount to last route in array.",
-      {
-        missingAmount: missingAmount.quotient.toString(),
-      },
+    logger.debug(
+      `Optimal route's amounts did not equal exactIn/exactOut total. Adding missing amount to last route in array. missingAmount=${missingAmount.quotient.toString()}`,
     )
 
     routeAmounts[routeAmounts.length - 1]!.amount = routeAmounts[routeAmounts.length - 1]!.amount.add(missingAmount)
   }
 
-  logger.log(
-    {
-      routes: routeAmounts,
-      numSplits: routeAmounts.length,
-      amount: amount.toExact(),
-      quote: swapRoute.quote.toExact(),
-      quoteGasAdjusted: swapRoute.quoteGasAdjusted.toFixed(Math.min(swapRoute.quoteGasAdjusted.currency.decimals, 2)),
-      estimatedGasUSD: swapRoute.estimatedGasUsedUSD.toFixed(
-        Math.min(swapRoute.estimatedGasUsedUSD.currency.decimals, 2),
-      ),
-      estimatedGasToken: swapRoute.estimatedGasUsedQuoteToken.toFixed(
-        Math.min(swapRoute.estimatedGasUsedQuoteToken.currency.decimals, 2),
-      ),
-    },
-    `Found best swap route. ${routeAmounts.length} split.`,
-  )
+  logger.debug(`Found best swap route. ${routeAmounts.length} split.`)
+  const _log = {
+    routes: routeAmounts,
+    numSplits: routeAmounts.length,
+    amount: amount.toExact(),
+    quote: swapRoute.quote.toExact(),
+    quoteGasAdjusted: swapRoute.quoteGasAdjusted.toFixed(Math.min(swapRoute.quoteGasAdjusted.currency.decimals, 2)),
+    estimatedGasUSD: swapRoute.estimatedGasUsedUSD.toFixed(
+      Math.min(swapRoute.estimatedGasUsedUSD.currency.decimals, 2),
+    ),
+    estimatedGasToken: swapRoute.estimatedGasUsedQuoteToken.toFixed(
+      Math.min(swapRoute.estimatedGasUsedQuoteToken.currency.decimals, 2),
+    ),
+  }
+  logger.debugJson(_log)
 
   const { routes, quote: quoteAmount, estimatedGasUsed, estimatedGasUsedUSD } = swapRoute
   const quote = CurrencyAmount.fromRawAmount(quoteCurrency, quoteAmount.quotient)
@@ -128,6 +144,7 @@ export function getBestSwapRouteBy(
   chainId: ChainId,
   by: (routeQuote: RouteWithQuote) => CurrencyAmount<Currency>,
   { maxSplits = 4, minSplits = 0 }: Config,
+  quoteId?: string,
 ): {
   quote: CurrencyAmount<Currency>
   quoteGasAdjusted: CurrencyAmount<Currency>
@@ -136,6 +153,7 @@ export function getBestSwapRouteBy(
   estimatedGasUsedQuoteToken: CurrencyAmount<Currency>
   routes: RouteWithQuote[]
 } | null {
+  const logger = RemoteLogger.getLogger(quoteId)
   // Build a map of percentage to sorted list of quotes, with the biggest quote being first in the list.
   const percentToSortedQuotes = mapValues(percentToQuotes, (routeQuotes: RouteWithQuote[]) => {
     return routeQuotes.sort((routeQuoteA, routeQuoteB) => {
@@ -175,15 +193,14 @@ export function getBestSwapRouteBy(
   )
 
   if (!percentToSortedQuotes[100] || minSplits > 1) {
-    logger.log(
-      {
-        percentToSortedQuotes: mapValues(percentToSortedQuotes, (p) => p.length),
-      },
-      'Did not find a valid route without any splits. Continuing search anyway.',
-    )
+    logger.debug(`Did not find a valid route without any splits. Continuing search anyway`)
   } else {
     bestQuote = by(percentToSortedQuotes[100][0]!)
     bestSwap = [percentToSortedQuotes[100][0]!]
+    logger.debug('---bestQuote---')
+    logger.debugJson(bestQuote, 3)
+    logger.debug('---bestSwap---')
+    logger.debugJson(bestSwap, 3)
 
     for (const routeWithQuote of percentToSortedQuotes[100].slice(0, 5)) {
       bestSwapsPerSplit.push({
@@ -194,6 +211,7 @@ export function getBestSwapRouteBy(
   }
 
   // We do a BFS. Each additional node in a path represents us adding an additional split to the route.
+  logger.debug('--- start BFS ---')
   const queue = new Queue<{
     percentIndex: number
     curRoutes: RouteWithQuote[]
@@ -242,9 +260,10 @@ export function getBestSwapRouteBy(
 
     // startedSplit = Date.now()
 
-    logger.log(
+    logger.debug(`bfs loop: queue.size=${queue.size}, splits=${splits}`, 2)
+    logger.debugJson(
       {
-        top5: Array.from(bestSwapsPerSplit.consume()).map(
+        top3: Array.from(bestSwapsPerSplit.consume()).map(
           (q) =>
             `${q.quote.toExact()} (${q.routes
               .map(
@@ -268,7 +287,7 @@ export function getBestSwapRouteBy(
         ),
         onQueue: queue.size,
       },
-      `Top 3 with ${splits} splits`,
+      2,
     )
 
     bestSwapsPerSplit.clear()
@@ -283,7 +302,7 @@ export function getBestSwapRouteBy(
     }
 
     if (splits > maxSplits) {
-      logger.log('Max splits reached. Stopping search.')
+      logger.debug(`Max splits ${maxSplits} reached. Stopping search.`)
       // metric.putMetric(`MaxSplitsHitReached`, 1, MetricLoggerUnit.Count);
       break
     }
@@ -292,6 +311,8 @@ export function getBestSwapRouteBy(
       layer--
 
       const { remainingPercent, curRoutes, percentIndex, special } = queue.dequeue()!
+      logger.debug(`dequeue remainingPercent=${remainingPercent}%, percentIndex=${percentIndex}`, 3)
+      logger.debug(routesStr(curRoutes), 3)
 
       // For all other percentages, add a new potential route.
       // E.g. if our current aggregated route if missing 50%, we will create new nodes and add to the queue for:
@@ -317,8 +338,14 @@ export function getBestSwapRouteBy(
         const routeWithQuoteA = findFirstRouteNotUsingUsedPools(curRoutes, candidateRoutesA)
 
         if (!routeWithQuoteA) {
+          // findFirstRouteNotUsingUsedPools(curRoutes, candidateRoutesA)
+          // logger.debug(
+          //   `skip percent=${percentA}% cur=${routesStr(curRoutes)} candidates=${routesStr(candidateRoutesA)}`,
+          //   4,
+          // )
           continue
         }
+        // logger.debug(`found percent=${percentA}, route=${routeWithQuoteA.percent}`, 4)
 
         const remainingPercentNew = remainingPercent - percentA
         const curRoutesNew = [...curRoutes, routeWithQuoteA]
@@ -377,7 +404,7 @@ export function getBestSwapRouteBy(
   }
 
   if (!bestSwap) {
-    logger.log(`Could not find a valid swap`)
+    logger.debug(`Could not find a valid swap`)
     return null
   }
 
@@ -523,4 +550,12 @@ const findFirstRouteNotUsingUsedPools = (
   }
 
   return null
+}
+
+const routesStr = (routes: RouteWithQuote[]) => {
+  return routes
+    .map((route) => {
+      return route.pools.map((p) => PoolType[p.type]).join(', ')
+    })
+    .join(';')
 }

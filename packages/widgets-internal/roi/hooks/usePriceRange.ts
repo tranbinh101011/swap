@@ -1,31 +1,24 @@
 import { Currency, ERC20Token, Price, Token } from "@pancakeswap/sdk";
 import { formatPrice } from "@pancakeswap/utils/formatFractions";
-import {
-  FeeAmount,
-  TICK_SPACINGS,
-  TickMath,
-  nearestUsableTick,
-  priceToClosestTick,
-  tickToPrice,
-} from "@pancakeswap/v3-sdk";
+import { TickMath, nearestUsableTick, priceToClosestTick, tickToPrice } from "@pancakeswap/v3-sdk";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Bound } from "../../swap/LiquidityChartRangeInput";
 import { tryParsePrice, tryParseTick } from "../utils";
 
 interface Params {
-  feeAmount?: FeeAmount;
   baseCurrency?: Currency | null;
   quoteCurrency?: Currency | null;
-  priceLower?: Price<Token, Token>;
-  priceUpper?: Price<Token, Token>;
+  priceLower?: Price<Currency, Currency>;
+  priceUpper?: Price<Currency, Currency>;
+  tickSpacing?: number;
 }
 
 export interface PriceRangeInfo {
   tickLower?: number;
   tickUpper?: number;
-  priceLower?: Price<Token, Token>;
-  priceUpper?: Price<Token, Token>;
+  priceLower?: Price<Currency, Currency>;
+  priceUpper?: Price<Currency, Currency>;
   onLeftRangeInput: (leftRangeValue: string) => void;
   onRightRangeInput: (rightRangeValue: string) => void;
   onBothRangeInput: (leftRangeValue: string, rightRangeValue: string) => void;
@@ -37,13 +30,13 @@ export interface PriceRangeInfo {
 export function usePriceRange({
   baseCurrency,
   quoteCurrency,
-  feeAmount,
   priceLower: initialPriceLower,
   priceUpper: initialPriceUpper,
+  tickSpacing,
 }: Params): PriceRangeInfo | null {
   const [fullRange, setFullRange] = useState(false);
-  const [priceLower, setPriceLower] = useState<Price<Token, Token> | undefined>(initialPriceLower);
-  const [priceUpper, setPriceUpper] = useState<Price<Token, Token> | undefined>(initialPriceUpper);
+  const [priceLower, setPriceLower] = useState<Price<Currency, Currency> | undefined>(initialPriceLower);
+  const [priceUpper, setPriceUpper] = useState<Price<Currency, Currency> | undefined>(initialPriceUpper);
 
   const invertPrice = Boolean(baseCurrency && quoteCurrency && quoteCurrency.wrapped.sortsBefore(baseCurrency.wrapped));
 
@@ -52,10 +45,10 @@ export function usePriceRange({
     [bound in Bound]: number | undefined;
   } = useMemo(
     () => ({
-      [Bound.LOWER]: feeAmount ? nearestUsableTick(TickMath.MIN_TICK, TICK_SPACINGS[feeAmount]) : undefined,
-      [Bound.UPPER]: feeAmount ? nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeAmount]) : undefined,
+      [Bound.LOWER]: tickSpacing ? nearestUsableTick(TickMath.MIN_TICK, tickSpacing) : undefined,
+      [Bound.UPPER]: tickSpacing ? nearestUsableTick(TickMath.MAX_TICK, tickSpacing) : undefined,
     }),
-    [feeAmount]
+    [tickSpacing]
   );
 
   const priceLimits: {
@@ -94,8 +87,8 @@ export function usePriceRange({
         : priceLower && initialPriceLower?.equalTo(priceLower.asFraction) // price is the same as initial lower price, use initial price instead of parse from input
         ? priceToClosestTick(priceLower as Price<ERC20Token, ERC20Token>)
         : invertPrice
-        ? tryParseTick(quoteCurrency?.wrapped, baseCurrency?.wrapped, feeAmount, rightRangeTypedValue)
-        : tryParseTick(baseCurrency?.wrapped, quoteCurrency?.wrapped, feeAmount, leftRangeTypedValue),
+        ? tryParseTick(quoteCurrency?.wrapped, baseCurrency?.wrapped, tickSpacing, rightRangeTypedValue)
+        : tryParseTick(baseCurrency?.wrapped, quoteCurrency?.wrapped, tickSpacing, leftRangeTypedValue),
     [
       priceLower,
       initialPriceLower,
@@ -104,7 +97,7 @@ export function usePriceRange({
       invertPrice,
       quoteCurrency?.wrapped,
       baseCurrency?.wrapped,
-      feeAmount,
+      tickSpacing,
       rightRangeTypedValue,
       leftRangeTypedValue,
     ]
@@ -117,8 +110,8 @@ export function usePriceRange({
         : priceUpper && initialPriceUpper?.equalTo(priceUpper.asFraction)
         ? priceToClosestTick(priceUpper as Price<ERC20Token, ERC20Token>)
         : invertPrice
-        ? tryParseTick(quoteCurrency?.wrapped, baseCurrency?.wrapped, feeAmount, leftRangeTypedValue)
-        : tryParseTick(baseCurrency?.wrapped, quoteCurrency?.wrapped, feeAmount, rightRangeTypedValue),
+        ? tryParseTick(quoteCurrency?.wrapped, baseCurrency?.wrapped, tickSpacing, leftRangeTypedValue)
+        : tryParseTick(baseCurrency?.wrapped, quoteCurrency?.wrapped, tickSpacing, rightRangeTypedValue),
     [
       priceUpper,
       initialPriceUpper,
@@ -127,7 +120,7 @@ export function usePriceRange({
       invertPrice,
       quoteCurrency?.wrapped,
       baseCurrency?.wrapped,
-      feeAmount,
+      tickSpacing,
       leftRangeTypedValue,
       rightRangeTypedValue,
     ]

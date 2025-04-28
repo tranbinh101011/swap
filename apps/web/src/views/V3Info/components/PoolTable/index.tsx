@@ -3,6 +3,8 @@ import { ArrowBackIcon, ArrowForwardIcon, Box, SortArrowIcon, Text } from '@panc
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import NextLink from 'next/link'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { chainIdToExplorerInfoChainName } from 'state/info/api/client'
+import { checkIsInfinity } from 'state/info/constant'
 import { useChainIdByQuery, useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
 import { PoolDataForView } from 'state/info/types'
 import { styled } from 'styled-components'
@@ -66,9 +68,17 @@ const DataRow = ({ poolData, index, chainPath }: { poolData: PoolDataForView; in
   const chainId = useChainIdByQuery()
   const token0symbol = getTokenSymbolAlias(poolData.token0.address, chainId, poolData.token0.symbol)
   const token1symbol = getTokenSymbolAlias(poolData.token1.address, chainId, poolData.token1.symbol)
+  const isInfinity = checkIsInfinity()
+
+  const link = useMemo(() => {
+    if (isInfinity) {
+      return `/liquidity/pool/${chainIdToExplorerInfoChainName[chainId]}/${poolData.address}`
+    }
+    return `/${v3InfoPath}${chainPath}/pairs/${poolData.address}`
+  }, [chainPath, poolData.address, chainId, isInfinity])
 
   return (
-    <LinkWrapper href={`/${v3InfoPath}${chainPath}/pairs/${poolData.address}`}>
+    <LinkWrapper href={link}>
       <ResponsiveGrid>
         <Text fontWeight={400}>{index + 1}</Text>
         <Text fontWeight={400}>

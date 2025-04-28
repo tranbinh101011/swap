@@ -14,7 +14,6 @@ import {
 } from '@pancakeswap/uikit'
 
 import replaceBrowserHistoryMultiple from '@pancakeswap/utils/replaceBrowserHistoryMultiple'
-import { useUserSingleHopOnly } from '@pancakeswap/utils/user'
 import { CurrencyLogo, NumericalInput, SwapUIV2 } from '@pancakeswap/widgets-internal'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { AutoRow } from 'components/Layout/Row'
@@ -22,21 +21,20 @@ import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import { CommonBasesType } from 'components/SearchModal/types'
 import { useAllTokens, useCurrency } from 'hooks/Tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useBestAMMTrade } from 'hooks/useBestAMMTrade'
 import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import useNativeCurrency from 'hooks/useNativeCurrency'
+import { useAtomValue } from 'jotai'
 import { LottieRefCurrentProps } from 'lottie-react'
 import dynamic from 'next/dynamic'
+import { bestQuoteAtom } from 'quoter/atom/bestQuoteAtom'
+import { useQuoteContext } from 'quoter/hook/QuoteContext'
+import { QuoteProvider } from 'quoter/QuoteProvider'
+import { createQuoteQuery } from 'quoter/utils/createQuoteQuery'
 import { memo, useCallback, useMemo, useRef } from 'react'
+import { useCurrentBlock } from 'state/block/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
-import {
-  useUserSplitRouteEnable,
-  useUserStableSwapEnable,
-  useUserV2SwapEnable,
-  useUserV3SwapEnable,
-} from 'state/user/smartRouter'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { keyframes, styled } from 'styled-components'
 import currencyId from 'utils/currencyId'
@@ -62,13 +60,9 @@ const useBestTrade = (fromToken?: string, toToken?: string, value?: string) => {
   }, [independentCurrency, value])
 
   const dependentCurrency = useCurrency(toToken)
-  const [singleHopOnly] = useUserSingleHopOnly()
-  const [split] = useUserSplitRouteEnable()
-  const [v2Swap] = useUserV2SwapEnable()
-  const [v3Swap] = useUserV3SwapEnable()
-  const [stableSwap] = useUserStableSwapEnable()
-
-  const { trade } = useBestAMMTrade({
+  const { singleHopOnly, split, v2Swap, v3Swap, stableSwap } = useQuoteContext()
+  const blockNumber = useCurrentBlock()
+  const quoteOption = createQuoteQuery({
     amount,
     currency: dependentCurrency,
     baseCurrency: independentCurrency,
@@ -78,10 +72,16 @@ const useBestTrade = (fromToken?: string, toToken?: string, value?: string) => {
     v2Swap,
     v3Swap,
     stableSwap,
-    type: 'auto',
     trackPerf: true,
     autoRevalidate: false,
+    xEnabled: false,
+    speedQuoteEnabled: true,
+    infinitySwap: false,
+    blockNumber,
   })
+  const tradeResult = useAtomValue(bestQuoteAtom(quoteOption))
+  const { data } = tradeResult
+  const trade = data?.trade
 
   const inCurrency = useCurrency(fromToken)
   const outCurrency = useCurrency(toToken)
@@ -191,32 +191,34 @@ export function TWAPPanel({ limit }: { limit?: boolean }) {
   const outputCurrency = useCurrency(outputCurrencyId)
 
   return (
-    <PancakeTWAP
-      ConnectButton={ConnectWalletButton}
-      connectedChainId={chainId}
-      account={address}
-      limit={limit}
-      usePriceUSD={useUsd}
-      useTrade={useBestTrade}
-      dappTokens={tokens}
-      isDarkTheme={isDark}
-      srcToken={inputCurrency as any}
-      dstToken={outputCurrency as any}
-      useTokenModal={useTokenModal}
-      onSrcTokenSelected={onSrcTokenSelected}
-      onDstTokenSelected={onDstTokenSelected}
-      isMobile={!isDesktop}
-      nativeToken={native}
-      connector={connector}
-      useTooltip={useTooltip}
-      Button={Button}
-      TransactionErrorContent={TransactionErrorContent}
-      toast={toast}
-      FlipButton={FlipButton}
-      Input={Input}
-      CurrencyLogo={TokenLogo}
-      Balance={Balance}
-    />
+    <QuoteProvider>
+      <PancakeTWAP
+        ConnectButton={ConnectWalletButton}
+        connectedChainId={chainId}
+        account={address}
+        limit={limit}
+        usePriceUSD={useUsd}
+        useTrade={useBestTrade}
+        dappTokens={tokens}
+        isDarkTheme={isDark}
+        srcToken={inputCurrency as any}
+        dstToken={outputCurrency as any}
+        useTokenModal={useTokenModal}
+        onSrcTokenSelected={onSrcTokenSelected}
+        onDstTokenSelected={onDstTokenSelected}
+        isMobile={!isDesktop}
+        nativeToken={native}
+        connector={connector}
+        useTooltip={useTooltip}
+        Button={Button}
+        TransactionErrorContent={TransactionErrorContent}
+        toast={toast}
+        FlipButton={FlipButton}
+        Input={Input}
+        CurrencyLogo={TokenLogo}
+        Balance={Balance}
+      />
+    </QuoteProvider>
   )
 }
 

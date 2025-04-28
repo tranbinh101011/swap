@@ -1,11 +1,12 @@
-import { toBigInt } from '@pancakeswap/utils/toBigInt'
 import { AbortControl, AbortError, abortInvariant } from '@pancakeswap/utils/abortControl'
+import { toBigInt } from '@pancakeswap/utils/toBigInt'
 import { isViemAbortError } from '@pancakeswap/utils/viem/isAbortError'
 
-import { GetGasLimitParams, getDefaultGasBuffer, getGasLimit } from './getGasLimit'
-import { MulticallRequestWithGas } from './types'
-import { getMulticallContract } from './getMulticallContract'
+import { logStatsInDev } from './CallStats'
 import { getBlockConflictTolerance } from './getBlockConflictTolerance'
+import { GetGasLimitParams, getDefaultGasBuffer, getGasLimit } from './getGasLimit'
+import { getMulticallContract } from './getMulticallContract'
+import { MulticallRequestWithGas } from './types'
 
 export type CallByGasLimitParams = AbortControl &
   GetGasLimitParams & {
@@ -21,6 +22,7 @@ export type CallByGasLimitParams = AbortControl &
     retryFailedCallsWithGreaterLimit?:
       | {
           gasLimitMultiplier: number
+          maxRetry?: number
         }
       | undefined
   }
@@ -37,6 +39,7 @@ export async function multicallByGasLimit(
     ...rest
   }: CallByGasLimitParams,
 ) {
+  logStatsInDev(calls)
   const gasLimit = await getGasLimit({
     chainId,
     gasBuffer,
@@ -54,8 +57,13 @@ export async function multicallByGasLimit(
     return callResult
   }
 
-  const { gasLimitMultiplier: retryGasLimitMultiplier } = retryFailedCallsWithGreaterLimit
+  const { gasLimitMultiplier: retryGasLimitMultiplier, maxRetry = 2 } = retryFailedCallsWithGreaterLimit
+  let retry = 0
   async function retryFailedCalls(result: CallResult) {
+    retry += 1
+    if (retry > maxRetry) {
+      return result
+    }
     if (result.results.every((r) => r.success)) {
       return result
     }

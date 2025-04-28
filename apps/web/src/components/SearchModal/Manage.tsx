@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { Token } from '@pancakeswap/sdk'
-import { ButtonMenu, ButtonMenuItem, ModalBody } from '@pancakeswap/uikit'
-import { styled } from 'styled-components'
-import { TokenList } from '@pancakeswap/token-lists'
 import { useTranslation } from '@pancakeswap/localization'
+import { Token } from '@pancakeswap/sdk'
+import { TokenList } from '@pancakeswap/token-lists'
+import { ButtonMenu, ButtonMenuItem, ModalBody } from '@pancakeswap/uikit'
+import { useState } from 'react'
+import { styled } from 'styled-components'
 import ManageLists from './ManageLists'
 import ManageTokens from './ManageTokens'
 import { CurrencyModalView } from './types'
@@ -17,11 +17,13 @@ export default function Manage({
   setImportList,
   setImportToken,
   setListUrl,
+  chainId,
 }: {
   setModalView: (view: CurrencyModalView) => void
   setImportToken: (token: Token) => void
   setImportList: (list: TokenList) => void
   setListUrl: (url: string) => void
+  chainId?: number
 }) {
   const [showLists, setShowLists] = useState(true)
 
@@ -40,9 +42,14 @@ export default function Manage({
         <ButtonMenuItem width="50%">{t('Tokens')}</ButtonMenuItem>
       </StyledButtonMenu>
       {showLists ? (
-        <ManageLists setModalView={setModalView} setImportList={setImportList} setListUrl={setListUrl} />
+        <ManageLists
+          setModalView={setModalView}
+          setImportList={setImportList}
+          setListUrl={setListUrl}
+          chainId={chainId}
+        />
       ) : (
-        <ManageTokens setModalView={setModalView} setImportToken={setImportToken} />
+        <ManageTokens setModalView={setModalView} setImportToken={setImportToken} chainId={chainId} />
       )}
     </ModalBody>
   )

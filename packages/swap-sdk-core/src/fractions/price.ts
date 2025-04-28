@@ -2,9 +2,9 @@ import invariant from 'tiny-invariant'
 
 import { BigintIsh, Rounding } from '../constants'
 import { Currency } from '../currency'
-import { Fraction } from './fraction'
-import { CurrencyAmount } from './currencyAmount'
 import { Token } from '../token'
+import { CurrencyAmount } from './currencyAmount'
+import { Fraction } from './fraction'
 
 export class Price<TBase extends Currency, TQuote extends Currency> extends Fraction {
   public readonly baseCurrency: TBase // input i.e. denominator
@@ -91,5 +91,34 @@ export class Price<TBase extends Currency, TQuote extends Currency> extends Frac
 
   public get wrapped(): Price<Token, Token> {
     return new Price(this.baseCurrency.wrapped, this.quoteCurrency.wrapped, this.denominator, this.numerator)
+  }
+
+  /**
+   * Create a price from base and quote currency and a decimal string
+   * @param base
+   * @param quote
+   * @param value
+   * @returns Price<TBase, TQuote> | undefined
+   */
+  public static fromDecimal<TBase extends Currency, TQuote extends Currency>(
+    base: TBase,
+    quote: TQuote,
+    value: string
+  ): Price<TBase, TQuote> | undefined {
+    if (!value || value.length > 257 || !value.match(/^\d*\.?\d+$/)) {
+      return undefined
+    }
+
+    const [whole, fraction] = value.split('.')
+
+    const decimals = fraction?.length ?? 0
+    const withoutDecimals = BigInt((whole ?? '') + (fraction ?? ''))
+
+    return new Price(
+      base,
+      quote,
+      BigInt(10 ** decimals) * BigInt(10 ** base.decimals),
+      withoutDecimals * BigInt(10 ** quote.decimals)
+    )
   }
 }

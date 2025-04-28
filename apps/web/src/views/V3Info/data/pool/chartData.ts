@@ -1,15 +1,18 @@
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 
+import { Protocol } from '@pancakeswap/farms'
+import { InfinityProtocol } from 'config/constants/protocols'
 import { explorerApiClient } from 'state/info/api/client'
 import type { components } from 'state/info/api/schema'
 import { PoolChartEntry } from 'state/info/types'
+import { isInfinityProtocol } from 'utils/protocols'
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc)
 
 export async function fetchPoolChartData(
-  protocol: 'v2' | 'v3' | 'stable',
+  protocol: Protocol,
   chainName: components['schemas']['ChainName'],
   address: string,
   signal?: AbortSignal,
@@ -18,10 +21,11 @@ export async function fetchPoolChartData(
 
   try {
     const rawFeeResults = await explorerApiClient
-      .GET('/cached/pools/chart/v3/{chainName}/{address}/fees', {
+      .GET('/cached/pools/chart/{protocol}/{chainName}/{address}/fees', {
         signal,
         params: {
           path: {
+            protocol: isInfinityProtocol(protocol) ? (protocol as InfinityProtocol) : Protocol.V3,
             chainName,
             address,
           },

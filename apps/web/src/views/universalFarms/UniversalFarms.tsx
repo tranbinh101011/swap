@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Button, Card, FlexGap, Tab, TabMenu, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
-import Page from 'components/Layout/Page'
+import Page_ from 'components/Layout/Page'
 import { useRouter } from 'next/router'
 import { PropsWithChildren, useMemo } from 'react'
 import styled from 'styled-components'
@@ -71,6 +71,14 @@ const LegacyPage = () => {
     </NextLinkFromReactRouter>
   )
 }
+
+const Page = styled(Page_)`
+  padding: 8px;
+
+  ${({ theme }) => theme.mediaQueries.sm} {
+    padding: 24px;
+  }
+`
 
 export const UniversalFarms: React.FC<PropsWithChildren> = () => {
   const { t } = useTranslation()

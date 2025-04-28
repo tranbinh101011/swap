@@ -8,6 +8,7 @@ export type FeeTierTooltipProps = {
   type: Protocol;
   dynamic?: boolean;
   percent: Percent;
+  tooltips?: React.ReactNode | null;
 };
 
 const FeeTooltips: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent }) => {
@@ -22,7 +23,7 @@ const FeeTooltips: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent }) 
           <div>{t("Fees are lower for Stable LP")}</div>
         </>
       );
-    case "v4bin": {
+    case "infinityBin": {
       return (
         <>
           <Text bold>{t("%t% LP", { t: type.toUpperCase() })}</Text>
@@ -50,12 +51,20 @@ const FeeTooltips: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent }) 
   }
 };
 
-export const FeeTierTooltip: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent }) => {
+export const FeeTierTooltip: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent, tooltips }) => {
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    <FeeTooltips type={type} dynamic={dynamic} percent={percent} />
+    tooltips ?? <FeeTooltips type={type} dynamic={dynamic} percent={percent} />
   );
 
-  const typeSymbol = useMemo(() => (type === "stable" ? "SS" : type), [type]);
+  const typeSymbol = useMemo(
+    () =>
+      type === Protocol.STABLE
+        ? "SS"
+        : [Protocol.InfinityBIN, Protocol.InfinityCLAMM].includes(type)
+        ? "Infinity"
+        : type,
+    [type]
+  );
 
   return (
     <>

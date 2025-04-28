@@ -1,11 +1,23 @@
-import { PoolInfo } from 'state/farmsV4/state/type'
+import type { InfinityBinPoolInfo, InfinityCLPoolInfo, PoolInfo } from 'state/farmsV4/state/type'
 
 export type ChartLiquidityProps = {
   address?: string
   poolInfo?: PoolInfo | null
 }
 
-export type V3LiquidityChartData = {
+export type BasicChartLiquidityProps = ChartLiquidityProps & {
+  liquidityChartData?: LiquidityChartData[]
+}
+
+export type InfinityCLChartLiquidityProps = {
+  poolInfo?: InfinityCLPoolInfo | null
+}
+
+export type InfinityBinChartLiquidityProps = {
+  poolInfo?: InfinityBinPoolInfo | null
+}
+
+export type LiquidityChartData = {
   index: number
   isCurrent: boolean
   activeLiquidity: number

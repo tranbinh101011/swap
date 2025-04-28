@@ -12,7 +12,7 @@ import { PoolState } from './types'
 
 // Classes are expensive to instantiate, so this caches the recently instantiated pools.
 // This avoids re-instantiating pools as the other pools in the same request are loaded.
-class PoolCache {
+export class PoolCache {
   // Evict after 128 entries. Empirically, a swap uses 64 entries.
   private static MAX_ENTRIES = 128
 

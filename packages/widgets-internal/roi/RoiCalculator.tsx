@@ -3,7 +3,7 @@ import { Currency, CurrencyAmount, Percent, Price, Token, ZERO } from "@pancakes
 import { BIG_ZERO } from "@pancakeswap/utils/bigNumber";
 import { formatFraction, formatPercent, formatPrice } from "@pancakeswap/utils/formatFractions";
 import { isPositionOutOfRange } from "@pancakeswap/utils/isPositionOutOfRange";
-import { FeeAmount, FeeCalculator, TickMath, sqrtRatioX96ToPrice } from "@pancakeswap/v3-sdk";
+import { FeeAmount, FeeCalculator, TICK_SPACINGS, TickMath, sqrtRatioX96ToPrice } from "@pancakeswap/v3-sdk";
 import BigNumber from "bignumber.js";
 import { useCallback, useMemo, useState } from "react";
 
@@ -30,8 +30,8 @@ import { useAmountsByUsdValue, usePriceRange, useRangeHopCallbacks, useRoi } fro
 import { TickData } from "./types";
 
 export interface RoiCalculatorPositionInfo {
-  priceLower?: Price<Token, Token>;
-  priceUpper?: Price<Token, Token>;
+  priceLower?: Price<Currency, Currency>;
+  priceUpper?: Price<Currency, Currency>;
   depositAmountInUsd?: number | string;
   currencyAUsdPrice?: number;
   currencyBUsdPrice?: number;
@@ -62,9 +62,9 @@ export type RoiCalculatorProps = {
   protocolFee?: Percent;
   prices?: PriceCalculator;
   ticks?: TickData[];
-  price?: Price<Token, Token>;
-  priceLower?: Price<Token, Token>;
-  priceUpper?: Price<Token, Token>;
+  price?: Price<Currency | Token, Currency | Token>;
+  priceLower?: Price<Currency, Currency>;
+  priceUpper?: Price<Currency, Currency>;
   currencyAUsdPrice?: number;
   currencyBUsdPrice?: number;
   depositAmountInUsd?: number | string;
@@ -177,11 +177,11 @@ export function RoiCalculator({
   }, [sqrtRatioX96, currencyA, currencyB]);
 
   const priceRange = usePriceRange({
-    feeAmount,
     baseCurrency: currencyA,
     quoteCurrency: currencyB,
     priceLower,
     priceUpper,
+    tickSpacing: feeAmount ? TICK_SPACINGS[feeAmount] : undefined,
   });
   const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper } = useRangeHopCallbacks(
     currencyA,

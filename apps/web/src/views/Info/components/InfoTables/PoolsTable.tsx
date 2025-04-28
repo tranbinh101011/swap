@@ -4,8 +4,10 @@ import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 
 import { ITEMS_PER_INFO_TABLE_PAGE } from 'config/constants/info'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { chainIdToExplorerInfoChainName } from 'state/info/api/client'
+import { checkIsInfinity } from 'state/info/constant'
 import { useChainIdByQuery, useChainNameByQuery, useMultiChainPath, useStableSwapPath } from 'state/info/hooks'
-import { PoolData } from 'state/info/types'
+import type { PoolData } from 'state/info/types'
 import { styled } from 'styled-components'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
@@ -91,11 +93,19 @@ const DataRow = ({ poolData, index }: { poolData: PoolData; index: number }) => 
   const chainId = useChainIdByQuery()
   const chainPath = useMultiChainPath()
   const stableSwapPath = useStableSwapPath()
+  const isInfinity = checkIsInfinity()
   const token0symbol = getTokenSymbolAlias(poolData.token0.address, chainId, poolData.token0.symbol)
   const token1symbol = getTokenSymbolAlias(poolData.token1.address, chainId, poolData.token1.symbol)
 
+  const link = useMemo(() => {
+    if (isInfinity) {
+      return `/liquidity/pool/${chainIdToExplorerInfoChainName[chainId]}/${poolData.address}`
+    }
+    return `/info${chainPath}/pairs/${poolData.address}${stableSwapPath}`
+  }, [chainPath, poolData.address, stableSwapPath, chainId, isInfinity])
+
   return (
-    <LinkWrapper to={`/info${chainPath}/pairs/${poolData.address}${stableSwapPath}`}>
+    <LinkWrapper to={link}>
       <ResponsiveGrid>
         <Text>{index + 1}</Text>
         <Flex>

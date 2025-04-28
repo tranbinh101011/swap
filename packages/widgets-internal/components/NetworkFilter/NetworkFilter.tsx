@@ -10,12 +10,13 @@ import { useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
 export interface INetworkProps {
+  multiple?: boolean;
   data: IMultiSelectProps<number>["options"];
   value: number[];
   onChange: (value: INetworkProps["value"], e: IMultiSelectChangeEvent<number>) => void;
 }
 
-const Container = styled.div<{ $isShow: boolean }>`
+export const Container = styled.div<{ $isShow: boolean }>`
   flex: 1;
 
   .p-multiselect-panel {
@@ -55,6 +56,12 @@ const ItemContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  padding-right: 24px;
+  white-space: pre-wrap;
+
+  .network-icon {
+    flex: 1;
+  }
 `;
 
 const StyledButton = styled(Button)`
@@ -99,7 +106,7 @@ const StyledContainer = styled(Container)<{ $activeIndex?: number }>`
   }
 `;
 
-export const NetworkFilter: React.FC<INetworkProps> = ({ data, value, onChange }: INetworkProps) => {
+export const NetworkFilter: React.FC<INetworkProps> = ({ data, value, onChange, multiple }: INetworkProps) => {
   const [isShow, setIsShow] = useState(false);
   const [mobileActiveValue, setMobileActiveValue] = useState<number>(-1);
   const { isMobile } = useMatchBreakpoints();
@@ -140,15 +147,15 @@ export const NetworkFilter: React.FC<INetworkProps> = ({ data, value, onChange }
         <ItemContainer onTouchStart={onTouchStart}>
           <div style={{ display: "flex", alignItems: "center" }}>
             {option.icon && (
-              <span style={{ marginRight: "8px" }}>
+              <span style={{ marginRight: "8px", width: "24px", height: "24px" }}>
                 {typeof option.icon === "string" ? (
-                  <img src={option.icon} alt={option.label} width="24" />
+                  <img className="network-icon" src={option.icon} alt={option.label} width="24" />
                 ) : (
                   option.icon
                 )}
               </span>
             )}
-            <span>{option.label}</span>
+            <span style={{ flex: 1 }}>{option.label}</span>
           </div>
 
           <StyledButton scale="xs" onClick={(e: React.MouseEvent) => handleOnlyClick(option.value, e)}>
@@ -163,6 +170,7 @@ export const NetworkFilter: React.FC<INetworkProps> = ({ data, value, onChange }
   return (
     <StyledContainer $isShow={isShow} $activeIndex={activeIndex}>
       <MultiSelect
+        multiple={multiple}
         style={{
           backgroundColor: "var(--colors-input)",
         }}

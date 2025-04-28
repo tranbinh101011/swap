@@ -3,23 +3,47 @@ import { useTheme } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Token } from '@pancakeswap/swap-sdk-core'
 import { FeeTier, Flex, Row, Skeleton, Tag, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
-import { formatNumber } from '@pancakeswap/utils/formatBalance'
+import { formatNumber as formatBalance } from '@pancakeswap/utils/formatBalance'
+import { formatNumber } from '@pancakeswap/utils/formatNumber'
 import { DoubleCurrencyLogo, FiatNumberDisplay } from '@pancakeswap/widgets-internal'
-import { RangeTag } from 'components/RangeTag'
-import React, { memo, useMemo } from 'react'
-import { PositionDetail, StableLPDetail, V2LPDetail } from 'state/farmsV4/state/accountPositions/type'
-import { PoolInfo } from 'state/farmsV4/state/type'
-import styled from 'styled-components'
-import { useV2CakeEarning, useV3CakeEarning } from 'views/universalFarms/hooks/useCakeEarning'
+import { InfinityFeeTierBreakdown } from 'components/FeeTierBreakdown'
 import { MerklTag } from 'components/Merkl/MerklTag'
-import { PoolGlobalAprButton, V2PoolPositionAprButton, V3PoolPositionAprButton } from '../PoolAprButton'
+import { RangeTag } from 'components/RangeTag'
+import dayjs from 'dayjs'
+import { useUnclaimedFarmRewardsUSDByPoolId, useUnclaimedFarmRewardsUSDByTokenId } from 'hooks/infinity/useFarmReward'
+import React, { memo, useEffect, useMemo } from 'react'
+import {
+  InfinityBinPositionDetail,
+  InfinityCLPositionDetail,
+  PositionDetail,
+  StableLPDetail,
+  V2LPDetail,
+} from 'state/farmsV4/state/accountPositions/type'
+import { InfinityPoolInfo, PoolInfo } from 'state/farmsV4/state/type'
+import styled from 'styled-components'
+import { isInfinityProtocol } from 'utils/protocols'
+import { Address } from 'viem'
+import { useV2CakeEarning, useV3CakeEarning } from 'views/universalFarms/hooks/useCakeEarning'
+import { usePositionEarningAmount } from 'views/universalFarms/hooks/usePositionEarningAmount'
+import { useAccount } from 'wagmi'
+import { PositionDebugView } from './PositionDebugView'
 
-const displayTokenReserve = (amount?: CurrencyAmount<Token>) => {
+import {
+  InfinityBinPoolPositionAprButton,
+  InfinityCLPoolPositionAprButton,
+  PoolGlobalAprButton,
+  V2PoolPositionAprButton,
+  V3PoolPositionAprButton,
+} from '../PoolAprButton'
+
+export const formatPositionAmount = (amount?: CurrencyAmount<Token | Currency>) => {
   const minimumFractionDigits = Math.min(amount?.currency.decimals ?? 0, 6)
-  const quantity = amount && !amount.equalTo(0) ? amount.toFixed(minimumFractionDigits) : '0'
-  const symbol = amount?.currency.symbol ?? '-'
+  return amount && !amount.equalTo(0) ? amount.toFixed(minimumFractionDigits) : '0'
+}
 
-  return `${quantity} ${symbol}`
+const displayTokenReserve = (amount?: CurrencyAmount<Token | Currency>) => {
+  const symbol = amount?.currency.symbol ?? '-'
+  return `${formatNumber(formatPositionAmount(amount))} ${symbol}`
 }
 
 export type PositionInfoProps = {
@@ -36,15 +60,20 @@ export type PositionInfoProps = {
   isStaked?: boolean
   protocol: Protocol
   totalPriceUSD: number
-  amount0?: CurrencyAmount<Token>
-  amount1?: CurrencyAmount<Token>
+  amount0?: CurrencyAmount<Token | Currency>
+  amount1?: CurrencyAmount<Token | Currency>
   pool?: PoolInfo | null
   detailMode?: boolean
-  userPosition?: PositionDetail | V2LPDetail | StableLPDetail
+  userPosition?: PositionDetail | V2LPDetail | StableLPDetail | InfinityBinPositionDetail
+  showAPR?: boolean
+  miniMode?: boolean
 }
 
-export const PositionInfo = memo(
-  ({
+export const PositionInfo = memo((props: PositionInfoProps) => {
+  const { t } = useTranslation()
+  const { theme } = useTheme()
+  const { isMobile, isTablet } = useMatchBreakpoints()
+  const {
     currency0,
     currency1,
     removed,
@@ -61,114 +90,142 @@ export const PositionInfo = memo(
     pool,
     userPosition,
     detailMode,
-  }: PositionInfoProps) => {
-    const { t } = useTranslation()
-    const { theme } = useTheme()
-    const { isMobile, isTablet } = useMatchBreakpoints()
+    showAPR = true,
+    miniMode = isTablet || isMobile,
+    chainId,
+  } = props
 
-    const title = useMemo(
-      () =>
-        isTablet || isMobile ? (
-          <DetailInfoTitle $isMobile>
+  const title = useMemo(
+    () =>
+      miniMode ? (
+        <DetailInfoTitle $isMobile>
+          <Row gap="8px" flexWrap={isMobile ? 'wrap' : undefined}>
+            <DoubleCurrencyLogo
+              size={24}
+              currency0={currency0}
+              currency1={currency1}
+              showChainLogo
+              innerMargin="-10px"
+            />
+            {isInfinityProtocol(protocol) ? (
+              <InfinityFeeTierBreakdown poolId={(pool as InfinityPoolInfo)?.poolId} chainId={chainId} />
+            ) : (
+              <FeeTier type={protocol} fee={fee} dynamic={pool?.isDynamicFee} denominator={feeTierBase} />
+            )}
             <Row>
-              <DoubleCurrencyLogo
-                size={24}
-                currency0={currency0}
-                currency1={currency1}
-                showChainLogo
-                innerMargin="-10px"
-              />
-              <FeeTier type={protocol} fee={fee} denominator={feeTierBase} />
-            </Row>
-            <Row>
-              <Text bold>{`${currency0?.symbol} / ${currency1?.symbol} LP`}</Text>
-              {tokenId ? <Text color="textSubtle">(#{tokenId.toString()})</Text> : null}
-            </Row>
-            <Row>
-              {isStaked && (
+              {(isInfinityProtocol(protocol) ? isStaked && !outOfRange && !removed : isStaked) && (
                 <Tag variant="primary60" mr="8px">
                   {t('Farming')}
                 </Tag>
               )}
-              {protocol === Protocol.V3 && <RangeTag lowContrast removed={removed} outOfRange={outOfRange} />}
+              {![Protocol.STABLE, Protocol.V2].includes(protocol) && (
+                <RangeTag lowContrast removed={removed} outOfRange={outOfRange} protocol={protocol} />
+              )}
               <MerklTag poolAddress={pool?.lpAddress} />
             </Row>
-          </DetailInfoTitle>
-        ) : (
-          <DetailInfoTitle>
+          </Row>
+          <Row>
             <Text bold>{`${currency0?.symbol} / ${currency1?.symbol} LP`}</Text>
             {tokenId ? <Text color="textSubtle">(#{tokenId.toString()})</Text> : null}
-            <FeeTier type={protocol} fee={fee} denominator={feeTierBase} />
-            <TagCell>
-              {isStaked && (
-                <Tag variant="primary60" mr="8px">
-                  {t('Farming')}
-                </Tag>
-              )}
-              {protocol === Protocol.V3 && <RangeTag lowContrast removed={removed} outOfRange={outOfRange} />}
-              <MerklTag poolAddress={pool?.lpAddress} />
-            </TagCell>
-          </DetailInfoTitle>
-        ),
-      [
-        feeTierBase,
-        currency0,
-        currency1,
-        fee,
-        isMobile,
-        isTablet,
-        isStaked,
-        outOfRange,
-        protocol,
-        removed,
-        t,
-        tokenId,
-        pool,
-      ],
-    )
-
-    return (
-      <>
-        {title}
-        <DetailInfoDesc>
-          {desc}
-          <Row gap="sm">
-            <FiatNumberDisplay
-              prefix="~"
-              value={totalPriceUSD}
-              style={{ color: theme.colors.textSubtle, fontSize: '12px' }}
-              showFullDigitsTooltip={false}
-            />
-            ({displayTokenReserve(amount0)} / {displayTokenReserve(amount1)})
           </Row>
+        </DetailInfoTitle>
+      ) : (
+        <DetailInfoTitle>
+          <PositionDebugView json={props}>
+            <Text bold>{`${currency0?.symbol} / ${currency1?.symbol} LP`}</Text>
+          </PositionDebugView>
+          {tokenId ? <Text color="textSubtle">(#{tokenId.toString()})</Text> : null}
+          {isInfinityProtocol(protocol) ? (
+            <InfinityFeeTierBreakdown poolId={(pool as InfinityPoolInfo)?.poolId} chainId={chainId} />
+          ) : (
+            <FeeTier type={protocol} fee={fee} denominator={feeTierBase} />
+          )}
+          <TagCell>
+            {(isInfinityProtocol(protocol) ? isStaked && !outOfRange && !removed : isStaked) && (
+              <Tag variant="primary60" mr="8px">
+                {t('Farming')}
+              </Tag>
+            )}
+            {![Protocol.STABLE, Protocol.V2].includes(protocol) && (
+              <RangeTag lowContrast removed={removed} outOfRange={outOfRange} protocol={protocol} />
+            )}
+            <MerklTag poolAddress={pool?.lpAddress} />
+          </TagCell>
+        </DetailInfoTitle>
+      ),
+    [
+      isMobile,
+      chainId,
+      miniMode,
+      feeTierBase,
+      currency0,
+      currency1,
+      fee,
+      isStaked,
+      outOfRange,
+      protocol,
+      removed,
+      t,
+      tokenId,
+      pool,
+    ],
+  )
+
+  const AprButton = useMemo(() => {
+    if (!pool) {
+      return <Skeleton width={60} />
+    }
+    if (!userPosition) {
+      return <PoolGlobalAprButton pool={pool} detailMode={detailMode} />
+    }
+    if (pool.protocol === Protocol.V3) {
+      return <V3PoolPositionAprButton pool={pool} userPosition={userPosition as PositionDetail} />
+    }
+    if (pool.protocol === Protocol.InfinityCLAMM) {
+      return <InfinityCLPoolPositionAprButton pool={pool} userPosition={userPosition as InfinityCLPositionDetail} />
+    }
+    if (pool.protocol === Protocol.InfinityBIN) {
+      return <InfinityBinPoolPositionAprButton pool={pool} userPosition={userPosition as InfinityBinPositionDetail} />
+    }
+    return <V2PoolPositionAprButton pool={pool} userPosition={userPosition as V2LPDetail | StableLPDetail} />
+  }, [detailMode, pool, userPosition])
+
+  return (
+    <>
+      {title}
+      <DetailInfoDesc>
+        {desc}
+        <Row gap="sm">
+          <FiatNumberDisplay
+            prefix="~"
+            value={totalPriceUSD}
+            style={{ color: theme.colors.textSubtle, fontSize: '12px' }}
+            showFullDigitsTooltip={false}
+          />
+          ({displayTokenReserve(amount0)} / {displayTokenReserve(amount1)})
+        </Row>
+        {showAPR && (
           <Row gap="8px">
             <DetailInfoLabel>APR: </DetailInfoLabel>
-            {pool ? (
-              userPosition ? (
-                pool.protocol === Protocol.V3 ? (
-                  <V3PoolPositionAprButton pool={pool} userPosition={userPosition as PositionDetail} />
-                ) : (
-                  <V2PoolPositionAprButton pool={pool} userPosition={userPosition as V2LPDetail | StableLPDetail} />
-                )
-              ) : (
-                <PoolGlobalAprButton pool={pool} detailMode={detailMode} />
-              )
-            ) : (
-              <Skeleton width={60} />
-            )}
+            {AprButton}
           </Row>
-          {isStaked ? (
-            protocol === Protocol.V3 && pool?.chainId ? (
-              <V3Earnings tokenId={tokenId} chainId={pool?.chainId} />
-            ) : (
-              <V2Earnings pool={pool} />
-            )
-          ) : null}
-        </DetailInfoDesc>
-      </>
-    )
-  },
-)
+        )}
+        {isStaked ? (
+          [Protocol.STABLE, Protocol.V2].includes(protocol) ? (
+            <V2Earnings pool={pool} />
+          ) : Protocol.V3 === protocol && pool?.chainId ? (
+            <V3Earnings tokenId={tokenId} chainId={pool?.chainId} />
+          ) : null
+        ) : null}
+        {Protocol.InfinityCLAMM === protocol ? (
+          <InfinityCLEarnings tokenId={tokenId} chainId={pool?.chainId} poolId={pool?.lpAddress} />
+        ) : Protocol.InfinityBIN === protocol ? (
+          <InfinityBinEarnings chainId={pool?.chainId} poolId={pool?.lpAddress} />
+        ) : null}
+      </DetailInfoDesc>
+    </>
+  )
+})
 
 const Earnings: React.FC<{ earningsAmount?: number; earningsBusd?: number }> = ({
   earningsAmount = 0,
@@ -179,7 +236,7 @@ const Earnings: React.FC<{ earningsAmount?: number; earningsBusd?: number }> = (
     earningsBusd > 0 && (
       <Row gap="8px">
         <DetailInfoLabel>
-          {t('CAKE earned')}: {earningsAmount} (~${formatNumber(earningsBusd)})
+          {t('CAKE earned')}: {earningsAmount} (~${formatBalance(earningsBusd)})
         </DetailInfoLabel>
       </Row>
     )
@@ -197,6 +254,62 @@ const V3Earnings = ({ tokenId, chainId }: { tokenId?: bigint; chainId: number })
     chainId,
   )
   return <Earnings earningsAmount={earningsAmount} earningsBusd={earningsBusd} />
+}
+
+const InfinityBinEarnings = ({ chainId, poolId }: { chainId?: number; poolId?: Address }) => {
+  const { address } = useAccount()
+  const {
+    data: { rewardsAmount, rewardsUSD },
+    isLoading,
+  } = useUnclaimedFarmRewardsUSDByPoolId({
+    chainId,
+    poolId,
+    address,
+    timestamp: dayjs().startOf('hour').unix(),
+  })
+  const amount = useMemo(() => {
+    const decimal = Math.min(rewardsAmount?.currency.decimals ?? 18, 18)
+    return Number(rewardsAmount?.toFixed(decimal) ?? 0)
+  }, [rewardsAmount])
+
+  const [, updatePositionEarningAmount] = usePositionEarningAmount()
+
+  useEffect(() => {
+    if (!(chainId && poolId && !isLoading)) {
+      return
+    }
+    updatePositionEarningAmount(chainId, poolId, amount)
+  }, [amount, chainId, poolId, isLoading, updatePositionEarningAmount])
+  return <Earnings earningsAmount={amount} earningsBusd={rewardsUSD} />
+}
+
+const InfinityCLEarnings = ({ tokenId, chainId, poolId }: { tokenId?: bigint; chainId?: number; poolId?: Address }) => {
+  const { address } = useAccount()
+  const {
+    data: { rewardsAmount, rewardsUSD },
+    isLoading,
+  } = useUnclaimedFarmRewardsUSDByTokenId({
+    chainId,
+    tokenId,
+    poolId,
+    address,
+    timestamp: dayjs().startOf('hour').unix(),
+  })
+  const amount = useMemo(() => {
+    const decimal = Math.min(rewardsAmount?.currency.decimals ?? 18, 18)
+    return Number(rewardsAmount?.toFixed(decimal) ?? 0)
+  }, [rewardsAmount])
+
+  const [, updatePositionEarningAmount] = usePositionEarningAmount()
+
+  useEffect(() => {
+    if (!(chainId && poolId && tokenId && !isLoading)) {
+      return
+    }
+    updatePositionEarningAmount(chainId, poolId, tokenId, amount)
+  }, [amount, chainId, poolId, tokenId, isLoading, updatePositionEarningAmount])
+
+  return <Earnings earningsAmount={amount} earningsBusd={rewardsUSD} />
 }
 
 const DetailInfoTitle = styled.div<{ $isMobile?: boolean }>`

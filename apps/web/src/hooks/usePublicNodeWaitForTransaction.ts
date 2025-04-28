@@ -51,8 +51,9 @@ export type PublicNodeWaitForTransactionParams = GetTransactionReceiptParameters
   chainId?: number
 }
 
-export function usePublicNodeWaitForTransaction() {
-  const { chainId } = useActiveChainId()
+export function usePublicNodeWaitForTransaction(chainId_?: number) {
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainId = chainId_ ?? activeChainId
   const provider = usePublicClient({ chainId })
   const w3WConfig = useW3WConfig()
   const refetchBlockData = useFetchBlockData(chainId)

@@ -18,6 +18,7 @@ import { useSpeedQuote } from 'hooks/useSpeedQuote'
 import { memo } from 'react'
 import {
   useOnlyOneAMMSourceEnabled,
+  useUserInfinitySwapEnable,
   useUserSplitRouteEnable,
   useUserStableSwapEnable,
   useUserV2SwapEnable,
@@ -32,6 +33,7 @@ export const CustomizeRoutingTab = memo(() => {
   const [isStableSwapByDefault, setIsStableSwapByDefault] = useUserStableSwapEnable()
   const [v2Enable, setV2Enable] = useUserV2SwapEnable()
   const [v3Enable, setV3Enable] = useUserV3SwapEnable()
+  const [infinityEnable, setInfinityEnable] = useUserInfinitySwapEnable()
   const [xEnable, setXEnable] = usePCSX()
   const [split, setSplit] = useUserSplitRouteEnable()
   const [singleHopOnly, setSingleHopOnly] = useUserSingleHopOnly()
@@ -71,6 +73,30 @@ export const CustomizeRoutingTab = memo(() => {
           </Flex>
         ) : null}
         <AtomBox>
+          <Flex justifyContent="space-between" alignItems="center" mb="24px">
+            <Flex alignItems="center">
+              <Text>PancakeSwap Infinity</Text>
+              <QuestionHelper
+                text={
+                  <Flex>
+                    <Text mr="5px">
+                      {t(
+                        'Infinity offers hooks on top of concentrated liquidity and bin liquidity to provide deeper liquidity for traders with the same amount of capital, offering lower slippage and more flexible trading fee tiers.',
+                      )}
+                    </Text>
+                  </Flex>
+                }
+                placement="top"
+                ml="4px"
+              />
+            </Flex>
+            <Toggle
+              disabled={infinityEnable && onlyOneAMMSourceEnabled}
+              scale="md"
+              checked={infinityEnable}
+              onChange={() => setInfinityEnable((s) => !s)}
+            />
+          </Flex>
           <Flex justifyContent="space-between" alignItems="center" mb="24px">
             <Flex alignItems="center">
               <Text>PancakeSwap V3</Text>

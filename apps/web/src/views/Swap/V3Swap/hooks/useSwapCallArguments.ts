@@ -52,13 +52,14 @@ export function useSwapCallArguments(
   return useMemo(() => {
     if (!trade || !recipient || !account || !chainId) return []
 
-    const methodParameters = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, {
+    const options = {
       fee: feeOptions,
       recipient,
       inputTokenPermit: permitSignature,
       slippageTolerance: allowedSlippage,
       deadlineOrPreviousBlockhash: deadline?.toString(),
-    })
+    }
+    const methodParameters = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, options)
     const swapRouterAddress = getUniversalRouterAddress(chainId)
     if (!swapRouterAddress) return []
     return [

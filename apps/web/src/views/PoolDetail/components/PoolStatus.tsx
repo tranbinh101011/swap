@@ -1,4 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
+import { Protocol } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import { AutoColumn, AutoRow, Card, CardBody, Column, Text } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
@@ -8,6 +9,7 @@ import { PoolInfo } from 'state/farmsV4/state/type'
 import { isAddressEqual } from 'utils'
 import { getLpFeesAndApr } from 'utils/getLpFeesAndApr'
 import { getPercentChange } from 'utils/infoDataHelpers'
+import { isInfinityProtocol } from 'utils/protocols'
 import { Address } from 'viem'
 import { formatDollarAmount } from 'views/V3Info/utils/numbers'
 import { ChangePercent } from './ChangePercent'
@@ -36,10 +38,13 @@ export const PoolStatus: React.FC<PoolStatusProps> = ({ poolInfo }) => {
 
   const fee24hUsd = useMemo(() => {
     if (!poolInfo) return 0
-    if (poolInfo.fee24hUsd) {
+    if (isInfinityProtocol(poolInfo.protocol) && poolInfo.lpFee24hUsd) {
+      return parseFloat(poolInfo.lpFee24hUsd)
+    }
+    if (poolInfo.protocol === Protocol.V3 && poolInfo.fee24hUsd) {
       return parseFloat(poolInfo.fee24hUsd)
     }
-    if (poolInfo.protocol === 'v2') {
+    if (poolInfo.protocol === Protocol.V2) {
       const { lpFees24h } = getLpFeesAndApr(
         parseFloat(poolInfo.vol24hUsd ?? '0'),
         parseFloat(poolInfo.vol7dUsd ?? '0'),

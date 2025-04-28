@@ -3,7 +3,7 @@ import { Position } from '@pancakeswap/v3-sdk'
 import { useTokenByChainId } from 'hooks/Tokens'
 import { usePoolByChainId } from 'hooks/v3/usePools'
 import { useMemo } from 'react'
-import { PositionDetail } from 'state/farmsV4/state/accountPositions/type'
+import { InfinityCLPositionDetail, PositionDetail } from 'state/farmsV4/state/accountPositions/type'
 import { Address } from 'viem'
 
 export const useV3Positions = (
@@ -11,7 +11,7 @@ export const useV3Positions = (
   token0_?: Address,
   token1_?: Address,
   fee?: number,
-  positionDetails?: PositionDetail[],
+  positionDetails?: (PositionDetail | InfinityCLPositionDetail)[],
 ): Position[] => {
   const token0 = useTokenByChainId(token0_, chainId)
   const token1 = useTokenByChainId(token1_, chainId)

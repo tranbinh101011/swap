@@ -1,13 +1,14 @@
 import { userSingleHopAtom } from '@pancakeswap/utils/user'
+import { usePCSX } from 'hooks/usePCSX'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
-import atomWithStorageWithErrorCatch from 'utils/atomWithStorageWithErrorCatch'
-import { usePCSX } from 'hooks/usePCSX'
 import { useCallback } from 'react'
+import atomWithStorageWithErrorCatch from 'utils/atomWithStorageWithErrorCatch'
 
 const userUseStableSwapAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useStableSwap', true)
 const userUseV2SwapAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useV2Swap', true)
 const userUseV3SwapAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useV3Swap', true)
+const userUseInfinitySwapAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useInfinitySwap', true)
 const userUserSplitRouteAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useSplitRouting', true)
 const userUseXAtom = atomWithStorageWithErrorCatch<boolean | undefined>('pcs:useX', undefined)
 
@@ -28,12 +29,20 @@ export function useUserV3SwapEnable() {
   return useAtom(userUseV3SwapAtom)
 }
 
+export function useUserInfinitySwapEnable() {
+  return useAtom(userUseInfinitySwapAtom)
+}
+
 export function useUserSplitRouteEnable() {
   return useAtom(userUserSplitRouteAtom)
 }
 
 const derivedOnlyOneAMMSourceEnabledAtom = atom((get) => {
-  return [get(userUseStableSwapAtom), get(userUseV2SwapAtom), get(userUseV3SwapAtom)].filter(Boolean).length === 1
+  return (
+    [get(userUseStableSwapAtom), get(userUseV2SwapAtom), get(userUseV3SwapAtom), get(userUseInfinitySwapAtom)].filter(
+      Boolean,
+    ).length === 1
+  )
 })
 
 export function useOnlyOneAMMSourceEnabled() {

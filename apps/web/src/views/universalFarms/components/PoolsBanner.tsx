@@ -18,7 +18,18 @@ import { VerticalDivider } from '@pancakeswap/widgets-internal'
 import { PickAdSlides } from 'components/AdPanel/PickAdSlides'
 import { Suspense, useCallback } from 'react'
 import { useUserPancakePicks } from 'state/user/hooks/useUserPancakePicks'
+import styled from 'styled-components'
 import { FarmFlexWrapper, FarmH1, FarmH2 } from 'views/Farms/styled'
+
+const StyledBox = styled(Box)`
+  justify-items: right;
+  margin-bottom: 24px;
+
+  ${({ theme }) => theme.mediaQueries.md} {
+    justify-items: center;
+    margin-bottom: 0;
+  }
+`
 
 export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }) => {
   const { t } = useTranslation()

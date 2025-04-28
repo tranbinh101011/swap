@@ -1,5 +1,16 @@
 import { Currency, CurrencyAmount, ERC20Token, Native, Pair, TradeType, Trade as V2Trade } from '@pancakeswap/sdk'
-import { RouteType, SmartRouter, SmartRouterTrade, StablePool, V2Pool, V3Pool } from '@pancakeswap/smart-router'
+import {
+  Pool as GenericPool,
+  InfinityBinPool,
+  InfinityClPool,
+  PoolType,
+  RouteType,
+  SmartRouter,
+  SmartRouterTrade,
+  StablePool,
+  V2Pool,
+  V3Pool,
+} from '@pancakeswap/smart-router'
 import { getSwapOutput } from '@pancakeswap/stable-swap-sdk'
 import { Pool, Trade as V3Trade } from '@pancakeswap/v3-sdk'
 import { convertPairToV2Pool, convertPoolToV3Pool } from '../fixtures/address'
@@ -60,6 +71,34 @@ export const buildStableTrade = (
     ],
     gasEstimate: 0n,
     gasEstimateInUSD: CurrencyAmount.fromRawAmount(input, 0),
+  }
+}
+
+export const buildInfinityTrade = (
+  tradeType: TradeType,
+  inputAmount: CurrencyAmount<Currency>,
+  outputAmount: CurrencyAmount<Currency>,
+  pools: (InfinityClPool | InfinityBinPool)[],
+): SmartRouterTrade<TradeType> => {
+  const isInfinityCL = pools.every((pool) => pool.type === PoolType.InfinityCL)
+  const isInfinityBin = pools.every((pool) => pool.type === PoolType.InfinityBIN)
+  const routeType = isInfinityCL ? RouteType.InfinityCL : isInfinityBin ? RouteType.InfinityBIN : RouteType.MIXED
+  return {
+    tradeType,
+    inputAmount,
+    outputAmount,
+    routes: [
+      {
+        type: routeType,
+        path: [inputAmount.currency, outputAmount.currency],
+        inputAmount,
+        outputAmount,
+        percent: 100,
+        pools,
+      },
+    ],
+    gasEstimate: 0n,
+    gasEstimateInUSD: CurrencyAmount.fromRawAmount(inputAmount.currency, 0),
   }
 }
 
@@ -156,4 +195,39 @@ export const buildMixedRouteTrade = async <
     gasEstimate: 0n,
     gasEstimateInUSD: CurrencyAmount.fromRawAmount(tokenIn, 0),
   }
+}
+
+export const buildMixedRouteTradeInfinity = async <
+  TInput extends Currency,
+  TOutput extends Currency,
+  TTradeType extends TradeType,
+>(
+  inputAmount: CurrencyAmount<TInput>,
+  outputAmount: CurrencyAmount<TOutput>,
+  type: TTradeType,
+  pools: (Pair | Pool | GenericPool)[],
+) => {
+  const outputPools = pools.map((pool) => {
+    if (pool instanceof Pair) return convertPairToV2Pool(pool)
+    if (pool instanceof Pool) return convertPoolToV3Pool(pool)
+    return pool
+  })
+
+  const route = {
+    type: RouteType.MIXED,
+    path: [], // universal-router do not used this path, so no need to mock
+    pools: outputPools,
+    inputAmount,
+    outputAmount,
+    percent: 100,
+  }
+
+  return {
+    tradeType: type,
+    inputAmount,
+    outputAmount,
+    routes: [route],
+    gasEstimate: 0n,
+    gasEstimateInUSD: CurrencyAmount.fromRawAmount(inputAmount.currency, 0),
+  } as SmartRouterTrade<TTradeType>
 }

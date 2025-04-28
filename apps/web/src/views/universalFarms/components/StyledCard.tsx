@@ -1,18 +1,26 @@
-import styled from 'styled-components'
-import NextLink from 'next/link'
 import {
   Card as RawCard,
   CardBody as RawCardBody,
-  CardHeader as RawCardHeader,
   CardFooter as RawCardFooter,
+  CardHeader as RawCardHeader,
 } from '@pancakeswap/uikit'
+import NextLink from 'next/link'
+import styled from 'styled-components'
 
 export const Card = styled(RawCard)`
   overflow: initial;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
 `
 
 export const CardHeader = styled(RawCardHeader)`
+  padding: 16px;
   background: ${({ theme }) => theme.card.background};
+
+  ${({ theme }) => theme.mediaQueries.sm} {
+    padding: 24px;
+  }
 `
 
 export const CardBody = styled(RawCardBody)`

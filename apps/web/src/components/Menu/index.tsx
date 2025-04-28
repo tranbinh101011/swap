@@ -100,7 +100,7 @@ const Menu = (props) => {
       langs={languageList}
       setLang={setLanguage}
       cakePriceUsd={cakePrice.eq(BIG_ZERO) ? undefined : cakePrice}
-      links={menuItems}
+      links={filterItemsProps(menuItems)}
       subLinks={
         activeSubMenuItem?.overrideSubNavItems ??
         activeMenuItem?.overrideSubNavItems ??
@@ -117,6 +117,18 @@ const Menu = (props) => {
       {...props}
     />
   )
+}
+
+function filterItemsProps(items: ReturnType<typeof useMenuItems>) {
+  return items.map((item) => {
+    return {
+      ...item,
+      items: item.items?.map((subItem) => {
+        const { matchHrefs, overrideSubNavItems, ...rest } = subItem
+        return rest
+      }),
+    }
+  })
 }
 
 export default Menu

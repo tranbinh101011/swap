@@ -1,4 +1,5 @@
 import { Protocol } from '@pancakeswap/farms'
+import { HookData } from '@pancakeswap/infinity-sdk'
 import { Currency, Token } from '@pancakeswap/swap-sdk-core'
 import { Address } from 'viem'
 
@@ -6,7 +7,7 @@ type Prettify<T> = {
   [K in keyof T]: T[K]
 } & object
 
-export type PoolInfo = Prettify<V2PoolInfo | StablePoolInfo | V3PoolInfo | V4BinPoolInfo>
+export type PoolInfo = Prettify<V2PoolInfo | StablePoolInfo | V3PoolInfo | InfinityPoolInfo>
 
 export type BasePoolInfo = {
   pid?: number
@@ -27,11 +28,14 @@ export type BasePoolInfo = {
   vol48hUsd?: `${number}`
   vol7dUsd?: `${number}`
   fee24hUsd?: `${number}`
+  lpFee24hUsd?: `${number}`
   liquidity?: bigint
   feeTier: number
   feeTierBase: number
   totalFeeUSD?: `${number}`
   isFarming: boolean
+  isActiveFarm?: boolean
+  isDynamicFee?: boolean
 }
 
 export type V3PoolInfo = BasePoolInfo & {
@@ -50,8 +54,29 @@ export type StablePoolInfo = BasePoolInfo & {
   bCakeWrapperAddress?: Address
 }
 
-export type V4BinPoolInfo = BasePoolInfo & {
-  protocol: Protocol.V4BIN
+export type InfinityPoolInfo = InfinityBinPoolInfo | InfinityCLPoolInfo
+
+type InfinityAdditionalPoolInfo = {
+  /** @deprecated use poolId instead */
+  lpAddress: string
+  poolId: Address
+  hookData?: HookData
+  hookAddress?: Address
+  dynamic?: boolean
 }
+
+export type InfinityBinPoolInfo = Prettify<
+  BasePoolInfo &
+    InfinityAdditionalPoolInfo & {
+      protocol: Protocol.InfinityBIN
+    }
+>
+
+export type InfinityCLPoolInfo = Prettify<
+  BasePoolInfo &
+    InfinityAdditionalPoolInfo & {
+      protocol: Protocol.InfinityCLAMM
+    }
+>
 
 export type ChainIdAddressKey = `${number}:${Address}`

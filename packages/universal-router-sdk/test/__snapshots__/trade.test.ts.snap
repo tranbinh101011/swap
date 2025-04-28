@@ -374,7 +374,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mul
       {
         "type": "address",
         "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000002"
+        "value": "0x0000000000000000000000000000000000000001"
       },
       {
         "type": "uint256",
@@ -407,7 +407,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mul
       {
         "type": "address",
         "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000002"
+        "value": "0x0000000000000000000000000000000000000001"
       },
       {
         "type": "uint256",
@@ -437,7 +437,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mul
       {
         "type": "address",
         "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000002"
+        "value": "0x0000000000000000000000000000000000000001"
       },
       {
         "type": "uint256",
@@ -468,26 +468,6 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mul
         "type": "bool",
         "name": "payerIsUser",
         "value": true
-      }
-    ]
-  },
-  {
-    "command": "SWEEP",
-    "args": [
-      {
-        "type": "address",
-        "name": "token",
-        "value": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
-      },
-      {
-        "type": "address",
-        "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000001"
-      },
-      {
-        "type": "uint256",
-        "name": "amountMin",
-        "value": "2854285712"
       }
     ]
   }
@@ -686,7 +666,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > sho
             "expiration": 281474976710655,
             "nonce": 0
           },
-          "spender": "0x1A0A18AC4BECDDbd6389559687d1A73d8927E416",
+          "spender": "0xd9C500DfF816a1Da21A48A732d3498Bf09dc9AEB",
           "sigDeadline": "281474976710655"
         }
       },
@@ -1199,7 +1179,7 @@ exports[`PancakeSwap Universal Router Trade > multi-route > should encode a spli
       {
         "type": "address",
         "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000002"
+        "value": "0x0000000000000000000000000000000000000001"
       },
       {
         "type": "uint256",
@@ -1232,7 +1212,7 @@ exports[`PancakeSwap Universal Router Trade > multi-route > should encode a spli
       {
         "type": "address",
         "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000002"
+        "value": "0x0000000000000000000000000000000000000001"
       },
       {
         "type": "uint256",
@@ -1262,7 +1242,7 @@ exports[`PancakeSwap Universal Router Trade > multi-route > should encode a spli
       {
         "type": "address",
         "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000002"
+        "value": "0x0000000000000000000000000000000000000001"
       },
       {
         "type": "uint256",
@@ -1283,26 +1263,6 @@ exports[`PancakeSwap Universal Router Trade > multi-route > should encode a spli
         "type": "bool",
         "name": "payerIsUser",
         "value": false
-      }
-    ]
-  },
-  {
-    "command": "SWEEP",
-    "args": [
-      {
-        "type": "address",
-        "name": "token",
-        "value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-      },
-      {
-        "type": "address",
-        "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000001"
-      },
-      {
-        "type": "uint256",
-        "name": "amountMin",
-        "value": "1899531173721836775"
       }
     ]
   }

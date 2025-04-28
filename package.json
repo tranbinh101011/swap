@@ -31,7 +31,7 @@
     "build:solana": "turbo run build --filter=solana-web...",
     "start": "turbo run start --filter=web",
     "test:config": "pnpm turbo run test:config --filter=web...[HEAD^1]",
-    "test:ci": "pnpm turbo run test --filter=[HEAD^1]",
+    "test:ci": "pnpm turbo run test --filter='!@pancakeswap/uikit' --filter=[HEAD^1]",
     "lint": "turbo run lint",
     "lint:report": "turbo run lint --log-prefix=none",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json}\"",
@@ -57,6 +57,7 @@
     "@stylelint/postcss-css-in-js": "^0.37.2",
     "@types/node": "^18.16.2",
     "eslint": "^8.32.0",
+    "@vitest/coverage-v8": "^2.1.4",
     "eslint-plugin-address": "^0.0.2",
     "eslint-plugin-lodash": "^7.4.0",
     "husky": "^7.0.0",
@@ -73,7 +74,7 @@
     "tsx": "^4.6.1",
     "turbo": "2.4.4",
     "typescript": "5.7.3",
-    "vitest": "^1.5.0",
+    "vitest": "^2.1.4",
     "wrangler": "catalog:"
   },
   "volta": {

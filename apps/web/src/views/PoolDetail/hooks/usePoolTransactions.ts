@@ -3,15 +3,16 @@ import { zeroAddress } from '@pancakeswap/price-api-sdk'
 import { Token } from '@pancakeswap/swap-sdk-core'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { useCallback } from 'react'
 import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
 import { components } from 'state/info/api/schema'
 import { Address, Hash } from 'viem'
-import { useCallback } from 'react'
 import { Transaction, TransactionType } from '../components/Transactions/type'
 
 const urlMap = {
   [Protocol.V3]: '/cached/tx/v3/{chainName}/recent' as const,
-  [Protocol.V4BIN]: '/cached/tx/v4/{chainName}/recent' as const,
+  [Protocol.InfinityBIN]: '/cached/tx/infinityBin/{chainName}/recent' as const,
+  [Protocol.InfinityCLAMM]: '/cached/tx/infinityCl/{chainName}/recent' as const,
   [Protocol.STABLE]: '/cached/tx/stable/{chainName}/recent' as const,
   [Protocol.V2]: '/cached/tx/v2/{chainName}/recent' as const,
 } as const

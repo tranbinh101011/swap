@@ -1,14 +1,14 @@
-import { Currency, BigintIsh } from '@pancakeswap/sdk'
-import { AbortControl } from '@pancakeswap/utils/abortControl'
 import { ChainId } from '@pancakeswap/chains'
-import { PublicClient } from 'viem'
-import type { GraphQLClient } from 'graphql-request'
+import { BigintIsh, Currency } from '@pancakeswap/sdk'
+import { AbortControl } from '@pancakeswap/utils/abortControl'
 import type { Options as RetryOptions } from 'async-retry'
+import type { GraphQLClient } from 'graphql-request'
+import { PublicClient } from 'viem'
 
+import { BatchMulticallConfigs, ChainMap } from '../../types'
+import { GasModel } from './gasModel'
 import { Pool, PoolType } from './pool'
 import { RouteWithoutQuote, RouteWithQuote } from './route'
-import { GasModel } from './gasModel'
-import { BatchMulticallConfigs, ChainMap } from '../../types'
 
 type GetPoolParams = {
   currencyA?: Currency
@@ -30,6 +30,7 @@ export type QuoterOptions = {
   blockNumber?: BigintIsh
   gasModel: GasModel
   retry?: QuoteRetryOptions
+  quoteId?: string
 } & AbortControl
 
 export type QuoterConfig = {

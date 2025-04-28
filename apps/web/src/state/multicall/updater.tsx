@@ -1,10 +1,10 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useWorker } from 'hooks/useWorker'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
 import { multicallReducerAtom, MulticallState } from 'state/multicall/reducer'
-import { useWorker } from 'hooks/useWorker'
 
 import { useMulticallContract } from '../../hooks/useContract'
 import {
@@ -88,9 +88,12 @@ export default function Updater(): null {
   const [state, dispatch] = useAtom(multicallReducerAtom)
   // wait for listeners to settle before triggering updates
   const debouncedListeners = useDebounce(state.callListeners, 100)
-  const currentBlock = useCurrentBlock()
+
   const { chainId } = useActiveChainId()
-  const multicallContract = useMulticallContract()
+
+  const currentBlock = useCurrentBlock(chainId)
+
+  const multicallContract = useMulticallContract(chainId)
   const cancellations = useRef<{ blockNumber: number; cancellations: (() => void)[] }>()
   const worker = useWorker()
 
@@ -144,6 +147,7 @@ export default function Updater(): null {
             maxWait: 3500,
           },
         )
+
         promise
           .then(({ results: returnData, blockNumber: fetchBlockNumber }) => {
             cancellations.current = { cancellations: [], blockNumber: currentBlock }

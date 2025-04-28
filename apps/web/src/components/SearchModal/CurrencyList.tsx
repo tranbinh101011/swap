@@ -127,6 +127,8 @@ export default function CurrencyList({
   setImportToken: (token: Token) => void
   breakIndex: number | undefined
 }) {
+  const { chainId } = useActiveChainId()
+
   const native = useNativeCurrency()
 
   const itemData: (Currency | undefined)[] = useMemo(() => {
@@ -138,8 +140,6 @@ export default function CurrencyList({
     }
     return formatted
   }, [breakIndex, currencies, inactiveCurrencies, showNative, native])
-
-  const { chainId } = useActiveChainId()
 
   const { t } = useTranslation()
 

@@ -38,10 +38,10 @@ export function tryParsePrice(baseToken?: Token, quoteToken?: Token, value?: str
 export function tryParseTick(
   baseToken?: Token,
   quoteToken?: Token,
-  feeAmount?: FeeAmount,
+  tickSpacing?: number,
   value?: string
 ): number | undefined {
-  if (!baseToken || !quoteToken || !feeAmount || !value) {
+  if (!baseToken || !quoteToken || !tickSpacing || !value) {
     return undefined;
   }
 
@@ -65,7 +65,7 @@ export function tryParseTick(
     tick = priceToClosestTick(price);
   }
 
-  return nearestUsableTick(tick, TICK_SPACINGS[feeAmount]);
+  return nearestUsableTick(tick, tickSpacing);
 }
 
 export function floatToFraction(num: number, decimals = 18) {

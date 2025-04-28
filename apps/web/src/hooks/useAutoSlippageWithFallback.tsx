@@ -1,11 +1,9 @@
-import { ExclusiveDutchOrderTrade } from '@pancakeswap/pcsx-sdk'
-import { SmartRouterTrade, V4Router } from '@pancakeswap/smart-router'
-import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/swap-sdk-core'
+import { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import { atom, useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
+import { useAllTypeBestTrade } from 'quoter/hook/useAllTypeBestTrade'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useAllTypeBestTrade } from 'views/Swap/V3Swap/hooks/useAllTypeBestTrade'
 import useClassicAutoSlippageTolerance, {
   MIN_DEFAULT_SLIPPAGE_NUMERATOR,
   useInputBasedAutoSlippage,
@@ -22,11 +20,6 @@ export const useAutoSlippageAtom = () => {
 export const useAutoSlippageEnabled = () => {
   return useAtom(autoSlippageEnabledAtom)
 }
-
-type SupportedTrade =
-  | SmartRouterTrade<TradeType>
-  | V4Router.V4TradeWithoutGraph<TradeType>
-  | ExclusiveDutchOrderTrade<Currency, Currency>
 
 /**
  * Returns the slippage tolerance based on user settings or auto-calculated value
@@ -104,12 +97,12 @@ export const Sync = () => {
     if (autoSlippage) {
       setAutoSlippageValue(Number(autoSlippage.numerator))
     }
-  }, [autoSlippage])
+  }, [autoSlippage, setAutoSlippageValue])
   useEffect(() => {
     if (!isSameOrder) {
       tradeRef.current = result?.bestOrder?.trade
       updateAutoSlippage()
     }
-  }, [isSameOrder, updateAutoSlippage])
+  }, [isSameOrder, updateAutoSlippage, result?.bestOrder?.trade])
   return null
 }

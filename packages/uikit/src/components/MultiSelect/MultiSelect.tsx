@@ -62,6 +62,10 @@ const SelectContainer = styled.div`
     .p-multiselect-checkbox {
       order: 1;
     }
+
+    > span {
+      min-width: 0;
+    }
   }
 
   .p-multiselect-footer {
@@ -139,6 +143,10 @@ const PrimereactSelectContainer = styled.div<{ $scrollHeight?: string }>`
   height: 0;
   .p-multiselect-items-wrapper {
     height: ${({ $scrollHeight }) => $scrollHeight ?? "auto"};
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
   .p-multiselect-items {
     height: 100%;
@@ -146,6 +154,7 @@ const PrimereactSelectContainer = styled.div<{ $scrollHeight?: string }>`
 `;
 
 const ItemIcon = styled.img`
+  flex-shrink: 0;
   width: 24px;
   height: 24px;
   margin-right: 8px;
@@ -154,6 +163,15 @@ const ItemIcon = styled.img`
 const ItemContainer = styled.div`
   display: flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
+
+  & > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
 `;
 
 const SelectInputContainer = styled(Flex)`
@@ -164,7 +182,7 @@ const SelectInputContainer = styled(Flex)`
   border-bottom-width: 2px;
   border-radius: ${BORDER_RADIUS};
   box-shadow: 0 0 1px ${({ theme }) => theme.shadows.inset};
-  padding: 5px 8px 4px 12px;
+  padding: 6px 8px 6px 12px;
   user-select: none;
   cursor: pointer;
   gap: 8px;

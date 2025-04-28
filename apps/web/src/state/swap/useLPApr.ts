@@ -1,10 +1,10 @@
 import { ERC20Token } from '@pancakeswap/sdk'
 import { useQuery } from '@tanstack/react-query'
 import { SLOW_INTERVAL } from 'config/constants'
-import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
 import { useAtomValue } from 'jotai/index'
-import { poolAprAtom } from 'state/farmsV4/state/poolApr/atom'
 import { useMemo } from 'react'
+import { poolAprAtom } from 'state/farmsV4/state/poolApr/atom'
+import { chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
 
 export const useLPApr = (
   protocol: 'v2' | 'v3' | 'stable',

@@ -7,16 +7,26 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
 import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useSingleTokenSwapInfo, useSwapState } from 'state/swap/hooks'
+import { useDefaultsFromURLSearch, useSwapState } from 'state/swap/hooks'
 import { styled } from 'styled-components'
 // import { SwapSelection } from '../components/SwapSelection'
-import { SwapSelection } from '../../SwapSimplify/V4Swap/SwapSelectionTab'
+
+import { QuoteProvider } from 'quoter/QuoteProvider'
+import { useSingleTokenSwapInfo } from 'quoter/hook/useSingleTokenSwapInfo'
+import { SwapSelection } from '../../SwapSimplify/InfinitySwap/SwapSelectionTab'
 import { SwapFeaturesContext } from '../SwapFeaturesContext'
 import PriceChartContainer from '../components/Chart/PriceChartContainer'
 import { SwapType } from '../types'
 import { OrderHistory, TWAPPanel } from './Twap'
 
 export default function TwapAndLimitSwap({ limit }: { limit?: boolean }) {
+  return (
+    <QuoteProvider>
+      <TwapAndLimitSwapInner limit={limit} />
+    </QuoteProvider>
+  )
+}
+const TwapAndLimitSwapInner = ({ limit }: { limit?: boolean }) => {
   const { query } = useRouter()
   const { t } = useTranslation()
   const { isDesktop, isMobile } = useMatchBreakpoints()
@@ -49,13 +59,12 @@ export default function TwapAndLimitSwap({ limit }: { limit?: boolean }) {
     [Field.OUTPUT]: outputCurrency ?? undefined,
   }
 
-  const singleTokenPrice = useSingleTokenSwapInfo(
+  const singleTokenPrice = useSingleTokenSwapInfo({
     inputCurrencyId,
-    inputCurrency,
+    inputCurrency: inputCurrency || undefined,
     outputCurrencyId,
-    outputCurrency,
-    isChartSupported,
-  )
+    outputCurrency: outputCurrency || undefined,
+  })
   useDefaultsFromURLSearch()
 
   return (

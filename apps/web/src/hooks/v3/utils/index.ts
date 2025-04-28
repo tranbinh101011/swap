@@ -1,4 +1,4 @@
-import { Price, Token } from '@pancakeswap/swap-sdk-core'
+import { Currency, Price, Token } from '@pancakeswap/swap-sdk-core'
 import {
   encodeSqrtRatioX96,
   FeeAmount,
@@ -8,7 +8,7 @@ import {
   TickMath,
 } from '@pancakeswap/v3-sdk'
 
-export function tryParsePrice(baseToken?: Token, quoteToken?: Token, value?: string) {
+export function tryParsePrice(baseToken?: Token | Currency, quoteToken?: Token | Currency, value?: string) {
   if (!baseToken || !quoteToken || !value) {
     return undefined
   }
@@ -30,7 +30,7 @@ export function tryParsePrice(baseToken?: Token, quoteToken?: Token, value?: str
   )
 }
 
-export function tryParseTick(feeAmount?: FeeAmount, price?: Price<Token, Token> | boolean): number | undefined {
+export function tryParseTick(feeAmount?: FeeAmount, price?: Price<Currency, Currency> | boolean): number | undefined {
   if (!price || !feeAmount || typeof price === 'boolean') {
     return undefined
   }

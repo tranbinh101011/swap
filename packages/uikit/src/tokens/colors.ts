@@ -1,3 +1,5 @@
+import { darkColorsV2, lightColorsV2 } from "./v2Colors";
+
 export const baseColors = {
   white: "white",
   failure: "#ED4B9E",
@@ -26,6 +28,7 @@ export const additionalColors = {
 export const lightColors = {
   ...baseColors,
   ...additionalColors,
+  ...lightColorsV2,
   blue10: "#ECF6FE",
   blue20: "#C3E5FC",
   blue60: "#2882CC",
@@ -82,6 +85,7 @@ export const lightColors = {
 export const darkColors = {
   ...baseColors,
   ...additionalColors,
+  ...darkColorsV2,
   blue10: "#0B3557",
   blue20: "#0E4572",
   blue60: "#72B8F1",

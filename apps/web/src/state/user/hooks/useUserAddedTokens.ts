@@ -12,8 +12,10 @@ export const userAddedTokenSelector = (chainId?: number) =>
   createSelector(selectUserTokens, (serializedTokensMap) =>
     Object.values((chainId && serializedTokensMap?.[chainId]) ?? {}).map(deserializeToken),
   )
-export default function useUserAddedTokens(): Token[] {
-  const { chainId } = useActiveChainId()
+export default function useUserAddedTokens(overrideChainId?: number): Token[] {
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainId = overrideChainId || activeChainId
+
   return useSelector(useMemo(() => userAddedTokenSelector(chainId), [chainId]))
 }
 

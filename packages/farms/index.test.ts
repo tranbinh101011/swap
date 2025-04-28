@@ -17,6 +17,7 @@ test('exports', () => {
       "getLegacyFarmConfig",
       "isStableFarm",
       "Protocol",
+      "ALL_PROTOCOLS",
       "isActiveV3Farm",
       "formatUniversalFarmToSerializedFarm",
       "getFarmConfigKey",

@@ -18,6 +18,7 @@ export interface SmartRouterTrade<TTradeType extends TradeType> {
   gasEstimate: bigint
   gasEstimateInUSD?: CurrencyAmount<Currency>
   blockNumber?: number
+  quoteQueryHash?: string
 }
 
 export type PriceReferences = {
@@ -38,6 +39,7 @@ export type TradeConfig = BaseTradeConfig & {
   blockNumber?: number | (() => Promise<number>)
   quoteProvider: QuoteProvider
   quoterOptimization?: boolean
+  quoteId?: string
 } & PriceReferences &
   AbortControl
 

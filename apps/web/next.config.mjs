@@ -1,3 +1,5 @@
+import path from 'path'
+import { fileURLToPath } from 'url'
 /* eslint-disable @typescript-eslint/no-var-requires */
 import BundleAnalyzer from '@next/bundle-analyzer'
 import { withWebSecurityHeaders } from '@pancakeswap/next-config/withWebSecurityHeaders'
@@ -5,8 +7,6 @@ import smartRouterPkgs from '@pancakeswap/smart-router/package.json' with { type
 import { withSentryConfig } from '@sentry/nextjs'
 import { createVanillaExtractPlugin } from '@vanilla-extract/next-plugin'
 import vercelToolbarPlugin from '@vercel/toolbar/plugins/next'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import { RetryChunkLoadPlugin } from 'webpack-retry-chunk-load-plugin'
 
 const withVercelToolbar = vercelToolbarPlugin()
@@ -22,23 +22,23 @@ const withVanillaExtract = createVanillaExtractPlugin()
 const sentryWebpackPluginOptions =
   process.env.VERCEL_ENV === 'production'
     ? {
-        // Additional config options for the Sentry Webpack plugin. Keep in mind that
-        // the following options are set automatically, and overriding them is not
-        // recommended:
-        //   release, url, org, project, authToken, configFile, stripPrefix,
-        //   urlPrefix, include, ignore
-        silent: true, // Logging when deploying to check if there is any problem
-        validate: true,
-        hideSourceMaps: false,
-        tryRun: true,
-        disable: true
-        // https://github.com/getsentry/sentry-webpack-plugin#options.
-      }
+      // Additional config options for the Sentry Webpack plugin. Keep in mind that
+      // the following options are set automatically, and overriding them is not
+      // recommended:
+      //   release, url, org, project, authToken, configFile, stripPrefix,
+      //   urlPrefix, include, ignore
+      silent: true, // Logging when deploying to check if there is any problem
+      validate: true,
+      hideSourceMaps: false,
+      tryRun: true,
+      disable: true
+      // https://github.com/getsentry/sentry-webpack-plugin#options.
+    }
     : {
-        hideSourceMaps: false,
-        silent: true, // Suppresses all logs
-        dryRun: !process.env.SENTRY_AUTH_TOKEN,
-      }
+      hideSourceMaps: false,
+      silent: true, // Suppresses all logs
+      dryRun: !process.env.SENTRY_AUTH_TOKEN,
+    }
 
 const workerDeps = Object.keys(smartRouterPkgs.dependencies)
   .map((d) => d.replace('@pancakeswap/', 'packages/'))
@@ -62,6 +62,7 @@ const config = {
     '*': [],
   },
   transpilePackages: [
+    'next-typesafe-url',
     '@pancakeswap/farms',
     '@pancakeswap/position-managers',
     '@pancakeswap/localization',

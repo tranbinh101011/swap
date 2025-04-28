@@ -1,3 +1,4 @@
+import { isTestnetChainId } from '@pancakeswap/chains'
 import { Protocol, UniversalFarmConfig, fetchAllUniversalFarms, masterChefV3Addresses } from '@pancakeswap/farms'
 import { masterChefAddresses } from '@pancakeswap/farms/src/const'
 import { masterChefV3ABI } from '@pancakeswap/v3-sdk'
@@ -5,29 +6,43 @@ import { useQuery } from '@tanstack/react-query'
 import { masterChefV2ABI } from 'config/abi/masterchefV2'
 import { QUERY_SETTINGS_IMMUTABLE, SLOW_INTERVAL } from 'config/constants'
 import dayjs from 'dayjs'
+import { useMultiChainPoolsFarmingStatus } from 'hooks/infinity/useIsFarming'
 import { useAtom } from 'jotai'
 import groupBy from 'lodash/groupBy'
 import keyBy from 'lodash/keyBy'
 import { useEffect, useMemo, useState } from 'react'
+import { isInfinityProtocol } from 'utils/protocols'
 import { publicClient } from 'utils/viem'
 import { isAddress, zeroAddress } from 'viem'
 import { Address } from 'viem/accounts'
+import { useUserShowTestnet } from 'state/user/hooks/useUserShowTestnet'
 
 import { PoolInfo, StablePoolInfo, V2PoolInfo } from '../type'
 import { farmPoolsAtom } from './atom'
-import { fetchFarmPools, fetchPoolsTimeFrame, fetchV3PoolsStatusByChainId } from './fetcher'
+import {
+  DEFAULT_CHAINS,
+  DEFAULT_PROTOCOLS,
+  fetchFarmPools,
+  fetchPoolsTimeFrame,
+  fetchV3PoolsStatusByChainId,
+} from './fetcher'
 
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
 type ArrayItemType<T> = T extends Array<infer U> ? U : T
 
 export const useFarmPools = () => {
+  const [showTestnet] = useUserShowTestnet()
   const [pools, setPools] = useAtom(farmPoolsAtom)
   const [farmConfig, setFarmConfig] = useState<UniversalFarmConfig[]>([])
+  const chainId = useMemo(
+    () => (showTestnet ? DEFAULT_CHAINS : DEFAULT_CHAINS.filter((c) => !isTestnetChainId(c))),
+    [showTestnet],
+  )
 
   const { isLoading } = useQuery({
-    queryKey: ['fetchFarmPools'],
+    queryKey: ['fetchFarmPools', ...chainId],
     queryFn: async ({ signal }) => {
-      const data = await fetchFarmPools(undefined, signal)
+      const data = await fetchFarmPools({ chainId, protocols: DEFAULT_PROTOCOLS }, signal)
       setPools(data)
     },
     refetchOnMount: false,
@@ -46,10 +61,17 @@ export const useFarmPools = () => {
 
   const { data: poolsStatus, pending: isPoolStatusPending } = useMultiChainV3PoolsStatus(farmConfig)
   const { data: poolsTimeFrame, pending: isPoolsTimeFramePending } = useMultiChainPoolsTimeFrame(farmConfig)
+  const infinityPoolsFarmingStatus = useMultiChainPoolsFarmingStatus(farmConfig)
 
   const poolsWithStatus: ((PoolInfo | UniversalFarmConfig) & { isActiveFarm?: boolean })[] = useMemo(() => {
     const farms = pools.length ? pools : farmConfig
     return farms.map((f: PoolInfo | UniversalFarmConfig) => {
+      if (isInfinityProtocol(f.protocol)) {
+        return {
+          ...f,
+          isActiveFarm: !!infinityPoolsFarmingStatus[f.chainId]?.[f.lpAddress],
+        }
+      }
       if (f.protocol === Protocol.V3) {
         return {
           ...f,
@@ -67,7 +89,15 @@ export const useFarmPools = () => {
       }
       return f
     })
-  }, [pools, farmConfig, isPoolStatusPending, poolsStatus, isPoolsTimeFramePending, poolsTimeFrame])
+  }, [
+    pools,
+    farmConfig,
+    isPoolStatusPending,
+    poolsStatus,
+    isPoolsTimeFramePending,
+    poolsTimeFrame,
+    infinityPoolsFarmingStatus,
+  ])
 
   return { loaded: !isLoading, data: poolsWithStatus }
 }

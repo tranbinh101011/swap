@@ -54,8 +54,9 @@ export const ChartToolTip: React.FC<CustomToolTipProps> = ({
             {price0
               ? Number(price0).toLocaleString(undefined, {
                   minimumSignificantDigits: 1,
+                  maximumSignificantDigits: 3,
                 })
-              : ''}{' '}
+              : '0'}{' '}
             {symbol1}
           </Text>
         </RowBetween>
@@ -67,8 +68,9 @@ export const ChartToolTip: React.FC<CustomToolTipProps> = ({
             {price1
               ? Number(price1).toLocaleString(undefined, {
                   minimumSignificantDigits: 1,
+                  maximumSignificantDigits: 3,
                 })
-              : ''}{' '}
+              : '0'}{' '}
             {symbol0}
           </Text>
         </RowBetween>
@@ -78,7 +80,13 @@ export const ChartToolTip: React.FC<CustomToolTipProps> = ({
               {symbol0} {t('Locked')}:{' '}
             </Text>
             <Text>
-              {tvlToken0 ? formatAmount(tvlToken0) : ''} {symbol0}
+              {tvlToken0
+                ? formatAmount(tvlToken0, {
+                    notation: 'standard',
+                    displayThreshold: 0.001,
+                  })
+                : '0'}{' '}
+              {symbol0}
             </Text>
           </RowBetween>
         ) : (
@@ -87,7 +95,13 @@ export const ChartToolTip: React.FC<CustomToolTipProps> = ({
               {symbol1} {t('Locked')}:{' '}
             </Text>
             <Text>
-              {tvlToken1 ? formatAmount(tvlToken1) : ''} {symbol1}
+              {tvlToken1
+                ? formatAmount(tvlToken1, {
+                    notation: 'standard',
+                    displayThreshold: 0.001,
+                  })
+                : '0'}{' '}
+              {symbol1}
             </Text>
           </RowBetween>
         )}

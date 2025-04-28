@@ -1,12 +1,12 @@
-import { SCALE, getPriceFromId } from '@pancakeswap/v4-sdk'
+import { getBinPoolTokenPrice } from '@pancakeswap/infinity-sdk'
 import { Currency, Pair, Price } from '@pancakeswap/sdk'
-import { Pool as SDKV3Pool, computePoolAddress } from '@pancakeswap/v3-sdk'
-import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { getSwapOutput } from '@pancakeswap/stable-swap-sdk'
+import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
+import { Pool as SDKV3Pool, computePoolAddress } from '@pancakeswap/v3-sdk'
 import memoize from 'lodash/memoize.js'
 import { Address } from 'viem'
 
-import { Pool, PoolType, StablePool, V2Pool, V3Pool, V4BinPool, V4ClPool } from '../types'
+import { InfinityBinPool, InfinityClPool, Pool, PoolType, StablePool, V2Pool, V3Pool } from '../types'
 
 export function isV2Pool(pool: Pool): pool is V2Pool {
   return pool.type === PoolType.V2
@@ -20,12 +20,12 @@ export function isStablePool(pool: Pool): pool is StablePool {
   return pool.type === PoolType.STABLE && pool.balances.length >= 2
 }
 
-export function isV4BinPool(pool: Pool): pool is V4BinPool {
-  return pool.type === PoolType.V4BIN
+export function isInfinityBinPool(pool: Pool): pool is InfinityBinPool {
+  return pool.type === PoolType.InfinityBIN
 }
 
-export function isV4ClPool(pool: Pool): pool is V4ClPool {
-  return pool.type === PoolType.V4CL
+export function isInfinityClPool(pool: Pool): pool is InfinityClPool {
+  return pool.type === PoolType.InfinityCL
 }
 
 export function involvesCurrency(pool: Pool, currency: Currency) {
@@ -38,7 +38,7 @@ export function involvesCurrency(pool: Pool, currency: Currency) {
     const { token0, token1 } = pool
     return token0.equals(token) || token1.equals(token)
   }
-  if (isV4ClPool(pool) || isV4BinPool(pool)) {
+  if (isInfinityClPool(pool) || isInfinityBinPool(pool)) {
     const { currency0, currency1 } = pool
     return (
       currency0.equals(currency) ||
@@ -69,7 +69,7 @@ export function getOutputCurrency(pool: Pool, currencyIn: Currency): Currency {
     const { balances } = pool
     return balances[0].currency.equals(tokenIn) ? balances[1].currency : balances[0].currency
   }
-  if (isV4ClPool(pool) || isV4BinPool(pool)) {
+  if (isInfinityClPool(pool) || isInfinityBinPool(pool)) {
     const { currency0, currency1 } = pool
     return currency0.wrapped.equals(tokenIn) ? currency1 : currency0
   }
@@ -87,32 +87,19 @@ export const computeV2PoolAddress = memoize(
   (tokenA, tokenB) => `${tokenA.chainId}_${tokenA.address}_${tokenB.address}`,
 )
 
-export const getPoolAddress = memoize(
-  function getAddress(pool: Pool): Address | '' {
-    if (isStablePool(pool) || isV3Pool(pool)) {
-      return pool.address
-    }
-    if (isV2Pool(pool)) {
-      const { reserve0, reserve1 } = pool
-      return computeV2PoolAddress(reserve0.currency.wrapped, reserve1.currency.wrapped)
-    }
-    return ''
-  },
-  (pool) => {
-    if (isStablePool(pool)) {
-      const { balances } = pool
-      const tokenAddresses = balances.map((b) => b.currency.wrapped.address)
-      return `${pool.type}_${balances[0]?.currency.chainId}_${tokenAddresses.join('_')}`
-    }
-    const [token0, token1] = isV2Pool(pool)
-      ? [pool.reserve0.currency.wrapped, pool.reserve1.currency.wrapped]
-      : isV3Pool(pool)
-      ? [pool.token0.wrapped, pool.token1.wrapped]
-      : [pool.currency0, pool.currency1]
-    const fee = isV3Pool(pool) ? pool.fee : 'V2_FEE'
-    return `${pool.type}_${token0.chainId}_${token0.isNative}_${token0.wrapped.address}_${token1.isNative}_${token1.wrapped.address}_${fee}`
-  },
-)
+export const getPoolAddress = (pool: Pool): Address | '' => {
+  if (isStablePool(pool) || isV3Pool(pool)) {
+    return pool.address
+  }
+  if (isV2Pool(pool)) {
+    const { reserve0, reserve1 } = pool
+    return computeV2PoolAddress(reserve0.currency.wrapped, reserve1.currency.wrapped)
+  }
+  if (isInfinityBinPool(pool) || isInfinityClPool(pool)) {
+    return pool.id
+  }
+  return ''
+}
 
 export function getTokenPrice(pool: Pool, base: Currency, quote: Currency): Price<Currency, Currency> {
   if (isV3Pool(pool)) {
@@ -121,26 +108,28 @@ export function getTokenPrice(pool: Pool, base: Currency, quote: Currency): Pric
     return v3Pool.priceOf(base.wrapped)
   }
 
-  if (isV4ClPool(pool)) {
+  if (isInfinityClPool(pool)) {
     const { currency0, currency1, fee, liquidity, sqrtRatioX96, tick } = pool
-    const v3Pool = new SDKV3Pool(currency0.wrapped, currency1.wrapped, fee, sqrtRatioX96, liquidity, tick)
-    const tokenPrice = v3Pool.priceOf(base.wrapped)
-    const [baseCurrency, quoteCurrency] = base.wrapped.equals(currency0.wrapped)
+    const v3Pool = new SDKV3Pool(currency0.asToken, currency1.asToken, fee, sqrtRatioX96, liquidity, tick)
+    const baseToken = currency0.wrapped.equals(base.wrapped) ? currency0.asToken : base.wrapped
+    const tokenPrice = v3Pool.priceOf(baseToken)
+    const [baseCurrency, quoteCurrency] = baseToken.equals(currency0.asToken)
       ? [currency0, currency1]
       : [currency1, currency0]
     return new Price(baseCurrency, quoteCurrency, tokenPrice.denominator, tokenPrice.numerator)
   }
 
-  if (isV4BinPool(pool)) {
+  if (isInfinityBinPool(pool)) {
     const { activeId, binStep, currency0, currency1 } = pool
-    const rawPrice = getPriceFromId(BigInt(activeId), BigInt(binStep))
-    const price = new Price(
-      currency0,
-      currency1,
-      rawPrice * 10n ** BigInt(currency0.decimals),
-      SCALE * 10n ** BigInt(currency1.decimals),
+    return getBinPoolTokenPrice(
+      {
+        currencyX: currency0,
+        currencyY: currency1,
+        binStep: BigInt(binStep),
+        activeId: BigInt(activeId),
+      },
+      base,
     )
-    return base.equals(price.baseCurrency) ? price : price.invert()
   }
 
   if (isV2Pool(pool)) {

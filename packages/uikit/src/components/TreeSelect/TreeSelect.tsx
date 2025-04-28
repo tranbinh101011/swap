@@ -75,6 +75,13 @@ const SelectContainer = styled.div`
     padding: 8px 16px;
     gap: 8px;
 
+    .p-treenode-label {
+      flex: 1;
+      min-width: 0;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
     .p-tree-toggler {
       display: inline-flex;
       align-items: center;
@@ -149,6 +156,16 @@ const SelectContainer = styled.div`
   .p-treenode-leaf > .p-treenode-content .p-tree-toggler {
     visibility: hidden;
   }
+
+  .p-treeselect-items-wrapper {
+    &::-webkit-scrollbar {
+      width: 18px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.colors.textSubtle};
+      border: 6px solid ${({ theme }) => theme.colors.input};
+      border-radius: 18px;
+    }
 `;
 
 export interface ITreeSelectProps extends TreeSelectProps {

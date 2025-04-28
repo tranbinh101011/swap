@@ -11,8 +11,8 @@ export const useTotalPriceUSD = ({
 }: {
   currency0: Currency | null | undefined
   currency1: Currency | null | undefined
-  amount0?: CurrencyAmount<ERC20Token>
-  amount1?: CurrencyAmount<ERC20Token>
+  amount0?: CurrencyAmount<ERC20Token | Currency>
+  amount1?: CurrencyAmount<ERC20Token | Currency>
 }) => {
   const { data: currency0PriceFromApi } = useCurrencyUsdPrice(currency0, {
     enabled: !!currency0,

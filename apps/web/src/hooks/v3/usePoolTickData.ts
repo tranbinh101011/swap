@@ -1,10 +1,11 @@
+import { Protocol } from '@pancakeswap/farms'
 import { Currency } from '@pancakeswap/sdk'
-import { FeeAmount, Pool, tickToPrice } from '@pancakeswap/v3-sdk'
+import { FeeAmount, Pool, TICK_SPACINGS, tickToPrice } from '@pancakeswap/v3-sdk'
+import useAllTicksQuery, { TickData } from 'hooks/useAllTicksQuery'
 import { useMemo } from 'react'
 
 import { getActiveTick } from 'utils/getActiveTick'
 import { PoolState, TickProcessed } from './types'
-import useAllV3TicksQuery, { TickData } from './useAllV3TicksQuery'
 import { usePool } from './usePools'
 import computeSurroundingTicks from './utils/computeSurroundingTicks'
 
@@ -27,7 +28,14 @@ function useTicksFromSubgraph(
     [currencyA, currencyB, feeAmount],
   )
 
-  return useAllV3TicksQuery(poolAddress, activeTick, 30000, enabled, poolChainId)
+  return useAllTicksQuery({
+    chainId: poolChainId,
+    poolAddress,
+    interval: 30000,
+    enabled,
+    protocol: Protocol.V3,
+    activeTick,
+  })
 }
 
 // Fetches all ticks for a given pool
@@ -67,28 +75,68 @@ export function usePoolActiveLiquidity(
   activeTick: number | undefined
   data: TickProcessed[] | undefined
 } {
-  const pool = usePool(currencyA, currencyB, feeAmount)
-
+  const [poolState, pool] = usePool(currencyA, currencyB, feeAmount)
   // Find nearest valid tick for pool in case tick is not initialized.
-  const activeTick = useMemo(() => getActiveTick(pool[1]?.tickCurrent, feeAmount), [pool, feeAmount])
-
+  const activeTick = useMemo(
+    () => (feeAmount ? getActiveTick(pool?.tickCurrent, TICK_SPACINGS[feeAmount]) : undefined),
+    [pool, feeAmount],
+  )
   const { isLoading, error, ticks } = useAllV3Ticks({ currencyA, currencyB, feeAmount, activeTick })
-
+  const { data } = useActiveLiquidityByPool({
+    currencyA,
+    currencyB,
+    tickSpacing: feeAmount ? TICK_SPACINGS[feeAmount] : undefined,
+    pool,
+    ticks,
+  })
   return useMemo(() => {
     if (
       !currencyA ||
       !currencyB ||
       activeTick === undefined ||
-      pool[0] !== PoolState.EXISTS ||
+      poolState !== PoolState.EXISTS ||
       !ticks ||
       ticks.length === 0 ||
       isLoading
     ) {
       return {
-        isLoading: isLoading || pool[0] === PoolState.LOADING,
+        isLoading: isLoading || poolState === PoolState.LOADING,
         error,
         activeTick,
         data: undefined,
+      }
+    }
+    return {
+      isLoading,
+      error,
+      activeTick,
+      data,
+    }
+  }, [activeTick, currencyA, currencyB, data, error, isLoading, poolState, ticks])
+}
+
+export function useActiveLiquidityByPool({
+  currencyA,
+  currencyB,
+  pool,
+  ticks,
+  tickSpacing,
+}: {
+  currencyA: Currency | undefined
+  currencyB: Currency | undefined
+  tickSpacing: number | undefined
+  ticks: TickData[] | undefined
+  pool: Pool | null
+}): {
+  data: TickProcessed[] | undefined
+  activeTick: number | undefined
+} {
+  const activeTick = useMemo(() => getActiveTick(pool?.tickCurrent, tickSpacing), [pool, tickSpacing])
+  return useMemo(() => {
+    if (!currencyA || !currencyB || !ticks || !activeTick) {
+      return {
+        data: undefined,
+        activeTick,
       }
     }
 
@@ -104,15 +152,13 @@ export function usePoolActiveLiquidity(
       // consider setting a local error
       console.error('TickData pivot not found')
       return {
-        isLoading,
-        error,
-        activeTick,
         data: undefined,
+        activeTick,
       }
     }
 
     const activeTickProcessed: TickProcessed = {
-      liquidityActive: BigInt(pool[1]?.liquidity ?? 0),
+      liquidityActive: BigInt(pool?.liquidity ?? 0),
       tick: activeTick,
       liquidityNet: Number(ticks[pivot].tick) === activeTick ? BigInt(ticks[pivot].liquidityNet) : 0n,
       price0: tickToPrice(token0, token1, activeTick).toFixed(PRICE_FIXED_DIGITS),
@@ -125,10 +171,8 @@ export function usePoolActiveLiquidity(
     const ticksProcessed = previousTicks.concat(activeTickProcessed).concat(subsequentTicks)
 
     return {
-      isLoading,
-      error,
-      activeTick,
       data: ticksProcessed,
+      activeTick,
     }
-  }, [currencyA, currencyB, activeTick, pool, ticks, isLoading, error])
+  }, [currencyA, currencyB, activeTick, pool, ticks])
 }

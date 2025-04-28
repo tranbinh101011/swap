@@ -38,29 +38,34 @@ export const usePermit2 = (
   spender: Address | undefined,
   {
     enablePaymaster = false,
+    overrideChainId,
   }: {
     enablePaymaster?: boolean
+    overrideChainId?: number
   } = {},
 ): UsePermit2ReturnType => {
-  const { account, chainId } = useAccountActiveChain()
+  const { account, chainId: activeChainId } = useAccountActiveChain()
+  const chainId = overrideChainId ?? activeChainId
+
   const approveTarget = useMemo(() => getPermit2Address(chainId), [chainId])
 
-  const { data: permit2Details } = usePermit2Details(account, amount?.currency, spender)
+  const { data: permit2Details } = usePermit2Details(account, amount?.currency, spender, chainId)
   const {
     requireApprove,
     requirePermit,
     requireRevoke,
     refetch,
     allowance: permit2Allowance,
-  } = usePermit2Requires(amount, spender)
+  } = usePermit2Requires(amount, spender, chainId)
 
   const [isPermitting, setIsPermitting] = useState(false)
   const [isRevoking, setIsRevoking] = useState(false)
   const [isApproving, setIsApproving] = useState(false)
 
-  const writePermit = useWritePermit(amount?.currency, spender, permit2Details?.nonce)
+  const writePermit = useWritePermit(amount?.currency, spender, permit2Details?.nonce, chainId)
   const { approveNoCheck, revokeNoCheck } = useApproveCallback(amount, approveTarget, {
     enablePaymaster,
+    overrideChainId: chainId,
   })
 
   const permit = useCallback(async () => {

@@ -1,5 +1,5 @@
-import { ERC20Token, WBNB } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
+import { ERC20Token, WBNB } from '@pancakeswap/sdk'
 
 import { BUSD_TESTNET, CAKE_TESTNET } from './common'
 
@@ -44,5 +44,29 @@ export const bscTestnetTokens = {
     'CAKE2',
     'PancakeSwap Token',
     'https://pancakeswap.finance/',
+  ),
+  MNova: new ERC20Token(
+    ChainId.BSC_TESTNET,
+    '0x56101aef6ae29b3046C67DAfADe6d7C6a8c2A644',
+    18,
+    'MockNova',
+    'MockNova',
+    'MockNova',
+  ),
+  MStella: new ERC20Token(
+    ChainId.BSC_TESTNET,
+    '0xB4F7dB3B33CaDE45D80ED206Ed3d221617647809',
+    18,
+    'MockStella',
+    'MockStella',
+    'MockStella',
+  ),
+  musdt: new ERC20Token(
+    ChainId.BSC_TESTNET,
+    '0x3A9C4EBe66FdA68c34DDf33036C82d31A5506e71',
+    6,
+    'mUSDT',
+    'mUSDT',
+    'mUSDT',
   ),
 }

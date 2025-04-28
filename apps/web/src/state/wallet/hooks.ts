@@ -1,11 +1,14 @@
 import { Currency, CurrencyAmount, Native, Token } from '@pancakeswap/sdk'
+import { useQuery } from '@tanstack/react-query'
 import { multicallABI } from 'config/abi/Multicall'
 import { useAllTokens } from 'hooks/Tokens'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import orderBy from 'lodash/orderBy'
 import { useMemo } from 'react'
 import { safeGetAddress } from 'utils'
 import { getMulticallAddress } from 'utils/addressHelpers'
+import { publicClient } from 'utils/viem'
 import { Address, erc20Abi, getAddress, isAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import { useMultipleContractSingleData, useSingleContractMultipleData } from '../multicall/hooks'
@@ -151,10 +154,154 @@ export function useCurrencyBalance(account?: string, currency?: Currency | null)
 }
 
 // mimics useAllBalances
-export function useAllTokenBalances(): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
+export function useAllTokenBalances(chainId?: number): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
   const { address: account } = useAccount()
-  const allTokens = useAllTokens()
+  const allTokens = useAllTokens(chainId)
   const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
   const balances = useTokenBalances(account ?? undefined, allTokensArray)
   return balances ?? {}
+}
+
+/**
+ * Returns a map of token addresses to their eventually consistent token balances for a single account.
+ * Accepts a chainId to allow for fetching balances on a chain that is not the current chain.
+ */
+export function useTokenBalancesWithChain(
+  address?: string,
+  tokens?: (Token | undefined)[],
+  chainId?: number,
+): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
+  const validatedTokens: Token[] = useMemo(
+    () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address || '')) ?? [],
+    [tokens],
+  )
+
+  const validatedTokenAddresses = useMemo(() => validatedTokens.map((vt) => vt.address), [validatedTokens])
+
+  const { data: balances, isLoading } = useQuery({
+    queryKey: ['balances', address, chainId, validatedTokenAddresses],
+    queryFn: () =>
+      publicClient({ chainId }).multicall({
+        contracts: validatedTokenAddresses.map((tokenAddress) => ({
+          abi: erc20Abi,
+          address: tokenAddress,
+          functionName: 'balanceOf',
+          args: [address],
+        })),
+      }),
+    enabled: Boolean(address && validatedTokenAddresses.length > 0),
+    retryDelay: 1000,
+    retry(failureCount, error) {
+      console.error('useTokenBalancesWithChain failed', { error })
+      if (failureCount > 3) return false
+      return true
+    },
+  })
+
+  return [
+    useMemo(
+      () =>
+        address && validatedTokens.length > 0
+          ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
+              const value = balances?.[i]?.result
+              const amount = typeof value !== 'undefined' ? BigInt(value.toString()) : undefined
+              if (typeof amount !== 'undefined') {
+                memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)
+              }
+              return memo
+            }, {})
+          : {},
+      [address, validatedTokens, balances],
+    ),
+    isLoading,
+  ]
+}
+
+export function useNativeBalancesWithChain(
+  uncheckedAddresses?: (string | undefined)[],
+  chainId?: number,
+): {
+  [address: string]: CurrencyAmount<Native> | undefined
+} {
+  const native = useNativeCurrency(chainId)
+
+  const addresses: Address[] = useMemo(
+    () =>
+      uncheckedAddresses
+        ? orderBy(uncheckedAddresses.map(safeGetAddress).filter((a): a is Address => a !== undefined))
+        : [],
+    [uncheckedAddresses],
+  )
+
+  const { data: results } = useQuery({
+    queryKey: ['ethBalances', addresses, chainId],
+    queryFn: () =>
+      publicClient({ chainId }).multicall({
+        contracts: addresses.map((address) => ({
+          abi: multicallABI,
+          address: getMulticallAddress(native.chainId),
+          functionName: 'getEthBalance',
+          args: [address],
+        })),
+      }),
+    enabled: Boolean(addresses.length > 0),
+  })
+
+  return useMemo(
+    () =>
+      addresses.reduce<{ [address: string]: CurrencyAmount<Native> | undefined }>((memo, address, i) => {
+        const value = results?.[i]?.result
+        if (typeof value !== 'undefined') memo[address] = CurrencyAmount.fromRawAmount(native, BigInt(value.toString()))
+        return memo
+      }, {}),
+    [addresses, results, native],
+  )
+}
+
+export function useCurrencyBalancesWithChain(
+  account?: string,
+  currencies?: (Currency | undefined | null)[],
+  overrideChainId?: number,
+): (CurrencyAmount<Currency> | undefined)[] {
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainId = overrideChainId || activeChainId
+
+  const tokens = useMemo(
+    () => currencies?.filter((currency): currency is Token => Boolean(currency?.isToken)) ?? [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [...(currencies ?? [])],
+  )
+
+  const tokenBalances = useTokenBalancesWithChain(account, tokens, chainId)
+  const containsNative: boolean = useMemo(
+    () => currencies?.some((currency) => currency?.isNative) ?? false,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [...(currencies ?? [])],
+  )
+  const uncheckedAddresses = useMemo(() => (containsNative ? [account] : []), [containsNative, account])
+  const nativeBalance = useNativeBalancesWithChain(uncheckedAddresses, chainId)
+
+  return useMemo(
+    () =>
+      currencies?.map((currency) => {
+        if (!account || !currency) return undefined
+        if (currency?.isToken) return tokenBalances[0][currency.address]
+        if (currency?.isNative) return nativeBalance[account] || nativeBalance[getAddress(account)]
+        return undefined
+      }) ?? [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [account, ...(currencies ?? []), nativeBalance, tokenBalances],
+  )
+}
+
+export function useCurrencyBalanceWithChain(
+  account?: string,
+  currency?: Currency | null,
+  chainId?: number,
+): CurrencyAmount<Currency> | undefined {
+  return useCurrencyBalancesWithChain(
+    account,
+    useMemo(() => [currency], [currency]),
+    chainId,
+  )[0]
 }

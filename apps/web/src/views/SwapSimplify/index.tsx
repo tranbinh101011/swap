@@ -7,14 +7,16 @@ import { MobileCard } from 'components/AdPanel/MobileCard'
 import { useCurrency } from 'hooks/Tokens'
 import { AutoSlippageProvider } from 'hooks/useAutoSlippageWithFallback'
 import { useSwapHotTokenDisplay } from 'hooks/useSwapHotTokenDisplay'
+import { useSingleTokenSwapInfo } from 'quoter/hook/useSingleTokenSwapInfo'
+import { QuoteProvider } from 'quoter/QuoteProvider'
 import { Field } from 'state/swap/actions'
-import { useSingleTokenSwapInfo, useSwapState } from 'state/swap/hooks'
+import { useSwapState } from 'state/swap/hooks'
 import { styled } from 'styled-components'
 import Page from '../Page'
 import PriceChartContainer from '../Swap/components/Chart/PriceChartContainer'
 import { StyledSwapContainer } from '../Swap/styles'
 import { SwapFeaturesContext } from '../Swap/SwapFeaturesContext'
-import { V4SwapForm } from './V4Swap'
+import { InfinitySwapForm } from './InfinitySwap'
 
 const Wrapper = styled(Box)`
   width: 100%;
@@ -24,7 +26,7 @@ const Wrapper = styled(Box)`
   }
 `
 
-export default function V4Swap() {
+const InfinitySwapInner = () => {
   const { query } = useRouter()
   const { isDesktop, isMobile } = useMatchBreakpoints()
   const {
@@ -63,13 +65,12 @@ export default function V4Swap() {
     [Field.OUTPUT]: outputCurrency ?? undefined,
   }
 
-  const singleTokenPrice = useSingleTokenSwapInfo(
+  const singleTokenPrice = useSingleTokenSwapInfo({
     inputCurrencyId,
-    inputCurrency,
+    inputCurrency: inputCurrency || undefined,
     outputCurrencyId,
-    outputCurrency,
-    isChartSupported,
-  )
+    outputCurrency: outputCurrency || undefined,
+  })
 
   return (
     <Page removePadding hideFooterOnDesktop={isChartExpanded || false} showExternalLink={false} showHelpLink={false}>
@@ -130,7 +131,7 @@ export default function V4Swap() {
           >
             <AutoSlippageProvider>
               <Wrapper height="100%">
-                <V4SwapForm />
+                <InfinitySwapForm />
               </Wrapper>
             </AutoSlippageProvider>
           </StyledSwapContainer>
@@ -139,5 +140,13 @@ export default function V4Swap() {
 
       <MobileCard />
     </Page>
+  )
+}
+
+export default function InfinitySwap() {
+  return (
+    <QuoteProvider>
+      <InfinitySwapInner />
+    </QuoteProvider>
   )
 }

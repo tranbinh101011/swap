@@ -12,7 +12,7 @@ const Wrapper = styled(Flex)`
 `
 
 const Inner = styled(Flex)`
-  justify-content: space-between;
+  justify-content: flex-start;
   background-color: ${({ theme }) => theme.colors.input};
   width: 100%;
 `
@@ -28,6 +28,7 @@ export const TabToggle = styled(Box).attrs({
   display: inline-flex;
   justify-content: center;
   cursor: pointer;
+  max-width: 200px;
   flex: 1;
   border: 0;
   outline: 0;

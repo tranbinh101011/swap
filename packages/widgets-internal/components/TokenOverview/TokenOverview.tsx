@@ -1,4 +1,4 @@
-import { Currency, Token } from "@pancakeswap/sdk";
+import { Currency } from "@pancakeswap/sdk";
 import { Flex, Skeleton, Text } from "@pancakeswap/uikit";
 import { styled } from "styled-components";
 import { getChainName as defaultGetChainName } from "@pancakeswap/chains";
@@ -7,12 +7,13 @@ import { ChainLogo, DoubleCurrencyLogo } from "../CurrencyLogo";
 export interface ITokenInfoProps {
   isReady?: boolean;
   title?: React.ReactNode;
+  titleFontSize?: string;
   desc?: React.ReactNode;
   icon?: React.ReactNode;
   customContent?: React.ReactNode;
   token: Currency;
-  quoteToken: Token;
-  width?: string;
+  quoteToken: Currency;
+  iconWidth?: string;
   getChainName?: (chainId: number) => string | undefined;
 }
 
@@ -47,7 +48,8 @@ export const TokenOverview: React.FC<ITokenInfoProps> = ({
   customContent,
   token,
   quoteToken,
-  width,
+  iconWidth,
+  titleFontSize = "16px",
   getChainName = defaultGetChainName,
 }) => {
   if (!isReady) {
@@ -63,10 +65,14 @@ export const TokenOverview: React.FC<ITokenInfoProps> = ({
   }
   return (
     <Container>
-      <IconWrapper width={width}>{icon ?? <DoubleCurrencyLogo currency0={token} currency1={quoteToken} />}</IconWrapper>
+      <IconWrapper width={iconWidth}>
+        {icon ?? <DoubleCurrencyLogo currency0={token} currency1={quoteToken} />}
+      </IconWrapper>
       {customContent ?? (
         <Flex flexDirection="column">
-          <Text bold>{title ?? `${token.symbol} / ${quoteToken.symbol}`}</Text>
+          <Text bold fontSize={titleFontSize}>
+            {title ?? `${token.symbol} / ${quoteToken.symbol}`}
+          </Text>
           <DescWrapper>
             {desc ?? (
               <>

@@ -1,22 +1,30 @@
-import { MiscellaneousIcon, Text, useTooltip } from "@pancakeswap/uikit";
+import { AutoRow, InfoIcon, Text, useTooltip } from "@pancakeswap/uikit";
 import { forwardRef, useMemo } from "react";
 import styled from "styled-components";
 
 export type FeatureStackProps = {
   features: React.ReactNode[];
   fold?: boolean;
+  icon?: React.ReactNode;
+  showInfoIcon?: boolean;
+  onItemClick?: (feature: React.ReactNode) => void;
 };
 
-const StyledFeatureItem = styled.span`
+const StyledFeatureItem = styled.div`
   display: inline-flex;
   gap: 4px;
-  padding: 2px 6px;
+  padding: 2px 10px 2px 10px;
   border-radius: 999px;
   background-color: ${({ theme }) => theme.colors.tertiary};
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
-  color: ${({ theme }) => theme.colors.secondary};
+  color: ${({ theme }) => theme.colors.textSubtle};
+`;
+
+const StyledFeatureItemTextContainer = styled.div`
+  display: inline-block;
+  white-space: nowrap;
 `;
 
 const StyledFeatureItemWithCounts = styled.div`
@@ -27,15 +35,15 @@ const CountsIndicator = styled(Text)`
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
-  color: ${({ theme }) => theme.colors.secondary};
+  color: ${({ theme }) => theme.colors.textSubtle};
   background-color: ${({ theme }) => theme.colors.tertiary};
   border-radius: 999px;
-  border: 2px solid ${({ theme }) => theme.colors.background};
+  border: 2px solid ${({ theme }) => theme.colors.backgroundAlt};
   display: inline-flex;
   align-items: center;
-  padding: 2px 6px;
+  padding: 2px 9px;
   min-width: 24px;
-  margin-left: -8px;
+  margin-left: -6px;
 `;
 
 const StyledRows = styled.div`
@@ -44,11 +52,17 @@ const StyledRows = styled.div`
   grid-gap: 8px;
 `;
 
-const FeatureItem: React.FC<React.PropsWithChildren> = ({ children }) => {
+const FeatureItem: React.FC<
+  React.PropsWithChildren<{
+    icon?: React.ReactNode;
+    onClick?: () => void;
+  }>
+> = ({ children, icon, onClick }) => {
   return (
-    <StyledFeatureItem>
-      <MiscellaneousIcon width={21} height={21} color="secondary" mr="4px" />
-      {children}
+    <StyledFeatureItem onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
+      {/* @notice: hide icon temporarily */}
+      {/* {icon ?? <MiscellaneousIcon width={18} height={18} color="textSubtle" />} */}
+      <StyledFeatureItemTextContainer>{children}</StyledFeatureItemTextContainer>
     </StyledFeatureItem>
   );
 };
@@ -58,29 +72,52 @@ const FeatureItemWithCounts = forwardRef<HTMLDivElement, React.PropsWithChildren
     return (
       <StyledFeatureItemWithCounts ref={ref}>
         <FeatureItem>{children}</FeatureItem>
-        <CountsIndicator as="span">+{count}</CountsIndicator>
+        {count > 0 && <CountsIndicator as="span">+{count}</CountsIndicator>}
       </StyledFeatureItemWithCounts>
     );
   }
 );
 
-const FlattenFeatures: React.FC<FeatureStackProps> = ({ features }) => {
+const FlattenFeatures: React.FC<FeatureStackProps> = ({ features, icon, onItemClick, showInfoIcon }) => {
   return (
     <>
-      {features.map((feature) => (
-        <FeatureItem key={feature?.toString()}>{feature}</FeatureItem>
-      ))}
+      {features.map((feature) =>
+        showInfoIcon ? (
+          <AutoRow justifyContent="flex-end" gap="4px" key={feature?.toString()}>
+            <FeatureItem icon={icon} key={feature?.toString()}>
+              {feature}
+            </FeatureItem>
+            {showInfoIcon && (
+              <InfoIcon
+                onClick={() => onItemClick?.(feature)}
+                width={18}
+                height={18}
+                color="textSubtle"
+                style={{ cursor: "pointer" }}
+              />
+            )}
+          </AutoRow>
+        ) : (
+          <FeatureItem key={feature?.toString()} onClick={onItemClick ? () => onItemClick?.(feature) : undefined}>
+            {feature}
+          </FeatureItem>
+        )
+      )}
     </>
   );
 };
 
-const FoldedFeatures: React.FC<FeatureStackProps> = ({ features }) => {
+const FoldedFeatures: React.FC<FeatureStackProps> = ({ features, ...props }) => {
   const count = useMemo(() => features.length - 1, [features]);
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     <StyledRows>
-      <FlattenFeatures features={features} />
+      <FlattenFeatures features={features} {...props} />
     </StyledRows>
   );
+
+  if (features.length === 1) {
+    return <FlattenFeatures {...props} fold={false} features={features} />;
+  }
 
   return (
     <>
@@ -92,6 +129,6 @@ const FoldedFeatures: React.FC<FeatureStackProps> = ({ features }) => {
   );
 };
 
-export const FeatureStack: React.FC<FeatureStackProps> = ({ features, fold }) => {
-  return fold ? <FoldedFeatures features={features} /> : <FlattenFeatures features={features} />;
+export const FeatureStack: React.FC<FeatureStackProps> = ({ fold, ...props }) => {
+  return fold ? <FoldedFeatures fold={fold} {...props} /> : <FlattenFeatures {...props} />;
 };
