@@ -75,7 +75,7 @@ const farmFetcherV3 = createFarmFetcherV3(getViemClients)
 export const useFarmsV3Public = () => {
   const { chainId } = useActiveChainId()
 
-  return useQuery({
+  const resp = useQuery({
     queryKey: [chainId, 'farmV3ApiFetch'],
 
     queryFn: async () => {
@@ -118,6 +118,11 @@ export const useFarmsV3Public = () => {
     refetchOnWindowFocus: false,
     enabled: Boolean(farmFetcherV3.isChainSupported(chainId ?? -1)),
   })
+
+  return {
+    ...resp,
+    data: resp?.data ?? fallback,
+  }
 }
 
 interface UseFarmsOptions {
