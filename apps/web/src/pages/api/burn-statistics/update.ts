@@ -15,6 +15,7 @@ const handler: NextApiHandler = async (req, res) => {
 
   // Vercel's cron job automatically adds the Authorization header
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+    console.warn('Unauthorized attempt to update burn statistics with authorization:', req.headers.authorization)
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
@@ -72,6 +73,22 @@ const handler: NextApiHandler = async (req, res) => {
     })
 
     await s3Client.send(putCommand)
+
+    // Purge Cloudflare cache
+    const purgeCacheResult = await fetch(
+      `https://api.cloudflare.com/client/v4/zones/${process.env.CF_CACHE_ZONE_ID}/purge_cache`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.CF_CACHE_API_TOKEN}` },
+        body: JSON.stringify({
+          files: [`https://burn-stats.pancakeswap.com/data.json`],
+        }),
+      },
+    )
+    if (!purgeCacheResult.ok) {
+      const reason = await purgeCacheResult.json()
+      throw new Error(JSON.stringify(reason))
+    }
 
     return res.status(200).json({ success: true })
   } catch (error) {

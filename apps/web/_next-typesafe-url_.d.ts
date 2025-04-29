@@ -22,6 +22,7 @@ declare module "@@@next-typesafe-url" {
     "/451": StaticRoute;
     "/add/[[...currency]]": StaticRoute;
     "/bridge": StaticRoute;
+    "/burn-dashboard": StaticRoute;
     "/buy-crypto": StaticRoute;
     "/cake-staking": StaticRoute;
     "/cake-staking/redeem": StaticRoute;
