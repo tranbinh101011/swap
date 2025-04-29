@@ -88,7 +88,7 @@ const fetchMerkleRootByTimestamp = async ({ chainId, timestamp }: FetchMerkleRoo
   if (!(chainId && timestamp)) {
     return undefined
   }
-  const resp = await rewardApiClient.GET('/farms/root/{chainId}/{timestamp}', {
+  let resp = await rewardApiClient.GET('/farms/root/{chainId}/{timestamp}', {
     params: {
       path: {
         chainId,
@@ -96,6 +96,16 @@ const fetchMerkleRootByTimestamp = async ({ chainId, timestamp }: FetchMerkleRoo
       },
     },
   })
+  if (!resp.data?.epochEndTimestamp) {
+    resp = await rewardApiClient.GET('/farms/epoch-root/{chainId}/{timestamp}', {
+      params: {
+        path: {
+          chainId,
+          timestamp,
+        },
+      },
+    })
+  }
   return resp.data ?? undefined
 }
 

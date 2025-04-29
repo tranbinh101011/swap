@@ -321,4 +321,21 @@ interface paths {
     patch?: never
     trace?: never
   }
+
+  '/farms/epoch-root/{chainId}/{timestamp}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['getMerkleRootByTimestamp']
+    put?: never
+    post: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
