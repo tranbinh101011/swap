@@ -86,12 +86,12 @@ export const useFarmsV3Public = () => {
         })
       }
 
-      // direct copy from api routes, the client side fetch is preventing cache due to migration phase we want fresh data
-      const fetchFarmsV3 = await fetchUniversalFarms(chainId, Protocol.V3)
-      const farms = defineFarmV3ConfigsFromUniversalFarm(fetchFarmsV3 as UniversalFarmConfigV3[])
-      const commonPrice = await fetchCommonTokenUSDValue(priceHelperTokens[chainId ?? -1])
-
       try {
+        // direct copy from api routes, the client side fetch is preventing cache due to migration phase we want fresh data
+        const fetchFarmsV3 = await fetchUniversalFarms(chainId, Protocol.V3)
+        const farms = defineFarmV3ConfigsFromUniversalFarm(fetchFarmsV3 as UniversalFarmConfigV3[])
+        const commonPrice = await fetchCommonTokenUSDValue(priceHelperTokens[chainId ?? -1])
+
         const data = await farmFetcherV3.fetchFarms({
           chainId: chainId ?? -1,
           farms,
@@ -112,9 +112,11 @@ export const useFarmsV3Public = () => {
         return fallback
       }
     },
-    staleTime: Infinity,
+    refetchInterval: 1_000 * 60 * 10,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
     enabled: Boolean(farmFetcherV3.isChainSupported(chainId ?? -1)),
-    initialData: fallback,
   })
 }
 
@@ -135,7 +137,7 @@ export const useFarmsV3 = ({ mockApr = false, boosterLiquidityX = {} }: UseFarms
     queryKey: [chainId, 'cake-apr-tvl', boosterLiquidityX],
 
     queryFn: async ({ signal }) => {
-      if (chainId !== farmV3?.data.chainId) {
+      if (chainId !== farmV3?.data?.chainId) {
         throw new Error('ChainId mismatch')
       }
       const tvls: TvlMap = {}
@@ -194,7 +196,7 @@ export const useFarmsV3 = ({ mockApr = false, boosterLiquidityX = {} }: UseFarms
           f,
           tvl,
           cakePrice.toString(),
-          farmV3.data.cakePerSecond,
+          farmV3.data?.cakePerSecond ?? '1',
           boosterLiquidityX?.[f.pid] ?? 1,
         )
 
@@ -212,7 +214,7 @@ export const useFarmsV3 = ({ mockApr = false, boosterLiquidityX = {} }: UseFarms
       }
     },
 
-    enabled: Boolean(farmV3.data.farmsWithPrice.length > 0),
+    enabled: Boolean(farmV3?.data?.farmsWithPrice && farmV3?.data?.farmsWithPrice?.length > 0),
     placeholderData: (previousData, previousQuery) => {
       const queryKey = previousQuery?.queryKey
       if (!queryKey) return undefined
@@ -229,7 +231,7 @@ export const useFarmsV3 = ({ mockApr = false, boosterLiquidityX = {} }: UseFarms
 
   return {
     data: useMemo(() => {
-      return farmV3.isLoading || farmV3.data.chainId !== chainId
+      return farmV3.isLoading || farmV3.data?.chainId !== chainId
         ? (farmV3.data as FarmsV3Response<FarmV3DataWithPriceTVL>)
         : ((data?.chainId !== chainId ? farmV3.data : data ?? farmV3.data) as FarmsV3Response<FarmV3DataWithPriceTVL>)
     }, [chainId, data, farmV3.data, farmV3.isLoading]),

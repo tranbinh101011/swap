@@ -7,9 +7,9 @@ import { useCakePrice } from 'hooks/useCakePrice'
 import React, { useCallback, useMemo } from 'react'
 import { useFarms, usePollFarmsWithUserData } from 'state/farms/hooks'
 import { useFarmsV3Public } from 'state/farmsV3/hooks'
+import { isAddressEqual } from 'utils'
 import { getFarmApr } from 'utils/apr'
 import { useAccount } from 'wagmi'
-import { isAddressEqual } from 'utils'
 import MigrationFarmTable from '../MigrationFarmTable'
 import { V3Step1DesktopColumnSchema } from '../types'
 import { STABLE_LP_TO_MIGRATE } from './Step2'
@@ -18,9 +18,8 @@ const OldFarmStep1: React.FC<React.PropsWithChildren> = () => {
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const { data: farmsLP, userDataLoaded } = useFarms()
-  const {
-    data: { farmsWithPrice },
-  } = useFarmsV3Public()
+  const { data } = useFarmsV3Public()
+  const farmsWithPrice = data?.farmsWithPrice || []
   const cakePrice = useCakePrice()
   const { chainId } = useActiveChainId()
 

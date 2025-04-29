@@ -3,7 +3,7 @@ import { useFarmsV3Public } from 'state/farmsV3/hooks'
 
 export function useFarmV3Multiplier() {
   const { data: farmV3 } = useFarmsV3Public()
-  const { totalAllocPoint, cakePerSecond } = farmV3
+  const { totalAllocPoint, cakePerSecond } = farmV3 ?? { totalAllocPoint: 0, cakePerSecond: 0 }
   const totalMultipliers = useMemo(
     () => (Number.isFinite(+totalAllocPoint) ? (+totalAllocPoint / 10).toString() : '-'),
     [totalAllocPoint],

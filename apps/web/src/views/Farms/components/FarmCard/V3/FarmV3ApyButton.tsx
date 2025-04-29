@@ -177,7 +177,7 @@ function FarmV3ApyButton_({
   const cakeAprFactor = useMemo(
     () =>
       new BigNumber(farm.poolWeight)
-        .times(farmV3.cakePerSecond)
+        .times(farmV3?.cakePerSecond ?? 1)
         .times(365 * 60 * 60 * 24)
         .times(cakePrice)
         .div(
@@ -191,7 +191,7 @@ function FarmV3ApyButton_({
       existingPosition?.liquidity,
       farm.lmPoolLiquidity,
       farm.poolWeight,
-      farmV3.cakePerSecond,
+      farmV3?.cakePerSecond,
       isPositionStaked,
     ],
   )

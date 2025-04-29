@@ -33,9 +33,7 @@ export const STABLE_LP_TO_MIGRATE = [
 export function Step2() {
   const { address: account } = useAccount()
   const { t } = useTranslation()
-  const {
-    data: { farmsWithPrice },
-  } = useFarmsV3Public()
+  const { data: { farmsWithPrice } = { farmsWithPrice: [] } } = useFarmsV3Public()
 
   // fetch the user's balances of all tracked V2 LP tokens
   const trackedTokenPairs = useTrackedTokenPairs()
