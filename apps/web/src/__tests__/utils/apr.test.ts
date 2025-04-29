@@ -28,7 +28,7 @@ describe('getPoolApr', () => {
   })
   it(`get the correct pool APR`, () => {
     const apr = getPoolApr(10, 1, 100000, 1)
-    expect(apr).toEqual(1051.2)
+    expect(apr).toEqual(2102.4)
   })
 })
 
@@ -52,7 +52,7 @@ describe('getFarmApr', () => {
       '',
       40,
     )
-    expect(cakeRewardsApr).toEqual(4204800)
+    expect(cakeRewardsApr).toEqual(8409600)
     expect(lpRewardsApr).toEqual(0)
   })
   it(`get the correct pool APR combined with LP APR`, () => {
@@ -64,7 +64,7 @@ describe('getFarmApr', () => {
       '0x0ed7e52944161450477ee417de9cd3a859b14fd0',
       40,
     )
-    expect(cakeRewardsApr).toEqual(4204800)
+    expect(cakeRewardsApr).toEqual(8409600)
     expect(lpRewardsApr).toEqual(lpAprs['0x0ed7e52944161450477ee417de9cd3a859b14fd0'])
   })
 })

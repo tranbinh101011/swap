@@ -17,8 +17,6 @@ const FlexGap = styled(Flex)<{ gap: string }>`
   gap: ${({ gap }) => gap};
 `
 
-const USE_BLOCK_TIMESTAMP_UNTIL = 3
-
 const CountDown: React.FC<{
   time: number
   textColor?: string
