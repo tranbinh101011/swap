@@ -1,5 +1,13 @@
 # @pancakeswap/stable-swap-sdk
 
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies [3de0443]
+  - @pancakeswap/chains@0.5.2
+  - @pancakeswap/tokens@0.7.4
+
 ## 2.0.4
 
 ### Patch Changes

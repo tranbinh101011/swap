@@ -1,5 +1,14 @@
 # @pancakeswap/routing-sdk-addon-v3
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies [3de0443]
+  - @pancakeswap/chains@0.5.2
+  - @pancakeswap/routing-sdk@0.4.1
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 4.0.0
 
 ### Patch Changes

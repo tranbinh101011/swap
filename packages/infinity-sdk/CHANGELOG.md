@@ -1,5 +1,15 @@
 # @pancakeswap/infinity-sdk
 
+## 1.0.1
+
+### Patch Changes
+
+- 10acda5: Remove internal dependencies out of `infinity-sdk`.
+- Updated dependencies [3de0443]
+  - @pancakeswap/chains@0.5.2
+  - @pancakeswap/permit2-sdk@1.1.3
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 1.0.0
 
 ### Major Changes

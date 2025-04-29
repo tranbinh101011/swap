@@ -1,5 +1,11 @@
 # @pancakeswap/chains
 
+## 0.5.2
+
+### Patch Changes
+
+- 3de0443: chore: Update bnb block time
+
 ## 0.5.1
 
 ### Patch Changes

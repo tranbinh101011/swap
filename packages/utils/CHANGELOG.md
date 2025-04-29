@@ -1,5 +1,12 @@
 # @pancakeswap/utils
 
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies [3de0443]
+  - @pancakeswap/chains@0.5.2
+
 ## 6.1.0
 
 ### Minor Changes

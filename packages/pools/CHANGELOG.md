@@ -1,5 +1,15 @@
 # @pancakeswap/pools
 
+## 5.1.42
+
+### Patch Changes
+
+- 3de0443: chore: Update bnb block time
+- Updated dependencies [3de0443]
+  - @pancakeswap/chains@0.5.2
+  - @pancakeswap/tokens@0.7.4
+  - @pancakeswap/token-lists@0.0.15
+
 ## 5.1.41
 
 ### Patch Changes

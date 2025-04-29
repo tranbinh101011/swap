@@ -1,5 +1,14 @@
 # solana-web
 
+## 0.1.4
+
+### Patch Changes
+
+- @pancakeswap/widgets-internal@0.4.1
+- @pancakeswap/uikit@0.68.1
+- @pancakeswap/utils@6.1.1
+- @pancakeswap/hooks@0.0.37
+
 ## 0.1.3
 
 ### Patch Changes

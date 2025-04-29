@@ -1,5 +1,12 @@
 # @pancakeswap/swap-sdk-evm
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies [3de0443]
+  - @pancakeswap/chains@0.5.2
+
 ## 1.1.2
 
 ### Patch Changes
