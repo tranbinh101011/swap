@@ -51,7 +51,8 @@
     "@types/debug": "^4.1.7",
     "@types/lodash": "^4.14.178",
     "@types/stats-lite": "^2.2.0",
-    "tsup": "^6.7.0"
+    "tsup": "^6.7.0",
+    "quick-lru": "7.0.0"
   },
   "exports": {
     "./package.json": "./package.json",

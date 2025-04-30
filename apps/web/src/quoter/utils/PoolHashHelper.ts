@@ -46,7 +46,19 @@ export class PoolHashHelper {
 
   static hashQuoteQuery = (query: QuoteQuery) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { amount, currency, slippage, blockNumber, provider, signal, hash, placeholderHash, ...rest } = query
+    const {
+      amount,
+      currency,
+      slippage,
+      controller,
+      blockNumber,
+      provider,
+      signal,
+      createTime,
+      hash,
+      placeholderHash,
+      ...rest
+    } = query
     const chainId = query.baseCurrency?.chainId
     const restHash = keccak256(`0x${stringify(rest)}:${chainId}`)
     const hashCurrencies = PoolHashHelper.hashCurrencies(amount?.currency, currency || undefined)

@@ -12,6 +12,41 @@ export const DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfig = {
   topNWithBaseToken: 3,
 }
 
+export const INFINITY_DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfigChainMap = {
+  [ChainId.BSC]: {
+    topN: 1,
+    topNDirectSwaps: 1,
+    topNTokenInOut: 1,
+    topNSecondHop: 1,
+    topNWithEachBaseToken: 1,
+    topNWithBaseToken: 1,
+  },
+  [ChainId.BSC_TESTNET]: {
+    topN: 1,
+    topNDirectSwaps: 1,
+    topNTokenInOut: 1,
+    topNSecondHop: 1,
+    topNWithEachBaseToken: 1,
+    topNWithBaseToken: 1,
+  },
+  [ChainId.ETHEREUM]: {
+    topN: 1,
+    topNDirectSwaps: 1,
+    topNTokenInOut: 1,
+    topNSecondHop: 1,
+    topNWithEachBaseToken: 1,
+    topNWithBaseToken: 1,
+  },
+  [ChainId.GOERLI]: {
+    topN: 1,
+    topNDirectSwaps: 1,
+    topNTokenInOut: 1,
+    topNSecondHop: 1,
+    topNWithEachBaseToken: 1,
+    topNWithBaseToken: 1,
+  },
+}
+
 export const V3_DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfigChainMap = {
   [ChainId.BSC]: {
     topN: 2,

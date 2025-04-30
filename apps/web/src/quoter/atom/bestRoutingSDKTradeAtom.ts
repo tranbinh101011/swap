@@ -11,7 +11,7 @@ import { InfinityGetBestTradeReturnType, NoValidRouteError, QuoteQuery } from '.
 import { atomWithLoadable } from './atomWithLoadable'
 import { commonPoolsOnChainAtom } from './poolsAtom'
 
-export const bestAMMTradeFromOffchainQuoterAtom = atomFamily((option: QuoteQuery) => {
+export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
   const { amount, currency, tradeType, maxSplits, v2Swap, v3Swap, infinitySwap } = option
   return atomWithLoadable(async (get) => {
     if (!amount || !amount.currency || !currency) {
@@ -40,6 +40,7 @@ export const bestAMMTradeFromOffchainQuoterAtom = atomFamily((option: QuoteQuery
             options: {
               blockNumber: option.blockNumber,
             },
+            for: option.for,
           }),
         ),
         get(gasPriceWeiAtom(currency?.chainId)),

@@ -1,11 +1,15 @@
-import { Currency, Token, WNATIVE } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
+import { Currency, Token, WNATIVE } from '@pancakeswap/sdk'
 import { Address } from 'viem'
 
-import { PoolSelectorConfig, V2PoolWithTvl, V3PoolWithTvl, WithTvl } from '../../types'
 import { BASES_TO_CHECK_TRADES_AGAINST } from '../../../constants'
-import { getV2PoolSelectorConfig, getV3PoolSelectorConfig } from '../../utils/getPoolSelectorConfig'
+import { InfinityPoolWithTvl, PoolSelectorConfig, V2PoolWithTvl, V3PoolWithTvl, WithTvl } from '../../types'
 import { getPoolAddress as getPoolAddressUtil } from '../../utils'
+import {
+  getInfinityPoolSelectorConfig,
+  getV2PoolSelectorConfig,
+  getV3PoolSelectorConfig,
+} from '../../utils/getPoolSelectorConfig'
 
 const sortByTvl = (a: WithTvl, b: WithTvl) => (a.tvlUSD >= b.tvlUSD ? -1 : 1)
 
@@ -246,4 +250,11 @@ export const v2PoolTvlSelector = poolSelectorFactory<V2PoolWithTvl>({
   getToken0: (p) => p.reserve0.currency,
   getToken1: (p) => p.reserve1.currency,
   getPoolAddress: (p) => getPoolAddressUtil(p) || '0x',
+})
+
+export const infinityPoolTvlSelector = poolSelectorFactory<InfinityPoolWithTvl>({
+  getPoolSelectorConfig: getInfinityPoolSelectorConfig,
+  getToken0: (p) => p.currency0,
+  getToken1: (p) => p.currency1,
+  getPoolAddress: (p) => p.id,
 })

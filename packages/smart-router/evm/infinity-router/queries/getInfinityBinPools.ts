@@ -189,7 +189,7 @@ type FillPoolsWithBinsParams = {
 } & WithClientProvider &
   WithMulticallGasLimit
 
-async function fillPoolsWithBins({
+export async function fillPoolsWithBins({
   pools,
   clientProvider,
   gasLimit,

@@ -4,16 +4,19 @@ import { AtomFamily } from 'jotai/vanilla/utils/atomFamily'
 import { QuoteQuery } from 'quoter/quoter.types'
 import { InterfaceOrder } from 'views/Swap/utils'
 import { Loadable } from './atomWithLoadable'
-import { bestAMMTradeFromOffchainQuoterAtom } from './bestAMMTradeFromOffchainQuoterAtom'
+import { bestAMMTradeFromQuoterWorker2Atom } from './bestAMMTradeFromQuoterWorker2Atom'
 import { bestAMMTradeFromQuoterWorkerAtom } from './bestAMMTradeFromQuoterWorkerAtom'
+import { bestRoutingSDKTradeAtom } from './bestRoutingSDKTradeAtom'
 import { bestXApiAtom } from './bestXAPIAtom'
 
 type AtomType = AtomFamily<QuoteQuery, Atom<Loadable<InterfaceOrder | undefined>>>
 export interface StrategyRoute {
   query: AtomType
   overrides: Partial<QuoteQuery>
+  isShadow?: boolean // shadow queries don't provide final result, used for get quite quote for user
+  priority?: number
 }
-type RoutingStrategy = StrategyRoute[][]
+type RoutingStrategy = StrategyRoute[]
 
 const cache = new SimpleCache<string, RoutingStrategy>({
   maxSize: 1000,
@@ -21,54 +24,36 @@ const cache = new SimpleCache<string, RoutingStrategy>({
 })
 
 const defaultRoutingStrategy: RoutingStrategy = [
-  [
-    // Single hop route
-    {
-      query: bestAMMTradeFromQuoterWorkerAtom,
-      overrides: {
-        maxHops: 1,
-        maxSplits: 0,
-        enabled: true,
-      },
+  // Single hop route & with light pools
+  {
+    query: bestAMMTradeFromQuoterWorker2Atom,
+    overrides: {
+      maxHops: 1,
+      maxSplits: 0,
     },
-    // #2 v2,v3,ss
-    {
-      query: bestAMMTradeFromOffchainQuoterAtom,
-      overrides: {
-        infinitySwap: false,
-      },
-    },
-    // #3 infinity only
-    {
-      query: bestAMMTradeFromOffchainQuoterAtom,
-      overrides: {
-        v2Swap: false,
-        stableSwap: false,
-        v3Swap: false,
-      },
-    },
-    // #4 x only
-    {
-      query: bestXApiAtom,
-      overrides: {},
-    },
-  ],
-  [
-    {
-      query: bestAMMTradeFromQuoterWorkerAtom,
-      overrides: {},
-    },
-  ],
+    isShadow: true,
+    priority: 0,
+  },
+  // routing-sdk
+  {
+    query: bestRoutingSDKTradeAtom,
+    overrides: {},
+    priority: 1,
+  },
+  // X
+  {
+    query: bestXApiAtom,
+    overrides: {},
+    priority: 1,
+  },
+  {
+    // Fallback full route
+    query: bestAMMTradeFromQuoterWorkerAtom,
+    overrides: {},
+    priority: 2,
+  },
 ]
 
-export function getRoutingStrategy(hash: string) {
-  if (cache.has(hash)) {
-    return cache.get(hash)!
-  }
+export function getRoutingStrategy() {
   return defaultRoutingStrategy
-}
-
-export function updateStrategy(hash: string, route: StrategyRoute) {
-  const newStrategy: RoutingStrategy = [[route], ...defaultRoutingStrategy]
-  cache.set(hash, newStrategy)
 }

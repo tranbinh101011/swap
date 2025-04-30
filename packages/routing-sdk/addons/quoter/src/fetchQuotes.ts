@@ -10,27 +10,29 @@ export const fetchQuotes: FetchQuotes<SupportedPool> = async ({ routes, client }
   const [route] = routes
   const { amount, path } = route
   const isExactOut = path[path.length - 1].wrapped.equals(amount.currency.wrapped)
+  const calls = routes.map((r) => {
+    if (isV3Route(r)) {
+      return buildV3QuoteCall(r)
+    }
+    if (isInfinityCLRoute(r)) {
+      return isExactOut ? buildInfinityCLQuoteCall(r) : buildInfinityMixedQuoteCall(r)
+    }
+    if (isInfinityBinRoute(r)) {
+      return isExactOut ? buildInfinityBinQuoteCall(r) : buildInfinityMixedQuoteCall(r)
+    }
+    if (isInfinityMixedRoute(r)) {
+      return buildInfinityMixedQuoteCall(r)
+    }
+    return buildMixedRouteQuoteCall(r)
+  })
   const results = await client.multicall({
-    contracts: routes.map((r) => {
-      if (isV3Route(r)) {
-        return buildV3QuoteCall(r)
-      }
-      if (isInfinityCLRoute(r)) {
-        return isExactOut ? buildInfinityCLQuoteCall(r) : buildInfinityMixedQuoteCall(r)
-      }
-      if (isInfinityBinRoute(r)) {
-        return isExactOut ? buildInfinityBinQuoteCall(r) : buildInfinityMixedQuoteCall(r)
-      }
-      if (isInfinityMixedRoute(r)) {
-        return buildInfinityMixedQuoteCall(r)
-      }
-      return buildMixedRouteQuoteCall(r)
-    }),
+    contracts: calls,
   })
 
   return results.map((result, i) => {
     if (result.status === 'failure') {
       console.warn('[QUOTER]: fail to get quote', result.error)
+      console.warn('failed route & call ', routes[i], calls[i])
       return undefined
     }
     const { path: currentPath } = routes[i]

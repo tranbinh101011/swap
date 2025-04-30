@@ -43,7 +43,7 @@ export async function getInfinityClCandidatePools({
     currencyB,
     clientProvider,
   })
-  return fillPoolsWithTicks({
+  return fillClPoolsWithTicks({
     pools,
     clientProvider,
     gasLimit,
@@ -197,7 +197,7 @@ type FillPoolsWithTicksParams = {
 } & WithClientProvider &
   WithMulticallGasLimit
 
-async function fillPoolsWithTicks({
+export async function fillClPoolsWithTicks({
   pools,
   clientProvider,
   gasLimit,

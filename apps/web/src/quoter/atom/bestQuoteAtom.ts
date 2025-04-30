@@ -3,31 +3,20 @@ import { getIsWrapping } from 'hooks/useWrapCallback'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { isBetterQuoteTrade } from 'quoter/utils/getBetterQuote'
-import { isEqualQuoteQuery, PoolHashHelper } from 'quoter/utils/PoolHashHelper'
+import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
 import { logGTMQuoteQueryEvent } from 'utils/customGTMEventTracking'
 import { InterfaceOrder } from 'views/Swap/utils'
-import { NoValidRouteError, QuoteQuery, StrategyQuery } from '../quoter.types'
+import { NoValidRouteError, QuoteQuery } from '../quoter.types'
 import { activeQuoteHashAtom } from './abortControlAtoms'
 import { emptyLoadable, errorLoadable, Loadable, pendingLoadable, valueLoadable } from './atomWithLoadable'
 import { placeholderAtom } from './placeholderAtom'
-import { getRoutingStrategy, StrategyRoute, updateStrategy } from './routingStrategy'
+import { getRoutingStrategy, StrategyRoute } from './routingStrategy'
 
 const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
-  const strategyQuery: StrategyQuery = {
-    baseCurrency: _option.baseCurrency || undefined,
-    quoteCurrency: _option.currency || undefined,
-    v2Swap: _option.v2Swap,
-    v3Swap: _option.v3Swap,
-    infinitySwap: _option.infinitySwap,
-    chainId: _option.baseCurrency?.chainId,
-    maxHops: _option.maxHops,
-    maxSplits: _option.maxSplits,
-  }
-  const strategyHash = PoolHashHelper.hashStrategyQuery(strategyQuery)
   return atom((get) => {
-    function executeRoutes(routes: StrategyRoute[], option: QuoteQuery) {
+    function executeRoutes(strategies: StrategyRoute[], option: QuoteQuery) {
       try {
-        const quotes = routes.map((route) => get(route.query({ ...option, ...route.overrides })))
+        const quotes = strategies.map((route) => get(route.query({ ...option, ...route.overrides })))
         const anyLoading = quotes.some((x) => x?.loading)
         const best = findBestQuote(...quotes)
         if (!best) {
@@ -39,7 +28,10 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
         const [bestQuote, bestIndex] = best
         if (bestQuote) {
           if (!anyLoading) {
-            updateStrategy(strategyHash, routes[bestIndex])
+            if (strategies[bestIndex].isShadow) {
+              return pendingLoadable<InterfaceOrder | undefined>(bestQuote)
+            }
+            // updateStrategy(strategyHash, routes[bestIndex])
             return valueLoadable(bestQuote)
           }
           return pendingLoadable<InterfaceOrder | undefined>(bestQuote)
@@ -84,9 +76,12 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
         logMap.set(option.hash, Date.now())
       }
 
-      const strategy = getRoutingStrategy(strategyHash)
-      for (const routes of strategy) {
-        const quote = executeRoutes(routes, option)
+      const strategies = getRoutingStrategy()
+      const others = strategies.filter((x) => !x.isShadow)
+      const p1 = others.filter((x) => x.priority === 1)
+      const p2 = others.filter((x) => x.priority === 2)
+      for (const strategy of [p1, p2]) {
+        const quote = executeRoutes(strategy, option)
         if (quote) {
           const time = logMap.get(option.hash) || Date.now()
           logGTMQuoteQueryEvent('succ', {
@@ -99,8 +94,7 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
           return quote
         }
       }
-      throw new NoValidRouteError()
-      // return errorLoadable<InterfaceOrder | undefined>(new NoValidRouteError())
+      return errorLoadable<InterfaceOrder | undefined>(new NoValidRouteError())
     } catch (ex) {
       // eslint-disable-next-line no-console
       console.warn(`[quote]`, ex)

@@ -1,5 +1,5 @@
 import type { Pool } from '@pancakeswap/routing-sdk'
-import { isInfinityCLPool } from '@pancakeswap/routing-sdk-addon-infinity'
+import { isInfinityBinPool, isInfinityCLPool } from '@pancakeswap/routing-sdk-addon-infinity'
 
 import { SupportedPool, V3SupportedPool } from '../types'
 
@@ -29,7 +29,7 @@ export function isMixedRoute(r: Route<Pool>): r is Route<V3SupportedPool> {
 
 export function isInfinityMixedRoute(r: Route<Pool>): r is Route<SupportedPool> {
   const { pools } = r
-  const hasInfinityPool = pools.some((p) => isInfinityCLPool(p))
+  const hasInfinityPool = pools.some((p) => isInfinityCLPool(p) || isInfinityBinPool(p))
   if (!hasInfinityPool) {
     return false
   }

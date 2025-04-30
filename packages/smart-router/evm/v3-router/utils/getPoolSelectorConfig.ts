@@ -2,6 +2,7 @@ import { Currency } from '@pancakeswap/swap-sdk-core'
 
 import {
   DEFAULT_POOL_SELECTOR_CONFIG,
+  INFINITY_DEFAULT_POOL_SELECTOR_CONFIG,
   V2_DEFAULT_POOL_SELECTOR_CONFIG,
   V2_TOKEN_POOL_SELECTOR_CONFIG,
   V3_DEFAULT_POOL_SELECTOR_CONFIG,
@@ -39,3 +40,5 @@ export const getV2PoolSelectorConfig = poolSelectorConfigFactory(
   V2_DEFAULT_POOL_SELECTOR_CONFIG,
   V2_TOKEN_POOL_SELECTOR_CONFIG,
 )
+
+export const getInfinityPoolSelectorConfig = poolSelectorConfigFactory(INFINITY_DEFAULT_POOL_SELECTOR_CONFIG, {})

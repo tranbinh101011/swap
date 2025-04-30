@@ -3,6 +3,19 @@ import { keccak256, stringify } from 'viem'
 
 type AsyncFunction<T extends any[]> = (...args: T) => Promise<any>
 
+interface CacheItem {
+  promise: Promise<any>
+  resolved: any
+  createTime: number
+  epochId: number
+}
+
+interface Epoch {
+  id: string
+  createTime: number
+  cacheKey: string
+}
+
 // Type definitions for the cache.
 type CacheOptions<T extends AsyncFunction<any>> = {
   maxCacheSize?: number
@@ -13,6 +26,12 @@ type CacheOptions<T extends AsyncFunction<any>> = {
     type: 'r2'
   }
   key?: (params: Parameters<T>) => any
+  isValid?: (result: any) => boolean
+  autoRevalidate?: {
+    key: (params: Parameters<T>) => string
+    interval: number
+  }
+  maxAge?: number
 }
 
 function calcCacheKey(args: any[], epoch: number) {
@@ -23,12 +42,30 @@ function calcCacheKey(args: any[], epoch: number) {
 
 const identity = (args: any) => args
 
+const revalidateTimers = new Map<
+  string,
+  {
+    halfTTSTimer: NodeJS.Timeout | null
+    invalidateTimer: NodeJS.Timeout | null
+  }
+>()
+
+function getTimer(id: string) {
+  if (!revalidateTimers.has(id)) {
+    revalidateTimers.set(id, {
+      halfTTSTimer: null,
+      invalidateTimer: null,
+    })
+  }
+  return revalidateTimers.get(id)!
+}
+
 export const cacheByLRU = <T extends AsyncFunction<any>>(
   fn: T,
-  { ttl, key, maxCacheSize, persist }: CacheOptions<T>,
+  { ttl, key, maxCacheSize, persist, isValid, autoRevalidate, maxAge }: CacheOptions<T>,
 ) => {
-  const cache = new QuickLRU<string, Promise<any>>({
-    maxAge: ttl,
+  const cache = new QuickLRU<string, CacheItem>({
+    maxAge: Math.max(ttl * 2, maxAge || 0),
     maxSize: maxCacheSize || 1000,
   })
   const fetchR2Cache = persist
@@ -37,24 +74,23 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
       })
     : undefined
 
-  function persistKey() {
-    return `${persist?.name}-${persist?.version}`
-  }
-
-  async function ensurePersist(promise: Promise<any>) {
-    if (fetchR2Cache && persist) {
-      const t = Date.now()
-      const r2Promise = fetchR2Cache(persistKey())
-      const value = await Promise.race([r2Promise, promise])
-      console.log('*****time usage****', Date.now() - t)
-      return value ?? promise
-    }
-    return promise
-  }
-
   const keyFunction = key || identity
 
+  function persistKey(cacheKey: string) {
+    return `${persist?.name}-${persist?.version}-${cacheKey}`
+  }
+
+  async function ensurePersist(item: CacheItem, cacheKey: string) {
+    if (fetchR2Cache && persist) {
+      const r2Promise = fetchR2Cache(persistKey(cacheKey))
+      const value = await Promise.race([r2Promise, item.promise])
+      return value ?? item.promise
+    }
+    return item.promise
+  }
+
   let startTime = 0
+  const epochs: Epoch[] = []
   return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
     // Start Time
     if (!startTime) {
@@ -64,56 +100,97 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
     const halfTTS = epoch % 1 > 0.5
     const epochId = Math.floor(epoch)
 
-    // Setup next epoch cache if halfTTS passed
-    if (halfTTS) {
-      const nextKey = calcCacheKey(keyFunction(args), epochId + 1)
-      if (!cache.has(nextKey)) {
-        // @ts-ignore
-        const nextPromise = fn(...args)
-        cache.set(nextKey, nextPromise)
+    const cacheForEpoch = (epochId: number) => {
+      const cacheKey = calcCacheKey(keyFunction(args), epochId)
+      if (cache.has(cacheKey)) {
+        return cache.get(cacheKey)!
       }
-    }
-
-    const cacheKey = calcCacheKey(keyFunction(args), epochId)
-    // logger(cacheKey, `exists=${cache.has(cacheKey)}`)
-    if (cache.has(cacheKey)) {
-      return ensurePersist(cache.get(cacheKey)!)
-    }
-
-    // @ts-ignore
-    const promise = fn(...args)
-
-    cache.set(cacheKey, promise)
-
-    if (epochId > 0) {
-      const prevKey = calcCacheKey(keyFunction(args), epochId - 1)
-      if (cache.has(prevKey)) {
-        return cache.get(prevKey)
+      // @ts-ignore
+      const promise = fn(...args)
+      const item = {
+        promise,
+        resolved: undefined,
+        createTime: Date.now(),
+        epochId,
       }
-    }
-
-    try {
-      // Persist to R2 or other storage
-      promise.then((result) => {
-        const jsonResult = stringify(result)
-        if (persist && result && jsonResult !== '{}' && jsonResult !== '[]') {
-          uploadR2(persistKey(), result).catch((ex) => {
-            console.error('Failed to persist cache', ex)
-          })
-        }
+      epochs.push({
+        id: cacheKey,
+        createTime: item.createTime,
+        cacheKey,
       })
+      item.promise = ensurePersist(item, cacheKey)
+      cache.set(cacheKey, item)
 
-      return ensurePersist(promise)
-    } catch (error) {
-      // logger('error', cacheKey, error)
-      cache.delete(cacheKey)
-      throw error
+      promise
+        .then((result) => {
+          if (!result) {
+            cache.delete(cacheKey)
+            return
+          }
+          if (isValid && !isValid(result)) {
+            cache.delete(cacheKey)
+            return
+          }
+          item.resolved = result
+          const jsonResult = stringify(result)
+          if (persist && result && jsonResult !== '{}' && jsonResult !== '[]') {
+            uploadR2(persistKey(cacheKey), result).catch((ex) => {
+              console.error('Failed to persist cache', ex)
+            })
+          }
+        })
+        .catch((error) => {
+          console.error('Cache promise failed', error)
+          cache.delete(cacheKey)
+        })
+
+      return item
     }
+
+    if (autoRevalidate) {
+      let max = 30 // TTS(around 10) * 30 = 300s
+      const id = autoRevalidate.key(args)
+      const timers = getTimer(id)
+      const stop = () => {
+        clearTimeout(timers.halfTTSTimer!)
+        clearInterval(timers.invalidateTimer!)
+      }
+      stop()
+      let onEpoch = epochId + 1
+      timers.halfTTSTimer = setTimeout(() => {
+        timers.invalidateTimer = setInterval(() => {
+          cacheForEpoch(onEpoch++)
+          if (--max === 0) {
+            stop()
+          }
+        }, autoRevalidate.interval)
+      })
+    }
+    if (!autoRevalidate && halfTTS) {
+      cacheForEpoch(epochId + 1)
+    }
+
+    const current = cacheForEpoch(epochId)
+    if (current.resolved) {
+      return current.promise
+    }
+    for (let i = epochs.length - 2, j = 5; i >= 0 && j > 0; i--, j--) {
+      const epoch = epochs[i]
+      if (maxAge && epoch.createTime + maxAge < Date.now()) {
+        continue
+      }
+      const epochCache = cache.get(epoch.cacheKey)
+      if (epochCache && epochCache.resolved) {
+        return epochCache.promise
+      }
+    }
+
+    return current.promise
   }
 }
 
 async function uploadR2(key: string, value: any) {
-  console.info('update homepage cache', key)
+  console.info('update cache', key)
   if (!process.env.OBJECT_CACHE_SECRET) {
     return
   }

@@ -2913,6 +2913,9 @@ importers:
       '@types/stats-lite':
         specifier: ^2.2.0
         version: 2.2.2
+      quick-lru:
+        specifier: 7.0.0
+        version: 7.0.0
       tsup:
         specifier: ^6.7.0
         version: 6.7.0(postcss@8.5.3)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3)

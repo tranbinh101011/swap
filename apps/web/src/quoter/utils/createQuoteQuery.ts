@@ -1,4 +1,5 @@
 import { QuoteQuery } from 'quoter/quoter.types'
+import { createViemPublicClientGetter } from 'utils/viem'
 import { PoolHashHelper } from './PoolHashHelper'
 
 const PLACE_HOLDER_TIME = 1000 * 120 // 2 minutes
@@ -8,6 +9,12 @@ export function createQuoteQuery(query: Omit<QuoteQuery, 'hash'>): QuoteQuery {
   option1.hash = PoolHashHelper.hashQuoteQuery(option1)
   const placeholderNonce = Math.floor(Date.now() / PLACE_HOLDER_TIME)
   option1.placeholderHash = PoolHashHelper.hashQuoteQuery({ ...option1, nonce: placeholderNonce })
+  const controller = new AbortController()
+  option1.provider = createViemPublicClientGetter({
+    transportSignal: controller.signal,
+  })
+  option1.signal = controller.signal
+  option1.controller = controller
 
   return option1
 }

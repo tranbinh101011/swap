@@ -22,13 +22,14 @@ export async function getVerifiedTrade(trade?: InfinityRouter.InfinityTradeWitho
 
   const getQuotePosition = (routeIndex: number) => indexesOfRoutesToVerify.findIndex((i) => i === routeIndex)
   const sdkTrade = toRoutingSDKTrade(trade)
+  const quoteRoutes = sdkTrade.routes
+    .filter((_, index) => indexesOfRoutesToVerify.includes(index))
+    .map((r) => ({
+      ...r,
+      amount: isExactIn ? r.inputAmount : r.outputAmount,
+    }))
   const quotes = await fetchQuotes({
-    routes: sdkTrade.routes
-      .filter((_, index) => indexesOfRoutesToVerify.includes(index))
-      .map((r) => ({
-        ...r,
-        amount: isExactIn ? r.inputAmount : r.outputAmount,
-      })),
+    routes: quoteRoutes,
     client: getViemClients({ chainId: trade.inputAmount.currency.chainId }),
   })
   if (quotes.some((q) => q === undefined)) {

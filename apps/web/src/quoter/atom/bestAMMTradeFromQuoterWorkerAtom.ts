@@ -47,6 +47,7 @@ export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) 
           options: {
             blockNumber: option.blockNumber,
           },
+          for: option.for,
         }),
       )
 

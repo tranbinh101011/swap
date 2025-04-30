@@ -75,7 +75,7 @@ async function checkWalletSupportAddEthereumChain(connector: Connector) {
 
 async function fetchMEVStatus(walletClient: WalletClient): Promise<{ mevEnabled: boolean }> {
   if (!walletClient || !walletClient?.request) {
-    console.error('Ethereum provider not found')
+    console.warn('Ethereum provider not found')
     return { mevEnabled: false }
   }
 

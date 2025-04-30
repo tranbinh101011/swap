@@ -68,6 +68,7 @@ test('SmartRouter exports', () => {
       "getAllV3PoolsFromSubgraph",
       "v3PoolTvlSelector",
       "v2PoolTvlSelector",
+      "infinityPoolTvlSelector",
       "createHybridPoolProvider",
       "createStaticPoolProvider",
       "createV2PoolsProviderByCommonTokenPrices",

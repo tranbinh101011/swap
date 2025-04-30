@@ -123,12 +123,14 @@ async function getBestTrade({
   const isExactIn = tradeType === TradeType.EXACT_INPUT
   const baseCurrency = totalAmount.currency
   const inputCurrency = isExactIn ? baseCurrency : quoteCurrency
+  const logger = RemoteLogger.getLogger(quoteId)
   const outputCurrency = isExactIn ? quoteCurrency : baseCurrency
   const graph = graphOverride || createGraph({ pools: candidatePools })
+  logger.debug(`Candidate pools: ${candidatePools.length}, maxHops=${maxHops}`)
+  logPools(quoteId, candidatePools)
   const amounts = getStreamedAmounts(totalAmount, streams)
 
   const gasPrice = BigInt(typeof gasPriceWei === 'function' ? await gasPriceWei() : gasPriceWei)
-  const logger = RemoteLogger.getLogger(quoteId)
   logger.debug(`[gasprice]: ${gasPrice}`)
   logger.debug(`Sub [FindBestTrade]`, 1)
   logger.debug(
@@ -407,7 +409,6 @@ async function getBestTrade({
   let routeMerged = false
   const routes: Route[] = []
   logAmts(quoteId, amounts)
-  logPools(quoteId, candidatePools)
   for (const [i, { amount, percent }] of Object.entries(amounts)) {
     logger.debug(`check route #${i}, amt=${amount} percent=${percent}%`, 2)
     // eslint-disable-next-line no-await-in-loop
