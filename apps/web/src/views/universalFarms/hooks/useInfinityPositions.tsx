@@ -119,7 +119,7 @@ export const useInfinityPositionItems = ({
             <InfinityBinPositionItem
               key={key}
               data={p}
-              action={<InfinityPositionActions pos={p} positionList={sortedPositions} />}
+              action={<InfinityPositionActions pos={p} positionList={positions} />}
             />
           )
         }
