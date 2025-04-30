@@ -136,7 +136,6 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
   ],
   [ChainId.ZKSYNC]: [
     ...zkSync.rpcUrls.default.http,
-    process.env.NEXT_PUBLIC_QUICK_NODE_ZKSYNC || '',
     getNodeRealUrl(ChainId.ZKSYNC, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
   ].filter(Boolean),
   [ChainId.ZKSYNC_TESTNET]: zksyncSepoliaTestnet.rpcUrls.default.http,
