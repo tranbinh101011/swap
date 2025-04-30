@@ -22,7 +22,6 @@ type V2PoolAprModalProps = {
   modal: UseModalV2Props
   poolInfo: V2PoolInfo | StablePoolInfo
   combinedApr: number
-  boostMultiplier?: number
   lpApr?: number
 }
 
@@ -30,7 +29,7 @@ export const V2PoolAprModal: React.FC<V2PoolAprModalProps> = ({ modal, ...props 
   return <ModalV2 {...modal}>{modal.isOpen && <AprModal {...props} />}</ModalV2>
 }
 
-const AprModal: React.FC<Omit<V2PoolAprModalProps, 'modal'>> = ({ poolInfo, combinedApr, boostMultiplier, lpApr }) => {
+const AprModal: React.FC<Omit<V2PoolAprModalProps, 'modal'>> = ({ poolInfo, combinedApr, lpApr }) => {
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const lpSymbol = useMemo(
@@ -97,7 +96,6 @@ const AprModal: React.FC<Omit<V2PoolAprModalProps, 'modal'>> = ({ poolInfo, comb
       stakingTokenPrice={lpTokenPrice.toNumber()}
       earningTokenPrice={cakePrice?.toNumber() ?? 0}
       apr={combinedApr * 100}
-      multiplier={boostMultiplier ? `${Number(boostMultiplier.toFixed(1))}X` : undefined}
       displayApr={displayApr(combinedApr, { suffix: '' })}
       linkHref={addLiquidityUrl}
       lpRewardsApr={(lpApr ?? 0) * 100}
@@ -106,7 +104,6 @@ const AprModal: React.FC<Omit<V2PoolAprModalProps, 'modal'>> = ({ poolInfo, comb
       stableLpFee={stableConfig?.stableTotalFee}
       farmCakePerSecond={farmCakePerSecond ? farmCakePerSecond.toString() : '0'}
       totalMultipliers={totalMultipliers}
-      isBCakeBooster={poolInfo.isFarming}
     />
   )
 }

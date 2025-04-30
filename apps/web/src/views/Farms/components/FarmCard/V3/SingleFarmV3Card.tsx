@@ -26,21 +26,12 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { type V3Farm } from 'state/farms/types'
 import { styled, useTheme } from 'styled-components'
 import { logGTMClickStakeFarmEvent } from 'utils/customGTMEventTracking'
 import useFarmV3Actions from 'views/Farms/hooks/v3/useFarmV3Actions'
-import { BCakeV3CardView } from '../../YieldBooster/components/bCakeV3/CardView'
-import {
-  useBakeV3farmCanBoost,
-  useIsBoostedPool,
-  useUserBoostedPoolsTokenId,
-  useUserPositionInfo,
-  useVeCakeUserMultiplierBeforeBoosted,
-} from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
+import { useUserPositionInfo } from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import FarmV3StakeAndUnStake, { FarmV3LPPosition, FarmV3LPPositionDetail, FarmV3LPTitle } from './FarmV3StakeAndUnStake'
 
 const { FarmV3HarvestAction } = FarmWidget.FarmV3Table
@@ -119,32 +110,16 @@ const SingleFarmV3Card: React.FunctionComponent<
   const title = `${lpSymbol} (#${tokenId.toString()})`
   const liquidityUrl = `/liquidity/${tokenId.toString()}?chain=${CHAIN_QUERY_NAME[chainId ?? -1] ?? ''}`
 
-  const { updatedUserMultiplierBeforeBoosted } = useVeCakeUserMultiplierBeforeBoosted()
-  const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenId.toString())
   const { updateUserPositionInfo } = useUserPositionInfo(tokenId.toString())
-  const { updateBoostedPoolsTokenId } = useUserBoostedPoolsTokenId()
-  const { updateStatus } = useBoostStatus(farm.pid, tokenId.toString())
 
   const onDone = useCallback(() => {
-    updateIsBoostedPool()
     updateUserPositionInfo()
-    updateBoostedPoolsTokenId()
-    updatedUserMultiplierBeforeBoosted()
-    updateStatus()
-  }, [
-    updateIsBoostedPool,
-    updateUserPositionInfo,
-    updateBoostedPoolsTokenId,
-    updatedUserMultiplierBeforeBoosted,
-    updateStatus,
-  ])
+  }, [updateUserPositionInfo])
 
   const { onStake, onUnstake, onHarvest, attemptingTxn } = useFarmV3Actions({
     tokenId: tokenId.toString(),
     onDone,
   })
-
-  const { farmCanBoost } = useBakeV3farmCanBoost(farm.pid)
 
   const unstakedModal = useModalV2()
 
@@ -187,9 +162,6 @@ const SingleFarmV3Card: React.FunctionComponent<
   const earningsBusd = useMemo(() => {
     return new BigNumber(totalEarnings).times(cakePrice.toString()).toNumber()
   }, [cakePrice, totalEarnings])
-
-  const router = useRouter()
-  const isHistory = useMemo(() => router.pathname.includes('history'), [router])
 
   return (
     <AtomBox {...atomBoxProps}>
@@ -335,24 +307,6 @@ const SingleFarmV3Card: React.FunctionComponent<
                 disabled={!pendingCakeByTokenIds?.[position.tokenId.toString()]}
                 userDataReady
                 handleHarvest={handleHarvest}
-              />
-            </RowBetween>
-          </>
-        )}
-        {farmCanBoost && !isHistory && (
-          <>
-            <AtomBox
-              width={{
-                xs: '100%',
-                md: 'auto',
-              }}
-              style={{ borderLeft: dividerBorderStyle, borderTop: dividerBorderStyle }}
-            />
-            <RowBetween flexDirection="column" alignItems="flex-start" flex={1} width="100%">
-              <BCakeV3CardView
-                tokenId={position.tokenId.toString()}
-                pid={farm.pid}
-                isFarmStaking={positionType === 'staked'}
               />
             </RowBetween>
           </>

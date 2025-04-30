@@ -55,7 +55,6 @@ import {
 import { usePool } from 'views/AddLiquidityInfinity/hooks/usePool'
 import { useV3FormState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 import { useLmPoolLiquidity } from 'views/Farms/hooks/useLmPoolLiquidity'
-import { useEstimateUserMultiplier } from 'views/universalFarms/hooks/useEstimateUserMultiplier'
 import { useAccount } from 'wagmi'
 import { getActiveLiquidityFromShape } from '../utils/getActiveLiquidityFromShape'
 import { useBinAmountsFromUsdValue } from './useBinAmountsFromUsdValue'
@@ -97,7 +96,6 @@ export const useV2PositionApr = (pool: PoolInfo, userPosition: StableLPDetail | 
     cakeApr: {
       ...globalCakeApr,
       value: String(parseFloat(globalCakeApr?.value) * userPosition.farmingBoosterMultiplier) as `${number}`,
-      boost: undefined,
     },
     merklApr: parseFloat(merklApr ?? 0) ?? 0,
   }
@@ -105,7 +103,6 @@ export const useV2PositionApr = (pool: PoolInfo, userPosition: StableLPDetail | 
 
 export const useV3PositionApr = (pool: PoolInfo, userPosition: PositionDetail) => {
   const key = useMemo(() => `${pool.chainId}:${pool.lpAddress}` as const, [pool.chainId, pool.lpAddress])
-  const { data: estimateUserMultiplier } = useEstimateUserMultiplier(pool.chainId, userPosition.tokenId)
   const { removed, outOfRange, position } = useExtraV3PositionInfo(userPosition)
   const { cakeApr: globalCakeApr, merklApr: merklApr_ } = usePoolApr(key, pool)
   const { data: token0UsdPrice_ } = useCurrencyUsdPrice(pool.token0)
@@ -135,7 +132,6 @@ export const useV3PositionApr = (pool: PoolInfo, userPosition: PositionDetail) =
       return {
         ...globalCakeApr,
         value: '0' as const,
-        boost: undefined,
       }
     }
 
@@ -152,7 +148,6 @@ export const useV3PositionApr = (pool: PoolInfo, userPosition: PositionDetail) =
       return {
         ...globalCakeApr,
         value: apr.toString() as `${number}`,
-        boost: undefined,
       }
     }
 
@@ -164,12 +159,9 @@ export const useV3PositionApr = (pool: PoolInfo, userPosition: PositionDetail) =
           .div(userTVLUsd)
       : BIG_ZERO
 
-    const apr = baseApr.times(estimateUserMultiplier || 1)
-
     return {
       ...globalCakeApr,
-      value: apr.toString() as `${number}`,
-      boost: undefined,
+      value: baseApr.toString() as `${number}`,
     }
   }, [
     outOfRange,
@@ -182,7 +174,6 @@ export const useV3PositionApr = (pool: PoolInfo, userPosition: PositionDetail) =
     cakePrice,
     pool.liquidity,
     userTVLUsd,
-    estimateUserMultiplier,
   ])
 
   const lpApr = useMemo(() => {
@@ -200,10 +191,10 @@ export const useV3PositionApr = (pool: PoolInfo, userPosition: PositionDetail) =
   const numerator = useMemo(() => {
     if (outOfRange || removed) return BIG_ZERO
     return BN(lpApr)
-      .plus(userPosition.isStaked ? cakeApr.boost ?? cakeApr.value : BIG_ZERO)
+      .plus(cakeApr.value ?? BIG_ZERO)
       .plus(parseFloat(cakeApr.value) > 0 ? merklApr : 0)
       .times(userTVLUsd)
-  }, [cakeApr.boost, cakeApr.value, lpApr, merklApr, outOfRange, removed, userPosition.isStaked, userTVLUsd])
+  }, [cakeApr.value, lpApr, merklApr, outOfRange, removed, userPosition.isStaked, userTVLUsd])
   const denominator = userTVLUsd
 
   return {
@@ -460,7 +451,6 @@ export const useV3FormDerivedApr = (pool: PoolInfo, inverted?: boolean) => {
       return {
         ...globalCakeApr,
         value: '0' as const,
-        boost: undefined,
       }
     }
 
@@ -476,7 +466,6 @@ export const useV3FormDerivedApr = (pool: PoolInfo, inverted?: boolean) => {
     return {
       ...globalCakeApr,
       value: baseApr.toString() as `${number}`,
-      boost: undefined,
     }
   }, [inRange, globalCakeApr, cakePrice, liquidity, lmPoolLiquidity, userTVLUsd])
 
@@ -605,7 +594,6 @@ export const useInfinityCLDerivedApr = (poolInfo: InfinityCLPoolInfo) => {
       return {
         ...globalCakeApr,
         value: '0' as const,
-        boost: undefined,
       }
     }
 
@@ -620,7 +608,6 @@ export const useInfinityCLDerivedApr = (poolInfo: InfinityCLPoolInfo) => {
     return {
       ...globalCakeApr,
       value: baseApr.toString() as `${number}`,
-      boost: undefined,
     }
   }, [inRange, globalCakeApr, cakePrice, userTVLUsd, share])
 
@@ -741,7 +728,6 @@ export const useInfinityBinDerivedApr = (poolInfo: InfinityBinPoolInfo) => {
       return {
         ...globalCakeApr,
         value: '0' as const,
-        boost: undefined,
       }
     }
 
@@ -756,7 +742,6 @@ export const useInfinityBinDerivedApr = (poolInfo: InfinityBinPoolInfo) => {
     return {
       ...globalCakeApr,
       value: baseApr.toString() as `${number}`,
-      boost: undefined,
     }
   }, [inRange, userTVLUsd, globalCakeApr, cakePrice, share])
 

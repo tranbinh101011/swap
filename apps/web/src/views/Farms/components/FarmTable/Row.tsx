@@ -10,16 +10,13 @@ import { useMerklInfo } from 'hooks/useMerkl'
 import { type V3Farm } from 'state/farms/types'
 import { useMerklUserLink } from 'utils/getMerklLink'
 import { V2Farm } from 'views/Farms/FarmsV3'
-import { useBCakeBoostLimitAndLockInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { RewardPerDay } from 'views/PositionManagers/components/RewardPerDay'
 import { FarmV3ApyButton } from '../FarmCard/V3/FarmV3ApyButton'
-import { useUserBoostedPoolsTokenId } from '../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { useIsSomePositionBoosted } from '../YieldBooster/hooks/bCakeV3/useIsSomePositionBoosted'
 import { ActionPanelV2, ActionPanelV3 } from './Actions/ActionPanel'
 import Apr, { AprProps } from './Apr'
 import { FarmCell } from './Farm'
 
-const { FarmAuctionTag, BoostedTag, StableFarmTag, V2Tag, V3FeeTag } = FarmWidget.Tags
+const { FarmAuctionTag, StableFarmTag, V2Tag, V3FeeTag } = FarmWidget.Tags
 const { CellLayout, Details, Multiplier, Liquidity, Earned, LpAmount, StakedLiquidity } = FarmWidget.FarmTable
 const { DesktopColumnSchema, MobileColumnSchema, V3DesktopColumnSchema } = FarmWidget
 
@@ -119,9 +116,6 @@ const Row: React.FunctionComponent<React.PropsWithChildren<RowPropsWithLoading>>
   const { t } = useTranslation()
   // if (props.farm.pid === 163 || props.farm.pid === 2) console.log(props, '888')
 
-  const { tokenIds } = useUserBoostedPoolsTokenId()
-  const { isBoosted } = useIsSomePositionBoosted(props.type === 'v3' ? props?.details?.stakedPositions : [], tokenIds)
-  const { locked } = useBCakeBoostLimitAndLockInfo()
   const toggleActionPanel = useCallback(() => {
     setActionPanelExpanded(!actionPanelExpanded)
   }, [actionPanelExpanded])
@@ -171,13 +165,7 @@ const Row: React.FunctionComponent<React.PropsWithChildren<RowPropsWithLoading>>
                           <V2Tag scale="sm" />
                         )
                       ) : null}
-                      {props.type === 'v2' &&
-                      props?.details?.bCakeWrapperAddress &&
-                      props?.details?.bCakePublicData?.isRewardInRange ? (
-                        <BoostedTag scale="sm" />
-                      ) : null}
                       {props.type === 'v3' && <V3FeeTag feeAmount={props.details.feeAmount} scale="sm" />}
-                      {isBoosted ? <BoostedTag scale="sm" /> : null}
                     </CellInner>
                   </td>
                 )
@@ -231,19 +219,6 @@ const Row: React.FunctionComponent<React.PropsWithChildren<RowPropsWithLoading>>
                               : multiplier.farmCakePerSecond
                           }
                           totalMultipliers={multiplier.totalMultipliers}
-                          boosterMultiplier={
-                            props?.details?.bCakeWrapperAddress
-                              ? props?.details?.bCakeUserData?.boosterMultiplier === 0 ||
-                                props?.details?.bCakeUserData?.stakedBalance.eq(0) ||
-                                !locked
-                                ? 2.5
-                                : props?.details?.bCakeUserData?.boosterMultiplier
-                              : 1
-                          }
-                          isBooster={
-                            Boolean(props?.details?.bCakeWrapperAddress) &&
-                            props?.details?.bCakePublicData?.isRewardInRange
-                          }
                         />
                       </CellLayout>
                     </CellInner>
@@ -331,14 +306,8 @@ const Row: React.FunctionComponent<React.PropsWithChildren<RowPropsWithLoading>>
                       <V2Tag scale="sm" />
                     )
                   ) : null}
-                  {props.type === 'v2' &&
-                  props?.details?.bCakeWrapperAddress &&
-                  props?.details?.bCakePublicData?.isRewardInRange ? (
-                    <BoostedTag scale="sm" />
-                  ) : null}
                   {props.type === 'v3' && <V3FeeTag feeAmount={props.details.feeAmount} scale="sm" />}
                   {props.type === 'community' || props?.farm?.isCommunity ? <FarmAuctionTag scale="sm" /> : null}
-                  {isBoosted ? <BoostedTag style={{ background: 'none', verticalAlign: 'bottom' }} scale="sm" /> : null}
                 </Flex>
               </Flex>
             </FarmMobileCell>
@@ -376,19 +345,6 @@ const Row: React.FunctionComponent<React.PropsWithChildren<RowPropsWithLoading>>
                             : multiplier.farmCakePerSecond
                         }
                         totalMultipliers={multiplier.totalMultipliers}
-                        isBooster={
-                          Boolean(props?.details?.bCakeWrapperAddress) &&
-                          props?.details?.bCakePublicData?.isRewardInRange
-                        }
-                        boosterMultiplier={
-                          props?.details?.bCakeWrapperAddress
-                            ? props?.details?.bCakeUserData?.boosterMultiplier === 0 ||
-                              props?.details?.bCakeUserData?.stakedBalance.eq(0) ||
-                              !locked
-                              ? 2.5
-                              : props?.details?.bCakeUserData?.boosterMultiplier
-                            : 1
-                        }
                       />
                     </>
                   )}

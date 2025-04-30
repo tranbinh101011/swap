@@ -4,7 +4,6 @@ import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useCakePrice } from 'hooks/useCakePrice'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { useTokenAllowanceByChainId } from 'hooks/useTokenAllowance'
@@ -22,6 +21,7 @@ import { useCheckShouldSwitchNetwork } from 'views/universalFarms/hooks'
 import { useV2CakeEarning } from 'views/universalFarms/hooks/useCakeEarning'
 import { useV2FarmActions } from 'views/universalFarms/hooks/useV2FarmActions'
 import { sumApr } from 'views/universalFarms/utils/sumApr'
+import { useAccount } from 'wagmi'
 import { StopPropagation } from '../StopPropagation'
 import { DepositStakeAction, HarvestAction, ModifyStakeActions } from './StakeActions'
 
@@ -64,7 +64,7 @@ export const V2PositionActions: React.FC<V2PositionActionsProps> = ({ isStaked, 
 
 const useDepositModal = (props: V2PositionActionsProps) => {
   const { chainId, data, pid, lpAddress, tvlUsd, poolInfo } = props
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const cakePrice = useCakePrice()
   const { toastSuccess } = useToast()
   const { fetchWithCatchTxError } = useCatchTxError()
@@ -170,14 +170,6 @@ const useDepositModal = (props: V2PositionActionsProps) => {
       apr={parseFloat(cakeApr?.value ?? '0') * 100}
       displayApr={(displayApr * 100).toString()}
       lpRewardsApr={parseFloat(lpApr) * 100}
-      isBooster={!!cakeApr?.boost}
-      boosterMultiplier={
-        data.farmingBalance && data.farmingBalance.greaterThan(0)
-          ? data.farmingBoosterMultiplier
-          : cakeApr?.boost
-          ? parseFloat(cakeApr.boost) / parseFloat(cakeApr.value)
-          : undefined
-      }
     />,
     true,
     true,
@@ -279,7 +271,7 @@ const V2HarvestAction: React.FC<V2PositionActionsProps> = ({ chainId, lpAddress,
   const { onHarvest } = useV2FarmActions(lpAddress, poolInfo.bCakeWrapperAddress)
   const { toastSuccess } = useToast()
   const { fetchWithCatchTxError, loading: pendingTx } = useCatchTxError()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const { switchNetworkIfNecessary } = useCheckShouldSwitchNetwork()
   const { data: pendingReward_ } = useAccountV2PendingCakeReward(account, {
     chainId,

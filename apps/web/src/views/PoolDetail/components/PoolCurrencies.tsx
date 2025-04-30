@@ -56,9 +56,6 @@ function getTokenUrls(chainPath: string, poolInfo?: PoolInfo | null) {
 }
 export const PoolCurrencies: React.FC<PoolCurrenciesProps> = ({ poolInfo }) => {
   const chainPath = useMultiChainPath()
-  const stableSwapUrlQuery = useMemo(() => {
-    return poolInfo?.protocol === 'stable' ? '?type=stableSwap' : ''
-  }, [poolInfo?.protocol])
   const { symbol0, symbol1, currency0, currency1 } = usePoolSymbol()
 
   const infoUrls = useMemo(() => {

@@ -217,7 +217,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [stakedOnly, , toggleStakedOnly] = useUserFarmStakedOnly(isActive)
   const [v3FarmOnly, setV3FarmOnly] = useState(false)
   const [v2FarmOnly, setV2FarmOnly] = useState(false)
-  const [boostedOnly, setBoostedOnly] = useState(false)
   const [stableSwapOnly, setStableSwapOnly] = useState(false)
   const [farmTypesEnableCount, setFarmTypesEnableCount] = useState(0)
 
@@ -293,12 +292,11 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
       chosenFs = stakedOnly ? farmsList(stakedArchivedFarms) : farmsList(archivedFarms)
     }
 
-    if (v3FarmOnly || v2FarmOnly || boostedOnly || stableSwapOnly) {
+    if (v3FarmOnly || v2FarmOnly || stableSwapOnly) {
       const filterFarmsWithTypes = chosenFs.filter(
         (farm) =>
           (v3FarmOnly && farm.version === 3) ||
           (v2FarmOnly && farm.version === 2 && !farm.isStable) ||
-          (boostedOnly && ((farm.boosted && farm.version === 3) || (farm.version === 2 && farm.bCakeWrapperAddress))) ||
           (stableSwapOnly && farm.version === 2 && farm.isStable),
       )
 
@@ -318,7 +316,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
     inactiveFarms,
     stakedArchivedFarms,
     archivedFarms,
-    boostedOnly,
     stableSwapOnly,
     v3FarmOnly,
     v2FarmOnly,
@@ -422,8 +419,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
                 handleSetV3FarmOnly={setV3FarmOnly}
                 v2FarmOnly={v2FarmOnly}
                 handleSetV2FarmOnly={setV2FarmOnly}
-                boostedOnly={boostedOnly}
-                handleSetBoostedOnly={setBoostedOnly}
                 stableSwapOnly={stableSwapOnly}
                 handleSetStableSwapOnly={setStableSwapOnly}
                 farmTypesEnableCount={farmTypesEnableCount}

@@ -21,7 +21,6 @@ export type BasicPoolAprModalProps<T extends InfinityCLPositionDetail | Position
   modal: UseModalV2Props
   poolInfo: PoolInfo
   cakeApr?: CakeApr[keyof CakeApr]
-  boostMultiplier?: number
   lpApr?: number
   positionDetail?: T
 }

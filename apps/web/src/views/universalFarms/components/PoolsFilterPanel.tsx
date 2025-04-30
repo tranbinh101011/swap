@@ -59,10 +59,6 @@ const PoolsFilterContainer = styled(Flex)<{ $childrenCount: number }>`
   }
 `
 
-export const useSelectedChainsName = (chainIds: number[]) => {
-  return useMemo(() => chainIds.map((id) => getChainNameInKebabCase(id)), [chainIds])
-}
-
 export const useSelectedProtocols = (selectedIndex: number): Protocol[] => {
   const allProtocols = usePoolProtocols()
   return useMemo(() => {

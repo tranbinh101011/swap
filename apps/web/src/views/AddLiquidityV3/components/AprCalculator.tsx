@@ -6,7 +6,6 @@ import {
   IconButton,
   PairDataTimeWindowEnum,
   QuestionHelper,
-  RocketIcon,
   Text,
   TooltipText,
 } from '@pancakeswap/uikit'
@@ -46,8 +45,6 @@ import currencyId from 'utils/currencyId'
 import { CurrencyField as Field } from 'utils/types'
 
 import { getActiveTick } from 'utils/getActiveTick'
-import { useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { BoostStatus, useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
 import { useV3MintActionHandlers } from '../formViews/V3FormView/form/hooks/useV3MintActionHandlers'
 import { useV3FormState } from '../formViews/V3FormView/form/reducer'
 
@@ -260,15 +257,6 @@ export function AprCalculator({
   // NOTE: Assume no liquidity when opening modal
   const { onFieldAInput, onBothRangeInput, onSetFullRange } = useV3MintActionHandlers(false)
 
-  const tokenId = useMemo(() => positionDetails?.tokenId?.toString() ?? '-1', [positionDetails?.tokenId])
-  const pid = useMemo(() => farm?.farm?.pid ?? -1, [farm?.farm.pid])
-  const {
-    data: { boostMultiplier },
-  } = useUserPositionInfo(positionDetails?.tokenId?.toString() ?? '-1')
-
-  const { status: boostedStatus } = useBoostStatus(pid, tokenId)
-  const isBoosted = useMemo(() => boostedStatus === BoostStatus.Boosted, [boostedStatus])
-
   const closeModal = useCallback(() => setOpen(false), [])
   const onApply = useCallback(
     (position: RoiCalculatorPositionInfo) => {
@@ -316,18 +304,11 @@ export function AprCalculator({
 
   const hasFarmApr = positionFarmApr && +positionFarmApr > 0
   const combinedApr = hasFarmApr ? +apr.toSignificant(6) + +positionFarmApr : +apr.toSignificant(6)
-  const combinedAprWithBoosted = hasFarmApr
-    ? +apr.toSignificant(6) + +positionFarmApr * (isBoosted ? boostMultiplier : 1)
-    : +apr.toSignificant(6)
   const aprDisplay = combinedApr.toLocaleString(undefined, {
     maximumFractionDigits: 2,
     minimumFractionDigits: 0,
   })
 
-  const boostedAprDisplay = combinedAprWithBoosted.toLocaleString(undefined, {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
-  })
   const farmAprTips = hasFarmApr ? (
     <>
       <Text bold>{t('This position must be staking in farm to apply the combined APR with farming rewards.')}</Text>
@@ -347,17 +328,7 @@ export function AprCalculator({
         <AprButtonContainer alignItems="center">
           <AprText onClick={() => setOpen(true)}>
             <Flex style={{ gap: 3 }}>
-              {isBoosted && (
-                <>
-                  <RocketIcon color="success" />
-                  <Text fontSize="14px" color="success">
-                    {boostedAprDisplay}%
-                  </Text>
-                </>
-              )}
-              <Text fontSize="14px" style={{ textDecoration: isBoosted ? 'line-through' : 'none' }}>
-                {aprDisplay}%
-              </Text>
+              <Text fontSize="14px">{aprDisplay}%</Text>
             </Flex>
           </AprText>
           <IconButton variant="text" scale="sm" onClick={() => setOpen(true)}>
@@ -409,7 +380,7 @@ export function AprCalculator({
         onPriceSpanChange={setPriceSpan}
         onApply={onApply}
         isFarm={Boolean(hasFarmApr)}
-        cakeAprFactor={positionFarmAprFactor.times(isBoosted ? boostMultiplier : 1)}
+        cakeAprFactor={positionFarmAprFactor}
         cakePrice={cakePrice.toFixed(3)}
       />
     </>

@@ -1,6 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { AddIcon, Button, IconButton, MinusIcon } from '@pancakeswap/uikit'
-import { useCallback } from 'react'
 
 type StakeActionsProps = {
   increaseDisabled?: boolean
@@ -60,33 +59,4 @@ export const HarvestAction: React.FC<HarvestActionsProps> = ({ onHarvest, execut
       {executing ? t('Harvesting') : t('Harvest')}
     </Button>
   )
-}
-
-export const getV3LiquidityActionLink = (
-  direction: 'increase' | 'decrease',
-  token0Address: string,
-  token1Address: string,
-  fee: number,
-  tokenId: string,
-) => {
-  return `/${direction}/${token0Address}/${token1Address}/${fee}/${tokenId}`
-}
-type V3LiquidityActionsProps = {
-  decreaseDisabled?: boolean
-  increaseLink: string
-  decreaseLink: string
-}
-export const V3ModifyStakeActions: React.FC<V3LiquidityActionsProps> = ({
-  decreaseDisabled = false,
-  increaseLink,
-  decreaseLink,
-}) => {
-  const onDecrease = useCallback(() => {
-    window.open(decreaseLink, '_blank', 'noopener noreferrer')
-  }, [decreaseLink])
-  const onIncrease = useCallback(() => {
-    window.open(increaseLink, '_blank', 'noopener noreferrer')
-  }, [increaseLink])
-
-  return <ModifyStakeActions decreaseDisabled={decreaseDisabled} onIncrease={onIncrease} onDecrease={onDecrease} />
 }

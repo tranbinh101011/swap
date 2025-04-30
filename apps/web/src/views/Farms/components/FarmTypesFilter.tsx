@@ -1,22 +1,9 @@
 import { useTranslation } from '@pancakeswap/localization'
-import {
-  Box,
-  Button,
-  CurrencyIcon,
-  FarmIcon,
-  Flex,
-  InlineMenu,
-  RocketIcon,
-  Text,
-  Toggle,
-  TradeIcon,
-} from '@pancakeswap/uikit'
+import { Box, Button, CurrencyIcon, FarmIcon, Flex, InlineMenu, Text, Toggle, TradeIcon } from '@pancakeswap/uikit'
 import { useEffect, useRef, useState } from 'react'
 import { styled } from 'styled-components'
 
 interface FarmTypesFilterProps {
-  boostedOnly: boolean
-  handleSetBoostedOnly: (value: boolean) => void
   stableSwapOnly: boolean
   handleSetStableSwapOnly: (value: boolean) => void
   v3FarmOnly?: boolean
@@ -48,8 +35,6 @@ const ToggleWrapper = styled.div`
 `
 
 export const FarmTypesFilter: React.FC<FarmTypesFilterProps> = ({
-  boostedOnly,
-  handleSetBoostedOnly,
   stableSwapOnly,
   handleSetStableSwapOnly,
   v3FarmOnly,
@@ -139,24 +124,6 @@ export const FarmTypesFilter: React.FC<FarmTypesFilterProps> = ({
                         handleSetFarmTypesEnableCount(totalFarmsEnableCount)
 
                         handleSetV2FarmOnly?.(!v2FarmOnly)
-                      }}
-                      scale="sm"
-                    />
-                  </ToggleWrapper>
-                </StyledItemRow>
-                <StyledItemRow alignItems="center" px="16px" py="8px" ml="8px" mt="8px">
-                  <RocketIcon />
-                  <Text fontSize={16} ml="10px" style={{ flex: 1 }} bold>
-                    {t('Booster Available')}
-                  </Text>
-                  <ToggleWrapper>
-                    <Toggle
-                      id="boosted-only-farms"
-                      checked={boostedOnly}
-                      onChange={() => {
-                        const totalFarmsEnableCount = farmTypesEnableCount + (!boostedOnly ? 1 : -1)
-                        handleSetFarmTypesEnableCount(totalFarmsEnableCount)
-                        handleSetBoostedOnly(!boostedOnly)
                       }}
                       scale="sm"
                     />

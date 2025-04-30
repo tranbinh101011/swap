@@ -1,17 +1,10 @@
 import { FarmWithStakedValue } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
-import { AtomBox, Button, Flex, RowBetween, Skeleton, Text } from '@pancakeswap/uikit'
+import { AtomBox, Flex, RowBetween, Skeleton, Text } from '@pancakeswap/uikit'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 
-import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { styled, useTheme } from 'styled-components'
-import { StatusView } from 'views/Farms/components/YieldBooster/components/bCakeV3/StatusView'
-import { StatusViewButtons } from 'views/Farms/components/YieldBooster/components/bCakeV3/StatusViewButtons'
-import { useBCakeBoostLimitAndLockInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { useBoostStatusPM } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
-import { useWrapperBooster } from 'views/PositionManagers/hooks'
-import { useUpdateBCakeFarms } from '../../hooks/useUpdateBCake'
 import { HarvestActionContainer } from '../FarmTable/Actions/HarvestAction'
 import { StakedContainer } from '../FarmTable/Actions/StakedAction'
 import HarvestAction from './HarvestAction'
@@ -47,7 +40,6 @@ interface FarmCardActionsProps {
   addLiquidityUrl?: string
   lpLabel?: string
   displayApr?: string | null
-  boosterMultiplier?: number
 }
 
 const CardActions: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
@@ -56,7 +48,6 @@ const CardActions: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   addLiquidityUrl,
   lpLabel,
   displayApr,
-  boosterMultiplier = 1,
 }) => {
   const { t } = useTranslation()
   const { pid, token, quoteToken, vaultPid, lpSymbol, bCakeWrapperAddress, bCakeUserData } = farm
@@ -64,18 +55,8 @@ const CardActions: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   const isReady = farm.multiplier !== undefined
   const isBooster = Boolean(bCakeWrapperAddress) && farm?.bCakePublicData?.isRewardInRange
   const { earnings } = (isBooster ? farm.bCakeUserData : farm.userData) || {}
-  const { status } = useBoostStatusPM(isBooster, boosterMultiplier)
   const { colors } = useTheme()
   const dividerBorderStyle = useMemo(() => `1px solid ${colors.input}`, [colors.input])
-  const { shouldUpdate, veCakeUserMultiplierBeforeBoosted } = useWrapperBooster(
-    farm.bCakeUserData?.boosterContractAddress ?? '0x',
-    boosterMultiplier ?? 1,
-    bCakeWrapperAddress,
-  )
-  const { onUpdate } = useUpdateBCakeFarms(bCakeWrapperAddress ?? '0x', pid)
-  const { locked } = useBCakeBoostLimitAndLockInfo()
-  const router = useRouter()
-  const isHistory = useMemo(() => router.pathname.includes('history'), [router])
 
   return (
     <AtomBox mt="16px">
@@ -129,37 +110,6 @@ const CardActions: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
               >
                 {(props) => <HarvestAction {...props} />}
               </HarvestActionContainer>
-            </RowBetween>
-          </>
-        )}
-        {isBooster && !isHistory && (
-          <>
-            <AtomBox
-              width={{
-                xs: '100%',
-                md: 'auto',
-              }}
-              style={{ borderLeft: dividerBorderStyle, borderTop: dividerBorderStyle }}
-            />
-            <RowBetween flexDirection="column" alignItems="flex-start" flex={1} width="100%">
-              <Flex width="100%" justifyContent="space-between" alignItems="center">
-                <StatusView
-                  status={status}
-                  isFarmStaking={farm?.bCakeUserData?.stakedBalance?.gt(0)}
-                  boostedMultiplier={boosterMultiplier}
-                  maxBoostMultiplier={2.5}
-                  shouldUpdate={shouldUpdate && farm?.bCakeUserData?.stakedBalance?.gt(0)}
-                  expectMultiplier={veCakeUserMultiplierBeforeBoosted}
-                />
-                <StatusViewButtons
-                  locked={locked}
-                  updateButton={
-                    shouldUpdate && farm?.bCakeUserData?.stakedBalance?.gt(0) ? (
-                      <Button onClick={onUpdate}>{t('Update')}</Button>
-                    ) : null
-                  }
-                />
-              </Flex>
             </RowBetween>
           </>
         )}

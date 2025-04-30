@@ -1,4 +1,3 @@
-import { ChainId } from '@pancakeswap/chains'
 import { supportedChainIdV4 } from '@pancakeswap/farms'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { masterChefV3ABI, pancakeV3PoolABI } from '@pancakeswap/v3-sdk'
@@ -75,51 +74,6 @@ const masterChefV3CacheMap = new Map<
   }
 >()
 
-export const getV3PoolCakeApr = async (pool: V3PoolInfo, cakePrice: BigNumber): Promise<CakeApr[keyof CakeApr]> => {
-  const { tvlUsd } = pool
-  const client = publicClient({ chainId: pool.chainId })
-  const masterChefV3 = getMasterChefV3Contract(undefined, pool.chainId)
-
-  if (!tvlUsd || !client || !masterChefV3 || !pool.pid) {
-    return {
-      value: '0',
-    }
-  }
-
-  const [totalAllocPoint, latestPeriodCakePerSecond, poolInfo] = await Promise.all([
-    masterChefV3CacheMap.get(pool.chainId)?.totalAllocPoint ?? masterChefV3.read.totalAllocPoint(),
-    masterChefV3CacheMap.get(pool.chainId)?.latestPeriodCakePerSecond ?? masterChefV3.read.latestPeriodCakePerSecond(),
-    masterChefV3.read.poolInfo([BigInt(pool.pid)]),
-  ])
-
-  if (!masterChefV3CacheMap.has(pool.chainId)) {
-    masterChefV3CacheMap.set(pool.chainId, {
-      ...(masterChefV3CacheMap.get(pool.chainId) ?? {}),
-      totalAllocPoint,
-      latestPeriodCakePerSecond,
-    })
-  }
-
-  const cakePerYear = new BigNumber(SECONDS_PER_YEAR)
-    .times(latestPeriodCakePerSecond.toString())
-    .dividedBy(1e18)
-    .dividedBy(1e12)
-  const cakePerYearUsd = cakePrice.times(cakePerYear.toString())
-  const [allocPoint, , , , , totalLiquidity, totalBoostLiquidity] = poolInfo
-  const poolWeight = new BigNumber(allocPoint.toString()).dividedBy(totalAllocPoint.toString())
-  const liquidityBooster = new BigNumber(totalBoostLiquidity.toString()).dividedBy(totalLiquidity.toString())
-
-  const baseApr = cakePerYearUsd.times(poolWeight).dividedBy(liquidityBooster.times(pool.tvlUsd ?? 1))
-  const multiplier = DEFAULT_V3_CAKE_APR_BOOST_MULTIPLIER[pool.chainId]
-
-  return {
-    value: baseApr.toString() as `${number}`,
-    boost: multiplier ? (baseApr.times(multiplier).toString() as `${number}`) : undefined,
-    cakePerYear,
-    poolWeight,
-  }
-}
-
 const calcV3PoolApr = ({
   pool,
   cakePrice,
@@ -155,53 +109,10 @@ const calcV3PoolApr = ({
       ? BIG_ZERO
       : cakePerYearUsd.times(poolWeight).dividedBy(liquidityBooster.times(poolTvlUsd ?? 1))
 
-  const multiplier = DEFAULT_V3_CAKE_APR_BOOST_MULTIPLIER[pool.chainId]
-
   return {
     value: liquidity > 0n ? (baseApr.toString() as `${number}`) : '0',
-    boost: multiplier && liquidity > 0n ? (baseApr.times(multiplier).toString() as `${number}`) : undefined,
     cakePerYear,
     poolWeight,
-  }
-}
-
-export const DEFAULT_V2_CAKE_APR_BOOST_MULTIPLIER = {
-  [ChainId.ETHEREUM]: 2.5,
-  [ChainId.BSC]: 2.5,
-  [ChainId.ZKSYNC]: 2.5,
-  [ChainId.ARBITRUM_ONE]: 2.5,
-  [ChainId.BASE]: 2.5,
-}
-export const DEFAULT_V3_CAKE_APR_BOOST_MULTIPLIER = {
-  [ChainId.ETHEREUM]: 2,
-  [ChainId.BSC]: 2,
-  [ChainId.ZKSYNC]: 2,
-  [ChainId.ARBITRUM_ONE]: 2,
-  [ChainId.BASE]: 2,
-}
-export const getV2PoolCakeApr = async (
-  pool: V2PoolInfo | StablePoolInfo,
-  cakePrice: BigNumber,
-): Promise<{ value: `${number}`; boost?: `${number}` }> => {
-  const { bCakeWrapperAddress } = pool
-  const client = publicClient({ chainId: pool.chainId })
-  if (!bCakeWrapperAddress || !client) {
-    return {
-      value: '0',
-      boost: '0',
-    }
-  }
-
-  const bCakeWrapperContract = getV2SSBCakeWrapperContract(bCakeWrapperAddress, undefined, pool.chainId)
-  const cakePerSecond = await bCakeWrapperContract.read.rewardPerSecond()
-  const cakeOneYearUsd = cakePrice.times((cakePerSecond * BigInt(SECONDS_PER_YEAR)).toString()).dividedBy(1e18)
-
-  const baseApr = cakeOneYearUsd.dividedBy(pool.tvlUsd ?? 1)
-  const multiplier = DEFAULT_V2_CAKE_APR_BOOST_MULTIPLIER[pool.chainId]
-
-  return {
-    value: baseApr.toString() as `${number}`,
-    boost: multiplier ? (baseApr.times(multiplier).toString() as `${number}`) : undefined,
   }
 }
 
@@ -378,11 +289,9 @@ const calcV2PoolApr = ({
   const farmingTVLUsd = usdPerShare.times(totalBoostShare.toString() ?? 0)
 
   const baseApr = cakeOneYearUsd.dividedBy((farmingTVLUsd ?? 1).toString())
-  const multiplier = DEFAULT_V2_CAKE_APR_BOOST_MULTIPLIER[pool.chainId]
 
   return {
     value: baseApr.toString() as `${number}`,
-    boost: multiplier && baseApr.gt(0) ? (baseApr.times(multiplier).toString() as `${number}`) : undefined,
     cakePerYear,
     userTvlUsd: farmingTVLUsd,
     totalSupply,

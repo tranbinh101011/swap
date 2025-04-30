@@ -84,7 +84,7 @@ import { InfinityCLPositionItem } from 'views/universalFarms/components/Position
 import { useInfinityPositions } from 'views/universalFarms/hooks/useInfinityPositions'
 import { positionEarningAmountAtom } from 'views/universalFarms/hooks/usePositionEarningAmount'
 
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { useAccount } from 'wagmi'
 import { useV3Positions } from '../hooks/useV3Positions'
 import { MyPositionsProvider, useMyPositions } from './MyPositionsContext'
 import { V2PoolEarnings, V3PoolEarnings } from './PoolEarnings'
@@ -153,16 +153,6 @@ const RewardsContainer = styled.div`
   }
 `
 
-const StyledButtonMenuItem = styled(ButtonMenuItem)`
-  padding: 0 8px;
-
-  ${({ theme }) => theme.mediaQueries.sm} {
-    padding: 0 16px;
-  }
-
-  ${({ isActive }) => (isActive ? `padding: 0 16px;` : '')};
-`
-
 export const MyPositions: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
   return (
     <MyPositionsProvider>
@@ -173,7 +163,7 @@ export const MyPositions: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
 
 const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
   const { t } = useTranslation()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const chainId = useChainIdByQuery()
   const hasPoolReward = checkHasReward(poolInfo.chainId, poolInfo.lpAddress)
 
@@ -759,7 +749,7 @@ const MyInfinityCLPPositions: React.FC<{
 }> = ({ poolInfo, filter, setCount, setTotalLiquidityUSD }) => {
   const { t } = useTranslation()
   const chainId = useChainIdByQuery()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const [, pool] = usePoolById<'CL'>(poolInfo.poolId as `0x${string}`, chainId)
   const { data: positionsInPool, isLoading } = useAccountPositionDetailByPool<Protocol.InfinityCLAMM>(
     chainId,
@@ -909,7 +899,7 @@ const MyInfinityBinPositions: React.FC<{
   setHandleHarvestAll: (fn: () => () => Promise<void>) => void
 }> = ({ poolInfo, setCount, setTotalLiquidityUSD }) => {
   const chainId = useChainIdByQuery()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const [, pool] = usePoolById<'Bin'>(poolInfo.poolId as `0x${string}`, chainId)
   const { data, isLoading } = useAccountPositionDetailByPool<Protocol.InfinityBIN>(chainId, account, poolInfo)
   const position = data?.[0]

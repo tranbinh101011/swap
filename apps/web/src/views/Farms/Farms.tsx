@@ -184,7 +184,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const userDataReady = !account || (!!account && userDataLoaded)
 
   const [stakedOnly, , toggleStakedOnly] = useUserFarmStakedOnly(isActive)
-  const [boostedOnly, setBoostedOnly] = useState(false)
   const [stableSwapOnly, setStableSwapOnly] = useState(false)
   const [farmTypesEnableCount, setFarmTypesEnableCount] = useState(0)
 
@@ -264,14 +263,12 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
       chosenFs = stakedOnly ? farmsList(stakedArchivedFarms) : farmsList(archivedFarms)
     }
 
-    if (boostedOnly || stableSwapOnly) {
-      const boostedOrStableSwapFarms = chosenFs.filter(
-        (farm) => (boostedOnly && farm.boosted) || (stableSwapOnly && farm.isStable),
-      )
+    if (stableSwapOnly) {
+      const stableSwapFarms = chosenFs.filter((farm) => stableSwapOnly && farm.isStable)
 
-      const stakedBoostedOrStableSwapFarms = getStakedMinProgramFarms(boostedOrStableSwapFarms)
+      const stakedStableSwapFarms = getStakedMinProgramFarms(stableSwapFarms)
 
-      chosenFs = stakedOnly ? farmsList(stakedBoostedOrStableSwapFarms) : farmsList(boostedOrStableSwapFarms)
+      chosenFs = stakedOnly ? farmsList(stakedStableSwapFarms) : farmsList(stableSwapFarms)
     }
 
     return chosenFs
@@ -287,7 +284,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
     stakedInactiveFarms,
     stakedOnly,
     stakedOnlyFarms,
-    boostedOnly,
     stableSwapOnly,
   ])
 
@@ -368,8 +364,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
             <FarmWidget.FarmTabButtons hasStakeInFinishedFarms={stakedInactiveFarms.length > 0} />
             <Flex mt="20px" ml="16px">
               <FarmTypesFilter
-                boostedOnly={boostedOnly}
-                handleSetBoostedOnly={setBoostedOnly}
                 stableSwapOnly={stableSwapOnly}
                 handleSetStableSwapOnly={setStableSwapOnly}
                 farmTypesEnableCount={farmTypesEnableCount}

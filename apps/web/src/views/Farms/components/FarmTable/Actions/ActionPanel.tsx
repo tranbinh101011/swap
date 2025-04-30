@@ -1,7 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
   Box,
-  Button,
   Flex,
   LinkExternal,
   Message,
@@ -19,7 +18,6 @@ import { CHAIN_QUERY_NAME } from 'config/chains'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMerklInfo } from 'hooks/useMerkl'
 import useTheme from 'hooks/useTheme'
-import { useRouter } from 'next/router'
 import { FC, useContext, useMemo } from 'react'
 import { type V3Farm } from 'state/farms/types'
 import { ChainLinkSupportChains, multiChainPaths } from 'state/info/constant'
@@ -30,13 +28,7 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 import { AddLiquidityV3Modal } from 'views/AddLiquidityV3/Modal'
 import { SELECTOR_TYPE } from 'views/AddLiquidityV3/types'
 import { V2Farm } from 'views/Farms/FarmsV3'
-import { StatusView } from 'views/Farms/components/YieldBooster/components/bCakeV3/StatusView'
-import { StatusViewButtons } from 'views/Farms/components/YieldBooster/components/bCakeV3/StatusViewButtons'
-import { useBCakeBoostLimitAndLockInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { useBoostStatusPM } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
-import { useWrapperBooster } from 'views/PositionManagers/hooks'
 import { useAccount } from 'wagmi'
-import { useUpdateBCakeFarms } from '../../../hooks/useUpdateBCake'
 import { FarmV3ApyButton } from '../../FarmCard/V3/FarmV3ApyButton'
 import FarmV3CardList from '../../FarmCard/V3/FarmV3CardList'
 import { YieldBoosterStateContext } from '../../YieldBooster/components/ProxyFarmContainer'
@@ -357,12 +349,9 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
   const { proxyFarm, shouldUseProxyFarm } = useContext(YieldBoosterStateContext)
   const { address: account } = useAccount()
   const { theme } = useTheme()
-  const router = useRouter()
-  const isHistory = useMemo(() => router.pathname.includes('history'), [router])
   const farm = details
 
   const { isDesktop, isMobile } = useMatchBreakpoints()
-  const { locked } = useBCakeBoostLimitAndLockInfo()
   const {
     t,
     currentLanguage: { locale },
@@ -384,16 +373,8 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
 
   const addLiquidityModal = useModalV2()
   const isBooster = Boolean(details?.bCakeWrapperAddress)
-  const isRewardInRange = details?.bCakePublicData?.isRewardInRange
   const hasStakedInBCake = Boolean(details?.bCakeUserData?.stakedBalance?.gt(0))
 
-  const { status } = useBoostStatusPM(isBooster, details?.bCakeUserData?.boosterMultiplier)
-  const { shouldUpdate, veCakeUserMultiplierBeforeBoosted } = useWrapperBooster(
-    details?.bCakeUserData?.boosterContractAddress ?? '0x',
-    details?.bCakeUserData?.boosterMultiplier ?? 1,
-    details?.bCakeWrapperAddress,
-  )
-  const { onUpdate } = useUpdateBCakeFarms(details?.bCakeWrapperAddress ?? '0x', details?.pid)
   return (
     <>
       <AddLiquidityV3Modal
@@ -434,16 +415,6 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
                         : multiplier.farmCakePerSecond
                     }
                     totalMultipliers={multiplier.totalMultipliers}
-                    isBooster={Boolean(details?.bCakeWrapperAddress) && details?.bCakePublicData?.isRewardInRange}
-                    boosterMultiplier={
-                      details?.bCakeWrapperAddress
-                        ? details?.bCakeUserData?.boosterMultiplier === 0 ||
-                          details?.bCakeUserData?.stakedBalance.eq(0) ||
-                          !locked
-                          ? 2.5
-                          : details?.bCakeUserData?.boosterMultiplier
-                        : 1
-                    }
                   />
                 </ValueWrapper>
                 {!details?.bCakeWrapperAddress && (
@@ -542,43 +513,6 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
                               )}
                             </HarvestActionContainer>
                           </>
-                        )}
-                        {isRewardInRange && !isHistory && (
-                          <Box
-                            style={{
-                              height: isMobile ? 2 : 70,
-                              width: isMobile ? '100%' : 2,
-                              backgroundColor: theme.colors.cardBorder,
-                            }}
-                          />
-                        )}
-                        {isRewardInRange && !isHistory && (
-                          <Flex
-                            flexGrow={1}
-                            maxWidth={isMobile ? 'auto' : hasStakedInBCake ? '27%' : '50%'}
-                            justifyContent="space-between"
-                            alignItems="center"
-                            p={isMobile ? '16px 0' : undefined}
-                            width={isMobile ? '100%' : undefined}
-                          >
-                            <StatusView
-                              status={status}
-                              isFarmStaking={farm?.bCakeUserData?.stakedBalance?.gt(0)}
-                              boostedMultiplier={details?.bCakeUserData?.boosterMultiplier}
-                              maxBoostMultiplier={2.5}
-                              shouldUpdate={shouldUpdate}
-                              expectMultiplier={veCakeUserMultiplierBeforeBoosted}
-                            />
-                            <StatusViewButtons
-                              locked={locked}
-                              updateButton={
-                                shouldUpdate && farm?.bCakeUserData?.stakedBalance?.gt(0) ? (
-                                  <Button onClick={onUpdate}>{t('Update')}</Button>
-                                ) : null
-                              }
-                              isTableView
-                            />
-                          </Flex>
                         )}
                       </>
                     ) : undefined

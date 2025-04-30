@@ -73,8 +73,6 @@ interface DepositModalProps {
   onConfirm: (amount: string) => void;
   handleApprove?: () => void;
   bCakeCalculatorSlot?: (stakingTokenBalance: string) => React.ReactNode;
-  isBooster?: boolean;
-  boosterMultiplier?: number;
 }
 
 const DepositModal: React.FC<React.PropsWithChildren<DepositModalProps>> = ({
@@ -91,7 +89,6 @@ const DepositModal: React.FC<React.PropsWithChildren<DepositModalProps>> = ({
   addLiquidityUrl = "",
   cakePrice = BIG_ZERO,
   showActiveBooster,
-  bCakeMultiplier,
   showCrossChainFarmWarning,
   crossChainWarningText,
   decimals,
@@ -107,8 +104,6 @@ const DepositModal: React.FC<React.PropsWithChildren<DepositModalProps>> = ({
   onDismiss,
   handleApprove,
   bCakeCalculatorSlot,
-  isBooster,
-  boosterMultiplier,
 }) => {
   const [val, setVal] = useState("");
   const [valUSDPrice, setValUSDPrice] = useState(BIG_ZERO);
@@ -192,11 +187,9 @@ const DepositModal: React.FC<React.PropsWithChildren<DepositModalProps>> = ({
           stakingTokenSymbol={tokenName}
           stakingTokenPrice={lpPrice.toNumber()}
           earningTokenPrice={cakePrice.toNumber()}
-          apr={isBooster ? apr * (boosterMultiplier ?? 1) : apr}
+          apr={apr}
           multiplier={multiplier}
-          displayApr={
-            isBooster ? (_toNumber(displayApr) - apr + apr * (boosterMultiplier ?? 1)).toFixed(2) : displayApr
-          }
+          displayApr={displayApr}
           linkHref={addLiquidityUrl}
           isFarm
           initialValue={val}

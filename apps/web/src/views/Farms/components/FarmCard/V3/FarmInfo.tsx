@@ -99,7 +99,6 @@ const FarmInfo: React.FunctionComponent<React.PropsWithChildren<FarmInfoProps>> 
           isReady={isReady}
           lpSymbol={lpSymbol}
           multiplier={multiplier}
-          boosted={farm.boosted}
           feeAmount={farm.feeAmount}
           onAddLiquidity={onAddLiquidity}
           tokenPairImage={

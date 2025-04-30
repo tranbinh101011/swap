@@ -57,7 +57,7 @@ export async function queryPools(cakePrice: number, tokenMap: Record<string, Tok
   const aprs = cakeAprs.map((x) => {
     const obj = Object.values(x)[0]
     if (!obj) return 0
-    return Number.parseFloat(obj.boost || '0')
+    return Number.parseFloat(obj.value || '0')
   })
 
   function tokenLogo(chainId: ChainId, address: `0x${string}`) {

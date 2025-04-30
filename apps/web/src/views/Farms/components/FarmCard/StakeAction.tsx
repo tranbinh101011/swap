@@ -23,7 +23,6 @@ import { useCrossChainFarmPendingTransaction, useTransactionAdder } from 'state/
 import { styled } from 'styled-components'
 import { logGTMClickStakeFarmConfirmEvent, logGTMStakeFarmTxSentEvent } from 'utils/customGTMEventTracking'
 import { useIsBloctoETH } from 'views/Farms'
-import { useBCakeBoostLimitAndLockInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { useFirstTimeCrossFarming } from '../../hooks/useFirstTimeCrossFarming'
 import { YieldBoosterStateContext } from '../YieldBooster/components/ProxyFarmContainer'
 import { YieldBoosterState } from '../YieldBooster/hooks/useYieldBoosterState'
@@ -64,7 +63,6 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   quoteTokenAmountTotal,
   userData,
   bCakeUserData,
-  bCakePublicData,
   bCakeWrapperAddress,
   lpRewardsApr,
   onStake,
@@ -88,8 +86,6 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   const pendingFarm = useCrossChainFarmPendingTransaction(lpAddress)
   const { isFirstTime, refresh: refreshFirstTime } = useFirstTimeCrossFarming(vaultPid)
   const isBloctoETH = useIsBloctoETH()
-  const isBoosterAndRewardInRange = isBooster && bCakePublicData?.isRewardInRange
-  const { locked } = useBCakeBoostLimitAndLockInfo()
 
   const crossChainWarningText = useMemo(() => {
     return isFirstTime
@@ -272,14 +268,6 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
       lpRewardsApr={lpRewardsApr}
       onConfirm={handleStake}
       handleApprove={handleApprove}
-      isBooster={isBoosterAndRewardInRange}
-      boosterMultiplier={
-        isBoosterAndRewardInRange
-          ? bCakeUserData?.boosterMultiplier === 0 || bCakeUserData?.stakedBalance.eq(0) || !locked
-            ? 2.5
-            : bCakeUserData?.boosterMultiplier
-          : 1
-      }
       // bCakeCalculatorSlot={bCakeCalculatorSlot}
     />,
     true,

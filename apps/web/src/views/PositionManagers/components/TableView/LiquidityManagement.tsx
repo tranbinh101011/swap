@@ -112,7 +112,7 @@ export const LiquidityManagement = memo(function LiquidityManagement({
   const isSingleDepositToken0 = isSingleDepositToken && allowDepositToken0
 
   const { status: positionManagerStatus } = usePositionManagerStatus()
-  const { status } = useBoostStatusPM(Boolean(bCakeWrapper), boosterMultiplier, refetch)
+  const { status } = useBoostStatusPM(Boolean(bCakeWrapper), boosterMultiplier)
   const { shouldUpdate, veCakeUserMultiplierBeforeBoosted } = useWrapperBooster(
     boosterContractAddress ?? '0x',
     boosterMultiplier ?? 1,

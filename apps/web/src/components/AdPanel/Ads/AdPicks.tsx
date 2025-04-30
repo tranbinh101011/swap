@@ -53,7 +53,7 @@ const usePicksData = (poolId: `0x{string}`, chain: string) => {
     return null
   }
 
-  const total = sumApr(lpApr, cakeApr.boost)
+  const total = sumApr(lpApr, cakeApr.value)
   const fee = pool.feeTier
   const tvl = pool.tvlUsd
   return {

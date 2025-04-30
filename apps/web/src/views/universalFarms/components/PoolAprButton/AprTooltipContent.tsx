@@ -29,7 +29,6 @@ const StyledLi = styled.li`
 
 type AprValue = {
   value: number | `${number}`
-  boost?: number | `${number}`
 }
 
 type AprTooltipContentProps = {
@@ -52,7 +51,6 @@ export const AprTooltipContent: React.FC<PropsWithChildren<AprTooltipContentProp
   children,
 }) => {
   const { t } = useTranslation()
-  const hasBoost = cakeApr?.boost && parseFloat(cakeApr.boost.toString()) > 0
   return (
     <>
       <Text>
@@ -62,15 +60,7 @@ export const AprTooltipContent: React.FC<PropsWithChildren<AprTooltipContentProp
         {cakeApr ? (
           <li>
             {t('Farm APR')}: &nbsp;&nbsp;
-            {hasBoost ? (
-              <>
-                <b>{displayApr(Number(cakeApr.boost ?? 0))}</b>
-                &nbsp;&nbsp;
-              </>
-            ) : null}
-            <b style={{ textDecoration: hasBoost ? 'line-through' : 'none' }}>
-              {displayApr(Number(cakeApr.value ?? 0))}
-            </b>
+            <b>{displayApr(Number(cakeApr.value ?? 0))}</b>
           </li>
         ) : null}
         <li>

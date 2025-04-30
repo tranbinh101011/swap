@@ -1,11 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Box, Card, ExpandableSectionButton, Flex, Text, TooltipText, useModalV2, useTooltip } from '@pancakeswap/uikit'
+import { Card, ExpandableSectionButton, Flex, Text, TooltipText, useModalV2, useTooltip } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMerklInfo } from 'hooks/useMerkl'
-import { useRouter } from 'next/router'
 import { useCallback, useMemo, useState } from 'react'
 import { type V3Farm } from 'state/farms/types'
 import { multiChainPaths } from 'state/info/constant'
@@ -15,10 +14,6 @@ import { getMerklLink, useMerklUserLink } from 'utils/getMerklLink'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { AddLiquidityV3Modal } from 'views/AddLiquidityV3/Modal'
 import { useFarmV3Multiplier } from 'views/Farms/hooks/v3/useFarmV3Multiplier'
-import { StatusView } from '../../YieldBooster/components/bCakeV3/StatusView'
-import { useUserBoostedPoolsTokenId } from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { BoostStatus, useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
-import { useIsSomePositionBoosted } from '../../YieldBooster/hooks/bCakeV3/useIsSomePositionBoosted'
 import CardHeading from '../CardHeading'
 import CardActionsContainer from './CardActionsContainer'
 import { FarmV3ApyButton } from './FarmV3ApyButton'
@@ -67,7 +62,6 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
   const earnLabel = t('CAKE + Fees')
   const { lpAddress } = farm
   const isPromotedFarm = farm.token.symbol === 'CAKE'
-  const { status: boostStatus } = useBoostStatus(farm.pid)
   const merklUserLink = useMerklUserLink()
   const merklLink = getMerklLink({ chainId, lpAddress })
   const { merklApr } = useMerklInfo(merklLink ? lpAddress : undefined)
@@ -94,10 +88,6 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
       <Text>{t('APRs for individual positions may vary depend on their price range settings.')}</Text>
     </>,
   )
-  const { tokenIds } = useUserBoostedPoolsTokenId()
-  const { isBoosted } = useIsSomePositionBoosted(farm.stakedPositions, tokenIds)
-  const router = useRouter()
-  const isHistory = useMemo(() => router.pathname.includes('history'), [router])
   const addLiquidityModal = useModalV2()
 
   return (
@@ -115,11 +105,8 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
           farmCakePerSecond={farmCakePerSecond}
           totalMultipliers={totalMultipliers}
           isCommunityFarm={farm.isCommunity}
-          boosted={boostStatus !== BoostStatus.CanNotBoost}
-          isBoosted={isBoosted}
           lpAddress={lpAddress}
           merklApr={merklApr}
-          isBooster={isBoosted}
           merklUserLink={merklUserLink}
         />
         {!removed && (
@@ -142,11 +129,6 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
           <Text>{t('Earn')}:</Text>
           <Text>{earnLabel}</Text>
         </Flex>
-        {!account && farm.boosted && !isHistory && (
-          <Box mt="24px" mb="16px">
-            <StatusView status={boostStatus} />
-          </Box>
-        )}
         <CardActionsContainer farm={farm} lpLabel={lpLabel} account={account} />
       </FarmCardInnerContainer>
       <ExpandingWrapper>

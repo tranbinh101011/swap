@@ -6,7 +6,6 @@ import { InfinityFeeTierBreakdown } from 'components/FeeTierBreakdown'
 import { PoolFeatures } from 'components/PoolFeatures/PoolFeatures'
 import { useHookByPoolId } from 'hooks/infinity/useHooksList'
 import { useCurrencyByChainId } from 'hooks/Tokens'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { NextSeo } from 'next-seo'
 import { useMemo } from 'react'
 import { InfinityPoolInfo } from 'state/farmsV4/state/type'
@@ -44,7 +43,6 @@ export const PoolInfo = () => {
   const fee = useMemo(() => {
     return new Percent(poolInfo?.feeTier ?? 0n, poolInfo?.feeTierBase)
   }, [poolInfo?.feeTier, poolInfo?.feeTierBase])
-  const { account } = useAccountActiveChain()
   const poolId = (poolInfo as InfinityPoolInfo)?.poolId
   const hookData = useHookByPoolId(chainId, poolId)
   const { isMobile } = useMatchBreakpoints()

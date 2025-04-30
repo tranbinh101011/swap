@@ -1,11 +1,10 @@
+import styled from 'styled-components'
 import {
   Card as RawCard,
   CardBody as RawCardBody,
   CardFooter as RawCardFooter,
   CardHeader as RawCardHeader,
 } from '@pancakeswap/uikit'
-import NextLink from 'next/link'
-import styled from 'styled-components'
 
 export const Card = styled(RawCard)`
   overflow: initial;
@@ -47,18 +46,5 @@ export const CardFooter = styled(RawCardFooter)`
 
   ${({ theme }) => theme.mediaQueries.lg} {
     bottom: 0;
-  }
-`
-
-export const StyledNextLink = styled(NextLink)`
-  &:hover {
-    > div {
-      background: ${({ theme }) => theme.colors.backgroundHover};
-    }
-  }
-  &:active {
-    > div {
-      background: ${({ theme }) => theme.colors.backgroundTapped};
-    }
   }
 `
