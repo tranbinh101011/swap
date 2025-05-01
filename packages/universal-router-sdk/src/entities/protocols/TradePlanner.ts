@@ -332,8 +332,7 @@ export class TradePlanner extends RoutePlanner {
     if (this.context.takeOverWrapSweep) {
       const route = this.context.routes[0]
       const outputCurrency = route.sections[route.sections.length - 1].poolOut
-      const quotient = outAmount.quotient
-      outAmount = CurrencyAmount.fromRawAmount(outputCurrency, quotient)
+      outAmount = CurrencyAmount.fromRawAmount(outputCurrency, outAmount.quotient)
     }
 
     const { fee, flatFee } = this.options

@@ -1,7 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { ACTIONS, decodePoolKey, POOL_TYPE } from '@pancakeswap/infinity-sdk'
 import { CurrencyAmount, ERC20Token, Ether, Percent, TradeType, ZERO_ADDRESS } from '@pancakeswap/sdk'
-import { InfinityBinPool, InfinityClPool, MSG_SENDER, SmartRouter } from '@pancakeswap/smart-router'
+import { InfinityClPool, MSG_SENDER, SmartRouter } from '@pancakeswap/smart-router'
 import { ADDRESS_ZERO } from '@pancakeswap/v3-sdk'
 import { isHex, parseEther, stringify } from 'viem'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -45,7 +45,6 @@ describe('PancakeSwap Universal Router Infinity-Cl Pool Command Generation Test'
   let ETH_CAKE_CL_INFI: InfinityClPool
   let ETH_USDC_CL_INFI: InfinityClPool
   let WETH_USDC_CL_INFI: InfinityClPool
-  let WETH_CAKE_CL_INFI: InfinityBinPool
   expect.addSnapshotSerializer({
     serialize(val) {
       return stringify(decodeUniversalCalldata(val), null, 2)
@@ -73,7 +72,6 @@ describe('PancakeSwap Universal Router Infinity-Cl Pool Command Generation Test'
 
       const { calldata, value } = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, options)
       expect(calldata).toMatchSnapshot()
-      const minOut = SmartRouter.minimumAmountOut(trade, options.slippageTolerance)
 
       expect(BigInt(value)).toEqual(amountIn)
       // expect(calldata).toMatchSnapshot()
@@ -99,6 +97,43 @@ describe('PancakeSwap Universal Router Infinity-Cl Pool Command Generation Test'
       testInfinityTakeAction(actions[2], CAKE, MSG_SENDER, ACTION_CONSTANTS.OPEN_DELTA)
     })
 
+    it('should encode a single exactInput ETH-CAKE CL swap zeroForOne ( payerIsUser = false ) ', async () => {
+      const amountIn = parseEther('0.01')
+      const inputAmount = CurrencyAmount.fromRawAmount(ETHER, amountIn)
+      const outputAmount = CurrencyAmount.fromRawAmount(CAKE, parseEther('1'))
+      const trade = buildInfinityTrade(TradeType.EXACT_INPUT, inputAmount, outputAmount, [ETH_CAKE_CL_INFI])
+
+      const options = swapOptions({
+        payerIsUser: false,
+      })
+
+      const { calldata, value } = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, options)
+      expect(calldata).toMatchSnapshot()
+
+      expect(BigInt(value)).toEqual(0n)
+      // expect(calldata).toMatchSnapshot()
+
+      const decodedCommands = decodeUniversalCalldata(calldata)
+
+      expect(decodedCommands[0].command).toEqual(CommandType[CommandType.INFI_SWAP])
+      expect(decodedCommands[0].args.length).toEqual(0)
+      const actions = decodedCommands[0].actions!
+
+      // SETTLE
+      testInfinitySettleAction(actions[0], ETHER, amountIn, false)
+
+      // CL_SWAP_EXACT_IN_SINGLE
+      expect(actions[1].action).toEqual(ACTIONS[ACTIONS.CL_SWAP_EXACT_IN_SINGLE])
+      expect(actions[1].args[0].name).toEqual('params')
+      const encoded = actions[1].args[0].value as any
+      const poolKey = decodePoolKey(encoded.poolKey, 'CL')
+      expect(poolKey.currency0).toEqual(currencyAddressInfinity(inputAmount.currency))
+      expect(poolKey.currency1).toEqual(currencyAddressInfinity(outputAmount.currency))
+
+      // TAKE
+      testInfinityTakeAction(actions[2], CAKE, MSG_SENDER, ACTION_CONSTANTS.OPEN_DELTA)
+    })
+
     it('should encode a single exactInput CAKE->ETH CL swap oneForZero', async () => {
       const inputAmount = CurrencyAmount.fromRawAmount(CAKE, 10000n)
       const outputAmount = CurrencyAmount.fromRawAmount(ETHER, 50n)
@@ -108,7 +143,6 @@ describe('PancakeSwap Universal Router Infinity-Cl Pool Command Generation Test'
 
       const { calldata, value } = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, options)
       expect(calldata).toMatchSnapshot()
-      const minOut = SmartRouter.minimumAmountOut(trade, options.slippageTolerance)
 
       expect(BigInt(value)).toEqual(0n)
       // expect(calldata).toMatchSnapshot()
@@ -326,7 +360,7 @@ describe('PancakeSwap Universal Router Infinity-Cl Pool Command Generation Test'
       testInfinityTakeAction(actions[2], CAKE, MSG_SENDER, ACTION_CONSTANTS.OPEN_DELTA)
     })
 
-    it('label: should encode a multi-hop exactInput in Infinity: USDC->WETH->CAKE(via ETH->CAKE Pool)', async () => {
+    it('should encode a multi-hop exactInput in Infinity: USDC->WETH->CAKE(via ETH->CAKE Pool)', async () => {
       const inputAmount = CurrencyAmount.fromRawAmount(USDC, 1000)
       const outputAmount = CurrencyAmount.fromRawAmount(CAKE, 10000)
 
@@ -339,7 +373,6 @@ describe('PancakeSwap Universal Router Infinity-Cl Pool Command Generation Test'
       const { calldata, value } = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, options)
       const maxInAmount = SmartRouter.maximumAmountIn(trade, options.slippageTolerance).quotient
       const minOutAmount = SmartRouter.minimumAmountOut(trade, options.slippageTolerance).quotient
-      console.log('minOut', minOutAmount)
 
       expect(BigInt(value)).toEqual(0n)
       const decodedCommands = decodeUniversalCalldata(calldata)

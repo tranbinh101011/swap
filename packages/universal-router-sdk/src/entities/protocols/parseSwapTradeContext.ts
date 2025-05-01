@@ -78,7 +78,9 @@ export const parseSwapTradeContext = (
         route: newRoute,
         isInfinity: section[0].type === PoolType.InfinityBIN || section[0].type === PoolType.InfinityCL,
       }
-      swap.payerIsUser = swap.isFirstSection && !(swap.wrapInput || swap.unwrapInput)
+      swap.payerIsUser = context.options.payerIsUser
+        ? swap.isFirstSection && !(swap.wrapInput || swap.unwrapInput)
+        : false
       inputCurrency = poolOut
       routeContext.sections.push(swap)
     }

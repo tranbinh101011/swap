@@ -1044,6 +1044,43 @@ describe('PancakeSwap Universal Router Trade', () => {
       expect(decodedCommands[1].args[4].value).toEqual(false)
     })
 
+    it('should encode a single exactInput ETH->USDC swap (payerIsUser = false)', async () => {
+      const amountIn = parseEther('1')
+      const v3Trade = await V3Trade.fromRoute(
+        new V3Route([WETH_USDC_V3_MEDIUM], ETHER, USDC),
+        CurrencyAmount.fromRawAmount(ETHER, amountIn),
+        TradeType.EXACT_INPUT,
+      )
+      const v3Pool: V3Pool = convertPoolToV3Pool(WETH_USDC_V3_MEDIUM)
+
+      const trade = buildV3Trade(v3Trade, [v3Pool])
+      const options = swapOptions({
+        payerIsUser: false,
+      })
+
+      const { calldata, value } = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, options)
+
+      expect(BigInt(value)).toEqual(0n)
+      expect(calldata).toMatchSnapshot()
+
+      const decodedCommands = decodeUniversalCalldata(calldata)
+      expect(decodedCommands.length).toEqual(2)
+
+      expect(decodedCommands[0].command).toEqual(CommandType[CommandType.WRAP_ETH])
+      expect(decodedCommands[0].args[0].name).toEqual('recipient')
+      expect(decodedCommands[0].args[0].value).toEqual(ACTION_CONSTANTS.ADDRESS_THIS)
+
+      expect(decodedCommands[1].command).toEqual(CommandType[CommandType.V3_SWAP_EXACT_IN])
+      expect(decodedCommands[1].args[0].name).toEqual('recipient')
+      expect(decodedCommands[1].args[0].value).toEqual(MSG_SENDER)
+      expect(decodedCommands[1].args[1].name).toEqual('amountIn')
+      expect(decodedCommands[1].args[1].value).toEqual(amountIn)
+      expect(decodedCommands[1].args[2].name).toEqual('amountOutMin')
+      expect(decodedCommands[1].args[2].value).toEqual(v3Trade.minimumAmountOut(options.slippageTolerance).quotient)
+      expect(decodedCommands[1].args[4].name).toEqual('payerIsUser')
+      expect(decodedCommands[1].args[4].value).toEqual(false)
+    })
+
     it('should encode a single exactInput ETH->USDC swap, with a fee', async () => {
       const amountIn = parseEther('1')
       const v3Trade = await V3Trade.fromRoute(

@@ -18,12 +18,13 @@ export abstract class PancakeSwapUniversalRouter {
    */
   public static swapERC20CallParameters(
     trade: Omit<SmartRouterTrade<TradeType>, 'gasEstimate'>,
-    { payerIsUser = true, ...options }: PancakeSwapOptions,
+    _options: PancakeSwapOptions,
   ): MethodParameters {
+    const options = { payerIsUser: true, ..._options }
     const planner = new TradePlanner(trade, options)
 
     const inputCurrency = planner.trade.inputAmount.currency
-    if (payerIsUser) {
+    if (options.payerIsUser) {
       invariant(!(inputCurrency.isNative && !!options.inputTokenPermit), 'NATIVE_INPUT_PERMIT')
     }
 
@@ -31,7 +32,7 @@ export abstract class PancakeSwapUniversalRouter {
       encodePermit(planner, options.inputTokenPermit)
     }
 
-    const nativeCurrencyValue = payerIsUser
+    const nativeCurrencyValue = options.payerIsUser
       ? inputCurrency.isNative
         ? SmartRouter.maximumAmountIn(planner.trade, options.slippageTolerance, planner.trade.inputAmount).quotient
         : 0n

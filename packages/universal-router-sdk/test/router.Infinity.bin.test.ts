@@ -1,7 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { ACTION_CONSTANTS, ACTIONS, decodePoolKey } from '@pancakeswap/infinity-sdk'
 import { CurrencyAmount, ERC20Token, Ether, Percent, TradeType, ZERO_ADDRESS } from '@pancakeswap/sdk'
-import { InfinityBinPool, InfinityClPool, MSG_SENDER, SmartRouter } from '@pancakeswap/smart-router'
+import { InfinityBinPool, MSG_SENDER, SmartRouter } from '@pancakeswap/smart-router'
 import { ADDRESS_ZERO } from '@pancakeswap/v3-sdk'
 import { isHex, parseEther, stringify } from 'viem'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -40,7 +40,6 @@ describe('PancakeSwap Universal Router Infinity-Bin Pool Command Generation Test
   let ETHER: Ether
   let USDC: ERC20Token
   let CAKE: ERC20Token
-  let ETH_CAKE_CL_INFI: InfinityClPool
   let ETH_CAKE_BIN_INFI: InfinityBinPool
   let ETH_USDC_BIN_INFI: InfinityBinPool
 
@@ -54,10 +53,7 @@ describe('PancakeSwap Universal Router Infinity-Bin Pool Command Generation Test
   })
 
   beforeEach(async () => {
-    ;({ ETHER, CAKE, USDC, ETH_CAKE_CL_INFI, ETH_CAKE_BIN_INFI, ETH_USDC_BIN_INFI } = await fixtureAddresses(
-      chainId,
-      liquidity,
-    ))
+    ;({ ETHER, CAKE, USDC, ETH_CAKE_BIN_INFI, ETH_USDC_BIN_INFI } = await fixtureAddresses(chainId, liquidity))
   })
 
   describe('Infinity-BIN', () => {

@@ -280,6 +280,62 @@ describe('PancakeSwap Universal Mixed Router Command Generation Test', () => {
       expect(decodedCommands[2].args[4].value).toEqual(false)
     })
 
+    it('label: should encode CAKE->USDC through mixed swaps Infinity(ETH-CAKE) -> v3(WETH-USDC) payerIsUser=false', async () => {
+      const inputAmount = CurrencyAmount.fromRawAmount(CAKE, 50n)
+      const outputAmount = CurrencyAmount.fromRawAmount(USDC, 10000n)
+      const trade = await buildMixedRouteTradeInfinity(inputAmount, outputAmount, TradeType.EXACT_INPUT, [
+        ETH_CAKE_CL_INFI,
+        WETH_USDC_V3_LOW,
+      ])
+
+      const options = swapOptions({
+        payerIsUser: false,
+      })
+      const { calldata, value } = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, options)
+      const minAmountOut = SmartRouter.minimumAmountOut(trade, options.slippageTolerance).quotient
+      const maximumAmountIn = SmartRouter.maximumAmountIn(trade, options.slippageTolerance).quotient
+
+      expect(BigInt(value)).toEqual(0n)
+      expect(calldata).toMatchSnapshot()
+      expect(calldata).toMatchSnapshot()
+
+      const decodedCommands = decodeUniversalCalldata(calldata)
+
+      expect(decodedCommands.length).toEqual(3)
+      expect(decodedCommands[0].command).toEqual(CommandType[CommandType.INFI_SWAP])
+      expect(decodedCommands[1].command).toEqual(CommandType[CommandType.WRAP_ETH])
+      expect(decodedCommands[2].command).toEqual(CommandType[CommandType.V3_SWAP_EXACT_IN])
+
+      // COMMAND #0 INFI_SWAP
+      const actions = decodedCommands[0].actions!
+      expect(actions.length).toEqual(3)
+
+      //   Action #0 SETTLE
+      testInfinitySettleAction(actions[0], CAKE, maximumAmountIn, false)
+
+      const swapParams = actions[1].args[0].value as EncodedSingleSwapInParams
+      expect(swapParams.amountIn).toEqual(50n)
+      expect(swapParams.amountOutMinimum).toEqual(0n)
+
+      testInfinityTakeAction(actions[2], ETHER, ADDRESS_THIS, ACTION_CONSTANTS.OPEN_DELTA)
+
+      // COMMAND #1 WRAP_ETH
+      expect(decodedCommands[1].args[0].name).toEqual('recipient')
+      expect(decodedCommands[1].args[0].value).toEqual(ADDRESS_THIS)
+      expect(decodedCommands[1].args[1].name).toEqual('amountMin')
+      expect(decodedCommands[1].args[1].value).toEqual(BigInt(ACTION_CONSTANTS.CONTRACT_BALANCE))
+
+      // COMMAND #2 V3_SWAP_EXACT_IN
+      expect(decodedCommands[2].args[0].name).toEqual('recipient')
+      expect(decodedCommands[2].args[0].value).toEqual(MSG_SENDER)
+      expect(decodedCommands[2].args[1].name).toEqual('amountIn')
+      expect(decodedCommands[2].args[1].value).toEqual(BigInt(ACTION_CONSTANTS.CONTRACT_BALANCE))
+      expect(decodedCommands[2].args[2].name).toEqual('amountOutMin')
+      expect(decodedCommands[2].args[2].value).toEqual(minAmountOut)
+      expect(decodedCommands[2].args[4].name).toEqual('payerIsUser')
+      expect(decodedCommands[2].args[4].value).toEqual(false)
+    })
+
     it('should encode mixed consecutive Infinity swaps, ETH->CAKE(InfinityBin)->USDC(InfinityCl)', async () => {
       const inputAmount = CurrencyAmount.fromRawAmount(ETHER, 50n)
       const outputAmount = CurrencyAmount.fromRawAmount(USDC, 10000n)

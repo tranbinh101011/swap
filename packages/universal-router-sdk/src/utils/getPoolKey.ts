@@ -19,7 +19,7 @@ export const getPoolKey = (pool: InfinityBinPool | InfinityClPool): PoolKey => {
     fee: pool.fee,
   }
 
-  const chainId = pool.currency0.chainId
+  const { chainId } = pool.currency0
 
   if (isDynamicFeeHook(chainId, pool.hooks)) {
     base.fee = DYNAMIC_FEE_FLAG
