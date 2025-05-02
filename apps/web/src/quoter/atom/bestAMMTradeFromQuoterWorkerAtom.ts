@@ -42,6 +42,7 @@ export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) 
           infinity: option.infinitySwap,
           v2Pools: Boolean(v2Swap),
           v3Pools: Boolean(v3Swap),
+          stableSwap: Boolean(option.stableSwap),
           signal: option.signal,
           provider: option.provider,
           options: {

@@ -55,6 +55,7 @@ export interface PoolQuery {
   infinity: boolean
   v2Pools: boolean
   v3Pools: boolean
+  stableSwap: boolean
   signal?: AbortSignal
   provider?: typeof getViemClients
   for?: string

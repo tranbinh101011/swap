@@ -33,6 +33,7 @@ export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
             currencyB: currency,
             chainId: currency.chainId,
             infinity: infinitySwap,
+            stableSwap: Boolean(option.stableSwap),
             v2Pools: Boolean(v2Swap),
             v3Pools: Boolean(v3Swap),
             signal: option.signal,

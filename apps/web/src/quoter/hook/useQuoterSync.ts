@@ -99,6 +99,7 @@ export const useQuoterSync = () => {
       v2Pools: !!quoteQuery.v2Swap,
       v3Pools: !!quoteQuery.v3Swap,
       signal: quoteQuery.signal,
+      stableSwap: !!quoteQuery.stableSwap,
       provider: quoteQuery.provider,
     }
     fetchCommonPoolsOnChain(poolQuery)

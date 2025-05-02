@@ -14,7 +14,15 @@ import { PoolHashHelper } from './PoolHashHelper'
 export const poolQueriesFactory = memoize((chainId: ChainId) => {
   const POOL_TTL = POOLS_FAST_REVALIDATE[chainId] || 10_000
   function getCacheKey(args: [PoolQuery]) {
-    const query: PoolQuery = { ...args[0], quoteHash: '', infinity: false, v2Pools: false, v3Pools: false, for: '' }
+    const query: PoolQuery = {
+      ...args[0],
+      quoteHash: '',
+      infinity: false,
+      v2Pools: false,
+      v3Pools: false,
+      stableSwap: false,
+      for: '',
+    }
     const hash = PoolHashHelper.hashPoolQuery(query)
     return hash
   }
@@ -348,6 +356,7 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
       const getViemClients = createViemPublicClientGetter({
         transportSignal: query.signal,
       })
+
       const blockNumber = query?.options?.blockNumber
       const { currencyA, currencyB } = query
       const provider = query.provider ?? getViemClients
@@ -368,7 +377,7 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
   )
   const getStableSwapPools = async (query: PoolQuery) => {
     const blockNumber = query?.options?.blockNumber
-    if (!blockNumber) {
+    if (!query.stableSwap || !blockNumber) {
       return []
     }
     return _getStableSwapPools(query)
