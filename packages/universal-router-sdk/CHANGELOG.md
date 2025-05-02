@@ -1,5 +1,15 @@
 # @pancakeswap/universal-router-sdk
 
+## 1.4.2
+
+### Patch Changes
+
+- 9cc7613: Add unit test for option payerIsUser
+- Updated dependencies [1718057]
+  - @pancakeswap/smart-router@7.2.2
+  - @pancakeswap/infinity-sdk@1.0.1
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 1.4.1
 
 ### Patch Changes

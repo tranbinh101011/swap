@@ -1,5 +1,11 @@
 # @pancakeswap/utils
 
+## 6.1.2
+
+### Patch Changes
+
+- 1718057: Perf. improvement of router. Using online tvl for filter pools.
+
 ## 6.1.1
 
 ### Patch Changes

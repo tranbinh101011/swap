@@ -1,5 +1,18 @@
 # @pancakeswap/smart-router
 
+## 7.2.2
+
+### Patch Changes
+
+- 1718057: Perf. improvement of router. Using online tvl for filter pools.
+  - @pancakeswap/gauges@2.0.10
+  - @pancakeswap/infinity-sdk@1.0.1
+  - @pancakeswap/multicall@3.6.3
+  - @pancakeswap/stable-swap-sdk@2.0.5
+  - @pancakeswap/token-lists@0.0.15
+  - @pancakeswap/tokens@0.7.4
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 7.2.1
 
 ### Patch Changes
