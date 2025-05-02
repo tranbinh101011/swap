@@ -2,12 +2,12 @@ import { ChainId, getChainIdByChainName } from '@pancakeswap/chains'
 import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
 import { NextApiHandler } from 'next'
 import {
+  V2TokenDataQuery,
   fetchV2ChartsTvlData,
   fetchV2ChartsVolumeData,
   fetchV2PoolsForToken,
   fetchV2TokenData,
   fetchV2TransactionData,
-  V2TokenDataQuery,
 } from 'state/info/dataQuery'
 import { fetchPoolsForToken } from 'state/info/queries/tokens/fetchPoolsForToken'
 import { fetchTokenChartData } from 'state/info/queries/tokens/fetchTokenChartData'
@@ -101,9 +101,16 @@ async function _loadData(chain?: string, address?: string, type?: SupportedType)
 }
 
 const loadData = cacheByLRU(_loadData, {
-  ttl: 300_1000,
+  ttl: 60_000,
   maxCacheSize: 10000,
-  key: ([chain, token, type]) => `${chain}-${token}-${type}`,
+  key: ([chain, token, type]) => `${chain}-${token?.toLowerCase()}-${type}`,
+  isValid: (result) => {
+    if (!result) return false
+    if (result.token?.address) {
+      return true
+    }
+    return false
+  },
 })
 
 const handler: NextApiHandler = async (req, res) => {
