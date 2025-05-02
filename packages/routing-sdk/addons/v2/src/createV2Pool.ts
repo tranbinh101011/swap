@@ -1,8 +1,8 @@
 import { CurrencyAmount, Price } from '@pancakeswap/swap-sdk-core'
 import { Pair } from '@pancakeswap/v2-sdk'
 
-import type { V2Pool, V2PoolData } from './types'
 import { BASE_SWAP_COST_V2, COST_PER_EXTRA_HOP_V2, V2_POOL_TYPE } from './constants'
+import type { V2Pool, V2PoolData } from './types'
 
 export function createV2Pool(params: V2PoolData): V2Pool {
   let p = { ...params, type: V2_POOL_TYPE }
@@ -29,7 +29,7 @@ export function createV2Pool(params: V2PoolData): V2Pool {
       address = getPoolId(p)
     },
     log: () =>
-      `V3 ${p.reserve0.currency.symbol} - ${p.reserve1.currency.symbol} (${address} - price ${pool
+      `V2 ${p.reserve0.currency.symbol} - ${p.reserve1.currency.symbol} (${address} - price ${pool
         .getCurrentPrice(p.reserve0.currency, p.reserve1.currency)
         .toSignificant(6)} ${p.reserve1.currency.symbol}/${p.reserve0.currency.symbol}`,
 

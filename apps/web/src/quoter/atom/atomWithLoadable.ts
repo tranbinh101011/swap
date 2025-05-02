@@ -5,6 +5,7 @@ export type Loadable<T> = {
   loading: boolean
   data?: T
   error?: Error
+  isShadow?: boolean
 }
 
 export const emptyLoadable = <T>() => {
@@ -15,11 +16,12 @@ export const emptyLoadable = <T>() => {
   } as Loadable<T>
 }
 
-export const valueLoadable = <T>(value: T) => {
+export const valueLoadable = <T>(value: T, isShadow = false) => {
   return {
     loading: false,
     data: value,
     error: undefined,
+    isShadow,
   } as Loadable<T>
 }
 
@@ -31,11 +33,12 @@ export const errorLoadable = <T>(error: any) => {
   } as Loadable<T>
 }
 
-export const pendingLoadable = <T>(val?: T) => {
+export const pendingLoadable = <T>(val?: T, isShadow = false) => {
   return {
     loading: true,
     data: val ?? undefined,
     error: undefined,
+    isShadow,
   } as Loadable<T>
 }
 

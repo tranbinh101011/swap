@@ -32,7 +32,7 @@ const defaultRoutingStrategy: RoutingStrategy = [
       maxSplits: 0,
     },
     isShadow: true,
-    priority: 0,
+    priority: 1,
   },
   // routing-sdk
   {

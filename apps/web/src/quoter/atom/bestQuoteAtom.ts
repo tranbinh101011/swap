@@ -29,7 +29,7 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
         if (bestQuote) {
           if (!anyLoading) {
             if (strategies[bestIndex].isShadow) {
-              return pendingLoadable<InterfaceOrder | undefined>(bestQuote)
+              return valueLoadable<InterfaceOrder | undefined>(bestQuote, true)
             }
             // updateStrategy(strategyHash, routes[bestIndex])
             return valueLoadable(bestQuote)
@@ -77,10 +77,11 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
       }
 
       const strategies = getRoutingStrategy()
-      const others = strategies.filter((x) => !x.isShadow)
-      const p1 = others.filter((x) => x.priority === 1)
-      const p2 = others.filter((x) => x.priority === 2)
-      for (const strategy of [p1, p2]) {
+      const p1 = strategies.filter((x) => x.priority === 1)
+      const p2 = strategies.filter((x) => x.priority === 2)
+      const tests = [p1, p2]
+      for (let i = 0; i < tests.length; i++) {
+        const strategy = tests[i]
         const quote = executeRoutes(strategy, option)
         if (quote) {
           const time = logMap.get(option.hash) || Date.now()
@@ -91,6 +92,13 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
             type: option.tradeType || TradeType.EXACT_INPUT,
             time: Date.now() - time,
           })
+          if (quote.isShadow && !quote.loading && quote.data) {
+            continue
+          }
+          if (quote.isShadow && i < tests.length - 1) {
+            return { ...quote, loading: true }
+          }
+
           return quote
         }
       }
