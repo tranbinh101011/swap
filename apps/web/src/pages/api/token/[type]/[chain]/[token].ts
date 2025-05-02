@@ -116,7 +116,8 @@ const loadData = cacheByLRU(_loadData, {
 const handler: NextApiHandler = async (req, res) => {
   const { chain, token, type } = req.query
 
-  const result = await loadData(String(chain), String(token), type as SupportedType | undefined)
+  // const result = await loadData(String(chain), String(token), type as SupportedType | undefined)
+  const result = await _loadData(String(chain), String(token), type as SupportedType | undefined)
   res.setHeader('Cache-Control', 's-maxage=60, max-age=30, stale-while-revalidate=300')
 
   return res.status(200).json(result)
