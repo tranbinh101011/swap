@@ -103,6 +103,7 @@ async function _loadData(chain?: string, address?: string, type?: SupportedType)
 const loadData = cacheByLRU(_loadData, {
   ttl: 300_1000,
   maxCacheSize: 10000,
+  key: ([chain, token, type]) => `${chain}-${token}-${type}`,
 })
 
 const handler: NextApiHandler = async (req, res) => {
