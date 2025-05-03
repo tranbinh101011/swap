@@ -31,7 +31,6 @@ const defaultRoutingStrategy: RoutingStrategy = [
       maxHops: 1,
       maxSplits: 0,
     },
-    isShadow: true,
     priority: 1,
   },
   // routing-sdk
