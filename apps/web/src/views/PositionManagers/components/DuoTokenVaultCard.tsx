@@ -4,8 +4,6 @@ import { Card, CardBody } from '@pancakeswap/uikit'
 import { getBalanceAmount } from '@pancakeswap/utils/formatBalance'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 import BigNumber from 'bignumber.js'
-import { SwellTooltip } from 'components/SwellTooltip/SwellTooltip'
-import { useHasSwellReward } from 'hooks/useHasSwellReward'
 import { PropsWithChildren, ReactNode, memo, useMemo } from 'react'
 import { styled } from 'styled-components'
 import { Address } from 'viem'
@@ -161,7 +159,6 @@ export const DuoTokenVaultCard = memo(function DuoTokenVaultCard({
     return getBalanceAmount(new BigNumber(rewardPerSecond), earningToken.decimals).toNumber()
   }, [rewardPerSecond, earningToken])
   const { isBoosterWhiteList } = useIsWrapperWhiteList(boosterContractAddress, bCakeWrapper)
-  const hasSwellReward = useHasSwellReward(contractAddress)
 
   return (
     <StyledCard>
@@ -175,7 +172,6 @@ export const DuoTokenVaultCard = memo(function DuoTokenVaultCard({
         isSingleDepositToken={isSingleDepositToken}
         allowDepositToken1={allowDepositToken1}
         isBooster={isBoosterWhiteList && apr?.isInCakeRewardDateRange}
-        tags={hasSwellReward ? <SwellTooltip /> : null}
       />
       <CardBody>
         <YieldInfo

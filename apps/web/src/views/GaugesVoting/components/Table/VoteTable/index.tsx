@@ -15,7 +15,6 @@ import {
 } from '@pancakeswap/uikit'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import Divider from 'components/Divider'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import keyBy from 'lodash/keyBy'
 import NextLink from 'next/link'
 import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
@@ -27,6 +26,7 @@ import { useEpochVotePower } from 'views/GaugesVoting/hooks/useEpochVotePower'
 import { useGauges } from 'views/GaugesVoting/hooks/useGauges'
 import { useUserVoteSlopes } from 'views/GaugesVoting/hooks/useUserVoteGauges'
 import { useWriteGaugesVoteCallback } from 'views/GaugesVoting/hooks/useWriteGaugesVoteCallback'
+import { useAccount } from 'wagmi'
 import { RemainingVotePower } from '../../RemainingVotePower'
 import { AddGaugeModal } from '../AddGauge/AddGaugeModal'
 import { EmptyTable } from './EmptyTable'
@@ -49,7 +49,7 @@ const Scrollable = styled.div.withConfig({ shouldForwardProp: (prop) => !['expan
 `
 
 export const VoteTable = () => {
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const { t } = useTranslation()
   const [submitted, setSubmitted] = useState(false)
   const { cakeLockedAmount } = useCakeLockStatus()

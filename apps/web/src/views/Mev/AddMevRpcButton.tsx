@@ -1,9 +1,9 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { ArrowDownIcon, Button, CheckmarkCircleFillIcon, LinkExternal, SwapLoading } from '@pancakeswap/uikit'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import useTheme from 'hooks/useTheme'
 import React, { useCallback, useMemo, useState } from 'react'
+import { useAccount } from 'wagmi'
 import { useAddMevRpc, useIsMEVEnabled, useShouldShowMEVToggle, useWalletType } from './hooks'
 import { WalletType } from './types'
 
@@ -28,7 +28,7 @@ export const useMevConfig = (walletType: WalletType) => {
 
 export const AddMevRpcButton: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { t } = useTranslation()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
 
   const { isMEVEnabled, refetch, isLoading: isMEVStatusLoading } = useIsMEVEnabled()
   const shouldShowMEVToggle = useShouldShowMEVToggle()

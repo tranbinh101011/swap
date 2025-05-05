@@ -44,7 +44,7 @@ export function useStablecoinPrice(
     currency && stableCoin && enabled && currentChainId === chainId && !isCake && !isStableCoin,
   )
 
-  const { data: priceFromApi, isLoading } = useCurrencyUsdPrice(currency, {
+  const { data: priceFromApi } = useCurrencyUsdPrice(currency, {
     enabled: shouldEnabled,
   })
 

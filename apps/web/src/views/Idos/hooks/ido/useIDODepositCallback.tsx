@@ -2,7 +2,6 @@ import { useTranslation } from '@pancakeswap/localization'
 import type { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
 import { useToast } from '@pancakeswap/uikit'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { useCallback } from 'react'
 import { useLatestTxReceipt } from 'state/farmsV4/state/accountPositions/hooks/useLatestTxReceipt'
@@ -10,7 +9,7 @@ import { isAddressEqual } from 'utils'
 import { logger } from 'utils/datadog'
 import { erc20Abi, WriteContractReturnType, zeroAddress } from 'viem'
 import { userRejectedError } from 'views/Swap/V3Swap/hooks/useSendSwapTransaction'
-import { useWriteContract } from 'wagmi'
+import { useAccount, useWriteContract } from 'wagmi'
 import {
   useW3WAccountSign,
   W3WSignAlreadyParticipatedError,
@@ -31,7 +30,7 @@ class W3WSignError extends Error {
 export const useIDODepositCallback = () => {
   const idoContract = useIDOContract()
   const { t } = useTranslation()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const { toastSuccess, toastWarning } = useToast()
   const [, setLatestTxReceipt] = useLatestTxReceipt()
   const { data: poolInfo } = useIDOPoolInfo()

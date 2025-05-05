@@ -3,7 +3,7 @@ import { bscTestnetTokens, ethereumTokens, goerliTestnetTokens } from '@pancakes
 import { useMemo } from 'react'
 import { isAddressEqual } from 'utils'
 import { Address } from 'viem'
-import useAccountActiveChain from './useAccountActiveChain'
+import { useAccount } from 'wagmi'
 import useCurrentBlockTimestamp from './useCurrentBlockTimestamp'
 import { usePermit2Allowance } from './usePermit2Allowance'
 import { usePermit2Details } from './usePermit2Details'
@@ -15,7 +15,7 @@ export const usePermit2Requires = (
   spender?: Address,
   overrideChainId?: number,
 ) => {
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const { allowance, refetch } = usePermit2Allowance(account, amount?.currency)
   const { data } = usePermit2Details(account, amount?.currency, spender, overrideChainId)
   const { amount: permitAmount, expiration = 0n } = data ?? {}

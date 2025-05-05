@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { Hash, formatUnits } from 'viem'
-import useAccountActiveChain from './useAccountActiveChain'
+import { useAccount } from 'wagmi'
 import { useCallWithGasPrice } from './useCallWithGasPrice'
 import { useWNativeContract } from './useContract'
 import useNativeCurrency from './useNativeCurrency'
@@ -12,7 +12,7 @@ export const useNativeWrap = () => {
   const { t } = useTranslation()
   const wnative = useWNativeContract()
   const nativeCurrency = useNativeCurrency()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const { callWithGasPrice } = useCallWithGasPrice()
   const addTransaction = useTransactionAdder()
   const balance = useCurrencyBalance(account ?? undefined, nativeCurrency)

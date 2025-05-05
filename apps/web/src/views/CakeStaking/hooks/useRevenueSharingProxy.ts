@@ -2,8 +2,8 @@ import { ONE_WEEK_DEFAULT } from '@pancakeswap/pools'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { WEEK } from 'config/constants/veCake'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { publicClient } from 'utils/wagmi'
+import { useAccount } from 'wagmi'
 import {
   useRevenueSharingCakePoolContract,
   useRevenueSharingPoolGatewayContract,
@@ -31,7 +31,7 @@ const initialData: RevenueSharingPool = {
 export const useRevenueSharingProxy = (
   contract: ReturnType<typeof useRevenueSharingCakePoolContract | typeof useRevenueSharingVeCakeContract>,
 ) => {
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const currentBlockTimestamp = useCurrentBlockTimestamp()
   const gatewayContract = useRevenueSharingPoolGatewayContract()
 

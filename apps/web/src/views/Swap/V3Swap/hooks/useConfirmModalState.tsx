@@ -9,7 +9,6 @@ import { ConfirmModalState, useAsyncConfirmPriceImpactWithoutFee } from '@pancak
 import { ToastDescriptionWithTx } from 'components/Toast'
 import { BLOCK_CONFIRMATION } from 'config/confirmation'
 import { ALLOWED_PRICE_IMPACT_HIGH, PRICE_IMPACT_WITHOUT_FEE_CONFIRM_MIN } from 'config/constants/exchange'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useNativeWrap } from 'hooks/useNativeWrap'
@@ -36,6 +35,7 @@ import { isClassicOrder, isXOrder } from 'views/Swap/utils'
 import { waitForXOrderReceipt } from 'views/Swap/x/api'
 import { useSendXOrder } from 'views/Swap/x/useSendXOrder'
 
+import { useAccount } from 'wagmi'
 import { computeTradePriceBreakdown } from '../utils/exchange'
 import { userRejectedError } from './useSendSwapTransaction'
 import { useSwapCallback } from './useSwapCallback'
@@ -72,7 +72,7 @@ const useCreateConfirmSteps = (
 ) => {
   const { requireApprove, requirePermit, requireRevoke } = usePermit2Requires(amountToApprove, spender)
   const nativeCurrency = useNativeCurrency(order?.trade?.inputAmount.currency.chainId)
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const balance = useCurrencyBalance(account ?? undefined, nativeCurrency.wrapped)
 
   return useCallback(() => {
@@ -113,7 +113,7 @@ const useConfirmActions = (
     enablePaymaster: true,
   })
   const nativeWrap = useNativeWrap()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const getAllowanceArgs = useMemo(() => {
     if (!chainId) return undefined
     const inputs = [account, getPermit2Address(chainId)] as [`0x${string}`, `0x${string}`]

@@ -8,7 +8,7 @@ import { isAddress } from 'viem/utils'
 export const useHasDynamicHook = (order?: PriceOrder): boolean => {
   return useMemo(() => {
     if (!order?.trade || order.type !== OrderType.PCS_CLASSIC) return false
-    const chainId = order.trade.inputAmount.currency.chainId
+    const { chainId } = order.trade.inputAmount.currency
     const pools = order.trade.routes
       .map((r) => r.pools)
       .flat()

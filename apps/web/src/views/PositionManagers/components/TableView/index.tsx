@@ -4,15 +4,13 @@ import { CurrencyAmount } from '@pancakeswap/sdk'
 import { getBalanceAmount } from '@pancakeswap/utils/formatBalance'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import { SwellTooltip } from 'components/SwellTooltip/SwellTooltip'
 import { usePositionManagerAdapterContract } from 'hooks/useContract'
-import { useHasSwellReward } from 'hooks/useHasSwellReward'
 import { useBCakeBoostLimitAndLockInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 
 /* eslint-disable no-case-declarations */
 import { useDelayedUnmount } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { Box, Flex, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Flex, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIsWrapperWhiteList } from '../../hooks/useWrapperBooster'
@@ -92,7 +90,6 @@ export const TableRow: React.FC<Props> = ({ config, farmsV3, aprDataList, update
     autoCompound,
   } = vault
 
-  const hasSwellReward = useHasSwellReward(address)
   const adapterContract = usePositionManagerAdapterContract(adapterAddress ?? '0x')
   const tokenRatio = useQuery({
     queryKey: ['adapterAddress', adapterAddress, id],
@@ -264,7 +261,6 @@ export const TableRow: React.FC<Props> = ({ config, farmsV3, aprDataList, update
                         allowDepositToken1={allowDepositToken1 ?? false}
                         isBooster={isBoosterWhiteList && apr?.isInCakeRewardDateRange}
                       />
-                      {hasSwellReward ? <SwellTooltip /> : null}
                     </CellInner>
                   </td>
                 )
@@ -373,11 +369,6 @@ export const TableRow: React.FC<Props> = ({ config, farmsV3, aprDataList, update
                   allowDepositToken1={allowDepositToken1 ?? false}
                   isBooster={isBoosterWhiteList && apr?.isInCakeRewardDateRange}
                 />
-                {hasSwellReward ? (
-                  <Box position="absolute" right="10px">
-                    <SwellTooltip />
-                  </Box>
-                ) : null}
               </Flex>
             </FarmMobileCell>
           </tr>

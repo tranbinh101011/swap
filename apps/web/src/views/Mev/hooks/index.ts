@@ -138,7 +138,7 @@ export function useIsMEVEnabled() {
 
 export const useShouldShowMEVToggle = () => {
   const { isLoading: isWalletSupportLoading } = useWalletSupportsAddEthereumChain()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const { isMEVEnabled, isLoading, isMEVProtectAvailable } = useIsMEVEnabled()
   const { walletType, isLoading: isWalletTypeLoading } = useWalletType()
   return (

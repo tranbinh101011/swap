@@ -1,9 +1,9 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Box, FlexGap, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import useTheme from 'hooks/useTheme'
 import { useMemo } from 'react'
 import styled, { css, keyframes } from 'styled-components'
+import { useAccount } from 'wagmi'
 import { AddMevRpcButton } from './AddMevRpcButton'
 import { INFO_SECTION_ID, rpcData } from './constant'
 import { useIsMEVEnabled, useWalletType } from './hooks'
@@ -341,7 +341,7 @@ export const Hero: React.FC<{ txCount: number }> = ({ txCount }) => {
     return `${(txCount / 1000000).toFixed(1)}M+`
   }, [txCount])
   const mevConfig = useMevConfig(walletType)
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   return (
     <HeroWrapper>
       <Wrapper>

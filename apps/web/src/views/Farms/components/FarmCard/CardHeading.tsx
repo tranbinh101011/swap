@@ -15,9 +15,7 @@ import {
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import { GiftTooltip } from 'components/GiftTooltip/GiftTooltip'
-import { SwellTooltip } from 'components/SwellTooltip/SwellTooltip'
 import { TokenPairImage } from 'components/TokenImage'
-import { useHasSwellReward } from 'hooks/useHasSwellReward'
 import { styled } from 'styled-components'
 import { isAddressEqual } from 'utils'
 import { Address } from 'viem'
@@ -77,7 +75,6 @@ const CardHeading: React.FC<React.PropsWithChildren<ExpandableSectionProps>> = (
   const { t } = useTranslation()
   const chainId = useChainId()
   const isReady = multiplier !== undefined
-  const hasSwellReward = useHasSwellReward(lpAddress)
   const customTooltips = useHasCustomFarmLpTooltips(lpAddress)
 
   const multiplierTooltipContent = FarmMultiplierInfo({
@@ -139,7 +136,6 @@ const CardHeading: React.FC<React.PropsWithChildren<ExpandableSectionProps>> = (
           <Skeleton mb="4px" width={60} height={18} />
         )}
         <AutoRow gap="4px" justifyContent="flex-end">
-          {hasSwellReward && <SwellTooltip />}
           {customTooltips && customTooltips.tooltips}
           {isReady && isStable ? <StableFarmTag /> : version === 2 ? <V2Tag /> : null}
           {isReady && version === 3 && <V3FeeTag feeAmount={feeAmount} />}

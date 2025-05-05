@@ -1,8 +1,8 @@
 import { type Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
 import { useQuery } from '@tanstack/react-query'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useMemo } from 'react'
 import { useLatestTxReceipt } from 'state/farmsV4/state/accountPositions/hooks/useLatestTxReceipt'
+import { useAccount } from 'wagmi'
 import { useIDOContract } from './useIDOContract'
 import { useIDOCurrencies } from './useIDOCurrencies'
 import { useIDOPoolInfo } from './useIDOPoolInfo'
@@ -80,7 +80,7 @@ export type UserOfferingAndRefundingAmounts = {
 
 const useViewUserOfferingAndRefundingAmounts = () => {
   const idoContract = useIDOContract()
-  const { account } = useAccountActiveChain()
+  const { address: account } = useAccount()
   const latestTxReceipt = useLatestTxReceipt()
 
   return useQuery({
