@@ -3,6 +3,7 @@
 # Create temp directory for Jupiter terminal
 TEMP_DIR="temp-jupiter"
 BUNDLE_DEST="./dist"
+COMMIT="34f8c0a3160e493dee4ecc22d5effbc1506c5c11"
 
 # 1. Clone and prepare Jupiter terminal repo
 if [ -d "$TEMP_DIR" ]; then
@@ -11,7 +12,8 @@ fi
 git clone --depth 1 --branch main "https://${GITHUB_TOKEN}@github.com/jup-ag/terminal.git" $TEMP_DIR
 cd $TEMP_DIR
 git reset --hard origin/main
-git checkout 34f8c0a3160e493dee4ecc22d5effbc1506c5c11
+git fetch origin $COMMIT
+git reset --hard $COMMIT
 
 # 2. Copy our customized files
 cd ../
