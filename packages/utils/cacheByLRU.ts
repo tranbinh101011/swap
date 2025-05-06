@@ -11,9 +11,9 @@ interface CacheItem {
 }
 
 interface Epoch {
-  id: string
   createTime: number
   cacheKey: string
+  contentCacheKey: string
 }
 
 // Type definitions for the cache.
@@ -32,6 +32,19 @@ type CacheOptions<T extends AsyncFunction<any>> = {
     interval: number
   }
   maxAge?: number
+}
+
+function defaultIsValid(val: any) {
+  if (typeof val === 'undefined' || val === '') {
+    return false
+  }
+  if (Array.isArray(val)) {
+    return val.length > 0
+  }
+  if (typeof val === 'object') {
+    return Object.keys(val).length > 0
+  }
+  return true
 }
 
 function calcCacheKey(args: any[], epoch: number) {
@@ -100,6 +113,9 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
     const halfTTS = epoch % 1 > 0.5
     const epochId = Math.floor(epoch)
 
+    // Uniq cache ke related to content
+    const contentCacheKey = calcCacheKey(keyFunction(args), 0)
+
     const cacheForEpoch = (epochId: number) => {
       const cacheKey = calcCacheKey(keyFunction(args), epochId)
       if (cache.has(cacheKey)) {
@@ -114,9 +130,9 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
         epochId,
       }
       epochs.push({
-        id: cacheKey,
         createTime: item.createTime,
         cacheKey,
+        contentCacheKey,
       })
       item.promise = ensurePersist(item, cacheKey)
       cache.set(cacheKey, item)
@@ -127,7 +143,7 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
             cache.delete(cacheKey)
             return
           }
-          if (isValid && !isValid(result)) {
+          if (!(isValid || defaultIsValid)(result)) {
             cache.delete(cacheKey)
             return
           }
@@ -177,6 +193,9 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
     for (let i = epochs.length - 2, j = 5; i >= 0 && j > 0; i--, j--) {
       const epoch = epochs[i]
       if (maxAge && epoch.createTime + maxAge < Date.now()) {
+        continue
+      }
+      if (epoch.contentCacheKey !== contentCacheKey) {
         continue
       }
       const epochCache = cache.get(epoch.cacheKey)
