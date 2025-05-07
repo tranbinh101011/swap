@@ -1,84 +1,95 @@
-import { ICBridgeTransferConfig, IDeBridgeTransferConfig, ITransferConfig } from '@bnb-chain/canonical-bridge-widget'
+import {
+  cBridge,
+  deBridge,
+  ICBridgeTransferConfig,
+  IChainConfig,
+  ICustomizedBridgeConfig,
+  IDeBridgeTransferConfig,
+  IMesonTransferConfig,
+  IStargateTransferConfig,
+  layerZero,
+  meson,
+  stargate,
+} from '@bnb-chain/canonical-bridge-widget'
 import { useEffect, useState } from 'react'
 
 import axios from 'axios'
 import { env } from '../configs/env'
 import layerZeroConfig from '../token-config/mainnet/layerZero/config.json'
-import mesonConfig from '../token-config/mainnet/meson/config.json'
-import stargateConfig from '../token-config/mainnet/stargate/config.json'
 
-export function useTransferConfig() {
-  const [transferConfig, setTransferConfig] = useState<ITransferConfig>()
+export function useTransferConfig(supportedChains: IChainConfig[]) {
+  const [transferConfig, setTransferConfig] = useState<ICustomizedBridgeConfig['transfer']>()
 
   useEffect(() => {
     const initConfig = async () => {
-      const [cBridgeRes, deBridgeRes] = await Promise.all([
-        axios.get<{ data: ICBridgeTransferConfig }>(`${env.SERVER_ENDPOINT}/api/bridge/cbridge`),
-        axios.get<{ data: IDeBridgeTransferConfig }>(`${env.SERVER_ENDPOINT}/api/bridge/debridge`),
+      const [cBridgeRes, deBridgeRes, stargateRes, mesonRes] = await Promise.all([
+        axios.get<{ data: ICBridgeTransferConfig }>(`${env.SERVER_ENDPOINT}/api/bridge/v2/cbridge`),
+        axios.get<{ data: IDeBridgeTransferConfig }>(`${env.SERVER_ENDPOINT}/api/bridge/v2/debridge`),
+        axios.get<{ data: IStargateTransferConfig }>(`${env.SERVER_ENDPOINT}/api/bridge/v2/stargate`),
+        axios.get<{ data: IMesonTransferConfig }>(`${env.SERVER_ENDPOINT}/api/bridge/v2/meson`),
       ])
 
       const cBridgeConfig = cBridgeRes.data.data
-      const deBridgeConfig = handleDeBridgeConfig(deBridgeRes.data.data)
+      const deBridgeConfig = deBridgeRes.data.data
+      const mesonConfig = mesonRes.data.data
+      const stargateConfig = stargateRes.data.data
 
-      const tokenConfig: ITransferConfig = {
-        defaultSelectedInfo: {
-          fromChainId: 1,
-          toChainId: 56,
-          tokenSymbol: 'USDT', // USDT
-          amount: '',
-        },
-        order: {
-          chains: [56, 1, 137, 324, 42161, 59144, 8453, 204],
-          tokens: [
-            'CAKE',
-            'USDC',
-            'USDT',
-            'FDUSD',
-            'USDC.e',
-            'ETH',
-            'wBETH',
-            'wstETH',
-            'weETH',
-            'UNI',
-            'AAVE',
-            'LDO',
-            'LINK',
-            'BTC',
-            'BTCB',
-            'WBTC',
-            'sUSDe',
-            'DOGE',
-            'ADA',
-            'DAI',
-            'XRP',
-            'PEPE',
-            'ELON',
-            'FLOKI',
-            'MAGA',
-            'BabyDoge',
-            'BABYGROK',
-            'PLANET',
-            'OMNI',
-            'AGI',
-            'FET',
-            'AIOZ',
-            'AI',
-            'NFP',
-            'CGPT',
-            'PHB',
-            'ZIG',
-            'NUM',
-            'GHX',
-            'PENDLE',
-            'RDNT',
-            'ROSE',
-            'HOOK',
-            'MASK',
-            'EDU',
-            'MBOX',
-            'BNX',
-          ],
-        },
+      const tokenConfig: ICustomizedBridgeConfig['transfer'] = {
+        defaultFromChainId: 1,
+        defaultToChainId: 56,
+        defaultTokenAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        defaultAmount: '',
+        chainOrders: [56, 1, 137, 324, 42161, 59144, 8453, 204],
+        tokenOrders: [
+          'CAKE',
+          'USDC',
+          'USDT',
+          'FDUSD',
+          'USDC.e',
+          'ETH',
+          'wBETH',
+          'wstETH',
+          'weETH',
+          'UNI',
+          'AAVE',
+          'LDO',
+          'LINK',
+          'BTC',
+          'BTCB',
+          'WBTC',
+          'sUSDe',
+          'DOGE',
+          'ADA',
+          'DAI',
+          'XRP',
+          'PEPE',
+          'ELON',
+          'FLOKI',
+          'MAGA',
+          'BabyDoge',
+          'BABYGROK',
+          'PLANET',
+          'OMNI',
+          'AGI',
+          'FET',
+          'AIOZ',
+          'AI',
+          'NFP',
+          'CGPT',
+          'PHB',
+          'ZIG',
+          'NUM',
+          'GHX',
+          'PENDLE',
+          'RDNT',
+          'ROSE',
+          'HOOK',
+          'MASK',
+          'EDU',
+          'MBOX',
+          'BNX',
+        ],
+        chainConfigs: supportedChains,
         displayTokenSymbols: {
           10: {
             '0x7F5c764cBc14f9669B88837ca1490cCa17c31607': 'USDC.e',
@@ -105,78 +116,55 @@ export function useTransferConfig() {
             '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB': 'WETH.e',
           },
         },
-        cBridge: {
-          config: cBridgeConfig,
-          exclude: {
-            chains: [],
-            tokens: {
+        providers: [
+          cBridge({
+            config: cBridgeConfig,
+            excludedChains: [],
+            excludedTokens: {
               56: ['0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'],
               42161: ['0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'], // ['USDT', 'USDC.e']
             },
-          },
-          bridgedTokenGroups: [],
-        },
-        // deBridge: {
-        //   config: deBridgeConfig,
-        //   exclude: {
-        //     chains: [],
-        //     tokens: {
-        //       1: ['cUSDCv3', '0x5e21d1ee5cf0077b314c381720273ae82378d613'],
-        //       56: [
-        //         '0x67d66e8ec1fd25d98b3ccd3b19b7dc4b4b7fc493',
-        //         '0x0000000000000000000000000000000000000000',
-        //         '0x9c7beba8f6ef6643abd725e45a4e8387ef260649',
-        //         '0xb04906e95ab5d797ada81508115611fee694c2b3',
-        //         '0x524bc91dc82d6b90ef29f76a3ecaabafffd490bc',
-        //       ],
-        //       137: ['cUSDCv3'],
-        //       42161: ['cUSDCv3'],
-        //       43114: ['BNB'],
-        //     },
-        //   },
-        //   bridgedTokenGroups: [
-        //     ['USDT', 'USDT.e'],
-        //     ['USDC', 'USDC.e'],
-        //     ['WETH', 'WETH.e'],
-        //     ['DAI', 'DAI.e'],
-        //     ['WBTC', 'WBTC.e'],
-        //     ['LINK', 'LINK.e'],
-        //     ['AAVE', 'AAVE.e'],
-        //     ['WOO', 'WOO.e'],
-        //     ['BUSD', 'BUSD.e'],
-        //     ['ALPHA', 'ALPHA.e'],
-        //     ['SUSHI', 'SUSHI.e'],
-        //     ['SWAP', 'SWAP.e'],
-        //   ],
-        // },
-        stargate: {
-          config: stargateConfig,
-          exclude: {
-            chains: [],
-            tokens: {},
-          },
-          bridgedTokenGroups: [
-            ['ETH', 'mETH'],
-            ['USDT', 'm.USDT'],
-            ['USDC', 'USDC.e'],
-          ],
-        },
-        layerZero: {
-          config: layerZeroConfig,
-          exclude: {
-            chains: [],
-            tokens: {},
-          },
-          bridgedTokenGroups: [],
-        },
-        meson: {
-          config: mesonConfig.result as any,
-          exclude: {
-            chains: [],
-            tokens: { 42161: ['SOL'] },
-          },
-          bridgedTokenGroups: [],
-        },
+          }),
+          deBridge({
+            config: deBridgeConfig,
+            excludedChains: [],
+            excludedTokens: {
+              // We excluded certain tokens because: previously during testing, these token transactions failed. Some due to internal errors from third parties, and others due to lack of liquidity, hence we removed them.
+              1: ['cUSDCv3', '0x5e21d1ee5cf0077b314c381720273ae82378d613'],
+              56: [
+                '0x67d66e8ec1fd25d98b3ccd3b19b7dc4b4b7fc493',
+                '0x0000000000000000000000000000000000000000',
+                '0x9c7beba8f6ef6643abd725e45a4e8387ef260649',
+              ],
+              137: ['cUSDCv3'],
+              42161: ['cUSDCv3'],
+              43114: ['BNB'],
+              7565164: [
+                'So11111111111111111111111111111111111111112',
+                'FmqVMWXBESyu4g6FT1uz1GABKdJ4j6wbuuLFwPJtqpmu',
+                '2kaRSuDcz1V1kqq1sDmP23Wy98jutHQQgr5fGDWRpump',
+                '2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk',
+              ],
+            },
+          }),
+          stargate({
+            config: stargateConfig,
+            excludedChains: [],
+            excludedTokens: {},
+          }),
+          layerZero({
+            config: layerZeroConfig,
+            excludedChains: [],
+            excludedTokens: {},
+          }),
+          meson({
+            config: mesonConfig,
+            excludedChains: [],
+            excludedTokens: {
+              42161: ['SOL'],
+            },
+          }),
+        ],
       }
 
       setTransferConfig(tokenConfig)

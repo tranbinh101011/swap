@@ -7,7 +7,8 @@ import {
   BridgeTransfer,
   CanonicalBridgeProvider,
   CanonicalBridgeProviderProps,
-  ICanonicalBridgeConfig,
+  IChainConfig,
+  ICustomizedBridgeConfig,
 } from '@bnb-chain/canonical-bridge-widget'
 import { useTheme } from 'styled-components'
 import { useAccount } from 'wagmi'
@@ -23,7 +24,7 @@ import { light } from '../theme/light'
 import GlobalStyle from './GlobalStyle'
 
 export interface CanonicalBridgeProps {
-  connectWalletButton: CanonicalBridgeProviderProps['connectWalletButton']
+  connectWalletButton: CanonicalBridgeProviderProps['config']['connectWalletButton']
   supportedChainIds: number[]
   rpcConfig: Record<number, string[]>
 }
@@ -31,42 +32,20 @@ export interface CanonicalBridgeProps {
 export const CanonicalBridge = (props: CanonicalBridgeProps) => {
   const { connectWalletButton, supportedChainIds } = props
 
-  const transferConfig = useTransferConfig()
   const { currentLanguage } = useTranslation()
   const theme = useTheme()
   const toast = useToast()
-
-  const config = useMemo<ICanonicalBridgeConfig>(
-    () => ({
-      appName: 'canonical-bridge',
-      assetPrefix: env.ASSET_PREFIX,
-      appearance: {
-        bridgeTitle: 'Bridge',
-        colorMode: theme.isDark ? 'dark' : 'light',
-        theme: {
-          dark,
-          light,
-          breakpoints,
-        },
-        locale: currentLanguage.code,
-        messages: locales[currentLanguage.code] ?? locales.en,
-      },
-      http: {
-        apiTimeOut: 30 * 1000,
-        serverEndpoint: env.SERVER_ENDPOINT,
-      },
-    }),
-    [currentLanguage.code, theme.isDark],
-  )
-
   const { connector } = useAccount()
-  const supportedChains = useMemo(() => {
+  const supportedChains = useMemo<IChainConfig[]>(() => {
     return chains
       .filter((e) => supportedChainIds.includes(e.id))
       .filter((e) => !(connector?.id === 'BinanceW3WSDK' && e.id === 1101))
-      .map((chain) => ({ ...chain, rpcUrl: props.rpcConfig?.[chain.id]?.[0] ?? chain.rpcUrl }))
+      .map((chain) => ({
+        ...chain,
+        rpcUrls: { default: { http: props.rpcConfig?.[chain.id] ?? chain.rpcUrls.default.http } },
+      }))
   }, [supportedChainIds, connector?.id, props.rpcConfig])
-
+  const transferConfig = useTransferConfig(supportedChains)
   const handleError = useCallback(
     (params: { type: string; message?: string | undefined; error?: Error | undefined }) => {
       if (params.message) {
@@ -76,17 +55,42 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
     [toast],
   )
 
+  const config = useMemo<ICustomizedBridgeConfig>(
+    () => ({
+      appName: 'canonical-bridge',
+      assetPrefix: env.ASSET_PREFIX,
+      bridgeTitle: 'Bridge',
+      theme: {
+        colorMode: theme.isDark ? 'dark' : 'light',
+        breakpoints,
+        colors: {
+          dark,
+          light,
+        },
+      },
+      locale: {
+        language: currentLanguage.code,
+        messages: locales[currentLanguage.code] ?? locales.en,
+      },
+      http: {
+        apiTimeOut: 30 * 1000,
+        serverEndpoint: env.SERVER_ENDPOINT,
+      },
+      transfer: transferConfig,
+      components: {
+        connectWalletButton,
+        refreshingIcon: <RefreshingIcon />,
+      },
+      chains: supportedChains,
+      onError: handleError,
+    }),
+    [currentLanguage.code, theme.isDark, transferConfig, supportedChains, props.rpcConfig, handleError],
+  )
+
   return (
     <BridgeWalletProvider>
       <GlobalStyle />
-      <CanonicalBridgeProvider
-        config={config}
-        transferConfig={transferConfig}
-        chains={supportedChains}
-        connectWalletButton={connectWalletButton}
-        refreshingIcon={<RefreshingIcon />}
-        onError={handleError}
-      >
+      <CanonicalBridgeProvider config={config}>
         <Flex flexDirection="column" justifyContent="center" maxWidth="480px" width="100%">
           <BridgeTransfer />
           <V1BridgeLink />
