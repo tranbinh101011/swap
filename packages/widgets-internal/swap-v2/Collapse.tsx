@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from "@pancakeswap/uikit";
-import { useLayoutEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import { styled } from "styled-components";
 
 const PADDING = 0;
@@ -56,16 +56,23 @@ export const Collapse: React.FC<CollapseProps> = ({ title, content, isOpen, onTo
     const wrapperElement = wrapperRef.current;
     const contentHeight = contentElement.scrollHeight;
     const titleHeight = titleElement.scrollHeight;
-
+    // height auto -> accurate height for transition
+    wrapperElement.style.height = `${titleHeight + contentHeight + PADDING * 2}px`;
     if (!isOpen) {
-      wrapperElement.style.height = `${titleHeight + PADDING * 2}px`;
-    } else {
-      wrapperElement.style.height = `${titleHeight + contentHeight + PADDING * 2}px`;
+      setTimeout(() => {
+        wrapperElement.style.height = `${titleHeight + PADDING * 2}px`;
+      }, 50);
     }
   }, [isOpen, titleRef.current?.scrollHeight, contentRef.current?.scrollHeight, recalculateDep]);
 
+  const onTransitionEnd = useCallback(() => {
+    if (isOpen && wrapperRef.current) {
+      wrapperRef.current.style.height = "auto";
+    }
+  }, [isOpen]);
+
   return (
-    <Container ref={wrapperRef}>
+    <Container ref={wrapperRef} onTransitionEnd={onTransitionEnd}>
       <TitleWrapper
         ref={titleRef}
         onClick={() => {
