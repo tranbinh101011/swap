@@ -1,5 +1,11 @@
 # @pancakeswap/gauges
 
+## 2.0.11
+
+### Patch Changes
+
+- 36fdc2a: Updated a @pancakeswap/utils dependency. So update all packages related.
+
 ## 2.0.10
 
 ### Patch Changes

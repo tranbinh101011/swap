@@ -1,5 +1,13 @@
 # @pancakeswap/smart-router
 
+## 7.2.3
+
+### Patch Changes
+
+- 36fdc2a: Updated a @pancakeswap/utils dependency. So update all packages related.
+- Updated dependencies [36fdc2a]
+  - @pancakeswap/gauges@2.0.11
+
 ## 7.2.2
 
 ### Patch Changes
