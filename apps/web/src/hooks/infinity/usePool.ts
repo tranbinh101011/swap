@@ -2,7 +2,6 @@ import { ChainId } from '@pancakeswap/chains'
 import { BinPool, Pool as CLPool, findHook, PoolType } from '@pancakeswap/infinity-sdk'
 import { Token } from '@pancakeswap/swap-sdk-core'
 import { useQuery } from '@tanstack/react-query'
-import { QUERY_SETTINGS_IMMUTABLE } from 'config/constants'
 import { useCurrencyByChainId } from 'hooks/Tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { PoolState } from 'hooks/v3/types'
@@ -29,7 +28,10 @@ export const usePoolById = <
     queryFn: () => fetchPoolInfo(poolId!, chainId),
     enabled: isPoolId(poolId) && !!chainId,
     retry: false,
-    ...QUERY_SETTINGS_IMMUTABLE,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
+    staleTime: 5 * 1000,
   })
 
   const currencyA = useCurrencyByChainId(data?.currency0, chainId) ?? undefined

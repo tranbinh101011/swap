@@ -28,6 +28,7 @@ import { isUserRejected } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { getViemClients } from 'utils/viem'
 import { type Address, type Hex } from 'viem'
+import { ErrorModal } from 'views/AddLiquidityInfinity/components/ErrorModal'
 import { type UseSendTransactionReturnType, useSendTransaction } from 'wagmi'
 
 export type AddLiquidityParams = {
@@ -186,6 +187,12 @@ export const useAddCLPoolAndPosition = (
     true,
     'infinity-cl-add-liquidity-modal',
   )
+  const [onPresentErrorModal, onDismissErrorModal] = useModal(
+    <ErrorModal title={t('Add Liquidity')} subTitle={txnErrorMessage} />,
+    true,
+    true,
+    'infinity-cl-add-liquidity-error-modal',
+  )
 
   const addCLLiquidity = useCallback(
     (params: AddLiquidityParams) => {
@@ -216,6 +223,7 @@ export const useAddCLPoolAndPosition = (
         onDismissConfirmationModal()
         if (!isUserRejected(error)) {
           setTxnErrorMessage(transactionErrorToUserReadableMessage(error, t))
+          onPresentErrorModal()
         }
         onError?.(error)
       }
