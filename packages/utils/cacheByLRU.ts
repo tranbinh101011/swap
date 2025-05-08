@@ -1,5 +1,5 @@
-import QuickLRU from 'quick-lru'
 import { keccak256, stringify } from 'viem'
+import { LRU } from './lru'
 
 type AsyncFunction<T extends any[]> = (...args: T) => Promise<any>
 
@@ -77,7 +77,7 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
   fn: T,
   { ttl, key, maxCacheSize, persist, isValid, autoRevalidate, maxAge }: CacheOptions<T>,
 ) => {
-  const cache = new QuickLRU<string, CacheItem>({
+  const cache = new LRU<string, CacheItem>({
     maxAge: Math.max(ttl * 2, maxAge || 0),
     maxSize: maxCacheSize || 1000,
   })

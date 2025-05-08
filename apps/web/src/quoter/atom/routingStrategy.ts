@@ -1,4 +1,3 @@
-import { SimpleCache } from '@pancakeswap/utils/SimpleCache'
 import { Atom } from 'jotai'
 import { AtomFamily } from 'jotai/vanilla/utils/atomFamily'
 import { QuoteQuery } from 'quoter/quoter.types'
@@ -17,11 +16,6 @@ export interface StrategyRoute {
   priority?: number
 }
 type RoutingStrategy = StrategyRoute[]
-
-const cache = new SimpleCache<string, RoutingStrategy>({
-  maxSize: 1000,
-  maxAge: 1000 * 120, // 2 minites
-})
 
 const defaultRoutingStrategy: RoutingStrategy = [
   // Single hop route & with light pools
