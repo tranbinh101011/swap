@@ -883,7 +883,13 @@ const MyInfinityCLPPositions: React.FC<{
             {t('closed')}
           </Text>
           {positions?.[PositionFilter.Closed]?.map((position) => {
-            return <InfinityCLPositionItem key={position.tokenId} data={position} />
+            return (
+              <InfinityCLPositionItem
+                key={position.tokenId}
+                data={position}
+                action={<InfinityPositionActions pos={position} positionList={infinityPositions} />}
+              />
+            )
           })}
         </AutoColumn>
       ) : null}

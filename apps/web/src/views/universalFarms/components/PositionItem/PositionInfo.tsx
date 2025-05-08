@@ -233,7 +233,7 @@ const Earnings: React.FC<{ earningsAmount?: number; earningsBusd?: number }> = (
 }) => {
   const { t } = useTranslation()
   return (
-    earningsBusd > 0 && (
+    earningsAmount > 0 && (
       <Row gap="8px">
         <DetailInfoLabel>
           {t('CAKE earned')}: {earningsAmount} (~${formatBalance(earningsBusd)})
