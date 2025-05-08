@@ -1,5 +1,11 @@
 # @pancakeswap/utils
 
+## 6.1.3
+
+### Patch Changes
+
+- 87f089f: Bump version for update deps in @pancakeswap/utils
+
 ## 6.1.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @pancakeswap/hooks
 
+## 0.0.39
+
+### Patch Changes
+
+- Updated dependencies [87f089f]
+  - @pancakeswap/utils@6.1.3
+
 ## 0.0.38
 
 ### Patch Changes
