@@ -3,6 +3,8 @@ import { InfinityRouter, SmartRouter } from '@pancakeswap/smart-router'
 import { TradeType } from '@pancakeswap/swap-sdk-core'
 import { globalWorkerAtom } from 'hooks/useWorker'
 import { atomFamily } from 'jotai/utils'
+import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
+import { FetchCandidatePoolsError } from 'quoter/utils/FetchCandidatePoolsError'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getVerifiedTrade } from 'quoter/utils/getVerifiedTrade'
 import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
@@ -14,6 +16,7 @@ import { commonPoolsOnChainAtom } from './poolsAtom'
 export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
   const { amount, currency, tradeType, maxSplits, v2Swap, v3Swap, infinitySwap } = option
   return atomWithLoadable(async (get) => {
+    const perf = get(quoteTraceAtom(option))
     if (!amount || !amount.currency || !currency) {
       return undefined
     }
@@ -23,6 +26,7 @@ export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
     if (!worker) {
       throw new Error('Quote worker not initialized')
     }
+    perf.tracker.track('start')
 
     try {
       const [candidatePools, gasPriceWei] = await Promise.all([
@@ -46,6 +50,7 @@ export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
         ),
         get(gasPriceWeiAtom(currency?.chainId)),
       ])
+      perf.tracker.track('pool_success')
       const result = await worker.getBestTradeOffchain({
         chainId: currency.chainId,
         currency: SmartRouter.Transformer.serializeCurrency(currency),
@@ -62,16 +67,24 @@ export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
       })
       const trade = InfinityRouter.Transformer.parseTrade(currency.chainId, result) ?? null
       const verifiedTrade = await getVerifiedTrade(trade)
+
       if (verifiedTrade) {
         verifiedTrade.quoteQueryHash = option.hash
       }
+      perf.tracker.track('success')
       return {
         type: OrderType.PCS_CLASSIC,
         trade: (verifiedTrade || undefined) as InfinityGetBestTradeReturnType | undefined,
       } as InterfaceOrder
     } catch (ex) {
+      if (ex instanceof FetchCandidatePoolsError) {
+        perf.tracker.track('pool_error')
+      }
       console.warn(`[quote]`, ex)
+      perf.tracker.track('fail')
       throw new NoValidRouteError()
+    } finally {
+      perf.tracker.report()
     }
   })
 }, isEqualQuoteQuery)

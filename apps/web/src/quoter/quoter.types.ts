@@ -81,7 +81,8 @@ export type QuoteQuery = Options & {
   nonce?: number
   placeholderHash?: string
   for?: string
-  createTime?: number
+  createTime: number
+  routeKey?: string
 }
 
 export interface StrategyQuery {

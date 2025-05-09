@@ -9,6 +9,8 @@ import { atomFamily } from 'jotai/utils'
 import { createViemPublicClientGetter } from 'utils/viem'
 
 import { multicallGasLimitAtom } from 'quoter/hook/useMulticallGasLimit'
+import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
+import { FetchCandidatePoolsError } from 'quoter/utils/FetchCandidatePoolsError'
 import { filterPools } from 'quoter/utils/filterPoolsV3'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getAllowedPoolTypes } from 'quoter/utils/getAllowedPoolTypes'
@@ -21,6 +23,7 @@ import { commonPoolsLiteAtom } from './poolsAtom'
 export const bestAMMTradeFromQuoterWorker2Atom = atomFamily((option: QuoteQuery) => {
   const { amount, currency, tradeType, maxSplits, v2Swap, v3Swap } = option
   return atomWithLoadable(async (get) => {
+    const perf = get(quoteTraceAtom(option))
     const gasLimit = await get(multicallGasLimitAtom(currency?.chainId))
     if (!amount || !amount.currency || !currency) {
       return undefined
@@ -33,6 +36,7 @@ export const bestAMMTradeFromQuoterWorker2Atom = atomFamily((option: QuoteQuery)
     if (!worker) {
       throw new Error('Quote worker not initialized')
     }
+    perf.tracker.track('start')
 
     try {
       const candidatePools = await get(
@@ -53,6 +57,7 @@ export const bestAMMTradeFromQuoterWorker2Atom = atomFamily((option: QuoteQuery)
           for: option.for,
         }),
       )
+      perf.tracker.track('pool_success')
 
       const filtered = filterPools(candidatePools)
 
@@ -86,11 +91,16 @@ export const bestAMMTradeFromQuoterWorker2Atom = atomFamily((option: QuoteQuery)
       if (parsed) {
         parsed.quoteQueryHash = option.hash
       }
+      perf.tracker.track('success')
       return {
         type: OrderType.PCS_CLASSIC,
         trade: parsed,
       } as InterfaceOrder
     } catch (ex) {
+      if (ex instanceof FetchCandidatePoolsError) {
+        perf.tracker.track('pool_error')
+      }
+      perf.tracker.track('fail')
       console.warn(`[quote]`, ex)
       throw new NoValidRouteError()
     }

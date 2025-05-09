@@ -6,8 +6,10 @@ import { nativeCurrencyAtom } from 'hooks/useNativeCurrency'
 import { globalWorkerAtom } from 'hooks/useWorker'
 import { atomFamily } from 'jotai/utils'
 import { multicallGasLimitAtom } from 'quoter/hook/useMulticallGasLimit'
+import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
 import { NoValidRouteError, QuoteQuery } from 'quoter/quoter.types'
 import { createQuoteProvider } from 'quoter/utils/createQuoteProvider'
+import { FetchCandidatePoolsError } from 'quoter/utils/FetchCandidatePoolsError'
 import { filterPools } from 'quoter/utils/filterPoolsV3'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getAllowedPoolTypes } from 'quoter/utils/getAllowedPoolTypes'
@@ -19,6 +21,7 @@ import { commonPoolsLiteAtom } from './poolsAtom'
 export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) => {
   const { amount, currency, tradeType, maxSplits, v2Swap, v3Swap } = option
   return atomWithLoadable(async (get) => {
+    const perf = get(quoteTraceAtom(option))
     const gasLimit = await get(multicallGasLimitAtom(currency?.chainId))
     if (!amount || !amount.currency || !currency) {
       return undefined
@@ -31,6 +34,7 @@ export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) 
     if (!worker) {
       throw new Error('Quote worker not initialized')
     }
+    perf.tracker.track('start')
 
     try {
       const candidatePools = await get(
@@ -51,6 +55,7 @@ export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) 
           for: option.for,
         }),
       )
+      perf.tracker.track('pool_success')
 
       const filtered = filterPools(candidatePools)
 
@@ -80,13 +85,20 @@ export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) 
       })
       const parsed = SmartRouter.Transformer.parseTrade(currency.chainId, result as any)
       parsed.quoteQueryHash = option.hash
+      perf.tracker.track('success')
       return {
         type: OrderType.PCS_CLASSIC,
         trade: parsed as any as InfinityRouter.InfinityTradeWithoutGraph<TradeType>,
       } as InterfaceOrder
     } catch (ex) {
       console.warn(`[quote]`, ex)
+      if (ex instanceof FetchCandidatePoolsError) {
+        perf.tracker.track('pool_error')
+      }
+      perf.tracker.track('fail')
       throw new NoValidRouteError()
+    } finally {
+      perf.tracker.report()
     }
   })
 }, isEqualQuoteQuery)

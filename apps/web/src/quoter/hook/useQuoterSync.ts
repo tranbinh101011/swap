@@ -59,7 +59,7 @@ export const useQuoterSync = () => {
   const setActiveQuoteHash = useSetAtom(activeQuoteHashAtom)
   const [nonce, setNonce] = useAtom(quoteNonceAtom)
 
-  const quoteQueryInit: QuoteQuery = {
+  const quoteQueryInit = {
     amount,
     currency: dependentCurrency,
     baseCurrency: independentCurrency,
@@ -76,9 +76,7 @@ export const useQuoterSync = () => {
     address,
     blockNumber,
     nonce,
-    hash: '',
     for: 'main',
-    createTime: Date.now(),
   }
 
   const quoteQuery = createQuoteQuery(quoteQueryInit)
@@ -102,7 +100,13 @@ export const useQuoterSync = () => {
       stableSwap: !!quoteQuery.stableSwap,
       provider: quoteQuery.provider,
     }
-    fetchCommonPoolsOnChain(poolQuery)
+
+    // Prefetch pools
+    try {
+      fetchCommonPoolsOnChain(poolQuery)
+    } catch (ex) {
+      console.warn(ex)
+    }
   }, [quoteQuery.hash, inputCurrency, outputCurrency])
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { ExclusiveDutchOrderTrade } from '@pancakeswap/pcsx-sdk'
 import { Percent, TradeType } from '@pancakeswap/sdk'
-import { SmartRouterTrade, InfinityRouter } from '@pancakeswap/smart-router'
+import { InfinityRouter, SmartRouterTrade } from '@pancakeswap/smart-router'
 import { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
 import { BigNumber } from 'bignumber.js'
 import { L2_CHAIN_IDS } from 'config/chains'
@@ -117,16 +117,13 @@ const applySlippageLimits = (
   max = MAX_SLIPPAGE_NUMERATOR,
 ) => {
   if (calculatedSlippage.greaterThan(new Percent(max, 10_000))) {
-    console.log('Auto Slippage: Using MAX_AUTO_SLIPPAGE_TOLERANCE', new Percent(max, 10_000).toFixed(2))
     return new Percent(max, 10_000)
   }
 
   if (calculatedSlippage.lessThan(new Percent(min, 10_000))) {
-    console.log('Auto Slippage: Using MIN_AUTO_SLIPPAGE_TOLERANCE', new Percent(min, 10_000).toFixed(2))
     return new Percent(min, 10_000)
   }
 
-  console.log('Auto Slippage: Using calculated result', calculatedSlippage.toFixed(2))
   return calculatedSlippage
 }
 
@@ -178,7 +175,6 @@ export default function useClassicAutoSlippageTolerance(trade?: SupportedTrade):
     ],
     queryFn: () => {
       if (!trade || onL2) {
-        console.log('Auto Slippage: Using DEFAULT_AUTO_SLIPPAGE because', !trade ? 'no trade' : 'on L2')
         return DEFAULT_AUTO_SLIPPAGE
       }
 
@@ -198,18 +194,6 @@ export default function useClassicAutoSlippageTolerance(trade?: SupportedTrade):
           outputBaseSlippage.lessThan(inputBasedSlippage)
 
         const finalSlippage = shouldUseInputBase ? inputBasedSlippage : outputBaseSlippage
-
-        console.info('Auto Slippage: Calculated result', {
-          shouldUseInputBase,
-          inputBasedSlippage,
-          outputBaseSlippage,
-          dollarCostToUse,
-          inputDollarValue,
-          outputDollarValue,
-          fraction: dollarCostToUse / outputDollarValue,
-          resultBasisPoints: Math.floor((dollarCostToUse / outputDollarValue) * 10000),
-          result: finalSlippage.toFixed(2),
-        })
 
         return finalSlippage
       }

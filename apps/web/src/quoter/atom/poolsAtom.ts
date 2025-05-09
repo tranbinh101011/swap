@@ -4,6 +4,7 @@ import { Pool } from '@pancakeswap/smart-router'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { PoolQuery } from 'quoter/quoter.types'
+import { FetchCandidatePoolsError } from 'quoter/utils/FetchCandidatePoolsError'
 import { isEqualPoolQuery } from 'quoter/utils/PoolHashHelper'
 import { poolQueriesFactory } from 'quoter/utils/poolQueries'
 
@@ -19,7 +20,7 @@ export const fetchCommonPoolsOnChain = async (query: PoolQuery) => {
     return poolsArray.flat() as Pool[]
   } catch (ex) {
     console.warn(ex)
-    return []
+    throw new FetchCandidatePoolsError('fetchCommonPoolsOnChain')
   }
 }
 export const commonPoolsOnChainAtom = atomFamily((query: PoolQuery) => {
@@ -42,7 +43,7 @@ export const commonPoolsAtom = atomFamily((query: PoolQuery) => {
       return poolsArray.flat() as Pool[]
     } catch (ex) {
       console.warn(ex)
-      return []
+      throw new FetchCandidatePoolsError('commonPoolsAtom')
     }
   })
 }, isEqualPoolQuery)
@@ -60,7 +61,7 @@ export const commonPoolsLiteAtom = atomFamily((query: PoolQuery) => {
       return poolsArray.flat() as Pool[]
     } catch (ex) {
       console.warn(ex)
-      return []
+      throw new FetchCandidatePoolsError('commonPoolsLiteAtom')
     }
   })
 }, isEqualPoolQuery)

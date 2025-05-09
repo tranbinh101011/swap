@@ -78,6 +78,7 @@ const useBestTrade = (fromToken?: string, toToken?: string, value?: string) => {
     speedQuoteEnabled: true,
     infinitySwap: false,
     blockNumber,
+    routeKey: 'twap',
   })
   const tradeResult = useAtomValue(bestQuoteAtom(quoteOption))
   const { data } = tradeResult
