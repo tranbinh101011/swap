@@ -14,9 +14,9 @@ import { Address, parseEther } from 'viem'
 import { NftToken } from './nftMarket/types'
 
 export enum GAS_PRICE {
-  default = '5',
-  fast = '6',
-  instant = '7',
+  default = '0.1',
+  fast = '0.12',
+  instant = '0.15',
   testnet = '10',
 }
 
