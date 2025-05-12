@@ -57,8 +57,8 @@ const DataRow = ({ transaction }: { transaction: Transaction; color?: string }) 
     chainId,
     transaction.token1.wrapped.symbol,
   )
-  const outputTokenSymbol = transaction.amount0 < 0 ? token0Symbol : token1Symbol
-  const inputTokenSymbol = transaction.amount1 < 0 ? token0Symbol : token1Symbol
+  const outputTokenSymbol = transaction.amount0 > 0 ? token0Symbol : token1Symbol
+  const inputTokenSymbol = transaction.amount1 < 0 ? token1Symbol : token0Symbol
 
   return (
     <ResponsiveGrid>
