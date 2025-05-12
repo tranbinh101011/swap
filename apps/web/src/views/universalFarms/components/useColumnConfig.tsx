@@ -19,6 +19,7 @@ import { getHookByAddress } from 'utils/getHookByAddress'
 import { isInfinityProtocol } from 'utils/protocols'
 import { Address } from 'viem'
 
+import { useHookByPoolId } from 'hooks/infinity/useHooksList'
 import { getChainFullName } from '../utils'
 import { RewardStatusDisplay } from './FarmStatusDisplay'
 import { checkHasReward } from './FarmStatusDisplay/hooks'
@@ -35,8 +36,19 @@ export const FeeTierComponent = <T extends BasicDataType>({
   item: T
 }) => {
   const percent = useMemo(() => new Percent(fee ?? 0, item.feeTierBase || 1), [fee, item.feeTierBase])
+  const hookData = useHookByPoolId(
+    item.chainId,
+    isInfinityProtocol(item.protocol) ? (item as { poolId?: `0x${string}` })?.poolId : undefined,
+  )
   if (isInfinityProtocol(item.protocol)) {
-    return <InfinityFeeTierBreakdown poolId={item.poolId} chainId={item.chainId} />
+    return (
+      <InfinityFeeTierBreakdown
+        poolId={item.poolId}
+        chainId={item.chainId}
+        hookData={hookData}
+        infoIconVisible={false}
+      />
+    )
   }
   return <FeeTierTooltip type={item.protocol} percent={percent} dynamic={dynamic} />
 }

@@ -16,6 +16,7 @@ import {
   useMatchBreakpoints,
 } from '@pancakeswap/uikit'
 import truncateHash from '@pancakeswap/utils/truncateHash'
+import { Liquidity } from '@pancakeswap/widgets-internal'
 import Link from 'next/link'
 import { useMemo } from 'react'
 
@@ -64,9 +65,7 @@ export const PoolFeatures = ({ hookData }: { hookData: HookData }) => {
             </FlexGap>
             <AutoColumn gap="sm">
               <PreTitle>{t('Description')}</PreTitle>
-              <Text ellipsis style={{ whiteSpace: 'pre-wrap' }}>
-                {hookData.description}
-              </Text>
+              <Liquidity.LinkifyText text={hookData.description} />
             </AutoColumn>
           </AutoColumn>
 

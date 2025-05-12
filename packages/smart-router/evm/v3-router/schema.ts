@@ -131,6 +131,7 @@ export const zRouterPostParams = z
     onChainQuoterGasLimit: zBigNumber.optional(),
     nativeCurrencyUsdPrice: z.number().optional(),
     quoteCurrencyUsdPrice: z.number().optional(),
+    account: zAddress.optional(),
   })
   .required({
     chainId: true,

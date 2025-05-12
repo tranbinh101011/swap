@@ -48,6 +48,7 @@ import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { formatPositionAmount, InfinityCLPoolPositionAprButton } from 'views/universalFarms/components'
 import useInfinityCollectFeeAction from 'views/universalFarms/hooks/useInfinityCollectFeeAction'
 
+import { isAddressEqual } from 'utils'
 import { zeroAddress } from 'viem'
 import { PositionHeader } from './components/PositionHeader'
 import { PositionPriceSection } from './components/PositionPrice'
@@ -159,7 +160,7 @@ export const InfinityCLPosition = () => {
     functionName: 'ownerOf',
     args: useMemo(() => [Number(tokenId)], [tokenId]),
   }).result
-  const isOwnNFT = owner === account || positionDetails?.operator === account
+  const isOwnNFT = isAddressEqual(owner, account) || isAddressEqual(positionDetails?.operator, account)
 
   const feeValueUpper = manuallyInverted ? feeAmount0 : feeAmount1
   const feeValueLower = manuallyInverted ? feeAmount1 : feeAmount0
@@ -284,21 +285,23 @@ export const InfinityCLPosition = () => {
               </Box>
             ) : null}
             <Card style={{ maxWidth: '800px' }} mx="auto">
-              <PositionHeader
-                isOwner={isOwnNFT}
-                isOutOfRange={!inRange}
-                isFarming={isFarming}
-                protocol={Protocol.InfinityCLAMM}
-                currency0={currency0}
-                currency1={currency1}
-                chainId={chainId}
-                feeTier={feeAmount}
-                dynamic={poolInfo?.isDynamicFee}
-                isRemoved={removed}
-                hookData={hookData}
-                poolId={poolId}
-                tokenId={tokenId ? Number(tokenId) : undefined}
-              />
+              {chainId ? (
+                <PositionHeader
+                  isOwner={isOwnNFT}
+                  isOutOfRange={!inRange}
+                  isFarming={isFarming}
+                  protocol={Protocol.InfinityCLAMM}
+                  currency0={currency0}
+                  currency1={currency1}
+                  chainId={chainId}
+                  feeTier={feeAmount}
+                  dynamic={poolInfo?.isDynamicFee}
+                  isRemoved={removed}
+                  hookData={hookData}
+                  poolId={poolId}
+                  tokenId={tokenId ? Number(tokenId) : undefined}
+                />
+              ) : null}
               <CardBody>
                 <AutoRow>
                   <Flex

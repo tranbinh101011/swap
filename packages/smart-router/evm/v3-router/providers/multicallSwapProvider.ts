@@ -2,9 +2,9 @@
 import { ChainId } from '@pancakeswap/chains'
 import { multicallByGasLimit } from '@pancakeswap/multicall'
 import { BigintIsh } from '@pancakeswap/sdk'
+import { AbortControl } from '@pancakeswap/utils/abortControl'
 import stats from 'stats-lite'
 import { PublicClient, decodeFunctionResult, encodeFunctionData } from 'viem'
-import { AbortControl } from '@pancakeswap/utils/abortControl'
 
 import IMulticallABI from '../../abis/InterfaceMulticall'
 import {
@@ -134,7 +134,7 @@ export class PancakeMulticallProvider extends IMulticallProvider<PancakeMultical
     approxGasUsedPerSuccessCall: number
     approxGasUsedPerFailCall: number
   }> {
-    const { address, functionName, functionParams, abi, additionalConfig } = params
+    const { address, functionName, functionParams, abi, additionalConfig, account } = params
     const gasLimitPerCall = additionalConfig?.gasLimitPerCall ?? this.gasLimitPerCall
     const calls = functionParams.map((functionParam) => {
       const callData = encodeFunctionData({
@@ -162,6 +162,7 @@ export class PancakeMulticallProvider extends IMulticallProvider<PancakeMultical
       chainId: this.chainId,
       client: this.provider,
       signal: additionalConfig?.signal,
+      account,
     })
 
     const results: Result<TReturn>[] = []

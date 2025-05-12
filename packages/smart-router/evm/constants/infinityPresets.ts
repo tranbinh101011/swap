@@ -40,6 +40,7 @@ function getCLHookPreset(x: HookData) {
   }
   return hook
 }
+
 export const CL_HOOK_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: HookPreset<'CL'>[] } = {
   [ChainId.BSC]: [
     EMPTY_HOOK,
@@ -61,9 +62,32 @@ export const CL_HOOK_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: HookP
   ],
   [ChainId.SEPOLIA]: [EMPTY_HOOK],
 }
+function getBinHookPreset(x: HookData) {
+  const hook = {
+    address: x.address,
+    registrationBitmap: encodeHooksRegistration(x.hooksRegistration),
+    poolKeyOverride: undefined as Partial<PoolKey<'Bin'>> | undefined,
+  }
 
+  if (
+    // hook.address === BIN_DYNAMIC_FEE_HOOKS_BY_CHAIN[ChainId.BSC] || //@notice: open it when we have the official bin hook on BSC
+    x.category?.includes(HOOK_CATEGORY.DynamicFees)
+  ) {
+    hook.poolKeyOverride = {
+      fee: DYNAMIC_FEE_FLAG,
+    }
+  }
+  return hook
+}
 export const BIN_HOOK_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: HookPreset<'Bin'>[] } = {
-  [ChainId.BSC]: [EMPTY_HOOK],
+  [ChainId.BSC]: [
+    EMPTY_HOOK,
+    ...hooksList[ChainId.BSC]
+      .filter((x) => x.poolType === POOL_TYPE.Bin)
+      .map((x) => {
+        return getBinHookPreset(x)
+      }),
+  ],
   [ChainId.BSC_TESTNET]: [
     EMPTY_HOOK,
     {

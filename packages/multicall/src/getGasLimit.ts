@@ -1,5 +1,5 @@
-import { BigintIsh } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
+import { BigintIsh } from '@pancakeswap/sdk'
 import { toBigInt } from '@pancakeswap/utils/toBigInt'
 import { PublicClient } from 'viem'
 
@@ -22,6 +22,9 @@ export type GetGasLimitParams = {
   maxGasLimit?: BigintIsh
 
   gasBuffer?: BigintIsh
+
+  // The account to simulate or do the multicall with
+  account?: `0x${string}`
 }
 
 export function getDefaultGasLimit(chainId?: ChainId) {

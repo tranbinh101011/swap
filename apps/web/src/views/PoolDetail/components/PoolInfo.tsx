@@ -82,7 +82,7 @@ export const PoolInfo = () => {
               </Text>
               <Box>
                 {isInfinityProtocol(poolInfo.protocol) ? (
-                  <InfinityFeeTierBreakdown poolId={poolId} chainId={chainId} />
+                  <InfinityFeeTierBreakdown poolId={poolId} chainId={chainId} hookData={hookData} />
                 ) : (
                   <FeeTierTooltip type={poolInfo.protocol} percent={fee} dynamic={poolInfo?.isDynamicFee} />
                 )}

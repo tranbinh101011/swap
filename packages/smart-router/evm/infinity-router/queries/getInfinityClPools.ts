@@ -190,7 +190,7 @@ function createBitmapIndexListBuilder(tickRange: number) {
 }
 
 // only allow 10% slippage
-const buildBitmapIndexList = createBitmapIndexListBuilder(1000)
+const buildBitmapIndexList = createBitmapIndexListBuilder(10)
 
 type FillPoolsWithTicksParams = {
   pools: InfinityClPool[]
@@ -202,6 +202,9 @@ export async function fillClPoolsWithTicks({
   clientProvider,
   gasLimit,
 }: FillPoolsWithTicksParams): Promise<InfinityClPool[]> {
+  if (pools.length === 0) {
+    return []
+  }
   const chainId: ChainId = pools[0]?.currency0.chainId
   const tickLensAddress = INFI_CL_TICK_LENS_ADDRESSES[chainId]
   const client = clientProvider?.({ chainId })

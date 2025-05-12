@@ -11,6 +11,7 @@ import { MerklTag } from 'components/Merkl/MerklTag'
 import { RangeTag } from 'components/RangeTag'
 import dayjs from 'dayjs'
 import { useUnclaimedFarmRewardsUSDByPoolId, useUnclaimedFarmRewardsUSDByTokenId } from 'hooks/infinity/useFarmReward'
+import { useHookByPoolId } from 'hooks/infinity/useHooksList'
 import React, { memo, useEffect, useMemo } from 'react'
 import {
   InfinityBinPositionDetail,
@@ -26,8 +27,6 @@ import { Address } from 'viem'
 import { useV2CakeEarning, useV3CakeEarning } from 'views/universalFarms/hooks/useCakeEarning'
 import { usePositionEarningAmount } from 'views/universalFarms/hooks/usePositionEarningAmount'
 import { useAccount } from 'wagmi'
-import { PositionDebugView } from './PositionDebugView'
-
 import {
   InfinityBinPoolPositionAprButton,
   InfinityCLPoolPositionAprButton,
@@ -35,6 +34,7 @@ import {
   V2PoolPositionAprButton,
   V3PoolPositionAprButton,
 } from '../PoolAprButton'
+import { PositionDebugView } from './PositionDebugView'
 
 export const formatPositionAmount = (amount?: CurrencyAmount<Token | Currency>) => {
   const minimumFractionDigits = Math.min(amount?.currency.decimals ?? 0, 6)
@@ -94,6 +94,10 @@ export const PositionInfo = memo((props: PositionInfoProps) => {
     miniMode = isTablet || isMobile,
     chainId,
   } = props
+  const hookData = useHookByPoolId(
+    chainId,
+    isInfinityProtocol(protocol) ? (pool as InfinityPoolInfo)?.poolId : undefined,
+  )
 
   const title = useMemo(
     () =>
@@ -108,7 +112,12 @@ export const PositionInfo = memo((props: PositionInfoProps) => {
               innerMargin="-10px"
             />
             {isInfinityProtocol(protocol) ? (
-              <InfinityFeeTierBreakdown poolId={(pool as InfinityPoolInfo)?.poolId} chainId={chainId} />
+              <InfinityFeeTierBreakdown
+                poolId={(pool as InfinityPoolInfo)?.poolId}
+                chainId={chainId}
+                hookData={hookData}
+                infoIconVisible={false}
+              />
             ) : (
               <FeeTier type={protocol} fee={fee} dynamic={pool?.isDynamicFee} denominator={feeTierBase} />
             )}
@@ -136,7 +145,11 @@ export const PositionInfo = memo((props: PositionInfoProps) => {
           </PositionDebugView>
           {tokenId ? <Text color="textSubtle">(#{tokenId.toString()})</Text> : null}
           {isInfinityProtocol(protocol) ? (
-            <InfinityFeeTierBreakdown poolId={(pool as InfinityPoolInfo)?.poolId} chainId={chainId} />
+            <InfinityFeeTierBreakdown
+              poolId={(pool as InfinityPoolInfo)?.poolId}
+              chainId={chainId}
+              hookData={hookData}
+            />
           ) : (
             <FeeTier type={protocol} fee={fee} denominator={feeTierBase} />
           )}

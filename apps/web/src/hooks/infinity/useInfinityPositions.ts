@@ -5,12 +5,12 @@ import { getAccountInfinityBinPositionByPoolId } from 'state/farmsV4/state/accou
 import { useLatestTxReceipt } from 'state/farmsV4/state/accountPositions/hooks/useLatestTxReceipt'
 import { Address, type Hex } from 'viem'
 
-export function useInfinityClPositionFromTokenId(tokenId_: bigint | number | undefined, chainId: number) {
+export function useInfinityClPositionFromTokenId(tokenId_: bigint | number | undefined, chainId: number | undefined) {
   const tokenId = Number(tokenId_)
   const [latestTxReceipt] = useLatestTxReceipt()
   const { data, isLoading } = useQuery({
     queryKey: ['useInfinityPositionFromTokenId', tokenId, chainId, latestTxReceipt?.blockHash],
-    queryFn: () => readCLPositions(chainId, tokenId ? [tokenId] : []),
+    queryFn: () => readCLPositions(chainId!, tokenId ? [tokenId] : []),
     enabled: Boolean(chainId && tokenId),
     staleTime: SLOW_INTERVAL,
     refetchInterval: SLOW_INTERVAL,

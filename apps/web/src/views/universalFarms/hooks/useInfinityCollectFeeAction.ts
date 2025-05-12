@@ -20,7 +20,7 @@ const useInfinityCollectFeeAction = ({
   chainId,
   onDone,
 }: {
-  chainId: number
+  chainId: number | undefined
   onDone?: (hash: Hex) => void
 }): InfinityCollectFeeAction => {
   const { address: account } = useAccount()
@@ -30,6 +30,7 @@ const useInfinityCollectFeeAction = ({
 
   const onCollectFee = useCallback(
     async ({ tokenId, poolKey, wrapAddress }: CollectFeeProps) => {
+      if (!chainId) return
       const shouldSwitch = await switchNetworkIfNecessary(chainId)
       if (!shouldSwitch) {
         await removeCLLiquidity({

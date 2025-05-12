@@ -1,6 +1,7 @@
 import { OrderType } from '@pancakeswap/price-api-sdk'
 import { InfinityRouter, SmartRouter } from '@pancakeswap/smart-router'
 import { TradeType } from '@pancakeswap/swap-sdk-core'
+import { accountActiveChainAtom } from 'hooks/useAccountActiveChain'
 import { currencyUSDPriceAtom } from 'hooks/useCurrencyUsdPrice'
 import { nativeCurrencyAtom } from 'hooks/useNativeCurrency'
 import { globalWorkerAtom } from 'hooks/useWorker'
@@ -23,6 +24,7 @@ export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) 
   return atomWithLoadable(async (get) => {
     const perf = get(quoteTraceAtom(option))
     const gasLimit = await get(multicallGasLimitAtom(currency?.chainId))
+    const { account } = get(accountActiveChainAtom)
     if (!amount || !amount.currency || !currency) {
       return undefined
     }
@@ -82,6 +84,7 @@ export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) 
         quoteCurrencyUsdPrice,
         nativeCurrencyUsdPrice,
         signal: option.signal,
+        account,
       })
       const parsed = SmartRouter.Transformer.parseTrade(currency.chainId, result as any)
       parsed.quoteQueryHash = option.hash

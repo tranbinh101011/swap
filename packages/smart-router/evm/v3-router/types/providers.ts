@@ -37,6 +37,7 @@ export type QuoterConfig = {
   onChainProvider: OnChainProvider
   gasLimit?: BigintIsh
   multicallConfigs?: ChainMap<BatchMulticallConfigs>
+  account?: `0x${string}`
 }
 
 export interface QuoteProvider<C = any> {

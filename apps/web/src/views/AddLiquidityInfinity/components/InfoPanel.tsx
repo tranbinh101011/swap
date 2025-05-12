@@ -103,7 +103,7 @@ export const InfoPanel = ({ poolId, chainId }: InfoPanelProps) => {
               <InfoTitle>{t('Fee tier')}</InfoTitle>
               <GreyBadge mt="2px" px={0}>
                 <Text color="textSubtle" small>
-                  <InfinityFeeTierBreakdown poolId={poolId} chainId={chainId} />
+                  <InfinityFeeTierBreakdown poolId={poolId} chainId={chainId} hookData={hookData} />
                 </Text>
               </GreyBadge>
             </InfoRow>

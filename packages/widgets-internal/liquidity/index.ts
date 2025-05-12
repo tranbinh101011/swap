@@ -9,6 +9,7 @@ export * from "./PercentSlider";
 
 export * from "./infinity/BinPoolInput";
 export * from "./infinity/constants";
+export * from "./infinity/HookModal";
 export * from "./infinity/LiquidityShapePicker";
 export * from "./infinity/PoolFeaturesBadge";
 export * from "./infinity/PriceRangeDatePicker";

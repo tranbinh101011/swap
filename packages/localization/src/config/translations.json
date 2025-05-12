@@ -3704,6 +3704,8 @@
   "Epoch = 8-hour reward cycle": "Epoch = 8-hour reward cycle",
   "You’re trading via Brevis Hook-enabled pool, check for discount eligibility on pool page.": "You’re trading via Brevis Hook-enabled pool, check for discount eligibility on pool page.",
   "You’ve qualified for a discount via a Brevis Hook-enabled pool!": "You’ve qualified for a discount via a Brevis Hook-enabled pool!",
+  "You’re trading via Primus Hook-enabled pool, check for discount eligibility on pool page.": "You’re trading via Primus Hook-enabled pool, check for discount eligibility on pool page.",
+  "You’ve qualified for a discount via a Primus Hook-enabled pool!": "You’ve qualified for a discount via a Primus Hook-enabled pool!",
   "This route uses a dynamic fee pool; actual fees may vary.": "This route uses a dynamic fee pool; actual fees may vary.",
   "Burn Dashboard": "Burn Dashboard",
   "Select a tab": "Select a tab",
@@ -3741,5 +3743,7 @@
   "Burned CAKE Supply": "Burned CAKE Supply",
   "Last updated at: ${lastUpdatedAt}": "Last updated at: ${lastUpdatedAt}",
   "An error occurred while fetching the data. Please try again later.": "An error occurred while fetching the data. Please try again later.",
-  "Real-Time Burn History": "Real-Time Burn History"
+  "Real-Time Burn History": "Real-Time Burn History",
+  "Powered by Brevis, this hook enables swap fee discounts": "Powered by Brevis, this hook enables swap fee discounts",
+  "Powered by Primus, this hook enables swap fee discounts": "Powered by Primus, this hook enables swap fee discounts"
 }

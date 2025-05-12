@@ -387,7 +387,7 @@ export const useInfinityBinPoolManagerContract = (targetChainId: ChainId) => {
   return useMemo(() => getInfinityBinPoolManagerContract(signer ?? undefined, targetChainId), [signer, targetChainId])
 }
 
-export const useInfinityCLPositionManagerContract = (targetChainId: ChainId) => {
+export const useInfinityCLPositionManagerContract = (targetChainId: ChainId | undefined) => {
   const { data: signer } = useWalletClient()
   return useMemo(
     () => getInfinityCLPositionManagerContract(signer ?? undefined, targetChainId),

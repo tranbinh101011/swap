@@ -53,7 +53,7 @@ export const useShowCb1Popup = () => {
   const { account, chainId } = useAccountActiveChain()
   const [showCb1, setShowCb1] = useState(false)
 
-  const chainName = getChainName(chainId)
+  const chainName = chainId ? getChainName(chainId) : undefined
 
   useEffect(() => {
     const load = async () => {

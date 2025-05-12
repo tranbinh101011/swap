@@ -14,28 +14,32 @@ import {
 
 // For evm
 export function createQuoteProvider(config: QuoterConfig): QuoteProvider<QuoterConfig> {
-  const { onChainProvider, multicallConfigs, gasLimit } = config
+  const { onChainProvider, multicallConfigs, gasLimit, account } = config
   const offChainQuoteProvider = createOffChainQuoteProvider()
   const mixedRouteOnChainQuoteProviderV1 = createMixedRouteOnChainQuoteProvider({
     onChainProvider,
     multicallConfigs,
     gasLimit,
+    account,
   })
   const mixedRouteOnChainQuoteProviderV2 = createMixedRouteOnChainQuoteProviderV2({
     onChainProvider,
     multicallConfigs,
     gasLimit,
+    account,
   })
-  const v3OnChainQuoteProvider = createV3OnChainQuoteProvider({ onChainProvider, multicallConfigs, gasLimit })
+  const v3OnChainQuoteProvider = createV3OnChainQuoteProvider({ onChainProvider, multicallConfigs, gasLimit, account })
   const infinityClOnChainQuoteProvider = createInfinityClOnChainQuoteProvider({
     onChainProvider,
     multicallConfigs,
     gasLimit,
+    account,
   })
   const infinityBinOnChainQuoteProvider = createInfinityBinOnChainQuoteProvider({
     onChainProvider,
     multicallConfigs,
     gasLimit,
+    account,
   })
 
   const createGetRouteWithQuotes = (isExactIn = true) => {

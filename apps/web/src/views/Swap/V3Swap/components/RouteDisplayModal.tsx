@@ -1,4 +1,4 @@
-import { parseProtocolFeesToNumbers } from '@pancakeswap/infinity-sdk'
+import { HOOK_CATEGORY, parseProtocolFeesToNumbers } from '@pancakeswap/infinity-sdk'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Rounding } from '@pancakeswap/sdk'
 import { InfinityBinPool, InfinityClPool, Route, SmartRouter } from '@pancakeswap/smart-router'
@@ -22,7 +22,7 @@ import { memo, useMemo } from 'react'
 import { RoutingSettingsButton } from 'components/Menu/GlobalSettings/SettingsModalV2'
 import styled from 'styled-components'
 import { CurrencyLogoWrapper, RouterBox, RouterPoolBox, RouterTypeText } from 'views/Swap/components/RouterViewer'
-import { useBrevisHookDiscount } from 'views/SwapSimplify/hooks/useBrevisHookDiscount'
+import { useHookDiscount } from 'views/SwapSimplify/hooks/useHookDiscount'
 import { v3FeeToPercent } from '../utils/exchange'
 
 type Pair = [Currency, Currency]
@@ -51,7 +51,7 @@ export const RouteDisplayModal = memo(function RouteDisplayModal({ isOpen, onDis
         style={{ minHeight: '0' }}
         bodyPadding="24px"
       >
-        <AutoColumn gap="48px" height="100%">
+        <AutoColumn gap="56px" height="100%">
           {routes.map((route, i) => (
             // eslint-disable-next-line react/no-array-index-key
             <RouteDisplay key={i} route={route} />
@@ -94,21 +94,49 @@ const BrevisIcon = () => {
   )
 }
 
-const BrevisDiscountFeeDisplay: React.FC<{
+const HookDiscountFeeDisplay: React.FC<{
+  hookCategory?: HOOK_CATEGORY.BrevisDiscount | HOOK_CATEGORY.PrimusDiscount
   hookDiscount?: { originalFee: number; discountFee: number }
   feeDisplay: string
   originalFeeDisplay: string
-}> = ({ hookDiscount, feeDisplay, originalFeeDisplay }) => {
+  showIcon?: boolean
+}> = ({ hookDiscount, hookCategory, feeDisplay, originalFeeDisplay, showIcon }) => {
   const { t } = useTranslation()
   const { isMobile } = useMatchBreakpoints()
   const noDiscount = hookDiscount?.discountFee === hookDiscount?.originalFee
-  console.log('debug hookDiscount', { hookDiscount, noDiscount })
+  const noDiscountText = useMemo(() => {
+    if (!hookCategory) return ''
+    if (hookCategory === HOOK_CATEGORY.BrevisDiscount) {
+      return t('You’re trading via Brevis Hook-enabled pool, check for discount eligibility on pool page.')
+    }
+    if (hookCategory === HOOK_CATEGORY.PrimusDiscount) {
+      return t('You’re trading via Primus Hook-enabled pool, check for discount eligibility on pool page.')
+    }
+    return ''
+  }, [hookCategory])
+  const hasDiscountText = useMemo(() => {
+    if (!hookCategory) return ''
+    if (hookCategory === HOOK_CATEGORY.BrevisDiscount) {
+      return t('You’ve qualified for a discount via a Brevis Hook-enabled pool!')
+    }
+    if (hookCategory === HOOK_CATEGORY.PrimusDiscount) {
+      return t('You’ve qualified for a discount via a Primus Hook-enabled pool!')
+    }
+    return ''
+  }, [hookCategory])
+  const hookLabel = useMemo(() => {
+    if (!hookCategory) return ''
+    if (hookCategory === HOOK_CATEGORY.BrevisDiscount) {
+      return 'Fee Discount (Brevis)'
+    }
+    if (hookCategory === HOOK_CATEGORY.PrimusDiscount) {
+      return 'Fee Discount (Primus)'
+    }
+    return ''
+  }, [hookCategory])
+
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    <Text>
-      {noDiscount
-        ? t('You’re trading via Brevis Hook-enabled pool, check for discount eligibility on pool page.')
-        : t('You’ve qualified for a discount via a Brevis Hook-enabled pool!')}
-    </Text>,
+    <Text>{noDiscount ? noDiscountText : hasDiscountText}</Text>,
   )
 
   return (
@@ -133,12 +161,12 @@ const BrevisDiscountFeeDisplay: React.FC<{
               </Text>
             ) : null}
           </FlexGap>
-          <BrevisTip flexDirection="row" alignItems="center" gap="4px" ref={targetRef}>
-            <BrevisIcon />
+          <HookTip flexDirection="row" alignItems="center" gap="4px" ref={targetRef}>
+            {showIcon && hookCategory === HOOK_CATEGORY.BrevisDiscount ? <BrevisIcon /> : null}
             <Text fontSize={12} lineHeight={1} color="secondaryText">
-              Discount powered by Brevis
+              {hookLabel}
             </Text>
-          </BrevisTip>
+          </HookTip>
         </>
       )}
     </>
@@ -146,7 +174,7 @@ const BrevisDiscountFeeDisplay: React.FC<{
 }
 
 export const RouteDisplay = memo(function RouteDisplay({ route }: RouteDisplayProps) {
-  const hookDiscount = useBrevisHookDiscount(route.pools)
+  const { hookDiscount, category } = useHookDiscount(route.pools)
   const { t } = useTranslation()
   const { path, pools, inputAmount, outputAmount } = route
   const { currency: inputCurrency } = inputAmount
@@ -210,17 +238,23 @@ export const RouteDisplay = memo(function RouteDisplay({ route }: RouteDisplayPr
           const feeDisplay =
             isV3Pool || isInfinityPool
               ? Number(
-                  v3FeeToPercent(isV3Pool ? pool.fee : infinityDiscountFee).toFixed(3, {}, Rounding.ROUND_HALF_UP),
+                  v3FeeToPercent(isV3Pool ? pool.fee : infinityDiscountFee).toSignificant(
+                    3,
+                    {},
+                    Rounding.ROUND_HALF_UP,
+                  ),
                 ).toString()
               : ''
           const originalFeeDisplay = Number(
-            v3FeeToPercent(infinityFee).toFixed(3, {}, Rounding.ROUND_HALF_UP),
+            v3FeeToPercent(infinityFee).toSignificant(3, {}, Rounding.ROUND_HALF_UP),
           ).toString()
           const feeDisplayWithDiscount = (
-            <BrevisDiscountFeeDisplay
+            <HookDiscountFeeDisplay
+              showIcon={route.pools.length === 1}
               feeDisplay={feeDisplay}
               originalFeeDisplay={originalFeeDisplay}
               hookDiscount={hookDiscount[(pool as InfinityBinPool | InfinityClPool).hooks!]}
+              hookCategory={category}
             />
           )
 
@@ -325,7 +359,7 @@ function PairNode({
   )
 }
 
-const BrevisTip = styled(FlexGap)`
+const HookTip = styled(FlexGap)`
   cursor: pointer;
   border-radius: 8px;
 

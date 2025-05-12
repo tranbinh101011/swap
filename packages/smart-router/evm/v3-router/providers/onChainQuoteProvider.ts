@@ -93,6 +93,7 @@ interface ProviderConfig {
   gasLimit?: BigintIsh
   multicallConfigs?: ChainMap<BatchMulticallConfigs>
   onAdjustQuoteForGas?: AdjustQuoteForGasHandler
+  account?: `0x${string}`
 }
 
 export class BlockConflictError extends Error {
@@ -152,6 +153,7 @@ function onChainQuoteProviderFactory({ getQuoteFunctionName, getQuoterAddress, a
     gasLimit,
     multicallConfigs: multicallConfigsOverride,
     onAdjustQuoteForGas = defaultAdjustQuoteForGas,
+    account,
   }: ProviderConfig): QuoteProvider {
     const createGetRoutesWithQuotes = (isExactIn = true) => {
       const functionName = getQuoteFunctionName(isExactIn)
@@ -212,6 +214,7 @@ function onChainQuoteProviderFactory({ getQuoteFunctionName, getQuoterAddress, a
                 functionName,
                 functionParams: inputs,
                 providerConfig,
+                account,
                 additionalConfig: {
                   dropUnexecutedCalls,
                   gasLimitPerCall,

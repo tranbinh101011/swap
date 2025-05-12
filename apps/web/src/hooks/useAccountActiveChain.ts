@@ -1,16 +1,30 @@
-import { useMemo } from 'react'
+import { useAtom, useAtomValue } from 'jotai'
+import { atomWithProxy } from 'jotai-valtio'
+import { useEffect } from 'react'
+import { proxy } from 'valtio'
 import { useAccount } from 'wagmi'
 import { useActiveChainId } from './useActiveChainId'
 
-/**
- * Provides a web3 provider with or without user's signer
- * Recreate web3 instance only if the provider change
- */
+interface AccountChainState {
+  account?: `0x${string}`
+  chainId: number | undefined
+  status: 'connected' | 'disconnected' | 'connecting' | 'reconnecting' | null
+}
+
+const accountChainProxy = proxy<AccountChainState>({ chainId: undefined, status: null })
+export const accountActiveChainAtom = atomWithProxy(accountChainProxy)
+
 const useAccountActiveChain = () => {
-  const { address: account, status, connector } = useAccount()
+  const { address: account, status } = useAccount()
   const { chainId } = useActiveChainId()
 
-  return useMemo(() => ({ account, chainId, status, connector }), [account, chainId, connector, status])
+  const [, setProxy] = useAtom(accountActiveChainAtom)
+
+  useEffect(() => {
+    setProxy({ account, chainId, status })
+  }, [account, chainId, status, setProxy])
+
+  return useAtomValue(accountActiveChainAtom)
 }
 
 export default useAccountActiveChain

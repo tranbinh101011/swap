@@ -42,6 +42,7 @@ export const useFetchPools = (queries: FetchPoolsProps, enabled = true) => {
   return {
     pageNo: paginator.size,
     data: extendPools,
+    hasNextPage,
     isLoading,
     resetExtendPools,
   }

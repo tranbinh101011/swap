@@ -40,6 +40,9 @@ export async function getInfinityBinCandidatePools({
     currencyB,
     clientProvider,
   })
+  if (!pools.length) {
+    return []
+  }
   return fillPoolsWithBins({
     pools,
     clientProvider,
@@ -195,6 +198,9 @@ export async function fillPoolsWithBins({
   gasLimit,
   priceRange = 0.05,
 }: FillPoolsWithBinsParams): Promise<InfinityBinPool[]> {
+  if (!pools.length) {
+    return []
+  }
   const chainId: ChainId = pools[0]?.currency0.chainId
   const client = clientProvider?.({ chainId })
   if (!client) {

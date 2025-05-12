@@ -169,31 +169,13 @@ export const PoolList = () => {
     } as FetchPoolsProps
   }, [binOnly, chainId, clOnly, currencyIdA, currencyIdB, nextPage])
 
-  const { isLoading, data: poolList, pageNo, resetExtendPools } = useFetchPools(fetchQueries, !!chainId)
+  const { isLoading, data: poolList, pageNo, resetExtendPools, hasNextPage } = useFetchPools(fetchQueries, !!chainId)
 
   useEffect(() => {
     resetExtendPools()
     // NOTE: ignore exhaustive-deps, we just reset on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  useEffect(() => {
-    if (isIntersecting) {
-      setCursorVisible((numberCurrentlyVisible) => {
-        if (numberCurrentlyVisible <= poolList.length) {
-          return Math.min(numberCurrentlyVisible + NUMBER_OF_FARMS_VISIBLE, poolList.length)
-        }
-        return numberCurrentlyVisible
-      })
-    }
-  }, [isIntersecting, poolList.length])
-
-  useEffect(() => {
-    if (isLoading) {
-      return
-    }
-    setNextPage(cursorVisible >= poolList.length ? pageNo + 1 : pageNo)
-  }, [cursorVisible, poolList.length, pageNo, isLoading])
 
   const handleNetworkChange = useCallback(
     (chain: Chain) => {
@@ -268,6 +250,27 @@ export const PoolList = () => {
       }),
     [poolList, currencyIdA, currencyIdB, chainId, features, protocols, isSelectAllFeatures, isSelectAllProtocols],
   )
+
+  useEffect(() => {
+    if (isIntersecting) {
+      setCursorVisible((numberCurrentlyVisible) => {
+        if (hasNextPage && filteredData.length < cursorVisible) {
+          return filteredData.length
+        }
+        if (numberCurrentlyVisible <= filteredData.length) {
+          return Math.min(numberCurrentlyVisible + NUMBER_OF_FARMS_VISIBLE, filteredData.length)
+        }
+        return numberCurrentlyVisible
+      })
+    }
+  }, [isIntersecting, filteredData.length])
+
+  useEffect(() => {
+    if (isLoading) {
+      return
+    }
+    setNextPage(cursorVisible >= filteredData.length ? pageNo + 1 : pageNo)
+  }, [cursorVisible, filteredData.length, pageNo, isLoading])
 
   const dataByChain = useMemo(() => {
     return groupBy(filteredData, 'chainId')

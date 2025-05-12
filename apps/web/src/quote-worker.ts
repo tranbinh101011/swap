@@ -165,9 +165,10 @@ addEventListener('message', (event: MessageEvent<WorkerEvent>) => {
       onChainQuoterGasLimit: gasLimit,
       nativeCurrencyUsdPrice,
       quoteCurrencyUsdPrice,
+      account,
     } = parsed.data
     const onChainProvider = createViemPublicClientGetter({ transportSignal: abortController.signal })
-    const onChainQuoteProvider = SmartRouter.createQuoteProvider({ onChainProvider, gasLimit })
+    const onChainQuoteProvider = SmartRouter.createQuoteProvider({ onChainProvider, gasLimit, account })
     const currencyAAmount = parseCurrencyAmount(chainId, amount)
 
     const currencyB = parseCurrency(chainId, currency)

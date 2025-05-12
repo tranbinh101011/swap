@@ -1,7 +1,15 @@
 import { ChainId } from '@pancakeswap/chains'
-import { type HookData, HookType, type PoolType, dynamicHooksList, hooksList } from '@pancakeswap/infinity-sdk'
+import {
+  HOOK_CATEGORY,
+  type HookData,
+  HookType,
+  type PoolType,
+  dynamicHooksList,
+  hooksList,
+} from '@pancakeswap/infinity-sdk'
 import keyBy from 'lodash/keyBy'
 import { useMemo } from 'react'
+import { safeGetAddress } from 'utils'
 import { Address } from 'viem'
 import { usePoolKeyByPoolId } from './usePoolKeyByPoolId'
 
@@ -21,21 +29,50 @@ export const useHooksList = (chainId?: ChainId, poolType?: PoolType): HookData[]
   }, [chainId, poolType])
 }
 
-export const useHooksMap = (chainId?: ChainId) => {
+export const useHooksMap = (chainId?: ChainId): Record<string, HookData> => {
   const list = useHooksList(chainId)
-  return useMemo(() => keyBy(list, 'address'), [list])
+  return useMemo(() => keyBy(list, (l) => safeGetAddress(l.address) ?? ''), [list])
+}
+
+export const useBrevisHooks = (chainId?: ChainId): HookData[] => {
+  return useMemo(() => {
+    if (!chainId) {
+      return []
+    }
+    const list = hooksList[chainId] as HookData[] | undefined
+    if (!list) {
+      return []
+    }
+    return list.filter((h) => h.category?.includes(HOOK_CATEGORY.BrevisDiscount))
+  }, [chainId])
+}
+
+export const usePrimusHooks = (chainId?: ChainId): HookData[] => {
+  return useMemo(() => {
+    if (!chainId) {
+      return []
+    }
+    const list = hooksList[chainId] as HookData[] | undefined
+    if (!list) {
+      return []
+    }
+    return list.filter((h) => h.category?.includes(HOOK_CATEGORY.PrimusDiscount))
+  }, [chainId])
 }
 
 export const useHookByAddress = (chainId?: ChainId, address?: HookData['address']): HookData | undefined => {
   const hooksMap = useHooksMap(chainId)
-  return useMemo(() => (address ? hooksMap[address] : undefined), [hooksMap, address])
+  return useMemo(() => (safeGetAddress(address) ? hooksMap[safeGetAddress(address)!] : undefined), [hooksMap, address])
 }
 
 export const useHookByPoolId = (chainId?: ChainId, poolId?: Address): HookData | undefined => {
   const { data: poolKey } = usePoolKeyByPoolId(poolId, chainId)
   const hooksMap = useHooksMap(chainId)
 
-  return useMemo(() => (poolKey?.hooks ? hooksMap[poolKey.hooks] : undefined), [hooksMap, poolKey?.hooks])
+  return useMemo(
+    () => (safeGetAddress(poolKey?.hooks) ? hooksMap[safeGetAddress(poolKey?.hooks)!] : undefined),
+    [hooksMap, poolKey?.hooks],
+  )
 }
 
 export const useDefaultDynamicHook = (chainId?: ChainId, poolType?: PoolType) =>
