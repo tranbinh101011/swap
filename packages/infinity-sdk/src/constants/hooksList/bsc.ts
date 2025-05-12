@@ -46,25 +46,25 @@ const dynamicHooksList: HookData[] = [CL_DYNAMIC_HOOK]
 export const bscHooksList: HookData[] = [
   ...dynamicHooksList,
 
-  {
-    // bnb/usdt
-    poolType: POOL_TYPE.CLAMM,
-    address: '0x9c5554cCEa7F38c3337f017E8357C3eD62BF9885',
-    name: 'CEX Whale Discount Hook (Primus)',
-    description: `Prove your CEX 30-day spot trading volume exceeded $1M with zkTLS by Primus and get 50% off the pool fee. Create your proof here: https://hook.primuslabs.xyz/cexwhale . The proof is valid for 14 days.`,
-    github: 'https://github.com/primus-labs/pancakeswapv4-cex-trading-hooks',
-    category: [HOOK_CATEGORY.PrimusDiscount, HOOK_CATEGORY.DynamicFees],
-    creator: 'https://github.com/primus-labs/',
-    audit: '',
-    isVerified: true,
-    isUpgradable: false,
-    hooksRegistration: {
-      afterInitialize: true,
-      beforeSwap: true,
-    },
-    hookType: HookType.PerPool,
-    defaultFee: 500,
-  },
+  // {
+  //   // bnb/usdt
+  //   poolType: POOL_TYPE.CLAMM,
+  //   address: '0x9c5554cCEa7F38c3337f017E8357C3eD62BF9885',
+  //   name: 'CEX Whale Discount Hook (Primus)',
+  //   description: `Prove your CEX 30-day spot trading volume exceeded $1M with zkTLS by Primus and get 50% off the pool fee. Create your proof here: https://hook.primuslabs.xyz/cexwhale . The proof is valid for 14 days.`,
+  //   github: 'https://github.com/primus-labs/pancakeswapv4-cex-trading-hooks',
+  //   category: [HOOK_CATEGORY.PrimusDiscount, HOOK_CATEGORY.DynamicFees],
+  //   creator: 'https://github.com/primus-labs/',
+  //   audit: '',
+  //   isVerified: true,
+  //   isUpgradable: false,
+  //   hooksRegistration: {
+  //     afterInitialize: true,
+  //     beforeSwap: true,
+  //   },
+  //   hookType: HookType.PerPool,
+  //   defaultFee: 500,
+  // },
   {
     // cake-usdt
     poolType: POOL_TYPE.CLAMM,
