@@ -211,7 +211,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       icon: `${ASSET_CDN}/web/wallets/tokenpocket.png`,
       connectorId: ConnectorNames.Injected,
       get installed() {
-        return Boolean(safeGetWindow()?.ethereum?.isTokenPocket)
+        return Boolean(safeGetWindow()?.ethereum?.isTokenPocket) || Boolean(safeGetWindow()?.tokenpocket)
       },
       qrCode,
     },
