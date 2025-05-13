@@ -5,6 +5,9 @@ import { useVeCakeContract } from 'hooks/useContract'
 import { useCallback, useMemo } from 'react'
 import { Address } from 'viem'
 import { useAccount } from 'wagmi'
+import { convertSharesToCake } from 'views/Pools/helpers'
+import BigNumber from 'bignumber.js'
+import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { CakeLockStatus, CakePoolType } from '../types'
 import { useCakePoolLockInfo } from './useCakePoolLockInfo'
 import { useCheckIsUserAllowMigrate } from './useCheckIsUserAllowMigrate'
@@ -147,10 +150,28 @@ export const useCakeLockStatus = (
   }, [userInfo])
 
   const proxyCakeLockedAmount = useMemo(() => {
-    if (!cakePoolLocked || delegated) return 0n
+    if (!cakePoolLocked || delegated) {
+      const currentOverdueFee = cakePoolLockInfo?.overdueFee
+        ? new BigNumber(cakePoolLockInfo?.overdueFee?.toString())
+        : BIG_ZERO
+      const currentPerformanceFee = cakePoolLockInfo?.performanceFee
+        ? new BigNumber(cakePoolLockInfo?.performanceFee?.toString())
+        : BIG_ZERO
+      const { cakeAsBigNumber } = convertSharesToCake(
+        new BigNumber(cakePoolLockInfo?.shares?.toString() ?? 0),
+        new BigNumber(cakePoolLockInfo?.pricePerFullShare?.toString() ?? 0),
+        undefined,
+        undefined,
+        currentOverdueFee
+          .plus(currentPerformanceFee)
+          .plus(new BigNumber(cakePoolLockInfo?.userBoostedShare?.toString() ?? 0)),
+      )
+
+      return BigInt(cakeAsBigNumber.gt(0) ? cakeAsBigNumber.toString() : 0)
+    }
 
     return userInfo?.cakeAmount ?? 0n
-  }, [cakePoolLocked, delegated, userInfo?.cakeAmount])
+  }, [cakePoolLocked, cakePoolLockInfo, delegated, userInfo?.cakeAmount])
 
   const cakeLockedAmount = useMemo(() => {
     return nativeCakeLockedAmount + proxyCakeLockedAmount

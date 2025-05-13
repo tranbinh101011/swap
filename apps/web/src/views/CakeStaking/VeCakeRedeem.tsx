@@ -6,7 +6,7 @@ import { ASSET_CDN } from 'config/constants/endpoints'
 import { WEEK } from 'config/constants/veCake'
 import { createWriteContractCallback } from 'hooks/createWriteContractCallback'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useCurrentBlockTimestamp } from 'state/block/hooks'
 import styled from 'styled-components'
@@ -59,7 +59,6 @@ export const VeCakeRedeem: React.FC = () => {
 
   const proxyCakeLockedAmountDisplay = useDisplayValue(proxyCakeLockedAmount)
   const nativeCakeDisplay = useDisplayValue(nativeCakeLockedAmount)
-  const cakePoolRewardDisplay = useDisplayValue(cakePoolRewards.plus(veCakeRewards))
 
   const handleClaim = useCallback(async () => {
     if (!account || !chainId || !currentBlockTimestamp) return
@@ -139,43 +138,48 @@ export const VeCakeRedeem: React.FC = () => {
         },
       })
     }
-  }, [proxyCakeLockedAmount, account, chainId, currentBlockTimestamp, withdrawAll])
+  }, [proxyCakeLockedAmount, account, chainId, currentBlockTimestamp, withdrawAll, proxyCakeLockedAmountDisplay, t])
   const [expand, setExpand] = useState(false)
 
-  const buttons = [
-    {
-      key: 'cakepool',
-      handler: handleCakePool,
-      enabled: proxyCakeLockedAmount > 0,
-    },
-    {
-      key: 'vecake',
-      handler: handleVeCake,
-      enabled: nativeCakeLockedAmount > 0,
-    },
-    {
-      key: 'claimall',
-      handler: handleClaim,
-      enabled: userHasRewards,
-    },
-  ]
+  const buttons = useMemo(
+    () => [
+      {
+        key: 'cakepool',
+        handler: handleCakePool,
+        enabled: proxyCakeLockedAmount > 0,
+      },
+      {
+        key: 'vecake',
+        handler: handleVeCake,
+        enabled: nativeCakeLockedAmount > 0,
+      },
+      {
+        key: 'claimall',
+        handler: handleClaim,
+        enabled: userHasRewards,
+      },
+    ],
+    [handleCakePool, proxyCakeLockedAmount, handleVeCake, nativeCakeLockedAmount, handleClaim, userHasRewards],
+  )
 
   const [processing, setProcessing] = useState(false)
-  const handleProcessAll = async () => {
+  const handleProcessAll = useCallback(async () => {
     if (buttons.every((button) => !button.enabled)) return
     setProcessing(true)
 
     try {
       for (const button of buttons) {
-        // eslint-disable-next-line
-        await button.handler()
+        if (button.enabled) {
+          // eslint-disable-next-line
+          await button.handler()
+        }
       }
     } catch (ex) {
       console.warn(ex)
     } finally {
       setProcessing(false)
     }
-  }
+  }, [buttons])
 
   const allSettled = buttons.every((button) => !button.enabled)
 
