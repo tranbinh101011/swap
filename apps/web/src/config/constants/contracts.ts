@@ -98,6 +98,9 @@ export default {
     [ChainId.BSC_TESTNET]: '0x24ec6962dbe874F6B67B5C50857565667fA0854F',
   },
   cakeVault: CAKE_VAULT,
+  cakeVaultV1: {
+    [ChainId.BSC]: '0xa80240Eb5d7E05d3F250cF000eEc0891d00b51CC',
+  },
   cakeFlexibleSideVault: {
     [ChainId.BSC]: '0x615e896A8C2CA8470A2e9dc2E9552998f8658Ea0',
     [ChainId.BSC_TESTNET]: '0x1088Fb24053F03802F673b84d16AE1A7023E400b',

@@ -20,6 +20,7 @@ import {
   getCakeFlexibleSideVaultAddress,
   getCakePoolAddress,
   getCakeVaultAddress,
+  getCakeVaultV1Address,
   getCalcGaugesVotingAddress,
   getCrossFarmingReceiverAddress,
   getCrossFarmingSenderAddress,
@@ -72,7 +73,7 @@ import { bCakeFarmBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/b
 import { bCakeFarmWrapperBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmWrapperBoosterVeCake'
 import { calcGaugesVotingABI, gaugesVotingABI } from '@pancakeswap/gauges'
 import { getIfoCreditAddressContract as getIfoCreditAddressContract_ } from '@pancakeswap/ifos'
-import { cakeFlexibleSideVaultV2ABI, cakeVaultV2ABI } from '@pancakeswap/pools'
+import { cakeFlexibleSideVaultV2ABI, cakeVaultV1ABI, cakeVaultV2ABI } from '@pancakeswap/pools'
 import {
   positionManagerAdapterABI,
   positionManagerVeBCakeWrapperABI,
@@ -230,6 +231,10 @@ export const getTradingCompetitionContractMoD = (signer?: WalletClient) => {
 
 export const getCakeVaultV2Contract = (signer?: WalletClient, chainId?: number) => {
   return getContract({ abi: cakeVaultV2ABI, address: getCakeVaultAddress(chainId), signer, chainId })
+}
+
+export const getCakeVaultV1Contract = (signer?: WalletClient, chainId?: number) => {
+  return getContract({ abi: cakeVaultV1ABI, address: getCakeVaultV1Address(chainId), signer, chainId })
 }
 
 export const getCakeFlexibleSideVaultV2Contract = (signer?: WalletClient, chainId?: number) => {
@@ -656,6 +661,18 @@ export const getCakePoolContract: GetContractFn<typeof cakePoolAbi, WalletClient
   return getContract({
     abi: cakePoolAbi,
     address: getCakePoolAddress(ChainId.BSC),
+    signer,
+    chainId,
+  })
+}
+
+export const getCakePoolV1Contract: GetContractFn<typeof cakeVaultV1ABI, WalletClient> = (
+  signer?: WalletClient,
+  chainId?: number,
+) => {
+  return getContract({
+    abi: cakeVaultV1ABI,
+    address: getCakeVaultV1Address(ChainId.BSC),
     signer,
     chainId,
   })

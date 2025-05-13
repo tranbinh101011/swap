@@ -6,6 +6,7 @@ export * from './utils'
 // abi
 export * from './abis/ICakeFlexibleSideVaultV2'
 export * from './abis/ICakeVaultV2'
+export * from './abis/ICakeVaultV1'
 export * from './abis/ISmartChef'
 export * from './abis/ISousChef'
 export * from './abis/ISousChefBNB'

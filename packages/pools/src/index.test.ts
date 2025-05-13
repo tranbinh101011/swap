@@ -56,6 +56,7 @@ test('exports', () => {
       "getBoostedPoolApr",
       "cakeFlexibleSideVaultV2ABI",
       "cakeVaultV2ABI",
+      "cakeVaultV1ABI",
       "smartChefABI",
       "sousChefABI",
       "sousChefBnbABI",

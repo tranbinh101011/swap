@@ -8,6 +8,7 @@ import { useAccount } from 'wagmi'
 import { convertSharesToCake } from 'views/Pools/helpers'
 import BigNumber from 'bignumber.js'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
+import { useCakePoolV1Info } from 'views/CakeStaking/hooks/useCakePoolV1Info'
 import { CakeLockStatus, CakePoolType } from '../types'
 import { useCakePoolLockInfo } from './useCakePoolLockInfo'
 import { useCheckIsUserAllowMigrate } from './useCheckIsUserAllowMigrate'
@@ -93,6 +94,7 @@ export const useCakeLockStatus = (
   cakeLockedAmount: bigint
   nativeCakeLockedAmount: bigint
   proxyCakeLockedAmount: bigint
+  cakeV1Amount: bigint
   cakeLocked: boolean
   cakeLockExpired: boolean
   cakePoolLocked: boolean
@@ -105,6 +107,7 @@ export const useCakeLockStatus = (
   const { data: userInfo } = useVeCakeUserInfo(targetChain)
   // if user locked at cakePool before, should migrate
   const cakePoolLockInfo = useCakePoolLockInfo(targetChain)
+  const cakePoolV1Info = useCakePoolV1Info(targetChain)
 
   const isAllowMigrate = useCheckIsUserAllowMigrate(String(cakePoolLockInfo.lockEndTime))
 
@@ -173,6 +176,21 @@ export const useCakeLockStatus = (
     return userInfo?.cakeAmount ?? 0n
   }, [cakePoolLocked, cakePoolLockInfo, delegated, userInfo?.cakeAmount])
 
+  const cakeV1Amount = useMemo(() => {
+    const currentPerformanceFee = cakePoolV1Info?.performanceFee
+      ? new BigNumber(cakePoolV1Info?.performanceFee?.toString())
+      : BIG_ZERO
+    const { cakeAsBigNumber } = convertSharesToCake(
+      new BigNumber(cakePoolV1Info?.shares?.toString() ?? 0),
+      new BigNumber(cakePoolV1Info?.pricePerFullShare?.toString() ?? 0),
+      undefined,
+      undefined,
+      currentPerformanceFee,
+    )
+
+    return BigInt(cakeAsBigNumber.gt(0) ? cakeAsBigNumber.toString() : 0)
+  }, [cakePoolV1Info])
+
   const cakeLockedAmount = useMemo(() => {
     return nativeCakeLockedAmount + proxyCakeLockedAmount
   }, [nativeCakeLockedAmount, proxyCakeLockedAmount])
@@ -197,6 +215,7 @@ export const useCakeLockStatus = (
     cakeLockedAmount,
     nativeCakeLockedAmount,
     proxyCakeLockedAmount,
+    cakeV1Amount,
     delegated,
     cakeLocked,
     cakeLockExpired,

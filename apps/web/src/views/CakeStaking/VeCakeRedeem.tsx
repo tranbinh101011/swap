@@ -11,7 +11,12 @@ import { isMobile } from 'react-device-detect'
 import { useCurrentBlockTimestamp } from 'state/block/hooks'
 import styled from 'styled-components'
 import { getRevenueSharingCakePoolAddress, getRevenueSharingVeCakeAddress } from 'utils/addressHelpers'
-import { getCakePoolContract, getRevenueSharingPoolGatewayContract, getVeCakeContract } from 'utils/contractHelpers'
+import {
+  getCakePoolContract,
+  getCakePoolV1Contract,
+  getRevenueSharingPoolGatewayContract,
+  getVeCakeContract,
+} from 'utils/contractHelpers'
 import { formatTime } from 'utils/formatTime'
 import { poolStartWeekCursors } from 'views/CakeStaking/config'
 import { RedeemFaqs } from './components/RedeemFaqs'
@@ -21,6 +26,7 @@ import { useCakeExitInfo } from './hooks/useCakeExitInfo'
 import { useDisplayValue } from './utils/useDisplayValue'
 
 const useWriteCakePoolWithdrawAllCallback = createWriteContractCallback(getCakePoolContract, 'withdrawAll')
+const useWriteCakePoolV1WithdrawAllCallback = createWriteContractCallback(getCakePoolV1Contract, 'withdrawAll')
 const useClaimAll = createWriteContractCallback(getRevenueSharingPoolGatewayContract, 'claimMultiple')
 const useWriteEarlyWithdrawCallback = createWriteContractCallback(getVeCakeContract, 'earlyWithdraw')
 const useWriteWithdrawCallback = createWriteContractCallback(getVeCakeContract, 'withdrawAll')
@@ -41,6 +47,7 @@ export const VeCakeRedeem: React.FC = () => {
     veCakeRewards,
     cakeLockExpired,
     proxyCakeLockedAmount,
+    cakeV1Amount,
     nativeCakeLockedAmount,
     refetchRevenueShareVeCake,
     refetchRevenueShareCake,
@@ -53,11 +60,13 @@ export const VeCakeRedeem: React.FC = () => {
   const userHasRewards = isWalletConnected && (cakePoolRewards.gt(0) || veCakeRewards.gt(0))
   const earlyWithdraw = useWriteEarlyWithdrawCallback()
   const withdrawAll = useWriteCakePoolWithdrawAllCallback()
+  const withdrawV1All = useWriteCakePoolV1WithdrawAllCallback()
   const veCakeWithdrawAll = useWriteWithdrawCallback()
   const currentBlockTimestamp = useCurrentBlockTimestamp()
   const claimAll = useClaimAll()
 
   const proxyCakeLockedAmountDisplay = useDisplayValue(proxyCakeLockedAmount)
+  const cakeV1AmountDisplay = useDisplayValue(cakeV1Amount)
   const nativeCakeDisplay = useDisplayValue(nativeCakeLockedAmount)
 
   const handleClaim = useCallback(async () => {
@@ -139,10 +148,27 @@ export const VeCakeRedeem: React.FC = () => {
       })
     }
   }, [proxyCakeLockedAmount, account, chainId, currentBlockTimestamp, withdrawAll, proxyCakeLockedAmountDisplay, t])
+
+  const handleCakeV1Pool = useCallback(async () => {
+    if (!account || !chainId || !currentBlockTimestamp) return
+    if (cakeV1Amount > 0) {
+      await withdrawV1All.callMethod([], {
+        successToast: {
+          title: t('CAKE Pool Redeem Successfully'),
+          description: `${cakeV1AmountDisplay} ${t('CAKE has been sent to your wallet.')}`,
+        },
+      })
+    }
+  }, [cakeV1Amount, account, chainId, currentBlockTimestamp, withdrawV1All, cakeV1AmountDisplay, t])
   const [expand, setExpand] = useState(false)
 
   const buttons = useMemo(
     () => [
+      {
+        key: 'cakepoolV1',
+        handler: handleCakeV1Pool,
+        enabled: cakeV1Amount > 0,
+      },
       {
         key: 'cakepool',
         handler: handleCakePool,
@@ -159,7 +185,16 @@ export const VeCakeRedeem: React.FC = () => {
         enabled: userHasRewards,
       },
     ],
-    [handleCakePool, proxyCakeLockedAmount, handleVeCake, nativeCakeLockedAmount, handleClaim, userHasRewards],
+    [
+      handleCakePool,
+      handleCakeV1Pool,
+      proxyCakeLockedAmount,
+      handleVeCake,
+      nativeCakeLockedAmount,
+      handleClaim,
+      userHasRewards,
+      cakeV1Amount,
+    ],
   )
 
   const [processing, setProcessing] = useState(false)

@@ -19,6 +19,7 @@ import {
   getBCakeProxyContract,
   getBunnyFactoryContract,
   getCakeFlexibleSideVaultV2Contract,
+  getCakeVaultV1Contract,
   getCakeVaultV2Contract,
   getCalcGaugesVotingContract,
   getChainlinkOracleContract,
@@ -219,6 +220,15 @@ export const useCakeVaultContract = (targetChain?: ChainId) => {
   const { chainId } = useActiveChainId()
   return useMemo(
     () => getCakeVaultV2Contract(signer ?? undefined, targetChain ?? chainId),
+    [signer, chainId, targetChain],
+  )
+}
+
+export const useCakeVaultV1Contract = (targetChain?: ChainId) => {
+  const { data: signer } = useWalletClient()
+  const { chainId } = useActiveChainId()
+  return useMemo(
+    () => getCakeVaultV1Contract(signer ?? undefined, targetChain ?? chainId),
     [signer, chainId, targetChain],
   )
 }

@@ -76,6 +76,10 @@ export const getCakeVaultAddress = (chainId?: number) => {
   return getAddressFromMap(addresses.cakeVault, chainId)
 }
 
+export const getCakeVaultV1Address = (chainId?: number) => {
+  return getAddressFromMap(addresses.cakeVaultV1, chainId)
+}
+
 export const getCakeFlexibleSideVaultAddress = (chainId?: number) => {
   return getAddressFromMap(addresses.cakeFlexibleSideVault, chainId)
 }
