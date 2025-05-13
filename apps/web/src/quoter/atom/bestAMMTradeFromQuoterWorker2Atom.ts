@@ -103,6 +103,8 @@ export const bestAMMTradeFromQuoterWorker2Atom = atomFamily((option: QuoteQuery)
       perf.tracker.track('fail')
       console.warn(`[quote]`, ex)
       throw new NoValidRouteError()
+    } finally {
+      perf.tracker.report()
     }
   })
 }, isEqualQuoteQuery)

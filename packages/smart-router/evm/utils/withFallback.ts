@@ -1,5 +1,3 @@
-import { logger } from '../v3-router/utils'
-
 export type AnyAsyncFunction = (...args: any[]) => Promise<any>
 
 export interface AsyncCall<F extends AnyAsyncFunction> {
@@ -37,7 +35,7 @@ export function withFallback<F extends AnyAsyncFunction>(calls: AsyncCall<F>[]) 
           throw e
         }
         // Fallback to next one
-        logger.error(`Call failed with error %O, try next fallback`, e)
+        console.warn(`Call failed with error %O, try next fallback`, e)
       }
     }
     throw new Error('Unexpected end of call')

@@ -1,10 +1,11 @@
 import { getCurrencyAddress, TradeType } from '@pancakeswap/swap-sdk-core'
+import { accountActiveChainAtom } from 'hooks/useAccountActiveChain'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { QuoteQuery } from 'quoter/quoter.types'
 import { getLogger } from 'utils/datadog'
 
-type TrackKey = 'start' | 'pool_success' | 'pool_error' | 'success' | 'fail'
+type TrackKey = 'start' | 'pool_success' | 'pool_error' | 'success' | 'fail' | 'duration'
 type QuoteTrace = {
   quoteHash: string
   createAt: number
@@ -17,6 +18,8 @@ type QuoteTrace = {
   infinitySwap: boolean
   xSwap: boolean
   perf: Record<TrackKey, number>
+  chainId?: number
+  account?: `0x${string}`
 }
 
 const logger = getLogger('quote')
@@ -50,13 +53,18 @@ export class RouteTracker {
   public report() {
     const records = this.getRecords()
     this.trace.perf = records
+    const end = this.trace.perf.success || this.trace.perf.fail
+    const start = this.trace.perf.start
+    const duration = end - start
+    this.trace.perf.duration = duration
     logger.info(`quote-${this.routeKey}`, this.trace)
   }
 }
 
 export const quoteTraceAtom = atomFamily(
   (params: QuoteQuery) => {
-    return atom(() => {
+    return atom((get) => {
+      const { account } = get(accountActiveChainAtom)
       const trace: QuoteTrace = {
         quoteHash: params.hash,
         createAt: Date.now(),
@@ -68,12 +76,15 @@ export const quoteTraceAtom = atomFamily(
         v3Swap: !!params.v3Swap,
         infinitySwap: params.infinitySwap,
         xSwap: params.xEnabled,
+        chainId: params.currency?.chainId,
+        account,
         perf: {
           start: 0,
           pool_success: 0,
           pool_error: 0,
           success: 0,
           fail: 0,
+          duration: 0,
         },
       }
       const tracker = new RouteTracker(trace, params.routeKey!, params.createTime)
