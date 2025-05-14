@@ -289,7 +289,7 @@ export const InfinityCLPosition = () => {
                 <PositionHeader
                   isOwner={isOwnNFT}
                   isOutOfRange={!inRange}
-                  isFarming={isFarming}
+                  isFarming={isFarming && !removed}
                   protocol={Protocol.InfinityCLAMM}
                   currency0={currency0}
                   currency1={currency1}

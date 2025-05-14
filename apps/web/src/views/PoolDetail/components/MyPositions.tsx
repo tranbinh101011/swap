@@ -42,7 +42,9 @@ import { usePoolByChainId } from 'hooks/v3/usePools'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAccountPositionDetailByPool, usePoolApr, useV2PoolsLength, useV3PoolsLength } from 'state/farmsV4/hooks'
 import {
+  InfinityBinPositionDetail,
   InfinityCLPositionDetail,
+  POSITION_STATUS,
   PositionDetail,
   StableLPDetail,
   V2LPDetail,
@@ -84,6 +86,9 @@ import { InfinityCLPositionItem } from 'views/universalFarms/components/Position
 import { useInfinityPositions } from 'views/universalFarms/hooks/useInfinityPositions'
 import { positionEarningAmountAtom } from 'views/universalFarms/hooks/usePositionEarningAmount'
 
+import dayjs from 'dayjs'
+import { useUnclaimedFarmRewardsUSDByPoolId } from 'hooks/infinity/useFarmReward'
+import { usePoolKeyByPoolId } from 'hooks/infinity/usePoolKeyByPoolId'
 import { useAccount } from 'wagmi'
 import { useV3Positions } from '../hooks/useV3Positions'
 import { MyPositionsProvider, useMyPositions } from './MyPositionsContext'
@@ -907,9 +912,44 @@ const MyInfinityBinPositions: React.FC<{
   const chainId = useChainIdByQuery()
   const { address: account } = useAccount()
   const [, pool] = usePoolById<'Bin'>(poolInfo.poolId as `0x${string}`, chainId)
+  const { data: poolKey } = usePoolKeyByPoolId(poolInfo.poolId, chainId)
   const { data, isLoading } = useAccountPositionDetailByPool<Protocol.InfinityBIN>(chainId, account, poolInfo)
-  const position = data?.[0]
   const { data: infinityPositions } = useInfinityPositions()
+  const {
+    data: { rewardsAmount },
+    isLoading: isLoadingRewards,
+  } = useUnclaimedFarmRewardsUSDByPoolId({
+    poolId: poolInfo.poolId,
+    chainId: poolInfo.chainId,
+    address: account,
+    timestamp: dayjs().startOf('hour').unix(),
+  })
+  const defaultPosition = useMemo(() => {
+    return {
+      status: POSITION_STATUS.CLOSED,
+      chainId: poolInfo.chainId,
+      protocol: poolInfo.protocol,
+      poolKey,
+      poolId: poolInfo.poolId,
+      activeId: pool?.activeId ?? 0,
+      reserveX: 0n,
+      reserveY: 0n,
+      maxBinId: null,
+      minBinId: null,
+      reserveOfBins: [],
+      liquidity: 0n,
+      activeLiquidity: 0n,
+      poolActiveLiquidity: 0n,
+    } satisfies InfinityBinPositionDetail
+  }, [pool, poolKey, poolInfo])
+
+  const position = useMemo(() => {
+    if (!isLoading && !isLoadingRewards && !data?.[0] && rewardsAmount?.greaterThan('0')) {
+      return defaultPosition
+    }
+    return data?.[0]
+  }, [data?.[0], isLoading, isLoadingRewards, defaultPosition, rewardsAmount])
+
   const amount0 = useMemo(
     () =>
       position?.reserveX && pool?.token0 ? CurrencyAmount.fromRawAmount(pool.token0, position.reserveX) : undefined,

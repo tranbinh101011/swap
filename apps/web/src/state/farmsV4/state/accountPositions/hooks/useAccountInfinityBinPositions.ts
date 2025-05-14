@@ -1,5 +1,5 @@
 import { useQueries, useQuery, UseQueryOptions } from '@tanstack/react-query'
-import { FAST_INTERVAL, QUERY_SETTINGS_IMMUTABLE, SLOW_INTERVAL } from 'config/constants'
+import { QUERY_SETTINGS_IMMUTABLE, SLOW_INTERVAL } from 'config/constants'
 import { usePositionsWithFarming } from 'hooks/infinity/useIsFarming'
 import { useCallback, useMemo } from 'react'
 import { useUserAddedTokensByChainIds } from 'state/user/hooks/useUserAddedTokens'
@@ -18,7 +18,8 @@ export const useAccountInfinityBinPositions = (account: Address | undefined, cha
         queryKey: ['account-all-infinity-bin-position', chainId, account, latestTxReceipt?.blockHash],
         queryFn: () => getAccountInfinityBinPositionsWithFallback(chainId, account!, userAddedTokens[chainId]),
         enabled: !!account && !!chainId,
-        refetchInterval: FAST_INTERVAL,
+        staleTime: SLOW_INTERVAL,
+        refetchInterval: SLOW_INTERVAL,
         ...QUERY_SETTINGS_IMMUTABLE,
       } satisfies UseQueryOptions<InfinityBinPositionDetail[]>
     })

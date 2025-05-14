@@ -98,7 +98,7 @@ export const InfinityBinPositionItem = memo(
         currency0={currency0}
         currency1={currency1}
         outOfRange={data.status === POSITION_STATUS.INACTIVE}
-        removed={false}
+        removed={data.status === POSITION_STATUS.CLOSED}
         fee={pool?.feeTier ?? 0}
         feeTierBase={1_000_000}
         protocol={data.protocol}

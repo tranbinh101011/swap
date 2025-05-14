@@ -156,6 +156,10 @@ export const parseBinPositions = async (rows: Rows, chainId: number): Promise<In
     const liquidity = row.reserveOfBins.reduce((acc, bin) => acc + BigInt(bin.userSharesOfBin), 0n)
     const activeLiquidity = activeBin ? BigInt(activeBin.userSharesOfBin ?? 0) : 0n
 
+    if (liquidity === 0n) {
+      status = POSITION_STATUS.CLOSED
+    }
+
     return {
       chainId,
       protocol: Protocol.InfinityBIN,

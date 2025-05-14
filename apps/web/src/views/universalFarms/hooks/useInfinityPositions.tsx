@@ -1,6 +1,6 @@
-import intersection from 'lodash/intersection'
 import { ALL_PROTOCOLS, Protocol } from '@pancakeswap/farms'
 import { INetworkProps, ITokenProps, toTokenValue } from '@pancakeswap/widgets-internal'
+import intersection from 'lodash/intersection'
 import { useCallback, useMemo } from 'react'
 import { getKeyForPools, useAccountInfinityBinPositions, useAccountInfinityCLPositions } from 'state/farmsV4/hooks'
 import {
@@ -8,8 +8,8 @@ import {
   InfinityCLPositionDetail,
   POSITION_STATUS,
 } from 'state/farmsV4/state/accountPositions/type'
-import { isInfinityProtocol } from 'utils/protocols'
 import { getHookByAddress } from 'utils/getHookByAddress'
+import { isInfinityProtocol } from 'utils/protocols'
 import { usePoolFeatureAndType } from 'views/AddLiquiditySelector/hooks/usePoolTypeQuery'
 import { useAccount } from 'wagmi'
 import { InfinityPositionActions } from '../components/PositionActions/InfinityPositionActions'
@@ -48,7 +48,10 @@ export const useInfinityPositionItems = ({
       if (!reward) {
         return false
       }
-      return !(pos.protocol === Protocol.InfinityCLAMM ? reward[Number(pos.tokenId)] ?? true : reward ?? true)
+
+      if (pos.protocol === Protocol.InfinityCLAMM) return false
+
+      return !(reward ?? true)
     },
     [positionEarningAmount],
   )
