@@ -170,7 +170,7 @@ export const useCakeLockStatus = (
           .plus(new BigNumber(cakePoolLockInfo?.userBoostedShare?.toString() ?? 0)),
       )
 
-      return BigInt(cakeAsBigNumber.gt(0) ? cakeAsBigNumber.toString() : 0)
+      return BigInt(cakeAsBigNumber.gt(0) ? cakeAsBigNumber.toFixed(0) : 0)
     }
 
     return userInfo?.cakeAmount ?? 0n
@@ -188,7 +188,7 @@ export const useCakeLockStatus = (
       currentPerformanceFee,
     )
 
-    return BigInt(cakeAsBigNumber.gt(0) ? cakeAsBigNumber.toString() : 0)
+    return BigInt(cakeAsBigNumber.gt(0) ? cakeAsBigNumber.toFixed(0) : 0)
   }, [cakePoolV1Info])
 
   const cakeLockedAmount = useMemo(() => {
