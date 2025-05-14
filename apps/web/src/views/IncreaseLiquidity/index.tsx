@@ -109,6 +109,11 @@ export const IncreaseLiquidity = () => {
     poolId,
   } = useExtraInfinityPositionInfo(position)
 
+  const isOutOfRange = useMemo(() => {
+    if (!pool || typeof tickLower === 'undefined' || typeof tickUpper === 'undefined') return false
+    return pool.tickCurrent < tickLower || pool.tickCurrent > tickUpper
+  }, [])
+
   const [manuallyInverted, setManuallyInverted] = useState(false)
   const { priceLower, priceUpper, base } = useInverter({
     priceLower: priceLower_,
@@ -158,6 +163,8 @@ export const IncreaseLiquidity = () => {
     poolKey: position?.poolKey,
     tickLower,
     tickUpper,
+    outOfRange: isOutOfRange,
+    invalidRange,
   })
 
   const parsedAmounts = useMemo(
@@ -173,6 +180,7 @@ export const IncreaseLiquidity = () => {
     currencyB: currency1,
     currencyAAmount: inputAmount,
     currencyBAmount: outputAmount,
+    allowSingleSide: deposit0Disabled !== deposit1Disabled,
   })
 
   const isValid = !(invalidRange || errorMessage)
@@ -230,18 +238,14 @@ export const IncreaseLiquidity = () => {
   )
 
   const handleIncreaseLiquidity = useCallback(async () => {
-    if (
-      !position ||
-      !tokenId ||
-      !pool ||
-      !currency0 ||
-      !currency1 ||
-      !account ||
-      !inputAmount?.quotient ||
-      !outputAmount?.quotient
-    ) {
+    if (!position || !tokenId || !pool || !currency0 || !currency1 || !account) {
       return
     }
+
+    if (deposit0Disabled && inputAmount?.greaterThan(0)) return
+    if (deposit1Disabled && outputAmount?.greaterThan(0)) return
+    if (inputAmount?.equalTo(0) && outputAmount?.equalTo(0)) return
+
     let permit2Signature0: Permit2Signature | undefined
     let permit2Signature1: Permit2Signature | undefined
 
@@ -263,8 +267,8 @@ export const IncreaseLiquidity = () => {
       tickLower: position.tickLower,
       tickUpper: position.tickUpper,
       sqrtPriceX96: pool.sqrtRatioX96,
-      amount0Desired: inputAmount?.quotient,
-      amount1Desired: outputAmount?.quotient,
+      amount0Desired: inputAmount?.quotient ?? 0n,
+      amount1Desired: outputAmount?.quotient ?? 0n,
       recipient: account,
       amount0Max,
       amount1Max,
@@ -313,7 +317,6 @@ export const IncreaseLiquidity = () => {
       <NavBreadcrumbs currency0={currency0} currency1={currency1}>
         <Text>{t('Increase Liquidity')}</Text>
       </NavBreadcrumbs>
-
       <StyledCard mt="24px" mx="auto">
         <CardBody>
           <Flex alignItems="center">
@@ -324,6 +327,7 @@ export const IncreaseLiquidity = () => {
               protocol={Protocol.InfinityCLAMM}
               currency0={currency0}
               currency1={currency1}
+              isOutOfRange={isOutOfRange}
               chainId={chainId}
               dynamic={dynamic}
               feeTier={fee}
@@ -414,6 +418,7 @@ export const IncreaseLiquidity = () => {
               value={inputAmountRaw}
               currency={currency0}
               maxAmount={inputBalance}
+              disabled={deposit0Disabled}
               showUSDPrice
               showMaxButton
               showQuickInputButton
@@ -433,6 +438,7 @@ export const IncreaseLiquidity = () => {
               showMaxButton
               showQuickInputButton
               disableCurrencySelect
+              disabled={deposit1Disabled}
             />
           </Box>
           <V3SubmitButton

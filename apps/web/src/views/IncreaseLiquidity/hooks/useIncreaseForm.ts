@@ -14,12 +14,16 @@ export const useIncreaseForm = ({
   poolKey,
   tickLower,
   tickUpper,
+  outOfRange,
+  invalidRange,
 }: {
   currency0: Currency | undefined
   currency1: Currency | undefined
   poolKey: PoolKey<'CL'> | undefined
   tickLower: number | undefined
   tickUpper: number | undefined
+  outOfRange: boolean
+  invalidRange: boolean
 }) => {
   const poolId = useMemo(() => (poolKey ? getPoolId(poolKey) : undefined), [poolKey])
   const [lastEditCurrency, setLastEditCurrency] = useState<0 | 1>(0)
@@ -53,9 +57,11 @@ export const useIncreaseForm = ({
         return
       }
       setLastEditCurrency(1)
-      setOutputAmountRaw(newAmount1)
+      if (!outOfRange) {
+        setOutputAmountRaw(newAmount1)
+      }
     },
-    [currency0, outputAmountRaw, pool, tickUpper, tickLower],
+    [currency0, outputAmountRaw, pool, tickUpper, tickLower, outOfRange],
   )
 
   const _updateInputAmount = useCallback(
@@ -72,9 +78,11 @@ export const useIncreaseForm = ({
         return
       }
       setLastEditCurrency(0)
-      setInputAmountRaw(newAmount0)
+      if (!outOfRange) {
+        setInputAmountRaw(newAmount0)
+      }
     },
-    [currency1, inputAmountRaw, pool, tickUpper, tickLower],
+    [currency1, inputAmountRaw, pool, tickUpper, tickLower, outOfRange],
   )
 
   const onInputAmountChange = useCallback(
