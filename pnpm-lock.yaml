@@ -1886,8 +1886,8 @@ importers:
   packages/canonical-bridge:
     dependencies:
       '@bnb-chain/canonical-bridge-widget':
-        specifier: 0.6.0
-        version: 0.6.0(8bf1682c84b67fa2a680ffbfd9cd96f6)
+        specifier: 0.6.1
+        version: 0.6.1(8bf1682c84b67fa2a680ffbfd9cd96f6)
       '@emotion/react':
         specifier: ^11
         version: 11.11.4(@types/react@18.2.37)(react@18.2.0)
@@ -4803,8 +4803,8 @@ packages:
       axios: '>=1.7.4'
       viem: ^2
 
-  '@bnb-chain/canonical-bridge-widget@0.6.0':
-    resolution: {integrity: sha512-HDEnfURvi2OH5avvbeDZ77r8/lPhW/hinOcZTXBbH7XWU7eQ3GLV078Sm4gcgB8SdiKH8lyUmzkctxcQi8SNgg==}
+  '@bnb-chain/canonical-bridge-widget@0.6.1':
+    resolution: {integrity: sha512-NYpvRNyyMEwjMOP1kP9urq+MpLAtbYsr1qh9ygvAXSyZxBYc66lJYD6Z50+H/Ohrd0e3Q3xPqyQDbVlLSpW31Q==}
     peerDependencies:
       '@bnb-chain/canonical-bridge-sdk': ^0.5.0
       '@emotion/react': ^11
@@ -23623,7 +23623,7 @@ snapshots:
       axios: 1.6.8(debug@4.4.0)
       viem: 2.23.2(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
 
-  '@bnb-chain/canonical-bridge-widget@0.6.0(8bf1682c84b67fa2a680ffbfd9cd96f6)':
+  '@bnb-chain/canonical-bridge-widget@0.6.1(8bf1682c84b67fa2a680ffbfd9cd96f6)':
     dependencies:
       '@bnb-chain/canonical-bridge-sdk': 0.5.0(axios@1.6.8)(viem@2.23.2(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))
       '@emotion/react': 11.11.4(@types/react@18.2.37)(react@18.2.0)
