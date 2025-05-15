@@ -20,6 +20,7 @@ type QuoteTrace = {
   perf: Record<TrackKey, number>
   chainId?: number
   account?: `0x${string}`
+  route?: string
 }
 
 const logger = getLogger('quote')
@@ -78,6 +79,7 @@ export const quoteTraceAtom = atomFamily(
         xSwap: params.xEnabled,
         chainId: params.currency?.chainId,
         account,
+        route: params.routeKey,
         perf: {
           start: 0,
           pool_success: 0,
