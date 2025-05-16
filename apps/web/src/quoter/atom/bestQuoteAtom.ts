@@ -9,7 +9,7 @@ import { InterfaceOrder } from 'views/Swap/utils'
 import { NoValidRouteError, QuoteQuery } from '../quoter.types'
 import { activeQuoteHashAtom } from './abortControlAtoms'
 import { placeholderAtom } from './placeholderAtom'
-import { getRoutingStrategy, StrategyRoute } from './routingStrategy'
+import { routingStrategyAtom, StrategyRoute } from './routingStrategy'
 
 const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
   return atom((get) => {
@@ -63,7 +63,7 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
         return Loadable.Nothing<InterfaceOrder>()
       }
 
-      const strategies = getRoutingStrategy()
+      const strategies = get(routingStrategyAtom(option))
       const p1 = strategies.filter((x) => x.priority === 1)
       const p2 = strategies.filter((x) => x.priority === 2)
       const tests = [p1, p2]

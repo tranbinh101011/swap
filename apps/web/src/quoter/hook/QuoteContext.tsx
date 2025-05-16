@@ -4,6 +4,8 @@ import { useUserSingleHopOnly } from '@pancakeswap/utils/user'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { usePCSX, usePCSXEnabledOnChain } from 'hooks/usePCSX'
 import { useSpeedQuote } from 'hooks/useSpeedQuote'
+import { useAtomValue } from 'jotai'
+import { tokenRoutingConfigForInitAtom } from 'quoter/atom/routingStrategy'
 import { createContext, useContext } from 'react'
 import {
   useUserInfinitySwapEnable,
@@ -56,6 +58,10 @@ export const QuoteContextProvider = ({ children }: { children: React.ReactNode }
   const infinitySupportByChain = INFINITY_SUPPORTED_CHAINS.includes(chainId)
   const [infinitySwap] = useUserInfinitySwapEnable()
   const [stableSwap] = useUserStableSwapEnable()
+  const config = useAtomValue(tokenRoutingConfigForInitAtom)
+  if (config.loading || config.error) {
+    return null
+  }
 
   return (
     <QuoteContext.Provider
