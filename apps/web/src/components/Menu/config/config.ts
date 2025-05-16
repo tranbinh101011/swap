@@ -14,7 +14,7 @@ import {
   SwapFillIcon,
   SwapIcon,
 } from '@pancakeswap/uikit'
-import { SUPPORT_CAKE_STAKING, SUPPORT_FARMS, SUPPORT_ONLY_BSC } from 'config/constants/supportChains'
+import { SUPPORT_FARMS, SUPPORT_ONLY_BSC } from 'config/constants/supportChains'
 import { getPerpetualUrl } from 'utils/getPerpetualUrl'
 
 export type ConfigMenuDropDownItemsType = DropdownMenuItems & {
@@ -207,18 +207,8 @@ const config: (
         {
           label: t('Voting'),
           image: '/images/voting/voting-bunny.png',
-          items: [
-            {
-              label: t('Gauges'),
-              href: '/gauges-voting',
-              supportChainIds: SUPPORT_CAKE_STAKING,
-            },
-            {
-              label: t('Proposals'),
-              href: '/voting',
-              supportChainIds: SUPPORT_ONLY_BSC,
-            },
-          ].map((item) => addMenuItemSupported(item, chainId)),
+          href: '/voting',
+          supportChainIds: SUPPORT_ONLY_BSC,
         },
         {
           type: DropdownMenuItemType.DIVIDER,
