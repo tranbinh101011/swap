@@ -13,7 +13,7 @@ export class PoolHashHelper {
     }
 
     const sorted = sortCurrencies(list)
-    const str = sorted.map((currency) => getCurrencyAddress(currency)).join(',')
+    const str = sorted.map((currency) => `${getCurrencyAddress(currency)}_${currency.chainId}`).join(',')
     const hash = keccak256(`0x${str}`)
     return hash
   }
@@ -26,7 +26,7 @@ export class PoolHashHelper {
     if (b && !isEqualCurrency(a, b)) {
       list.push(b)
     }
-    const str = list.map((currency) => getCurrencyAddress(currency)).join(',')
+    const str = list.map((currency) => `${getCurrencyAddress(currency)}_${currency.chainId}`).join(',')
     const hash = keccak256(`0x${str}`)
     return hash
   }

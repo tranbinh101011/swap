@@ -22,6 +22,7 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
       v3Pools: false,
       stableSwap: false,
       for: '',
+      options: undefined,
     }
     const hash = PoolHashHelper.hashPoolQuery(query)
     return hash
