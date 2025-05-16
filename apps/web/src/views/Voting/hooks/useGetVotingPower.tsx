@@ -5,7 +5,7 @@ import { getActivePools } from 'utils/calls'
 import { publicClient } from 'utils/wagmi'
 import { Address } from 'viem'
 import { useAccount } from 'wagmi'
-import { VECAKE_VOTING_POWER_BLOCK, getVeVotingPower, getVotingPower } from '../helpers'
+import { VECAKE_VOTING_POWER_BLOCK, getCakeVotingPower, getVotingPower } from '../helpers'
 
 interface State {
   cakeBalance?: number
@@ -17,7 +17,6 @@ interface State {
   total: number
   lockedCakeBalance?: number
   lockedEndTime?: number
-  veCakeBalance?: number
 }
 
 const useGetVotingPower = (block?: number): State & { isLoading: boolean; isError: boolean } => {
@@ -31,7 +30,7 @@ const useGetVotingPower = (block?: number): State & { isLoading: boolean; isErro
       }
       const blockNumber = block ? BigInt(block) : await publicClient({ chainId: ChainId.BSC }).getBlockNumber()
       if (blockNumber >= VECAKE_VOTING_POWER_BLOCK) {
-        return getVeVotingPower(account, blockNumber)
+        return getCakeVotingPower(account, blockNumber)
       }
       const eligiblePools = await getActivePools(ChainId.BSC, Number(blockNumber))
       const poolAddresses: Address[] = eligiblePools

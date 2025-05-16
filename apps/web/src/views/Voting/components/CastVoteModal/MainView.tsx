@@ -75,7 +75,7 @@ type VeMainViewProps = {
   isError?: boolean
   total: number
   disabled?: boolean
-  veCakeBalance?: number
+  cakeBalance?: number
   voteType?: ProposalTypeName
   onConfirm?: () => void
   onDismiss?: CastVoteModalProps['onDismiss']
@@ -95,7 +95,7 @@ export const VeMainView = ({
   disabled,
   block,
   voteType,
-  veCakeBalance,
+  cakeBalance,
 }: VeMainViewProps) => {
   const { t } = useTranslation()
   const { chainId } = useActiveChainId()
@@ -141,11 +141,11 @@ export const VeMainView = ({
         ) : (
           <>
             <br />
-            <MyVeCakeCard type="row" value={!veCakeBalance ? '0' : String(veCakeBalance)} />
+            <MyVeCakeCard type="row" value={!cakeBalance ? '0' : cakeBalance.toFixed(2)} />
             <br />
             <Text color="textSubtle" fontSize="14px">
               {t(
-                'Your voting power is determined by the number of veCAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.',
+                'Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.',
               )}
             </Text>
             <br />

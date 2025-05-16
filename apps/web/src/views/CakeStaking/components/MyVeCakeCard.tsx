@@ -49,7 +49,7 @@ export const MyVeCakeCard: React.FC<{
       {type === 'column' ? (
         <AutoColumn gap="2px" ml="6px">
           <Text fontSize="12px" bold color="white" lineHeight="120%">
-            {t('MY veCAKE')}
+            {t('MY CAKE')}
           </Text>
           <Text fontSize="24px" bold color="white" lineHeight="110%">
             {value ?? formatNumber(getBalanceNumber(balance))}
@@ -59,7 +59,7 @@ export const MyVeCakeCard: React.FC<{
       {type === 'row' ? (
         <AutoRow justifyContent="space-between" ml="8px">
           <Text fontSize="20px" bold color="white" lineHeight="120%">
-            {t('MY veCAKE')}
+            {t('MY CAKE')}
           </Text>
 
           <Text fontSize="20px" bold color="white" lineHeight="110%">

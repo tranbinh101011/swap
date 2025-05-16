@@ -23,7 +23,6 @@ const VoteDetailsModal: React.FC<React.PropsWithChildren<VoteDetailsModalProps>>
     ifoPoolBalance,
     lockedCakeBalance,
     lockedEndTime,
-    veCakeBalance,
   } = useGetVotingPower(block)
   const { theme } = useTheme()
 
@@ -41,7 +40,7 @@ const VoteDetailsModal: React.FC<React.PropsWithChildren<VoteDetailsModalProps>>
         ) : (
           <>
             {!block || BigInt(block) >= VECAKE_VOTING_POWER_BLOCK ? (
-              <VeMainView block={block} total={total} veCakeBalance={veCakeBalance} />
+              <VeMainView block={block} total={total} cakeBalance={cakeBalance} />
             ) : (
               <DetailsView
                 total={total}

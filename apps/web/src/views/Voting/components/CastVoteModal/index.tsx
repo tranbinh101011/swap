@@ -42,7 +42,6 @@ const CastVoteModal: React.FC<React.PropsWithChildren<CastVoteModalProps>> = ({
     ifoPoolBalance,
     lockedCakeBalance,
     lockedEndTime,
-    veCakeBalance,
   } = useGetVotingPower(block)
 
   const isStartView = view === ConfirmVoteView.MAIN
@@ -121,7 +120,7 @@ const CastVoteModal: React.FC<React.PropsWithChildren<CastVoteModalProps>> = ({
               isPending={isPending}
               isLoading={isLoading}
               isError={isError}
-              veCakeBalance={veCakeBalance}
+              cakeBalance={cakeBalance}
               onConfirm={handleConfirmVote}
               onDismiss={handleDismiss}
             />

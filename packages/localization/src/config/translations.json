@@ -2650,7 +2650,6 @@
   "Results are updated weekly. Vote numbers are estimations based on the veCAKE balance at 00:00 UTC on the upcoming Thursday.": "Results are updated weekly. Vote numbers are estimations based on the veCAKE balance at 00:00 UTC on the upcoming Thursday.",
   "Your vote has been submitted successfully.": "Your vote has been submitted successfully.",
   "BETA": "BETA",
-  "Your voting power is determined by the number of veCAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.": "Your voting power is determined by the number of veCAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.",
   "Once confirmed, voting action cannot be undone.": "Once confirmed, voting action cannot be undone.",
   "selected": "selected",
   "Collapse": "Collapse",
@@ -3277,9 +3276,7 @@
   "Voting system": "Voting system",
   "Binary": "Binary",
   "Weighted": "Weighted",
-  "veCake Balance": "veCake Balance",
   "You cast your vote! Please wait until the voting ends to see the end results.": "You cast your vote! Please wait until the voting ends to see the end results.",
-  "Not enough veCAKE": "Not enough veCAKE",
   "Enter the votes to cast": "Enter the votes to cast",
   "TVL and APR data may not be reflected correctly due to technical limitation, please refer to": "TVL and APR data may not be reflected correctly due to technical limitation, please refer to",
   "info page": "info page",
@@ -3422,7 +3419,6 @@
   "Pricing Curve hooks define innovative models for price determination and asset exchange, tailoring bonding curves or algorithms to specific use cases or liquidity needs.": "Pricing Curve hooks define innovative models for price determination and asset exchange, tailoring bonding curves or algorithms to specific use cases or liquidity needs.",
   "Order Type hooks introduce advanced trading functionalities, such as limit orders, stop-loss orders, or other conditional executions, enhancing flexibility for traders and liquidity providers.": "Order Type hooks introduce advanced trading functionalities, such as limit orders, stop-loss orders, or other conditional executions, enhancing flexibility for traders and liquidity providers.",
   "Network unstable. Please refresh to continue.": "Network unstable. Please refresh to continue.",
-  "Your voting power is determined by your veCAKE balance at the snapshot block, which represents how much weight your vote carries.": "Your voting power is determined by your veCAKE balance at the snapshot block, which represents how much weight your vote carries.",
   "Please fix form errors.": "Please fix form errors.",
   "Title is required": "Title is required",
   "Content is required": "Content is required",
@@ -3745,5 +3741,10 @@
   "An error occurred while fetching the data. Please try again later.": "An error occurred while fetching the data. Please try again later.",
   "Real-Time Burn History": "Real-Time Burn History",
   "Powered by Brevis, this hook enables swap fee discounts": "Powered by Brevis, this hook enables swap fee discounts",
-  "Powered by Primus, this hook enables swap fee discounts": "Powered by Primus, this hook enables swap fee discounts"
+  "Powered by Primus, this hook enables swap fee discounts": "Powered by Primus, this hook enables swap fee discounts",
+  "MY CAKE": "MY CAKE",
+  "Your voting power is determined by your CAKE balance at the snapshot block, which represents how much weight your vote carries.": "Your voting power is determined by your CAKE balance at the snapshot block, which represents how much weight your vote carries.",
+  "Cake Balance": "Cake Balance",
+  "Not enough CAKE": "Not enough CAKE",
+  "Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.": "Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power."
 }

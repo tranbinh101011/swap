@@ -128,7 +128,7 @@ const CreateProposal = () => {
   const [onPresentVoteDetailsModal] = useModal(<VoteDetailsModal block={watch('snapshot')} />)
 
   const votingPowerTooltipContent = t(
-    'Your voting power is determined by your veCAKE balance at the snapshot block, which represents how much weight your vote carries.',
+    'Your voting power is determined by your CAKE balance at the snapshot block, which represents how much weight your vote carries.',
   )
   const {
     targetRef: votingPowerTargetRef,
