@@ -10,7 +10,6 @@ import { multicallGasLimitAtom } from 'quoter/hook/useMulticallGasLimit'
 import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
 import { NoValidRouteError, QuoteQuery } from 'quoter/quoter.types'
 import { createQuoteProvider } from 'quoter/utils/createQuoteProvider'
-import { FetchCandidatePoolsError } from 'quoter/utils/FetchCandidatePoolsError'
 import { filterPools } from 'quoter/utils/filterPoolsV3'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getAllowedPoolTypes } from 'quoter/utils/getAllowedPoolTypes'
@@ -88,17 +87,14 @@ export const bestAMMTradeFromQuoterWorkerAtom = atomFamily((option: QuoteQuery) 
       })
       const parsed = SmartRouter.Transformer.parseTrade(currency.chainId, result as any)
       parsed.quoteQueryHash = option.hash
-      perf.tracker.track('success')
-      return {
+      const order = {
         type: OrderType.PCS_CLASSIC,
         trade: parsed as any as InfinityRouter.InfinityTradeWithoutGraph<TradeType>,
       } as InterfaceOrder
+      perf.tracker.success(order)
+      return order
     } catch (ex) {
-      console.warn(`[quote]`, ex)
-      if (ex instanceof FetchCandidatePoolsError) {
-        perf.tracker.track('pool_error')
-      }
-      perf.tracker.track('fail')
+      perf.tracker.fail(ex)
       throw new NoValidRouteError()
     } finally {
       perf.tracker.report()

@@ -59,10 +59,10 @@ export const bestXApiAtom = atomFamily((option: QuoteQuery) => {
       })
 
       result.trade.quoteQueryHash = option.hash
-      perf.tracker.track('success')
+      perf.tracker.success(result)
       return result as InterfaceOrder
     } catch (ex) {
-      perf.tracker.track('fail')
+      perf.tracker.fail(ex)
       throw ex
     } finally {
       perf.tracker.report()

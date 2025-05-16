@@ -1,9 +1,11 @@
+import { getIsMobile, isInBinance } from '@binance/w3w-utils'
 import { getCurrencyAddress, TradeType } from '@pancakeswap/swap-sdk-core'
 import { accountActiveChainAtom } from 'hooks/useAccountActiveChain'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { QuoteQuery } from 'quoter/quoter.types'
 import { getLogger } from 'utils/datadog'
+import { InterfaceOrder } from 'views/Swap/utils'
 
 type TrackKey = 'start' | 'pool_success' | 'pool_error' | 'success' | 'fail' | 'duration'
 type QuoteTrace = {
@@ -21,9 +23,44 @@ type QuoteTrace = {
   chainId?: number
   account?: `0x${string}`
   route?: string
+  app: string
+  quote: string
+  error: string
 }
 
 const logger = getLogger('quote')
+
+const APPS = [
+  { regex: /MetaMask/i, app: 'mm' },
+  { regex: /Trust Wallet/i, app: 'trust' },
+  { regex: /CoinbaseWallet/i, app: 'coinbase' },
+]
+
+function detectApp() {
+  if (isInBinance()) {
+    return 'bn'
+  }
+
+  const ua = navigator.userAgent
+
+  for (const { regex, app } of APPS) {
+    if (regex.test(ua)) {
+      return app
+    }
+  }
+
+  if (getIsMobile()) {
+    if (/Android/i.test(ua)) {
+      return 'android'
+    }
+    if (/iPhone|iPad|iPod/i.test(ua)) {
+      return 'ios'
+    }
+    return 'mobile'
+  }
+
+  return 'web'
+}
 export class RouteTracker {
   private records: [TrackKey, number][] = []
 
@@ -49,6 +86,24 @@ export class RouteTracker {
       records[key] = value
     })
     return records as Record<TrackKey, number>
+  }
+
+  public success(order: InterfaceOrder) {
+    this.track('success')
+    if (order.trade.tradeType === TradeType.EXACT_INPUT) {
+      this.trace.quote = order.trade.outputAmount.toExact()
+    } else {
+      this.trace.quote = order.trade.inputAmount.toExact()
+    }
+  }
+
+  public fail(ex: any) {
+    if (ex instanceof Error) {
+      this.trace.error = ex.message
+    } else {
+      this.trace.error = String(ex)
+    }
+    this.track('fail')
   }
 
   public report() {
@@ -88,7 +143,11 @@ export const quoteTraceAtom = atomFamily(
           fail: 0,
           duration: 0,
         },
+        app: detectApp() || 'web',
+        quote: '',
+        error: '',
       }
+
       const tracker = new RouteTracker(trace, params.routeKey!, params.createTime)
       return {
         trace,

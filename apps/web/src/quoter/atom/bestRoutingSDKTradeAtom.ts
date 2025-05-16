@@ -4,7 +4,6 @@ import { TradeType } from '@pancakeswap/swap-sdk-core'
 import { globalWorkerAtom } from 'hooks/useWorker'
 import { atomFamily } from 'jotai/utils'
 import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
-import { FetchCandidatePoolsError } from 'quoter/utils/FetchCandidatePoolsError'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getVerifiedTrade } from 'quoter/utils/getVerifiedTrade'
 import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
@@ -71,17 +70,15 @@ export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
       if (verifiedTrade) {
         verifiedTrade.quoteQueryHash = option.hash
       }
-      perf.tracker.track('success')
-      return {
+      const order = {
         type: OrderType.PCS_CLASSIC,
         trade: (verifiedTrade || undefined) as InfinityGetBestTradeReturnType | undefined,
       } as InterfaceOrder
+      perf.tracker.success(order)
+      return order
     } catch (ex) {
-      if (ex instanceof FetchCandidatePoolsError) {
-        perf.tracker.track('pool_error')
-      }
-      console.warn(`[quote]`, ex)
-      perf.tracker.track('fail')
+      perf.tracker.fail(ex)
+
       throw new NoValidRouteError()
     } finally {
       perf.tracker.report()

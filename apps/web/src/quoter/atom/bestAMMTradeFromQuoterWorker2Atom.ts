@@ -10,7 +10,6 @@ import { createViemPublicClientGetter } from 'utils/viem'
 
 import { multicallGasLimitAtom } from 'quoter/hook/useMulticallGasLimit'
 import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
-import { FetchCandidatePoolsError } from 'quoter/utils/FetchCandidatePoolsError'
 import { filterPools } from 'quoter/utils/filterPoolsV3'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getAllowedPoolTypes } from 'quoter/utils/getAllowedPoolTypes'
@@ -91,16 +90,14 @@ export const bestAMMTradeFromQuoterWorker2Atom = atomFamily((option: QuoteQuery)
       if (parsed) {
         parsed.quoteQueryHash = option.hash
       }
-      perf.tracker.track('success')
-      return {
+      const order = {
         type: OrderType.PCS_CLASSIC,
         trade: parsed,
       } as InterfaceOrder
+      perf.tracker.success(order)
+      return order
     } catch (ex) {
-      if (ex instanceof FetchCandidatePoolsError) {
-        perf.tracker.track('pool_error')
-      }
-      perf.tracker.track('fail')
+      perf.tracker.fail(ex)
       console.warn(`[quote]`, ex)
       throw new NoValidRouteError()
     } finally {
