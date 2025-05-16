@@ -1,14 +1,14 @@
+import { Loadable } from '@pancakeswap/utils/Loadable'
 import { Atom } from 'jotai'
 import { AtomFamily } from 'jotai/vanilla/utils/atomFamily'
 import { QuoteQuery } from 'quoter/quoter.types'
 import { InterfaceOrder } from 'views/Swap/utils'
-import { Loadable } from './atomWithLoadable'
 import { bestAMMTradeFromQuoterWorker2Atom } from './bestAMMTradeFromQuoterWorker2Atom'
 import { bestAMMTradeFromQuoterWorkerAtom } from './bestAMMTradeFromQuoterWorkerAtom'
 import { bestRoutingSDKTradeAtom } from './bestRoutingSDKTradeAtom'
 import { bestXApiAtom } from './bestXAPIAtom'
 
-type AtomType = AtomFamily<QuoteQuery, Atom<Loadable<InterfaceOrder | undefined>>>
+type AtomType = AtomFamily<QuoteQuery, Atom<Loadable<InterfaceOrder>>>
 export interface StrategyRoute {
   query: AtomType
   overrides: Partial<QuoteQuery>

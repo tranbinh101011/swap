@@ -39,7 +39,7 @@ export function useSingleTokenSwapInfo(query: Query): { [key: string]: number } 
   })
 
   const quoteResult = useAtomValue(bestAMMTradeFromQuoterWorkerAtom(quoteOption))
-  const bestTradeExactIn = quoteResult.data?.trade
+  const bestTradeExactIn = quoteResult.map((x) => x.trade).unwrapOr(undefined)
   if (!inputCurrency || !outputCurrency || !bestTradeExactIn) {
     return {}
   }

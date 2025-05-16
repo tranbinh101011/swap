@@ -81,8 +81,7 @@ const useBestTrade = (fromToken?: string, toToken?: string, value?: string) => {
     routeKey: 'twap',
   })
   const tradeResult = useAtomValue(bestQuoteAtom(quoteOption))
-  const { data } = tradeResult
-  const trade = data?.trade
+  const trade = tradeResult.map((x) => x.trade).unwrapOr(undefined)
 
   const inCurrency = useCurrency(fromToken)
   const outCurrency = useCurrency(toToken)

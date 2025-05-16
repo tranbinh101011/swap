@@ -1,72 +1,27 @@
-import { atom, Getter } from 'jotai'
+import { Loadable } from '@pancakeswap/utils/Loadable'
+import { atom, Atom, Getter } from 'jotai'
 import { unwrap } from 'jotai/utils'
 
-export type Loadable<T> = {
-  loading: boolean
-  data?: T
-  error?: Error
-  isShadow?: boolean
+type AsyncFN<T> = (get: Getter) => Promise<T | undefined>
+type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
+interface LoadableOption<T> {
+  isValid: (result: UnwrapPromise<ReturnType<AsyncFN<T>>>) => boolean
 }
 
-export const emptyLoadable = <T>() => {
-  return {
-    loading: true,
-    data: undefined,
-    error: undefined,
-  } as Loadable<T>
-}
-
-export const valueLoadable = <T>(value: T, isShadow = false) => {
-  return {
-    loading: false,
-    data: value,
-    error: undefined,
-    isShadow,
-  } as Loadable<T>
-}
-
-export const errorLoadable = <T>(error: any) => {
-  return {
-    loading: false,
-    data: undefined,
-    error,
-  } as Loadable<T>
-}
-
-export const pendingLoadable = <T>(val?: T, isShadow = false) => {
-  return {
-    loading: true,
-    data: val ?? undefined,
-    error: undefined,
-    isShadow,
-  } as Loadable<T>
-}
-
-export const atomWithLoadable = <T>(asyncFn: (get: Getter) => Promise<T>) => {
-  const baseAtom = atom(async (get) => {
+export const atomWithLoadable = <T>(asyncFn: AsyncFN<T>, options?: LoadableOption<T>) => {
+  const baseAtom = atom<Promise<Loadable<T>>>(async (get) => {
     try {
       const result = await asyncFn(get)
-      return {
-        loading: false,
-        data: result,
-        error: undefined,
-      } as Loadable<T>
+      if (typeof result === 'undefined' || result === null) {
+        return Loadable.Nothing<T>()
+      }
+      if (options?.isValid && !options.isValid(result)) {
+        return Loadable.Nothing<T>()
+      }
+      return Loadable.Just<T>(result)
     } catch (error: any) {
-      return {
-        loading: false,
-        data: undefined,
-        error,
-      } as Loadable<T>
+      return Loadable.Fail<T>(error)
     }
   })
-
-  return unwrap(
-    baseAtom,
-    (prev) =>
-      ({
-        loading: true,
-        data: prev?.data,
-        error: prev?.error,
-      } as Loadable<T>),
-  )
+  return unwrap(baseAtom, () => Loadable.Pending<T>()) as Atom<Loadable<T>>
 }

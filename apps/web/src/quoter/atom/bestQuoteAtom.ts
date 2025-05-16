@@ -1,4 +1,5 @@
 import { TradeType } from '@pancakeswap/swap-sdk-core'
+import { Loadable } from '@pancakeswap/utils/Loadable'
 import { getIsWrapping } from 'hooks/useWrapCallback'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
@@ -7,40 +8,35 @@ import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
 import { InterfaceOrder } from 'views/Swap/utils'
 import { NoValidRouteError, QuoteQuery } from '../quoter.types'
 import { activeQuoteHashAtom } from './abortControlAtoms'
-import { emptyLoadable, errorLoadable, Loadable, pendingLoadable, valueLoadable } from './atomWithLoadable'
 import { placeholderAtom } from './placeholderAtom'
 import { getRoutingStrategy, StrategyRoute } from './routingStrategy'
 
 const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
   return atom((get) => {
-    function executeRoutes(strategies: StrategyRoute[], option: QuoteQuery) {
+    function executeRoutes(strategies: StrategyRoute[], option: QuoteQuery): Loadable<InterfaceOrder> {
       try {
         const quotes = strategies.map((route) =>
           get(route.query({ ...option, ...route.overrides, routeKey: route.key })),
         )
-        const anyLoading = quotes.some((x) => x?.loading)
+        const anyPending = quotes.some((x) => x?.isPending())
         const best = findBestQuote(...quotes)
         if (!best) {
-          if (anyLoading) {
-            return pendingLoadable<InterfaceOrder | undefined>()
+          if (anyPending) {
+            return Loadable.Pending<InterfaceOrder>()
           }
-          return undefined
+          return Loadable.Nothing<InterfaceOrder>()
         }
         const [bestQuote, bestIndex] = best
         if (bestQuote) {
-          if (!anyLoading) {
-            if (strategies[bestIndex].isShadow) {
-              return valueLoadable<InterfaceOrder | undefined>(bestQuote, true)
-            }
+          if (!anyPending) {
             // updateStrategy(strategyHash, routes[bestIndex])
-            return valueLoadable(bestQuote)
+            return Loadable.Just<InterfaceOrder>(bestQuote)
           }
-          return pendingLoadable<InterfaceOrder | undefined>(bestQuote)
+          return Loadable.Nothing<InterfaceOrder>()
         }
-        return emptyLoadable<InterfaceOrder | undefined>()
+        return Loadable.Nothing<InterfaceOrder>()
       } catch (ex) {
-        console.warn(`[quote]`, ex)
-        return emptyLoadable<InterfaceOrder | undefined>()
+        return Loadable.Fail<InterfaceOrder>(new NoValidRouteError())
       }
     }
 
@@ -48,23 +44,23 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
     // This quoter query is outdated
     const activeQuoteHash = get(activeQuoteHashAtom)
     if (!activeQuoteHash) {
-      return pendingLoadable<InterfaceOrder | undefined>()
+      return Loadable.Pending<InterfaceOrder>()
     }
 
     const option: QuoteQuery = { enabled: true, type: 'quoter', tradeType: TradeType.EXACT_INPUT, ..._option }
     try {
       const isWrapping = getIsWrapping(option.amount?.currency, option.currency || undefined, option.currency?.chainId)
       if (isWrapping || !option.enabled) {
-        return emptyLoadable<InterfaceOrder | undefined>()
+        return Loadable.Nothing<InterfaceOrder>()
       }
       if (!option.baseCurrency || !option.currency) {
-        return emptyLoadable<InterfaceOrder | undefined>()
+        return Loadable.Nothing<InterfaceOrder>()
       }
       if (option.baseCurrency?.equals(option.currency)) {
-        return emptyLoadable<InterfaceOrder | undefined>()
+        return Loadable.Nothing<InterfaceOrder>()
       }
       if (!option.amount?.quotient) {
-        return emptyLoadable<InterfaceOrder | undefined>()
+        return Loadable.Nothing<InterfaceOrder>()
       }
 
       const strategies = getRoutingStrategy()
@@ -74,22 +70,16 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
       for (let i = 0; i < tests.length; i++) {
         const strategy = tests[i]
         const quote = executeRoutes(strategy, option)
-        if (quote) {
-          if (quote.isShadow && !quote.loading && quote.data) {
-            continue
-          }
-          if (quote.isShadow && i < tests.length - 1) {
-            return { ...quote, loading: true }
-          }
-
-          return quote
+        if (quote.isNothing() || quote.isFail()) {
+          continue
         }
+        return quote
       }
-      return errorLoadable<InterfaceOrder | undefined>(new NoValidRouteError())
+      return Loadable.Nothing<InterfaceOrder>()
     } catch (ex) {
       // eslint-disable-next-line no-console
       console.warn(`[quote]`, ex)
-      return errorLoadable<InterfaceOrder | undefined>(ex)
+      return Loadable.Fail<InterfaceOrder>(ex)
     }
   })
 }, isEqualQuoteQuery)
@@ -97,22 +87,20 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
 export const bestQuoteAtom = atomFamily((_option: QuoteQuery) => {
   return atom((get) => {
     const result = get(bestQuoteWithoutHashAtom(_option))
-    if (!result.data?.trade && _option.placeholderHash) {
-      const placeHolder = get(placeholderAtom(_option.placeholderHash))
-      return {
-        ...result,
-        data: placeHolder,
-        hash: _option.hash,
-        placeholderHash: _option.placeholderHash,
-        loading: !placeHolder,
+
+    if (result.isPending()) {
+      const placeHolder = get(placeholderAtom(_option.placeholderHash || ''))
+      if (placeHolder) {
+        return Loadable.Just(placeHolder).setFlag('placeholder').setExtra('placeholderHash', _option.placeholderHash!)
       }
     }
-    return { ...result, hash: _option.hash, placeholderHash: _option.placeholderHash }
+    console.log(`[ph]`, 'hash', _option.placeholderHash)
+    return result.setExtra('placeholderHash', _option.placeholderHash!)
   })
 }, isEqualQuoteQuery)
 
-function findBestQuote(...args: Loadable<InterfaceOrder | undefined>[]): [InterfaceOrder, number] | undefined {
-  const fulfilledValues = args.filter((x) => x.data).map((x) => x.data)
+function findBestQuote(...args: Loadable<InterfaceOrder>[]): [InterfaceOrder, number] | undefined {
+  const fulfilledValues = args.filter((x) => x.isJust()).map((x) => x.unwrap())
 
   let bestOrder: InterfaceOrder | undefined
   let idx = -1

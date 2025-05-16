@@ -146,18 +146,21 @@ export const useQuoterSync = () => {
   }, [quoteQuery.hash, paused, quoteResult.loading])
 
   useEffect(() => {
-    if (quoteResult.data?.trade && quoteResult.placeholderHash && !quoteResult.loading) {
-      setPlaceholder(quoteResult.placeholderHash, quoteResult.data)
+    if (quoteResult.isJust() && !quoteResult.hasFlag('placeholder')) {
+      const placeholderHash = quoteResult.getExtra('placeholderHash') as string
+      setPlaceholder(placeholderHash, quoteResult.unwrap())
     }
 
     if (paused) {
       return
     }
 
+    const order = quoteResult.unwrapOr(undefined)
+
     setTrade({
-      bestOrder: quoteResult.data,
-      tradeLoaded: !quoteResult?.loading,
-      tradeError: quoteResult?.error,
+      bestOrder: order,
+      tradeLoaded: !quoteResult.isPending(),
+      tradeError: quoteResult.error,
       refreshDisabled: false,
       refreshOrder: () => {
         setNonce((v) => v + 1)
@@ -173,5 +176,5 @@ export const useQuoterSync = () => {
       },
     })
     setTyping(false)
-  }, [quoteResult.data, quoteResult.loading, quoteResult.error, pauseQuote, setTrade, setTyping, setNonce, paused])
+  }, [quoteResult.value, quoteResult.loading, quoteResult.error, pauseQuote, setTrade, setTyping, setNonce, paused])
 }
