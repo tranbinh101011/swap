@@ -11,8 +11,8 @@ import { useDerivedPositionInfo } from 'hooks/v3/useDerivedPositionInfo'
 import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
 import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import { useCallback, useMemo, useState } from 'react'
-import { CurrencyField as Field } from 'utils/types'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { CurrencyField as Field } from 'utils/types'
 
 import { useTranslation } from '@pancakeswap/localization'
 import { AppHeader } from 'components/App'
@@ -35,9 +35,10 @@ import { isUserRejected } from 'utils/sentry'
 import { getViemClients } from 'utils/viem'
 import { hexToBigInt } from 'viem'
 
-import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { ZapLiquidityWidget } from 'components/ZapLiquidityWidget'
 import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
+import { useSingleCallResult } from 'state/multicall/hooks'
+import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { V3SubmitButton } from './components/V3SubmitButton'
 import LockedDeposit from './formViews/V3FormView/components/LockedDeposit'
 import { PositionPreview } from './formViews/V3FormView/components/PositionPreview'
@@ -136,7 +137,6 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
   }, [pool])
 
   const { onFieldAInput, onFieldBInput } = useV3MintActionHandlers(noLiquidity)
-  const isValid = !errorMessage && !invalidRange && !tokenIdsInMCv3Loading
 
   // txn values
   const [deadline] = useTransactionDeadline() // custom from users settings
@@ -175,6 +175,20 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
     isStakedInMCv3 !== 'loading' ? (isStakedInMCv3 === 'true' ? masterchefV3 : positionManager) : undefined
   const interfaceManager =
     isStakedInMCv3 !== 'loading' ? (isStakedInMCv3 === 'true' ? MasterChefV3 : NonfungiblePositionManager) : undefined
+
+  const tokenIdBigInt = tokenId ? BigInt(tokenId) : undefined
+
+  const { position: positionDetails } = useV3PositionFromTokenId(tokenIdBigInt)
+
+  const owner = useSingleCallResult({
+    contract: tokenId && positionManager ? positionManager : undefined,
+    functionName: 'ownerOf',
+    args: useMemo(() => [tokenIdBigInt], [tokenIdBigInt]),
+  }).result
+
+  const ownsNFT = owner === account || positionDetails?.operator === account
+
+  const isValid = !errorMessage && !invalidRange && !tokenIdsInMCv3Loading && ownsNFT
 
   const {
     approvalState: approvalA,
