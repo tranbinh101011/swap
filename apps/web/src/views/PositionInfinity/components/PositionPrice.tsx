@@ -5,7 +5,7 @@ import { AutoRow, Flex, SyncAltIcon, Text } from '@pancakeswap/uikit'
 import { RangePriceSection } from 'components/RangePriceSection'
 import { Bound } from 'config/constants/types'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { formatPrice } from 'utils/formatCurrencyAmount'
 import RateToggle from 'views/AddLiquidityV3/formViews/V3FormView/components/RateToggle'
 
@@ -32,13 +32,23 @@ export const PositionPriceSection: React.FC<PositionPriceSectionProps> = ({
   priceLower,
   inverted,
   pool,
-  tickAtLimit,
+  tickAtLimit: _tickAtLimit,
   setInverted,
 }) => {
   const {
     t,
     currentLanguage: { locale },
   } = useTranslation()
+
+  const tickAtLimit = useMemo(() => {
+    if (inverted) {
+      return {
+        [Bound.LOWER]: _tickAtLimit[Bound.UPPER],
+        [Bound.UPPER]: _tickAtLimit[Bound.LOWER],
+      }
+    }
+    return _tickAtLimit
+  }, [_tickAtLimit, inverted])
 
   return (
     <>

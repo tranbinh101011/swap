@@ -1,6 +1,6 @@
 import { nearestUsableTick, TickMath } from '@pancakeswap/v3-sdk'
-import { useMemo } from 'react'
 import { Bound } from 'config/constants/types'
+import { useMemo } from 'react'
 
 export default function useIsTickAtLimit(
   tickLower: number | undefined,
@@ -18,8 +18,8 @@ export default function useIsTickAtLimit(
   )
   return useMemo(
     () => ({
-      [Bound.LOWER]: tickLower === ticksLimit.LOWER,
-      [Bound.UPPER]: tickUpper === ticksLimit.UPPER,
+      [Bound.LOWER]: tickLower && ticksLimit.LOWER ? tickLower <= ticksLimit.LOWER : false,
+      [Bound.UPPER]: tickUpper && ticksLimit.UPPER ? tickUpper >= ticksLimit.UPPER : false,
     }),
     [ticksLimit, tickLower, tickUpper],
   )

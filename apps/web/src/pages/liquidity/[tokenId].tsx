@@ -125,7 +125,7 @@ function PositionPriceSection({
   priceLower,
   inverted,
   pool,
-  tickAtLimit,
+  tickAtLimit: _tickAtLimit,
   setManuallyInverted,
   manuallyInverted,
 }) {
@@ -133,6 +133,16 @@ function PositionPriceSection({
     t,
     currentLanguage: { locale },
   } = useTranslation()
+
+  const tickAtLimit = useMemo(() => {
+    if (manuallyInverted) {
+      return {
+        [Bound.LOWER]: _tickAtLimit[Bound.UPPER],
+        [Bound.UPPER]: _tickAtLimit[Bound.LOWER],
+      }
+    }
+    return _tickAtLimit
+  }, [_tickAtLimit, manuallyInverted])
 
   return (
     <>
