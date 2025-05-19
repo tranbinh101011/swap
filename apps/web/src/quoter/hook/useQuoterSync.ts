@@ -8,6 +8,7 @@ import { activeQuoteHashAtom } from 'quoter/atom/abortControlAtoms'
 import { baseAllTypeBestTradeAtom, pauseAtom, userTypingAtom } from 'quoter/atom/bestTradeUISyncAtom'
 import { updatePlaceholderAtom } from 'quoter/atom/placeholderAtom'
 import { fetchCommonPoolsOnChain } from 'quoter/atom/poolsAtom'
+import { QUOTE_REVALIDATE_TIME } from 'quoter/consts'
 import { PoolQuery, QuoteQuery } from 'quoter/quoter.types'
 import { useEffect } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
@@ -18,8 +19,6 @@ import { bestQuoteAtom } from '../atom/bestQuoteAtom'
 import { quoteNonceAtom } from '../atom/revalidateAtom'
 import { createQuoteQuery } from '../utils/createQuoteQuery'
 import { useQuoteContext } from './QuoteContext'
-
-const REVALIDATE_TIME = 7
 
 export const useQuoterSync = () => {
   const swapState = useSwapState()
@@ -127,12 +126,12 @@ export const useQuoterSync = () => {
   useEffect(() => {
     let t = 0
     const interval = setInterval(() => {
-      const outdated = Date.now() - quoteQuery.createTime! > REVALIDATE_TIME
+      const outdated = Date.now() - quoteQuery.createTime! > QUOTE_REVALIDATE_TIME
       if (paused || (!outdated && quoteResult.loading)) {
         return
       }
       if (t > 0) {
-        if (t % REVALIDATE_TIME === 0) {
+        if (t % QUOTE_REVALIDATE_TIME === 0) {
           setNonce((v) => v + 1)
         }
       }

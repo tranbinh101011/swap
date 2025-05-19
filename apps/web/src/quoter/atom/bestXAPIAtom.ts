@@ -2,18 +2,19 @@ import { getRequestBody, parseQuoteResponse } from '@pancakeswap/price-api-sdk'
 import { TradeType } from '@pancakeswap/swap-sdk-core'
 import { QUOTING_API } from 'config/constants/endpoints'
 import { atomFamily } from 'jotai/utils'
+import { QUOTE_TIMEOUT } from 'quoter/consts'
 import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
 import { QuoteQuery } from 'quoter/quoter.types'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getAllowedPoolTypesX } from 'quoter/utils/getAllowedPoolTypes'
 import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
 import { basisPointsToPercent } from 'utils/exchange'
+import { withTimeout } from 'utils/withTimeout'
 import { InterfaceOrder } from 'views/Swap/utils'
 import { atomWithLoadable } from './atomWithLoadable'
 
 export const bestXApiAtom = atomFamily((option: QuoteQuery) => {
   return atomWithLoadable(async (get) => {
-    const perf = get(quoteTraceAtom(option))
     const { xEnabled, enabled, slippage, address } = option
     if (!xEnabled || !enabled) {
       return undefined
@@ -24,8 +25,10 @@ export const bestXApiAtom = atomFamily((option: QuoteQuery) => {
     if (!amount || !amount.currency || !currency || !slippage) {
       throw new Error('Invalid amount or currency')
     }
+    const perf = get(quoteTraceAtom(option))
     perf.tracker.track('start')
-    try {
+
+    const query = withTimeout(async () => {
       const poolTypes = getAllowedPoolTypesX(option)
       const gasPriceWei = await get(gasPriceWeiAtom(currency.chainId))
 
@@ -61,6 +64,10 @@ export const bestXApiAtom = atomFamily((option: QuoteQuery) => {
       result.trade.quoteQueryHash = option.hash
       perf.tracker.success(result)
       return result as InterfaceOrder
+    }, QUOTE_TIMEOUT)
+
+    try {
+      return await query()
     } catch (ex) {
       perf.tracker.fail(ex)
       throw ex

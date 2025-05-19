@@ -3,10 +3,12 @@ import { InfinityRouter, SmartRouter } from '@pancakeswap/smart-router'
 import { TradeType } from '@pancakeswap/swap-sdk-core'
 import { globalWorkerAtom } from 'hooks/useWorker'
 import { atomFamily } from 'jotai/utils'
+import { QUOTE_TIMEOUT } from 'quoter/consts'
 import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getVerifiedTrade } from 'quoter/utils/getVerifiedTrade'
 import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
+import { withTimeout } from 'utils/withTimeout'
 import { InterfaceOrder } from 'views/Swap/utils'
 import { InfinityGetBestTradeReturnType, NoValidRouteError, QuoteQuery } from '../quoter.types'
 import { atomWithLoadable } from './atomWithLoadable'
@@ -15,7 +17,6 @@ import { commonPoolsOnChainAtom } from './poolsAtom'
 export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
   const { amount, currency, tradeType, maxSplits, v2Swap, v3Swap, infinitySwap } = option
   return atomWithLoadable(async (get) => {
-    const perf = get(quoteTraceAtom(option))
     if (!amount || !amount.currency || !currency) {
       return undefined
     }
@@ -25,9 +26,10 @@ export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
     if (!worker) {
       throw new Error('Quote worker not initialized')
     }
+    const perf = get(quoteTraceAtom(option))
     perf.tracker.track('start')
 
-    try {
+    const query = withTimeout(async () => {
       const [candidatePools, gasPriceWei] = await Promise.all([
         get(
           commonPoolsOnChainAtom({
@@ -76,9 +78,12 @@ export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
       } as InterfaceOrder
       perf.tracker.success(order)
       return order
+    }, QUOTE_TIMEOUT)
+
+    try {
+      return await query()
     } catch (ex) {
       perf.tracker.fail(ex)
-
       throw new NoValidRouteError()
     } finally {
       perf.tracker.report()
