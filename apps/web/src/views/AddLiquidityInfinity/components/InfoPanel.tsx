@@ -8,11 +8,13 @@ import { GreyBadge } from 'components/Liquidity/Badges'
 import { DoubleCurrencyLogoV2 } from 'components/Logo'
 import { useCurrencyByPoolId } from 'hooks/infinity/useCurrencyByPoolId'
 import { useHookByPoolId } from 'hooks/infinity/useHooksList'
+import { useMemo } from 'react'
 import { usePoolInfo } from 'state/farmsV4/hooks'
 import { useInverted } from 'state/infinity/shared'
 import styled from 'styled-components'
 import { chainNameConverter } from 'utils/chainNameConverter'
 import { getCurrencyAddress } from 'utils/getCurrencyAddress'
+import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { Address } from 'viem'
 import { InfinityBinPoolDerivedAprButton, InfinityCLPoolDerivedAprButton } from 'views/universalFarms/components'
 import { getChainFullName } from 'views/universalFarms/utils'
@@ -52,6 +54,14 @@ export const InfoPanel = ({ poolId, chainId }: InfoPanelProps) => {
   const hookData = useHookByPoolId(chainId, poolId)
   const poolInfo = usePoolInfo({ poolAddress: poolId, chainId })
   const chainName = chainId ? getChainFullName(chainId) : ''
+  const symbol0 = useMemo(
+    () => getTokenSymbolAlias(currency0?.wrapped?.address, currency0?.chainId, currency0?.symbol),
+    [currency0],
+  )
+  const symbol1 = useMemo(
+    () => getTokenSymbolAlias(currency1?.wrapped?.address, currency1?.chainId, currency1?.symbol),
+    [currency1],
+  )
 
   return (
     <StyledCard style={{ overflow: 'visible' }}>
@@ -68,11 +78,11 @@ export const InfoPanel = ({ poolId, chainId }: InfoPanelProps) => {
                 />
                 <FlexGap flexDirection="column" ml="38px">
                   <Text fontSize="24px" bold>
-                    {currency0?.symbol}
+                    {symbol0}
                     <Text as="span" mx="1px" fontSize="24px" color="gray" bold>
                       /
                     </Text>
-                    {currency1?.symbol}
+                    {symbol1}
                   </Text>
                   <FlexGap gap="3px" alignItems="center">
                     <ChainLogo chainId={Number(chainId)} width={18} mt="2px" />

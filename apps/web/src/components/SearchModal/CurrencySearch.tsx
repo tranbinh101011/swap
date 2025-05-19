@@ -15,6 +15,7 @@ import { useAllLists, useInactiveListUrls } from 'state/lists/hooks'
 import { safeGetAddress } from 'utils'
 
 import { useTokenComparator } from 'hooks/useTokenComparator'
+import { getTokenAddressFromSymbolAlias } from 'utils/getTokenAlias'
 import { useAllTokens, useIsUserAddedToken, useToken } from '../../hooks/Tokens'
 import Row from '../Layout/Row'
 import CommonBases from './CommonBases'
@@ -100,7 +101,7 @@ function CurrencySearch({
   const fixedList = useRef<FixedSizeList>()
 
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const debouncedQuery = useDebounce(searchQuery, 200)
+  const debouncedQuery = useDebounce(getTokenAddressFromSymbolAlias(searchQuery, chainId, searchQuery), 200)
 
   const [invertSearchOrder] = useState<boolean>(false)
 

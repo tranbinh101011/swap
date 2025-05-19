@@ -12,10 +12,12 @@ import { InfinityPoolInfo } from 'state/farmsV4/state/type'
 import { useChainIdByQuery, useChainNameByQuery } from 'state/info/hooks'
 import styled from 'styled-components'
 import { multiChainNameConverter } from 'utils/chainNameConverter'
+import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { isInfinityProtocol } from 'utils/protocols'
 import { zeroAddress } from 'viem'
 import { PoolGlobalAprButton } from 'views/universalFarms/components/PoolAprButton'
 import { usePoolInfoByQuery } from '../hooks/usePoolInfo'
+import { usePoolSymbol } from '../hooks/usePoolSymbol'
 import { MyPositions } from './MyPositions'
 import { PoolCharts } from './PoolCharts'
 import { PoolCurrencies } from './PoolCurrencies'
@@ -46,6 +48,7 @@ export const PoolInfo = () => {
   const poolId = (poolInfo as InfinityPoolInfo)?.poolId
   const hookData = useHookByPoolId(chainId, poolId)
   const { isMobile } = useMatchBreakpoints()
+  const { poolSymbol } = usePoolSymbol()
 
   if (!poolInfo)
     return (
@@ -56,7 +59,7 @@ export const PoolInfo = () => {
 
   return (
     <AutoColumn gap={['16px', null, null, '48px']}>
-      <NextSeo title={`${currency0?.symbol} / ${currency1?.symbol}`} />
+      <NextSeo title={poolSymbol} />
       <Header>
         <Flex alignItems={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'}>
           <Box mr="12px">
@@ -64,13 +67,15 @@ export const PoolInfo = () => {
           </Box>
           <FlexGap gap="4px">
             <Text bold fontSize={40}>
-              {currency0?.isNative ? currency0?.symbol : currency0?.wrapped.symbol}
+              {currency0?.isNative
+                ? currency0?.symbol
+                : getTokenSymbolAlias(currency0?.wrapped?.address, currency0?.chainId, currency0?.symbol)}
             </Text>
             <Text color="textSubtle" bold fontSize={40}>
               /
             </Text>
             <Text bold fontSize={40}>
-              {currency1?.symbol}
+              {getTokenSymbolAlias(currency1?.wrapped?.address, currency1?.chainId, currency1?.symbol)}
             </Text>
           </FlexGap>
         </Flex>

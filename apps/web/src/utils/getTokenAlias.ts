@@ -24,3 +24,17 @@ export const getTokenNameAlias = (
   }
   return subgraphTokenName[chainId]?.[addr] ?? defaultName
 }
+
+export const getTokenAddressFromSymbolAlias = (
+  alias: string | undefined,
+  chainId: number | undefined,
+  defaultValue: string,
+): string => {
+  if (!alias || !chainId) {
+    return defaultValue
+  }
+  const address = Object.keys(subgraphTokenSymbol[chainId] ?? {}).find(
+    (key) => subgraphTokenSymbol[chainId][key].toLowerCase() === alias.toLowerCase(),
+  )
+  return address ? safeGetAddress(address)! : defaultValue
+}

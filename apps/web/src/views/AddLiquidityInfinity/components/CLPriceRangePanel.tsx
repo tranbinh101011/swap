@@ -12,6 +12,7 @@ import { useCurrencyByPoolId } from 'hooks/infinity/useCurrencyByPoolId'
 import { useCallback, useMemo, useState } from 'react'
 import { useInverted } from 'state/infinity/shared'
 
+import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { useCLDensityChartData } from '../hooks/useDensityChartData'
 import { usePool } from '../hooks/usePool'
 import { useTicksAtLimit } from '../hooks/useTicksAtLimit'
@@ -125,6 +126,14 @@ export const CLPriceRangePanel = () => {
   }, [ticksAtLimit, quickAction, pool?.tickSpacing, lowerPrice, rawPrice, upperPrice])
 
   const axisTicks = useMemo(() => getAxisTicks(pricePeriod.value, isMobile), [pricePeriod.value, isMobile])
+  const symbol0 = useMemo(
+    () => getTokenSymbolAlias(currency0?.wrapped?.address, currency0?.chainId, currency0?.symbol),
+    [currency0],
+  )
+  const symbol1 = useMemo(
+    () => getTokenSymbolAlias(currency1?.wrapped?.address, currency1?.chainId, currency1?.symbol),
+    [currency1],
+  )
 
   return (
     <>
@@ -148,8 +157,8 @@ export const CLPriceRangePanel = () => {
         </Text>
         <Text color="textSubtle" small>
           {t('%assetA% per %assetB%', {
-            assetA: inverted ? currency0?.symbol : currency1?.symbol,
-            assetB: inverted ? currency1?.symbol : currency0?.symbol,
+            assetA: inverted ? symbol0 : symbol1,
+            assetB: inverted ? symbol1 : symbol0,
           })}
         </Text>
       </FlexGap>

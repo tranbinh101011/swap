@@ -9,6 +9,7 @@ import useNativeCurrency from 'hooks/useNativeCurrency'
 import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
 import { FixedSizeList } from 'react-window'
 import { styled } from 'styled-components'
+import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { useAccount } from 'wagmi'
 import { useIsUserAddedToken } from '../../hooks/Tokens'
@@ -90,7 +91,7 @@ function CurrencyRow({
       <CurrencyLogo currency={currency} size="28px" />
 
       <Column>
-        <Text bold>{currency?.symbol}</Text>
+        <Text bold>{getTokenSymbolAlias(currency?.wrapped?.address, currency?.chainId, currency?.symbol)}</Text>
         <Text color="textSubtle" small ellipsis maxWidth="200px">
           {!isOnSelectedList && customAdded && `${t('Added by user')} •`} {currency?.name}
         </Text>

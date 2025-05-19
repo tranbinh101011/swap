@@ -26,6 +26,7 @@ import { StablePair } from 'views/AddLiquidity/AddStableLiquidity/hooks/useStabl
 import { RiskInputPanelDisplay } from 'components/AccessRisk/SwapRevampRiskDisplay'
 import { FiatLogo } from 'components/Logo/CurrencyLogo'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { useAccount } from 'wagmi'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import { FONT_SIZE, LOGO_SIZE, useFontSize } from './state'
@@ -250,8 +251,8 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
 
   const { shortedSymbol, inputRef, wrapperRef, tokenImageRef, symbolRef } = useSizeAdaption(
     value ?? '',
-    currency?.symbol,
-    otherCurrency?.symbol,
+    getTokenSymbolAlias(currency?.wrapped?.address, currency?.chainId, currency?.symbol),
+    getTokenSymbolAlias(otherCurrency?.wrapped?.address, otherCurrency?.chainId, otherCurrency?.symbol),
   )
 
   useEffect(() => {
@@ -371,7 +372,8 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
                 ) : null}
                 {currencyLoading ? null : pair ? (
                   <Text id="pair" bold fontSize="24px">
-                    {pair?.token0.symbol}:{pair?.token1.symbol}
+                    {getTokenSymbolAlias(pair?.token0.wrapped?.address, pair?.token0.chainId, pair?.token0.symbol)}:
+                    {getTokenSymbolAlias(pair?.token1.wrapped?.address, pair?.token1.chainId, pair?.token1.symbol)}
                   </Text>
                 ) : (
                   <Flex alignItems="start" flexDirection="column">
