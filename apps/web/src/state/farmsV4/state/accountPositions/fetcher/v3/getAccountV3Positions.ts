@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { getMasterChefV3Contract } from 'utils/contractHelpers'
 import { publicClient } from 'utils/viem'
 import { Address, isAddress } from 'viem'
+import { zksync } from 'viem/chains'
 import { PositionDetail } from '../../type'
 import { getAccountV3TokenIds } from './getAccountV3TokenIds'
 
@@ -35,16 +36,18 @@ export const readPositions = async (chainId: number, tokenIds: bigint[]): Promis
           } as const
         })
       : []
-
+  const batchSize = chainId === zksync.id ? 1024 * 10 : undefined
   const [positions, farmingPosition] = await Promise.all([
     client.multicall({
       contracts: positionCalls,
       allowFailure: false,
+      batchSize,
     }),
     masterChefV3 && isAddress(masterChefV3.address)
       ? client.multicall({
           contracts: farmingCalls,
           allowFailure: false,
+          batchSize,
         })
       : [],
   ])
