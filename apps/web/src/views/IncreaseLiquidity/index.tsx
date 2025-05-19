@@ -48,6 +48,7 @@ import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
 import { LiquidityTitle } from 'views/PositionDetails/components'
 
 import { INITIAL_ALLOWED_SLIPPAGE, useUserSlippage } from '@pancakeswap/utils/user'
+import { useHookByPoolId } from 'hooks/infinity/useHooksList'
 import { calculateSlippageAmount } from 'utils/exchange'
 import { NavBreadcrumbs } from 'views/RemoveLiquidityInfinity/components/NavBreadcrumbs'
 import { useErrorMsg } from './hooks/useErrorMsg'
@@ -108,6 +109,9 @@ export const IncreaseLiquidity = () => {
     pool,
     poolId,
   } = useExtraInfinityPositionInfo(position)
+
+  const hookData = useHookByPoolId(chainId, poolId)
+  const feeAmount = hookData?.defaultFee ?? fee
 
   const isOutOfRange = useMemo(() => {
     if (!pool || typeof tickLower === 'undefined' || typeof tickUpper === 'undefined') return false
@@ -370,7 +374,10 @@ export const IncreaseLiquidity = () => {
 
             <Flex justifyContent="space-between">
               <Text color="textSubtle">{t('Fee Tier')}</Text>
-              <Text>{(fee ?? 0) / 1e4}%</Text>
+              <Text>
+                {dynamic ? '↕️ ' : null}
+                {(feeAmount ?? 0) / 1e4}%
+              </Text>
             </Flex>
           </LightGreyCard>
           <RowBetween mt="20px">

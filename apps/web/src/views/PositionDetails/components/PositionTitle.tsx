@@ -163,7 +163,7 @@ export const LiquidityTitle: React.FC<LiquidityDetailHeaderProps> = ({
               {t('fee tier')}
             </Text>
             {isInfinityProtocol(protocol) ? (
-              <InfinityFeeTierBreakdown poolId={poolId} chainId={chainId} />
+              <InfinityFeeTierBreakdown poolId={poolId} chainId={chainId} hookData={hookData} />
             ) : protocol && feeTier ? (
               <FeeTier type={protocol} fee={feeTier} dynamic={dynamic} denominator={feeTierBase} />
             ) : null}
