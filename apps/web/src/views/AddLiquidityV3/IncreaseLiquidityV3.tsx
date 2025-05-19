@@ -186,7 +186,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
     args: useMemo(() => [tokenIdBigInt], [tokenIdBigInt]),
   }).result
 
-  const ownsNFT = owner === account || positionDetails?.operator === account
+  const ownsNFT = owner === account || positionDetails?.operator === account || isStakedInMCv3 === 'true'
 
   const isValid = !errorMessage && !invalidRange && !tokenIdsInMCv3Loading && ownsNFT
 
