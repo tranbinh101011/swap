@@ -49,6 +49,21 @@ export const InvalidCLRangeMessage = () => {
   )
 }
 
+export const LowTVLMessage = () => {
+  const { t } = useTranslation()
+  return (
+    <Message variant="warning">
+      <RowBetween>
+        <Text ml="12px" fontSize="12px">
+          {t(
+            'Adding liquidity to a low TVL pool carries higher risk of losses from price fluctuations. Proceed with caution.',
+          )}
+        </Text>
+      </RowBetween>
+    </Message>
+  )
+}
+
 export const InvalidBinRangeMessage: React.FC<{
   minBinId?: number | null
   maxBinId?: number | null

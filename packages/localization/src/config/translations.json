@@ -3746,5 +3746,6 @@
   "Your voting power is determined by your CAKE balance at the snapshot block, which represents how much weight your vote carries.": "Your voting power is determined by your CAKE balance at the snapshot block, which represents how much weight your vote carries.",
   "Cake Balance": "Cake Balance",
   "Not enough CAKE": "Not enough CAKE",
-  "Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.": "Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power."
+  "Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.": "Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.",
+  "Adding liquidity to a low TVL pool carries higher risk of losses from price fluctuations. Proceed with caution.": "Adding liquidity to a low TVL pool carries higher risk of losses from price fluctuations. Proceed with caution."
 }

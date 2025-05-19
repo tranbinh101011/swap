@@ -9,6 +9,7 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePermit2 } from 'hooks/usePermit2'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
+import { usePoolInfo } from 'state/farmsV4/hooks'
 import { useInverted } from 'state/infinity/shared'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { getInfinityPositionManagerAddress } from 'utils/addressHelpers'
@@ -17,6 +18,7 @@ import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
 import {
   InvalidBinRangeMessage,
   InvalidCLRangeMessage,
+  LowTVLMessage,
   OutOfRangeMessage,
 } from 'views/CreateLiquidityPool/components/SubmitCreateButton'
 import { useAddDepositAmounts, useAddDepositAmountsEnabled } from '../hooks/useAddDepositAmounts'
@@ -30,9 +32,10 @@ export const SubmitButton = () => {
   const { t } = useTranslation()
   const { account, isWrongNetwork } = useActiveWeb3React()
 
-  const { chainId } = useInfinityPoolIdRouteParams()
+  const { chainId, poolId } = useInfinityPoolIdRouteParams()
   const [inverted] = useInverted()
   const pool = usePool()
+  const poolInfo = usePoolInfo({ poolAddress: poolId, chainId })
 
   const [currencyA, currencyB] = useMemo(() => {
     return [pool?.token0, pool?.token1]
@@ -174,18 +177,7 @@ export const SubmitButton = () => {
 
   return (
     <AutoColumn mt="24px" gap="8px">
-      {/* <pre>
-        {JSON.stringify(
-          {
-            errorMessage,
-            enabled,
-            attemptingTx,
-          },
-          null,
-          2,
-        )}
-      </pre> */}
-
+      {Number(poolInfo?.tvlUsd) < 1000 ? <LowTVLMessage /> : null}
       {outOfRange && <OutOfRangeMessage />}
       {invalidClRange && <InvalidCLRangeMessage />}
       {invalidBinRange && (
