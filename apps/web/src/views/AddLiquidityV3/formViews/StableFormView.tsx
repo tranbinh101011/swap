@@ -13,7 +13,6 @@ import { useTranslation } from '@pancakeswap/localization'
 import { useIsExpertMode } from '@pancakeswap/utils/user'
 import { LightGreyCard } from 'components/Card'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
 
 import { CurrencyAmount, Percent } from '@pancakeswap/sdk'
 import { BIG_ONE_HUNDRED } from '@pancakeswap/utils/bigNumber'
@@ -28,6 +27,8 @@ import { RowFixed } from 'components/Layout/Row'
 
 import { ReactElement } from 'react'
 import { formatAmount } from 'utils/formatInfoNumbers'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useAccount } from 'wagmi'
 import { HideMedium, MediumOnly, RightContainer } from './V3FormView'
 
 export default function StableFormView({
@@ -62,7 +63,8 @@ export default function StableFormView({
   const addIsUnsupported = useIsTransactionUnsupported(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
   const addIsWarning = useIsTransactionWarning(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
 
-  const { account, isWrongNetwork } = useActiveWeb3React()
+  const { isWrongNetwork } = useActiveChainId()
+  const { address: account } = useAccount()
   const { t } = useTranslation()
   const expertMode = useIsExpertMode()
 

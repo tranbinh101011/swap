@@ -2,7 +2,6 @@ import { useTranslation } from '@pancakeswap/localization'
 import { ChainId, CurrencyAmount, Token } from '@pancakeswap/sdk'
 import { AutoRenewIcon, Button, useToast } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
-import { useWeb3React } from '@pancakeswap/wagmi'
 import { useQuery } from '@tanstack/react-query'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -12,6 +11,9 @@ import React, { useMemo } from 'react'
 import { useFarmFromPid } from 'state/farms/hooks'
 import { publicClient } from 'utils/wagmi'
 import { Address, erc20Abi } from 'viem'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { useAccount } from 'wagmi'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 
 export interface StakeButtonProps {
   wrapperAddress?: Address
@@ -66,7 +68,7 @@ export async function getLpData({ lpAddress, chainId, account, wrapperAddress })
 }
 
 export const useLpData = (lpAddress: Address, wrapperAddress: Address) => {
-  const { chainId, account } = useWeb3React()
+  const { account, chainId } = useAccountActiveChain()
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['lpContractData', lpAddress, chainId, wrapperAddress],
     queryFn: () => getLpData({ lpAddress, chainId, account, wrapperAddress }),
@@ -89,7 +91,8 @@ const StakeButton: React.FC<React.PropsWithChildren<StakeButtonProps>> = ({
   const { data, refetch, isDataLoading } = useLpData(lpAddress ?? '0x', wrapperAddress ?? '0x')
   const { lpDecimals, userLp, allowanceLp } = data ?? {}
 
-  const { account, chain, chainId } = useWeb3React()
+  const { address: account, chain } = useAccount()
+  const { chainId } = useActiveChainId()
 
   const { toastSuccess } = useToast()
 

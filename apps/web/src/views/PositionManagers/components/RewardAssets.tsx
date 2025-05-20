@@ -1,13 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency } from '@pancakeswap/sdk'
 import { Balance, Box, Button, Flex, Text, useToast } from '@pancakeswap/uikit'
-import { useWeb3React } from '@pancakeswap/wagmi'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { usePositionManagerBCakeWrapperContract, usePositionManagerWrapperContract } from 'hooks/useContract'
 import { useCallback, useMemo } from 'react'
 import { Address } from 'viem'
+import { useAccount } from 'wagmi'
 import { useEarningTokenPriceInfo } from '../hooks'
 
 interface RewardAssetsProps {
@@ -26,7 +26,7 @@ export const RewardAssets: React.FC<RewardAssetsProps> = ({
   bCakeWrapper,
 }) => {
   const { t } = useTranslation()
-  const { account, chain } = useWeb3React()
+  const { address: account, chain } = useAccount()
   const { toastSuccess } = useToast()
   const { fetchWithCatchTxError, loading: pendingTx } = useCatchTxError()
   const { earningUsdValue, earningsBalance } = useEarningTokenPriceInfo(earningToken, pendingReward)

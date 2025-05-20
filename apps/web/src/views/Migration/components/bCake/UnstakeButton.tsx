@@ -1,11 +1,11 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { AutoRenewIcon, Button, useToast } from '@pancakeswap/uikit'
-import { useWeb3React } from '@pancakeswap/wagmi'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { usePositionManagerWrapperContract } from 'hooks/useContract'
 import React from 'react'
 import { Address } from 'viem'
+import { useAccount } from 'wagmi'
 
 export interface UnStakeButtonProps {
   userStakedLp?: bigint
@@ -20,7 +20,7 @@ const UnstakeButton: React.FC<React.PropsWithChildren<UnStakeButtonProps>> = ({
 }) => {
   const { t } = useTranslation()
 
-  const { account, chain } = useWeb3React()
+  const { address: account, chain } = useAccount()
 
   const { toastSuccess } = useToast()
 

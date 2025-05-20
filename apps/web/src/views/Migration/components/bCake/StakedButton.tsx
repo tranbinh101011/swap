@@ -2,13 +2,14 @@ import { useTranslation } from '@pancakeswap/localization'
 import { ChainId, CurrencyAmount, Token } from '@pancakeswap/sdk'
 import { AutoRenewIcon, Button, useToast } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
-import { useWeb3React } from '@pancakeswap/wagmi'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { usePositionManagerBCakeWrapperContract } from 'hooks/useContract'
 import React, { useMemo } from 'react'
 import { Address } from 'viem'
+import { useAccount } from 'wagmi'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useLpData } from './V2StakedButton'
 
 export interface StakeButtonProps {
@@ -26,7 +27,8 @@ const StakeButton: React.FC<React.PropsWithChildren<StakeButtonProps>> = ({
 }) => {
   const { t } = useTranslation()
 
-  const { account, chain, chainId } = useWeb3React()
+  const { address: account, chain } = useAccount()
+  const { chainId } = useActiveChainId()
 
   const { toastSuccess } = useToast()
 

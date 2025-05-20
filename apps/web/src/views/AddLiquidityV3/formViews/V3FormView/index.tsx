@@ -46,7 +46,6 @@ import { useTranslation } from '@pancakeswap/localization'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { useV3NFTPositionManagerContract } from 'hooks/useContract'
 import { useRouter } from 'next/router'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -58,12 +57,13 @@ import { getViemClients } from 'utils/viem'
 import { hexToBigInt } from 'viem'
 import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
 import { QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
-import { useSendTransaction, useWalletClient } from 'wagmi'
+import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
 
 import { ZapLiquidityWidget } from 'components/ZapLiquidityWidget'
 import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import LockedDeposit from './components/LockedDeposit'
 import { PositionPreview } from './components/PositionPreview'
 import RangeSelector from './components/RangeSelector'
@@ -137,7 +137,8 @@ export default function V3FormView({
   const expertMode = useIsExpertMode()
 
   const positionManager = useV3NFTPositionManagerContract()
-  const { account, chainId, isWrongNetwork } = useActiveWeb3React()
+  const { chainId, isWrongNetwork } = useActiveChainId()
+  const { address: account } = useAccount()
   const addTransaction = useTransactionAdder()
 
   // mint state

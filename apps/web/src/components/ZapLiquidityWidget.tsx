@@ -13,7 +13,6 @@ import {
 } from '@pancakeswap/uikit'
 import { Pool } from '@pancakeswap/v3-sdk'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import dynamic from 'next/dynamic'
 import { useCallback, useMemo, useState } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -25,6 +24,7 @@ import { CommonBasesType } from 'components/SearchModal/types'
 import { isAddressEqual } from 'utils'
 import WalletModalManager from 'components/WalletModalManager'
 import { useMasterchefV3 } from 'hooks/useContract'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 
 interface ZapLiquidityProps {
   tickLower?: number
@@ -63,7 +63,7 @@ export const ZapLiquidityWidget: React.FC<ZapLiquidityProps> = ({
 
   const { isDark } = useTheme()
 
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId } = useAccountActiveChain()
 
   const { data: walletClient } = useWalletClient()
 
@@ -221,30 +221,32 @@ export const ZapLiquidityWidget: React.FC<ZapLiquidityProps> = ({
       <WalletModalManager isOpen={isWalletModalOpen} onDismiss={handleWalletModalOnDismiss} />
       <ModalV2 closeOnOverlayClick isOpen={isModalOpen} onDismiss={handleOnDismiss}>
         <ModalContainer style={{ maxHeight: '90vh', overflow: 'auto' }}>
-          <LiquidityWidget
-            theme={isDark ? 'dark' : 'light'}
-            feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
-            feePcm={0}
-            walletClient={walletClient}
-            account={account ?? undefined}
-            networkChainId={chainId}
-            chainId={chainId}
-            initTickLower={tickLower ? +tickLower : undefined}
-            initTickUpper={tickUpper ? +tickUpper : undefined}
-            positionId={tokenId || undefined}
-            initAmounts={amounts}
-            initDepositTokens={depositTokens}
-            poolAddress={poolAddress ?? '0x'}
-            farmContractAddresses={masterChefV3Addresses}
-            onConnectWallet={handleOnWalletConnect}
-            onAddTokens={handleAddTokens}
-            onOpenTokenSelectModal={onPresentCurrencyModal}
-            onRemoveToken={handleRemoveToken}
-            onAmountChange={handleAmountChange}
-            onDismiss={handleOnDismiss}
-            onTxSubmit={handleTransaction}
-            source="pancakeswap"
-          />
+          {chainId ? (
+            <LiquidityWidget
+              theme={isDark ? 'dark' : 'light'}
+              feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
+              feePcm={0}
+              walletClient={walletClient}
+              account={account ?? undefined}
+              networkChainId={chainId}
+              chainId={chainId}
+              initTickLower={tickLower ? +tickLower : undefined}
+              initTickUpper={tickUpper ? +tickUpper : undefined}
+              positionId={tokenId || undefined}
+              initAmounts={amounts}
+              initDepositTokens={depositTokens}
+              poolAddress={poolAddress ?? '0x'}
+              farmContractAddresses={masterChefV3Addresses}
+              onConnectWallet={handleOnWalletConnect}
+              onAddTokens={handleAddTokens}
+              onOpenTokenSelectModal={onPresentCurrencyModal}
+              onRemoveToken={handleRemoveToken}
+              onAmountChange={handleAmountChange}
+              onDismiss={handleOnDismiss}
+              onTxSubmit={handleTransaction}
+              source="pancakeswap"
+            />
+          ) : null}
         </ModalContainer>
       </ModalV2>
     </>

@@ -1,7 +1,6 @@
 import { PoolIds } from '@pancakeswap/ifos'
 import { useTranslation } from '@pancakeswap/localization'
 import { AutoRenewIcon, Button, useToast } from '@pancakeswap/uikit'
-import { useWeb3React } from '@pancakeswap/wagmi'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { useIfoV3Contract } from 'hooks/useContract'
@@ -9,6 +8,7 @@ import { useCallback, useMemo } from 'react'
 import { Address } from 'viem'
 import { VestingData } from 'views/Ifos/hooks/vesting/fetchUserWalletIfoData'
 
+import { useAccount } from 'wagmi'
 import { SwitchNetworkTips } from '../../IfoFoldableCard/IfoPoolCard/SwitchNetworkTips'
 
 interface Props {
@@ -28,7 +28,7 @@ const ClaimButton: React.FC<React.PropsWithChildren<Props>> = ({
   fetchUserVestingData,
   enabled,
 }) => {
-  const { account, chain } = useWeb3React()
+  const { address: account, chain } = useAccount()
   const { t } = useTranslation()
   const { toastSuccess } = useToast()
   const { address, token, chainId } = data.ifo

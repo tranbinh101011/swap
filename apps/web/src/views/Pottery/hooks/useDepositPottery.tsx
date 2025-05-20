@@ -1,6 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { useToast } from '@pancakeswap/uikit'
-import { useWeb3React } from '@pancakeswap/wagmi'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import { DEFAULT_TOKEN_DECIMAL } from 'config'
@@ -10,10 +9,11 @@ import { useCallback } from 'react'
 import { useAppDispatch } from 'state'
 import { fetchPotteryUserDataAsync } from 'state/pottery'
 import { Address } from 'viem'
+import { useAccount } from 'wagmi'
 
 export const useDepositPottery = (amount: string, potteryVaultAddress: Address) => {
   const { t } = useTranslation()
-  const { account, chain } = useWeb3React()
+  const { address: account, chain } = useAccount()
   const dispatch = useAppDispatch()
   const { toastSuccess } = useToast()
   const { fetchWithCatchTxError, loading: isPending } = useCatchTxError()

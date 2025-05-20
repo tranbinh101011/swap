@@ -4,7 +4,6 @@ import { AddIcon, AutoColumn } from '@pancakeswap/uikit'
 import PageLoader from 'components/Loader/PageLoader'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import { useInfinityPoolIdRouteParams } from 'hooks/dynamicRoute/usePoolIdRoute'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePermit2 } from 'hooks/usePermit2'
 import { useRouter } from 'next/router'
@@ -21,6 +20,8 @@ import {
   LowTVLMessage,
   OutOfRangeMessage,
 } from 'views/CreateLiquidityPool/components/SubmitCreateButton'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useAccount } from 'wagmi'
 import { useAddDepositAmounts, useAddDepositAmountsEnabled } from '../hooks/useAddDepositAmounts'
 import { useAddFormSubmitCallback } from '../hooks/useAddFormSubmitCallback'
 import { useAddFormSubmitEnabled } from '../hooks/useAddFormSubmitEnabled'
@@ -30,7 +31,8 @@ import { usePool } from '../hooks/usePool'
 export const SubmitButton = () => {
   const router = useRouter()
   const { t } = useTranslation()
-  const { account, isWrongNetwork } = useActiveWeb3React()
+  const { isWrongNetwork } = useActiveChainId()
+  const { address: account } = useAccount()
 
   const { chainId, poolId } = useInfinityPoolIdRouteParams()
   const [inverted] = useInverted()

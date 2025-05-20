@@ -4,11 +4,11 @@ import { Currency, CurrencyAmount } from '@pancakeswap/sdk'
 import { useToast } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { usePositionManagerBCakeWrapperContract, usePositionManagerWrapperContract } from 'hooks/useContract'
 import { useCallback } from 'react'
 import { Address } from 'viem'
+import { useAccount } from 'wagmi'
 import { usePMSlippage } from './usePMSlippage'
 
 export const useOnStake = (
@@ -21,7 +21,7 @@ export const useOnStake = (
   const positionManagerWrapperContract = usePositionManagerWrapperContract(contractAddress)
   const { fetchWithCatchTxError, loading: pendingTx } = useCatchTxError()
   const { toastSuccess } = useToast()
-  const { chain, account } = useActiveWeb3React()
+  const { address: account, chain } = useAccount()
   const { t } = useTranslation()
   const slippage = usePMSlippage(bCakeWrapperAddress)
 

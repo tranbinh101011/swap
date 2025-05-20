@@ -5,7 +5,7 @@ import type { AtomBoxProps } from '@pancakeswap/uikit'
 import { Box, Button, Flex, ModalV2, RowBetween, Text, useToast } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
-import { useWeb3React } from '@pancakeswap/wagmi'
+import { useAccount } from 'wagmi'
 import { ConfirmationPendingContent, CurrencyLogo } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
@@ -63,7 +63,7 @@ export const RemoveLiquidity = memo(function RemoveLiquidity({
   manager,
 }: Props) {
   const { t } = useTranslation()
-  const { account, chain } = useWeb3React()
+  const { address: account, chain } = useAccount()
   const [percent, setPercent] = useState(0)
   const tokenPairName = useMemo(() => `${currencyA.symbol}-${currencyB.symbol}`, [currencyA, currencyB])
   const bCakeWrapperContract = usePositionManagerBCakeWrapperContract(bCakeWrapper ?? '0x')

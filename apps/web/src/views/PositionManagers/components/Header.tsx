@@ -9,14 +9,12 @@ import {
   Text,
   useMatchBreakpoints,
 } from '@pancakeswap/uikit'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import useTheme from 'hooks/useTheme'
 import { memo, useCallback } from 'react'
 
 export const Header = memo(function Header() {
   const { t } = useTranslation()
-  const { isDesktop, isMobile } = useMatchBreakpoints()
-  const { chainId } = useActiveWeb3React()
+  const { isMobile } = useMatchBreakpoints()
   const { theme } = useTheme()
   const redirectToDocs = useCallback(() => {
     if (typeof window !== 'undefined' && window) {

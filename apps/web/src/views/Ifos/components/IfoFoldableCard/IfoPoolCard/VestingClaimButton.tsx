@@ -1,13 +1,13 @@
 import { PoolIds } from '@pancakeswap/ifos'
 import { useTranslation } from '@pancakeswap/localization'
 import { AutoRenewIcon, Button, useToast } from '@pancakeswap/uikit'
-import { useWeb3React } from '@pancakeswap/wagmi'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { useCallback } from 'react'
 import { Address } from 'viem'
 import { WalletIfoData } from 'views/Ifos/types'
+import { useAccount } from 'wagmi'
 
 interface Props {
   poolId: PoolIds
@@ -19,7 +19,7 @@ const ClaimButton: React.FC<React.PropsWithChildren<Props>> = ({ poolId, amountA
   const userPoolCharacteristics = walletIfoData[poolId]
   const { t } = useTranslation()
   const { toastSuccess } = useToast()
-  const { account, chain } = useWeb3React()
+  const { address: account, chain } = useAccount()
   const { fetchWithCatchTxError } = useCatchTxError()
 
   const setPendingTx = useCallback(

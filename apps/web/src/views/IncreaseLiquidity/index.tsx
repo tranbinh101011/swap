@@ -32,7 +32,6 @@ import { useInfinityClPositionFromTokenId } from 'hooks/infinity/useInfinityPosi
 import useIsTickAtLimit from 'hooks/infinity/useIsTickAtLimit'
 import { usePositionAmount } from 'hooks/infinity/usePositionAmount'
 import { useCurrencyByChainId } from 'hooks/Tokens'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { usePermit2 } from 'hooks/usePermit2'
 import { useStablecoinPrice } from 'hooks/useStablecoinPrice'
@@ -51,6 +50,8 @@ import { INITIAL_ALLOWED_SLIPPAGE, useUserSlippage } from '@pancakeswap/utils/us
 import { useHookByPoolId } from 'hooks/infinity/useHooksList'
 import { calculateSlippageAmount } from 'utils/exchange'
 import { NavBreadcrumbs } from 'views/RemoveLiquidityInfinity/components/NavBreadcrumbs'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useAccount } from 'wagmi'
 import { useErrorMsg } from './hooks/useErrorMsg'
 import { useIncreaseForm } from './hooks/useIncreaseForm'
 
@@ -93,7 +94,8 @@ export const IncreaseLiquidity = () => {
     t,
     currentLanguage: { locale },
   } = useTranslation()
-  const { account, chainId, isWrongNetwork } = useActiveWeb3React()
+  const { chainId, isWrongNetwork } = useActiveChainId()
+  const { address: account } = useAccount()
   const { tokenId } = useInfinityClammPositionIdRouteParams()
 
   const { position } = useInfinityClPositionFromTokenId(tokenId, chainId)

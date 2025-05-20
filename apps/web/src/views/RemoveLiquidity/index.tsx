@@ -33,7 +33,7 @@ import { styled } from 'styled-components'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 // import { splitSignature } from 'utils/splitSignature'
 import { Hash } from 'viem'
-import { useSignTypedData } from 'wagmi'
+import { useAccount, useSignTypedData } from 'wagmi'
 
 import { LightGreyCard } from 'components/Card'
 import { RowBetween } from 'components/Layout/Row'
@@ -62,7 +62,6 @@ import StyledInternalLink from '../../components/Links'
 import Dots from '../../components/Loader/Dots'
 import { CurrencyLogo } from '../../components/Logo'
 import SettingsModal from '../../components/Menu/GlobalSettings/SettingsModal'
-import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useTransactionDeadline } from '../../hooks/useTransactionDeadline'
 import { formatAmount } from '../../utils/formatInfoNumbers'
 import Page from '../Page'
@@ -79,7 +78,8 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
   const native = useNativeCurrency()
   const { isMobile } = useMatchBreakpoints()
 
-  const { account, chainId, isWrongNetwork } = useActiveWeb3React()
+  const { chainId, isWrongNetwork } = useActiveChainId()
+  const { address: account } = useAccount()
   const { signTypedDataAsync } = useSignTypedData()
   const { toastError } = useToast()
   const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
