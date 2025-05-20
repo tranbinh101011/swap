@@ -21,7 +21,7 @@ import { parseCurrency } from '../../v3-router/utils/transformer'
 import { GetInfinityCandidatePoolsParams } from '../types'
 import { fillPoolsWithBins, getInfinityBinCandidatePoolsWithoutBins } from './getInfinityBinPools'
 import { fillClPoolsWithTicks, getInfinityClCandidatePoolsWithoutTicks } from './getInfinityClPools'
-import { getInfinityPoolTvl, getInfinityTvlReference } from './getPoolTvl'
+import { getInfinityPoolTvl, getInfinityTvlReference, InfinityPoolTvlReferenceMap } from './getPoolTvl'
 
 export const getInfinityCandidatePools = async (params: GetInfinityCandidatePoolsParams) => {
   const pools = await getInfinityCandidatePoolsLite(params)
@@ -44,16 +44,17 @@ export const getInfinityCandidatePools = async (params: GetInfinityCandidatePool
 }
 
 async function fetchPoolsOnChain(params: GetInfinityCandidatePoolsParams) {
+  const isTestnet = params.currencyA?.chainId === ChainId.BSC_TESTNET
   const [clPools, binPools, tvlMap] = await Promise.all([
     getInfinityClCandidatePoolsWithoutTicks(params),
     getInfinityBinCandidatePoolsWithoutBins(params),
-    getInfinityTvlReference(params),
+    isTestnet ? ({} as InfinityPoolTvlReferenceMap) : getInfinityTvlReference(params),
   ])
   const pools = [...clPools, ...binPools]
   const poolsWithTvl: InfinityPoolWithTvl[] = pools.map((pool) => {
     return {
       ...pool,
-      tvlUSD: getInfinityPoolTvl(tvlMap, pool.id),
+      tvlUSD: isTestnet ? 0 : getInfinityPoolTvl(tvlMap, pool.id),
     } as InfinityPoolWithTvl
   })
   return poolsWithTvl
@@ -62,7 +63,8 @@ async function fetchPoolsOnChain(params: GetInfinityCandidatePoolsParams) {
 const fetchPoolsApi = cacheByLRU(
   async (params: GetInfinityCandidatePoolsParams) => {
     const { currencyA, currencyB } = params
-    const chain = getChainName(currencyA!.chainId)
+    const chainId = currencyA?.chainId
+    const chain = getChainName(chainId!)
     const pools = await fetchInfinityPoolsFromApi(currencyA!, currencyB!, chain)
 
     return pools as InfinityPoolWithTvl[]
@@ -84,13 +86,22 @@ const fetchPoolsApi = cacheByLRU(
 )
 
 async function fetchPools(params: GetInfinityCandidatePoolsParams) {
-  try {
-    const result = await fetchPoolsApi(params)
-    return result
-  } catch (ex) {
-    console.warn(ex)
-    return fetchPoolsOnChain(params)
+  const chainId = params.currencyA?.chainId
+  const isTestnet = chainId === ChainId.BSC_TESTNET
+  const requests = isTestnet ? [fetchPoolsOnChain] : [fetchPoolsApi, fetchPoolsOnChain]
+
+  for (const requestFN of requests) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const pools = await requestFN(params)
+      if (pools.length > 0) {
+        return pools
+      }
+    } catch (error) {
+      console.warn(`Error fetching infinity pools from ${requestFN.name}:`, error)
+    }
   }
+  throw new Error('No pools found')
 }
 
 export const getInfinityCandidatePoolsLite = async (
