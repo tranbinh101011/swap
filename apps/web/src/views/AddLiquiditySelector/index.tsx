@@ -110,11 +110,14 @@ export const AddLiquiditySelector = () => {
     const tokenParams =
       baseCurrency && quoteCurrency ? `${getCurrencyAddress(baseCurrency)}/${getCurrencyAddress(quoteCurrency)}` : ''
 
+    const baseToken = baseCurrency?.isNative ? baseCurrency.symbol : baseCurrency?.wrapped.address
+    const quoteToken = quoteCurrency?.isNative ? quoteCurrency.symbol : quoteCurrency?.wrapped.address
+
     return {
       infinity: `/liquidity/select/pools/${chainId}/infinity/${tokenParams}?${queryParams.toString()}`,
-      v3: `/add/${baseCurrency?.wrapped.address}/${quoteCurrency?.wrapped.address}?chain=${queryChainName}`,
-      v2: `/v2/add/${baseCurrency?.wrapped.address}/${quoteCurrency?.wrapped.address}?chain=${queryChainName}`,
-      stableSwap: `/stable/add/${baseCurrency?.wrapped.address}/${quoteCurrency?.wrapped.address}?chain=${queryChainName}`,
+      v3: `/add/${baseToken}/${quoteToken}?chain=${queryChainName}`,
+      v2: `/v2/add/${baseToken}/${quoteToken}?chain=${queryChainName}`,
+      stableSwap: `/stable/add/${baseToken}/${quoteToken}?chain=${queryChainName}`,
     } satisfies Record<LiquidityType, string>
   }, [baseCurrency, quoteCurrency, poolTypeQuery, chainId, queryChainName])
 
@@ -131,10 +134,13 @@ export const AddLiquiditySelector = () => {
   }, [baseCurrency, chainId, protocol, quoteCurrency])
 
   const { switchNetworkAsync } = useSwitchNetwork()
-  const handleNetworkChange = async (chain: Chain) => {
-    await switchNetworkAsync?.(chain.id)
-    updateParams({ chainId: chain.id })
-  }
+  const handleNetworkChange = useCallback(
+    async (chain: Chain) => {
+      await switchNetworkAsync?.(chain.id)
+      updateParams({ chainId: chain.id })
+    },
+    [switchNetworkAsync, updateParams],
+  )
 
   return (
     <StyledCard mt="48px" mb={['120px', null, null, '0px']} mx="auto" style={{ overflow: 'visible' }}>

@@ -1,16 +1,14 @@
 import { chainNames, getChainName } from '@pancakeswap/chains'
 import { INFINITY_SUPPORTED_CHAINS } from '@pancakeswap/infinity-sdk'
+import { Native } from '@pancakeswap/sdk'
 import { CAKE, USDC } from '@pancakeswap/tokens'
 import { SelectIdRoute, zSelectId } from 'dynamicRoute'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { $path } from 'next-typesafe-url'
 import { useRouteParams } from 'next-typesafe-url/pages'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo } from 'react'
 import { z } from 'zod'
-
-type RouteWithSelectId = '/liquidity/select/[[...selectId]]' | '/liquidity/select/pools/[[...selectId]]'
 
 export const useSelectIdRoute = () => {
   const router = useRouter()
@@ -27,16 +25,11 @@ export const useSelectIdRoute = () => {
     const currencyA = native.symbol
     const currencyB: string = CAKE[activeChainId]?.address ?? USDC[activeChainId]?.address ?? ''
 
-    const path = $path({
-      route: router.route as RouteWithSelectId,
-      routeParams: { selectId: [chainName, protocolName, currencyA, currencyB] },
-    })
-
     router.replace(
       {
-        pathname: path,
         query: {
           ...router.query,
+          selectId: [chainName, protocolName, currencyA, currencyB],
           chain: chainNames[activeChainId],
         }, // keep other query params
       },
@@ -66,24 +59,25 @@ export const useSelectIdRouteParams = () => {
   const updateParams = useCallback(
     (p: Partial<z.infer<typeof zSelectId>>) => {
       if (!params || !Object.values(params).every((v) => v !== undefined)) return
-
-      const path = $path({
-        route: router.route as RouteWithSelectId,
-        routeParams: {
-          selectId: [
-            p.chainId ?? params.chainId,
-            p.protocol ?? params.protocol,
-            p.currencyIdA ?? params.currencyIdA,
-            p.currencyIdB ?? params.currencyIdB,
-          ],
-        },
-      })
+      const hasOnlyChainId = Object.keys(p).length === 1 && 'chainId' in p && p.chainId !== params.chainId
 
       router.replace(
         {
-          pathname: path,
           query: {
             ...router.query,
+            selectId: hasOnlyChainId
+              ? [
+                  p.chainId!,
+                  p.protocol ?? params.protocol,
+                  Native.onChain(p.chainId!).symbol,
+                  CAKE[p.chainId!]?.address ?? USDC[p.chainId!]?.address ?? '',
+                ]
+              : [
+                  p.chainId ?? params.chainId,
+                  p.protocol ?? params.protocol,
+                  p.currencyIdA ?? params.currencyIdA,
+                  p.currencyIdB ?? params.currencyIdB,
+                ],
             chain: chainNames[p.chainId ?? params.chainId],
           }, // keep other query params
         },
