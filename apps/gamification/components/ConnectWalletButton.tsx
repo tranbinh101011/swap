@@ -31,8 +31,10 @@ const ConnectWalletButton = ({ children, ...props }: ButtonProps) => {
   const topWallets = useMemo(
     () =>
       TOP_WALLET_MAP[chainId]
-        .map((id) => wallets.find((w) => w.id === id))
-        .filter<WalletConfigV2<ConnectorNames>>((w): w is WalletConfigV2<ConnectorNames> => Boolean(w)),
+        ? TOP_WALLET_MAP[chainId]
+            .map((id) => wallets.find((w) => w.id === id))
+            .filter<WalletConfigV2<ConnectorNames>>((w): w is WalletConfigV2<ConnectorNames> => Boolean(w))
+        : [],
     [wallets, chainId],
   )
 
