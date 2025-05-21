@@ -153,7 +153,10 @@ export const useCakeLockStatus = (
   }, [userInfo])
 
   const proxyCakeLockedAmount = useMemo(() => {
-    if (!cakePoolLocked || delegated) {
+    if (delegated) {
+      return 0n
+    }
+    if (!cakePoolLocked) {
       const currentOverdueFee = cakePoolLockInfo?.overdueFee
         ? new BigNumber(cakePoolLockInfo?.overdueFee?.toString())
         : BIG_ZERO
