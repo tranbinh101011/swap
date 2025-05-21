@@ -68,9 +68,11 @@ export const useSelectIdRouteParams = () => {
             selectId: hasOnlyChainId
               ? [
                   p.chainId!,
-                  p.protocol ?? params.protocol,
-                  Native.onChain(p.chainId!).symbol,
-                  CAKE[p.chainId!]?.address ?? USDC[p.chainId!]?.address ?? '',
+                  params.protocol,
+                  params.protocol !== 'stableSwap' ? Native.onChain(p.chainId!).symbol : params.currencyIdA,
+                  params.protocol !== 'stableSwap'
+                    ? CAKE[p.chainId!]?.address ?? USDC[p.chainId!]?.address ?? params.currencyIdB
+                    : params.currencyIdB,
                 ]
               : [
                   p.chainId ?? params.chainId,

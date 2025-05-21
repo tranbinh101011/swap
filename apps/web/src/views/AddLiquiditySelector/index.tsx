@@ -17,7 +17,7 @@ import { CommonBasesType } from 'components/SearchModal/types'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { useCurrencyByChainId } from 'hooks/Tokens'
 import NextLink from 'next/link'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import currencyId from 'utils/currencyId'
 import { TokenFilterContainer } from 'views/AddLiquidityInfinity/components/styles'
@@ -30,6 +30,7 @@ import { useStableSwapSupportedTokens } from 'hooks/useStableSwapSupportedTokens
 import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
 import { COMPACT_LIQUIDITY_TYPES, LIQUIDITY_TYPES, LiquidityType } from 'utils/types'
 import { Chain } from 'viem/chains'
+import { bscTokens } from '@pancakeswap/tokens'
 import { usePoolTypeQuery } from './hooks/usePoolTypeQuery'
 
 const StyledCard = styled(Card)`
@@ -134,6 +135,7 @@ export const AddLiquiditySelector = () => {
   }, [baseCurrency, chainId, protocol, quoteCurrency])
 
   const { switchNetworkAsync } = useSwitchNetwork()
+
   const handleNetworkChange = useCallback(
     async (chain: Chain) => {
       await switchNetworkAsync?.(chain.id)
@@ -141,6 +143,34 @@ export const AddLiquiditySelector = () => {
     },
     [switchNetworkAsync, updateParams],
   )
+
+  useEffect(() => {
+    if (protocol === 'stableSwap') {
+      const prioritySymbols = [bscTokens.cake.symbol, bscTokens.wbnb.symbol, 'btc'].map((s) => s.toLowerCase())
+      const preferredTokens = ssSupportedBaseToken
+        ?.filter((token) => prioritySymbols.some((key) => token?.symbol?.toLowerCase()?.includes(key)))
+        ?.sort((a, b) => {
+          const aSymbol = a.symbol.toLowerCase()
+          const bSymbol = b.symbol.toLowerCase()
+
+          const aIndex = prioritySymbols.findIndex((p) => aSymbol.includes(p))
+          const bIndex = prioritySymbols.findIndex((p) => bSymbol.includes(p))
+
+          return aIndex - bIndex
+        })
+
+      const baseDefaultToken = preferredTokens?.length ? preferredTokens?.[0] : ssSupportedBaseToken?.[0]
+      const quoteDefaultToken = ssSupportedQuoteToken?.[0]
+      updateParams({
+        currencyIdA:
+          baseCurrency?.wrapped?.address && ssSupportedBaseToken?.find((token) => token.equals(baseCurrency))
+            ? baseCurrency?.wrapped?.address
+            : baseDefaultToken?.wrapped?.address,
+        currencyIdB: quoteDefaultToken?.wrapped?.address,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [protocol, baseCurrency, ssSupportedQuoteToken])
 
   return (
     <StyledCard mt="48px" mb={['120px', null, null, '0px']} mx="auto" style={{ overflow: 'visible' }}>
