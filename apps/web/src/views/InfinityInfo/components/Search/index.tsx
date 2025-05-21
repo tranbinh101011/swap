@@ -13,7 +13,7 @@ import { CurrencyLogo, DoubleCurrencyLogo } from 'views/Info/components/Currency
 
 import { chainIdToExplorerInfoChainName } from 'state/info/api/client'
 import useFetchSearchResults from 'state/info/queries/search'
-import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
+import { getTokenAddressFromSymbolAlias, getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { GreyBadge } from 'views/V3Info/components/Card'
 import { feeTierPercent } from 'views/V3Info/utils'
 import { infinityInfoPath } from '../../constants'
@@ -137,7 +137,7 @@ const Search = () => {
 
   const [showMenu, setShowMenu] = useState(false)
   const [value, setValue] = useState('')
-  const debouncedSearchTerm = useDebounce(value, 600)
+  const debouncedSearchTerm = useDebounce(getTokenAddressFromSymbolAlias(value, chainId, value), 600)
 
   const { tokens, pools, poolsLoading: loading, error } = useFetchSearchResults(debouncedSearchTerm, showMenu)
 

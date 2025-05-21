@@ -11,7 +11,7 @@ import { styled } from 'styled-components'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { CurrencyLogo, DoubleCurrencyLogo } from 'views/Info/components/CurrencyLogo'
 
-import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
+import { getTokenAddressFromSymbolAlias, getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { v3InfoPath } from '../../constants'
 import { useSearchData } from '../../hooks'
 import { feeTierPercent } from '../../utils'
@@ -136,7 +136,7 @@ const Search = () => {
 
   const [showMenu, setShowMenu] = useState(false)
   const [value, setValue] = useState('')
-  const debouncedSearchTerm = useDebounce(value, 600)
+  const debouncedSearchTerm = useDebounce(getTokenAddressFromSymbolAlias(value, chainId, value), 600)
 
   const { tokens, pools, loading, error } = useSearchData(debouncedSearchTerm, showMenu)
 

@@ -11,7 +11,7 @@ import { useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
 import useFetchSearchResults from 'state/info/queries/search'
 import { styled } from 'styled-components'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
+import { getTokenAddressFromSymbolAlias, getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { CurrencyLogo, DoubleCurrencyLogo } from 'views/Info/components/CurrencyLogo'
 
 const Container = styled.div`
@@ -133,7 +133,7 @@ const Search = () => {
 
   const [showMenu, setShowMenu] = useState(false)
   const [value, setValue] = useState('')
-  const debouncedSearchTerm = useDebounce(value, 600)
+  const debouncedSearchTerm = useDebounce(getTokenAddressFromSymbolAlias(value, chainId, value), 600)
 
   const { tokens, pools, tokensLoading, poolsLoading, error } = useFetchSearchResults(debouncedSearchTerm, showMenu)
 
