@@ -83,6 +83,7 @@ interface Props {
     onDone?: () => void,
   ) => void
   isTxLoading: boolean
+  disableAddingLiquidity?: boolean
 }
 
 const StyledCurrencyInput = styled(CurrencyInput)`
@@ -130,6 +131,7 @@ export const AddLiquidity = memo(function AddLiquidity({
   onStake,
   isTxLoading,
   adapterAddress,
+  disableAddingLiquidity,
 }: Props) {
   const [valueA, setValueA] = useState('')
   const [valueB, setValueB] = useState('')
@@ -247,6 +249,7 @@ export const AddLiquidity = memo(function AddLiquidity({
   }, [onDismiss, refetch])
 
   const disabled = useMemo(() => {
+    if (disableAddingLiquidity) return true
     const balanceAmountMoreThenValueA =
       allowDepositToken0 &&
       amountA.greaterThan('0') &&
@@ -262,6 +265,7 @@ export const AddLiquidity = memo(function AddLiquidity({
       (Boolean(minDepositUSD) && userTotalDepositUSD < (minDepositUSD ?? 0))
     )
   }, [
+    disableAddingLiquidity,
     allowDepositToken0,
     allowDepositToken1,
     amountA,
