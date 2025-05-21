@@ -235,7 +235,7 @@ function WalletSelect<T>({
       overflowY="auto"
       overflowX="hidden"
       gap="16px"
-      style={{ paddingRight: '28px', marginRight: '-6px', ...style }}
+      style={{ paddingRight: '28px', marginRight: '-40px', ...style }}
       className={scrollbarClass}
     >
       {sections.map(({ label, items, isMore }) =>
@@ -430,8 +430,7 @@ function DesktopModal<T>({
         flexDirection="column"
         bg="backgroundAlt"
         py="32px"
-        pl="48px"
-        pr="16px"
+        px="48px"
         zIndex="modal"
         borderRadius="card"
         className={desktopWalletSelectionClass}
