@@ -1,97 +1,90 @@
-import { usePreloadImages } from '@pancakeswap/hooks'
+import { isMobile as isMobileDevice } from 'react-device-detect'
+import { styled } from 'styled-components'
+import { usePreloadImages, useTheme } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import {
   AtomBox,
   Button,
+  ButtonMenu,
+  ButtonMenuItem,
+  CloseIcon,
+  Column,
   Heading,
+  IconButton,
   Image,
   LinkExternal,
   ModalV2,
-  ModalV2Props,
   ModalWrapper,
   MoreHorizontalIcon,
-  SvgProps,
+  Row,
+  ShieldCheckIcon,
   Tab,
   TabMenu,
   Text,
+  useMatchBreakpoints,
   WarningIcon,
 } from '@pancakeswap/uikit'
-import { atom, useAtom } from 'jotai'
-import { PropsWithChildren, Suspense, lazy, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import { useAtom } from 'jotai'
+import { MouseEvent, PropsWithChildren, Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import {
   desktopWalletSelectionClass,
+  fullSizeModalWrapperClass,
   modalWrapperClass,
-  promotedGradientClass,
+  scrollbarClass,
   walletIconClass,
   walletSelectWrapperClass,
 } from './WalletModal.css'
+import { errorAtom, lastUsedWalletNameAtom, previouslyUsedWalletsAtom, selectedWalletAtom } from './atom'
+import { ConnectData, LinkOfDevice, WalletConfigV2, WalletModalV2Props } from './types'
 
 const StepIntro = lazy(() => import('./components/Intro'))
 
 const Qrcode = lazy(() => import('./components/QRCode'))
 
-type LinkOfTextAndLink = string | { text: string; url: string }
-
-type DeviceLink = {
-  desktop?: LinkOfTextAndLink
-  mobile?: LinkOfTextAndLink
-}
-
-type LinkOfDevice = string | DeviceLink
-
-export type WalletConfigV2<T = unknown> = {
-  id: string
-  title: string
-  icon: string | React.FC<React.PropsWithChildren<SvgProps>>
-  connectorId: T
-  deepLink?: string
-  installed?: boolean
-  guide?: LinkOfDevice
-  downloadLink?: LinkOfDevice
-  mobileOnly?: boolean
-  qrCode?: () => Promise<string>
-  isNotExtension?: boolean
-}
-
-interface WalletModalV2Props<T = unknown> extends ModalV2Props {
-  wallets: WalletConfigV2<T>[]
-  login: (connectorId: T) => Promise<any>
-  docLink: string
-  docText: string
-  onWalletConnectCallBack?: (walletTitle?: string) => void
-}
-
 export class WalletConnectorNotFoundError extends Error {}
 
 export class WalletSwitchChainError extends Error {}
-
-const errorAtom = atom<string>('')
-
-const selectedWalletAtom = atom<WalletConfigV2<unknown> | null>(null)
 
 export function useSelectedWallet<T>() {
   // @ts-ignore
   return useAtom<WalletConfigV2<T> | null>(selectedWalletAtom)
 }
 
-const TabContainer = ({ children, docLink, docText }: PropsWithChildren<{ docLink: string; docText: string }>) => {
+const StyledTab = styled(Tab)`
+  height: 32px;
+  padding: 4px 12px;
+`
+
+type TabContainerProps = PropsWithChildren<{
+  docLink: string
+  docText: string
+  fullSize?: boolean
+  onDismiss?: () => void
+}>
+
+const TabContainer = ({ children, docLink, docText, fullSize = true, onDismiss }: TabContainerProps) => {
   const [index, setIndex] = useState(0)
   const { t } = useTranslation()
+  const { isMobile } = useMatchBreakpoints()
 
   return (
-    <AtomBox position="relative" zIndex="modal" className={modalWrapperClass}>
-      <AtomBox position="absolute" style={{ top: '-50px' }}>
-        <TabMenu activeIndex={index} onItemClick={setIndex} gap="0px" isColorInverse isShowBorderBottom={false}>
-          <Tab>{t('Connect Wallet')}</Tab>
-          <Tab>{t('What’s a Web3 Wallet?')}</Tab>
-        </TabMenu>
-      </AtomBox>
+    <AtomBox position="relative" zIndex="modal" className={fullSize ? fullSizeModalWrapperClass : modalWrapperClass}>
+      {isMobile ? null : (
+        <AtomBox position="absolute" style={{ top: '-48px', left: '10px' }}>
+          <TabMenu activeIndex={index} onItemClick={setIndex} gap="16px" isColorInverse isShowBorderBottom={false}>
+            <StyledTab>{t('Connect Wallet')}</StyledTab>
+            <StyledTab>{t('What’s a Web3 Wallet?')}</StyledTab>
+          </TabMenu>
+        </AtomBox>
+      )}
       <AtomBox
         display="flex"
         position="relative"
-        background="gradientCardHeader"
+        background={isMobile ? 'backgroundAlt' : 'gradientCardHeader'}
         borderRadius="card"
+        flexDirection={isMobile ? 'column' : 'row'}
+        px={isMobile ? '16px' : '0px'}
+        py={isMobile ? '24px' : '0px'}
         borderBottomRadius={{
           xs: '0',
           md: 'card',
@@ -99,6 +92,26 @@ const TabContainer = ({ children, docLink, docText }: PropsWithChildren<{ docLin
         zIndex="modal"
         width="100%"
       >
+        {isMobile ? (
+          <Row mb="16px" gap="16px">
+            <ButtonMenu scale="md" activeIndex={index} onItemClick={setIndex} variant="subtle">
+              <ButtonMenuItem>{t('Connect Wallet')}</ButtonMenuItem>
+              <ButtonMenuItem minWidth="57%">{t('What’s a Web3 Wallet?')}</ButtonMenuItem>
+            </ButtonMenu>
+
+            <IconButton
+              mr="-6px"
+              variant="text"
+              onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                e.stopPropagation()
+                onDismiss?.()
+              }}
+              aria-label="Close the dialog"
+            >
+              <CloseIcon color="textSubtle" />
+            </IconButton>
+          </Row>
+        ) : null}
         {index === 0 && children}
         {index === 1 && (
           <Suspense>
@@ -114,24 +127,37 @@ const MOBILE_DEFAULT_DISPLAY_COUNT = 8
 
 function MobileModal<T>({
   wallets,
+  topWallets,
+  previouslyUsedWallets,
   connectWallet,
-  docLink,
-  docText,
-}: Pick<WalletModalV2Props<T>, 'wallets' | 'docLink' | 'docText'> & {
+  mevDocLink,
+}: Pick<WalletModalV2Props<T>, 'wallets' | 'topWallets' | 'docLink' | 'docText' | 'mevDocLink'> & {
   connectWallet: (wallet: WalletConfigV2<T>) => void
+  previouslyUsedWallets: WalletConfigV2<T>[]
 }) {
-  const { t } = useTranslation()
-
   const [selected] = useSelectedWallet()
   const [error] = useAtom(errorAtom)
 
-  const installedWallets: WalletConfigV2<T>[] = wallets.filter((w) => w.installed)
-  const walletsToShow: WalletConfigV2<T>[] = wallets.filter((w) => {
-    if (installedWallets.length) {
-      return w.installed
-    }
-    return w.installed !== false || w.deepLink
-  })
+  const installedWallets: WalletConfigV2<T>[] = useMemo(
+    () => [...wallets, ...topWallets, ...previouslyUsedWallets].filter((w) => w.installed),
+    [wallets, topWallets, previouslyUsedWallets],
+  )
+  const filterFn = useCallback(
+    (w: WalletConfigV2<T>) => {
+      return isMobileDevice
+        ? installedWallets.length
+          ? w.installed
+          : w.installed !== false || w.deepLink
+        : w.installed !== false || (!w.installed && (w.guide || w.downloadLink || w.qrCode))
+    },
+    [installedWallets.length],
+  )
+
+  // const installedWallets: WalletConfigV2<T>[] = wallets.filter((w) => w.installed)
+  const walletsToShow: WalletConfigV2<T>[] = wallets.filter(filterFn)
+
+  const topWalletsToShow: WalletConfigV2<T>[] = topWallets.filter(filterFn)
+  const previouslyUsedWalletsToShow: WalletConfigV2<T>[] = previouslyUsedWallets.filter(filterFn)
 
   return (
     <AtomBox width="100%">
@@ -149,17 +175,14 @@ function MobileModal<T>({
             <ErrorMessage message={error} />
           </div>
         </AtomBox>
-      ) : (
-        <Text color="textSubtle" small p="24px">
-          {t(
-            'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
-          )}
-        </Text>
-      )}
-      <AtomBox flex={1} py="16px" style={{ maxHeight: '230px' }} overflow="auto">
+      ) : null}
+      <AtomBox display="flex" flexDirection="column" gap="16px" justifyContent="space-between">
         <WalletSelect
-          displayCount={MOBILE_DEFAULT_DISPLAY_COUNT}
+          style={{ height: `calc(100vh - 150px)` }}
+          displayCount="all"
           wallets={walletsToShow}
+          topWallets={topWalletsToShow}
+          previouslyUsedWallets={previouslyUsedWalletsToShow}
           onClick={(wallet) => {
             connectWallet(wallet)
             if (wallet.deepLink && wallet.installed === false) {
@@ -167,16 +190,7 @@ function MobileModal<T>({
             }
           }}
         />
-      </AtomBox>
-      <AtomBox p="24px" borderTop="1">
-        <AtomBox>
-          <Text textAlign="center" color="textSubtle" as="p" mb="24px">
-            {t('Haven’t got a crypto wallet yet?')}
-          </Text>
-        </AtomBox>
-        <Button as="a" href={docLink} variant="subtle" width="100%" external>
-          {docText}
-        </Button>
+        {mevDocLink ? <MEVSection mevDocLink={mevDocLink} /> : null}
       </AtomBox>
     </AtomBox>
   )
@@ -184,101 +198,131 @@ function MobileModal<T>({
 
 function WalletSelect<T>({
   wallets,
+  topWallets,
+  previouslyUsedWallets,
   onClick,
   displayCount = 9,
+  style = {},
 }: {
   wallets: WalletConfigV2<T>[]
+  topWallets: WalletConfigV2<T>[]
+  previouslyUsedWallets: WalletConfigV2<T>[]
   onClick: (wallet: WalletConfigV2<T>) => void
-  displayCount?: number
+  displayCount?: number | 'all'
+  style?: React.CSSProperties
 }) {
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const [showMore, setShowMore] = useState(false)
-  const walletDisplayCount = wallets.length > displayCount ? displayCount - 1 : displayCount
-  const walletsToShow = showMore ? wallets : wallets.slice(0, walletDisplayCount)
-  const [selected] = useSelectedWallet()
+  const walletDisplayCount = useMemo(
+    () => (displayCount === 'all' ? wallets.length : wallets.length > displayCount ? displayCount - 1 : displayCount),
+    [displayCount, wallets.length],
+  )
+  const walletsToShow = useMemo(
+    () => (showMore ? wallets : wallets.slice(0, walletDisplayCount)),
+    [showMore, wallets, walletDisplayCount],
+  )
+  const sections: { label: string; items: WalletConfigV2<T>[]; isMore?: boolean }[] = useMemo(
+    () => [
+      { label: t('Previously used'), items: previouslyUsedWallets },
+      { label: t('Top Wallets'), items: topWallets },
+      { label: t('More Wallets'), items: walletsToShow, isMore: true },
+    ],
+    [t, walletsToShow, topWallets, previouslyUsedWallets],
+  )
   return (
-    <AtomBox
-      display="grid"
+    <Column
       overflowY="auto"
       overflowX="hidden"
-      px={{ xs: '16px', sm: '48px' }}
-      pb="12px"
-      className={walletSelectWrapperClass}
+      gap="16px"
+      style={{ paddingRight: '28px', marginRight: '-6px', ...style }}
+      className={scrollbarClass}
     >
-      {walletsToShow.map((wallet) => {
-        const isImage = typeof wallet.icon === 'string'
-        const Icon = wallet.icon
+      {sections.map(({ label, items, isMore }) =>
+        items.length > 0 ? (
+          <Column gap="6px">
+            <Text fontSize="14px" color="textSubtle" lineHeight={1.5}>
+              {label}
+            </Text>
+            <AtomBox display="grid" overflowY="auto" overflowX="hidden" className={walletSelectWrapperClass}>
+              {items.map((wallet) => {
+                const isImage = typeof wallet.icon === 'string'
+                const Icon = wallet.icon
 
-        return (
-          <Button
-            key={wallet.id}
-            variant="text"
-            height="auto"
-            as={AtomBox}
-            display="flex"
-            alignItems="center"
-            style={{ justifyContent: 'flex-start', letterSpacing: 'normal', padding: '0' }}
-            flexDirection="column"
-            onClick={() => onClick(wallet)}
-          >
-            <AtomBox className={wallet.installed && promotedGradientClass} p="2px" borderRadius="12px" mb="4px">
-              <AtomBox
-                bgc="dropdown"
-                display="flex"
-                position="relative"
-                justifyContent="center"
-                alignItems="center"
-                className={walletIconClass}
-                style={{ borderRadius: '13px' }}
-                overflow="hidden"
-              >
-                {isImage ? (
-                  <Image src={Icon as string} width={50} height={50} />
-                ) : (
-                  <Icon width={24} height={24} color="textSubtle" />
-                )}
-                {wallet.id === selected?.id && (
-                  <AtomBox position="absolute" inset="0px" bgc="secondary" opacity="0.5" borderRadius="12px" />
-                )}
-              </AtomBox>
+                return (
+                  <AtomBox border="1" borderRadius="default" p="12px" style={{ maxWidth: '106px' }}>
+                    <Button
+                      key={wallet.id}
+                      variant="text"
+                      height="auto"
+                      width="100%"
+                      as={AtomBox}
+                      display="flex"
+                      alignItems="center"
+                      style={{ justifyContent: 'flex-start', letterSpacing: 'normal', padding: '0' }}
+                      flexDirection="column"
+                      onClick={() => onClick(wallet)}
+                    >
+                      <AtomBox borderRadius="12px" mb="4px">
+                        <AtomBox
+                          bgc="dropdown"
+                          display="flex"
+                          position="relative"
+                          justifyContent="center"
+                          alignItems="center"
+                          className={walletIconClass}
+                          style={{ borderRadius: '13px' }}
+                          overflow="hidden"
+                        >
+                          {isImage ? (
+                            <Image src={Icon as string} width={48} height={48} />
+                          ) : (
+                            <Icon width={24} height={24} color="textSubtle" />
+                          )}
+                        </AtomBox>
+                      </AtomBox>
+                      <Row gap="2px">
+                        {wallet.MEVSupported ? (
+                          <ShieldCheckIcon width={17} height={17} color={theme.colors.positive60} />
+                        ) : null}
+                        <Text fontSize="12px" textAlign="center" width="100%" ellipsis>
+                          {wallet.title}
+                        </Text>
+                      </Row>
+                    </Button>
+                  </AtomBox>
+                )
+              })}
+              {isMore && !showMore && wallets.length > walletDisplayCount && (
+                <AtomBox display="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                  <Button
+                    height="auto"
+                    variant="text"
+                    as={AtomBox}
+                    flexDirection="column"
+                    onClick={() => setShowMore(true)}
+                  >
+                    <AtomBox
+                      className={walletIconClass}
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      bgc="dropdown"
+                    >
+                      <MoreHorizontalIcon color="text" />
+                    </AtomBox>
+                    <Text fontSize="12px" textAlign="center" mt="4px">
+                      {t('More')}
+                    </Text>
+                  </Button>
+                </AtomBox>
+              )}
             </AtomBox>
-            <Text fontSize="12px" textAlign="center">
-              {wallet.title}
-            </Text>
-          </Button>
-        )
-      })}
-      {!showMore && wallets.length > walletDisplayCount && (
-        <AtomBox display="flex" justifyContent="center" alignItems="center" flexDirection="column">
-          <Button height="auto" variant="text" as={AtomBox} flexDirection="column" onClick={() => setShowMore(true)}>
-            <AtomBox
-              className={walletIconClass}
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              bgc="dropdown"
-            >
-              <MoreHorizontalIcon color="text" />
-            </AtomBox>
-            <Text fontSize="12px" textAlign="center" mt="4px">
-              {t('More')}
-            </Text>
-          </Button>
-        </AtomBox>
+          </Column>
+        ) : null,
       )}
-    </AtomBox>
+    </Column>
   )
-}
-
-export const walletLocalStorageKey = 'wallet'
-
-const lastUsedWalletNameAtom = atom<string>('')
-
-lastUsedWalletNameAtom.onMount = (set) => {
-  const preferred = localStorage?.getItem(walletLocalStorageKey)
-  if (preferred) {
-    set(preferred)
-  }
 }
 
 function sortWallets<T>(wallets: WalletConfigV2<T>[], lastUsedWalletName: string | null) {
@@ -295,26 +339,89 @@ function sortWallets<T>(wallets: WalletConfigV2<T>[], lastUsedWalletName: string
   return [foundLastUsedWallet, ...sorted.filter((w) => w.id !== foundLastUsedWallet.id)]
 }
 
+const MEVSection = ({ mevDocLink }: { mevDocLink: string }) => {
+  const { t } = useTranslation()
+  const { theme, isDark } = useTheme()
+  return (
+    <Row
+      color="textSubtle"
+      fontSize="12px"
+      gap="4px"
+      width="100%"
+      padding="8px"
+      justifyContent="center"
+      alignItems="center"
+      style={{ borderRadius: '16px', background: isDark ? '#18171A' : theme.colors.background }}
+    >
+      <ShieldCheckIcon width={17} height={17} color={theme.colors.positive60} />
+      {t('Wallets with MEV Protection')}
+      <LinkExternal showExternalIcon={false} color="primary60" href={mevDocLink} fontSize="12px" fontWeight="400">
+        {t('Learn More')}
+      </LinkExternal>
+    </Row>
+  )
+}
+
 function DesktopModal<T>({
   wallets: wallets_,
+  topWallets: topWallets_,
+  previouslyUsedWallets,
   connectWallet,
+  onWalletConnected,
   docLink,
   docText,
-}: Pick<WalletModalV2Props<T>, 'wallets' | 'docLink' | 'docText'> & {
+  mevDocLink,
+}: Pick<WalletModalV2Props<T>, 'wallets' | 'topWallets' | 'docLink' | 'docText' | 'mevDocLink'> & {
   connectWallet: (wallet: WalletConfigV2<T>) => void
+  onWalletConnected: (wallet: WalletConfigV2<T>, connectData?: ConnectData) => void
+  previouslyUsedWallets: WalletConfigV2<T>[]
 }) {
-  const wallets: WalletConfigV2<T>[] = wallets_.filter((w) => {
-    return w.installed !== false || (!w.installed && (w.guide || w.downloadLink || w.qrCode))
-  })
+  const wallets: WalletConfigV2<T>[] = useMemo(
+    () =>
+      wallets_.filter((w) => {
+        return w.installed !== false || (!w.installed && (w.guide || w.downloadLink || w.qrCode))
+      }),
+    [wallets_],
+  )
+
+  const topWallets: WalletConfigV2<T>[] = useMemo(
+    () =>
+      topWallets_.filter((w) => {
+        return w.installed !== false || (!w.installed && (w.guide || w.downloadLink || w.qrCode))
+      }),
+    [topWallets_],
+  )
+
+  const preWallets: WalletConfigV2<T>[] = useMemo(
+    () =>
+      previouslyUsedWallets.filter((w) => {
+        return w.installed !== false || (!w.installed && (w.guide || w.downloadLink || w.qrCode))
+      }),
+    [previouslyUsedWallets],
+  )
 
   const [selected] = useSelectedWallet<T>()
   const [error] = useAtom(errorAtom)
   const [qrCode, setQrCode] = useState<string | undefined>(undefined)
   const { t } = useTranslation()
 
-  const connectToWallet = (wallet: WalletConfigV2<T>) => {
-    connectWallet(wallet)
-  }
+  const onWalletSelected = useCallback(
+    (w: WalletConfigV2<T>) => {
+      connectWallet(w)
+      setQrCode(undefined)
+      if (w.qrCode) {
+        w.qrCode(() => onWalletConnected(w)).then(
+          (uri) => {
+            setQrCode(uri)
+          },
+          () => {
+            // do nothing.
+          },
+        )
+      }
+    },
+    [connectWallet, onWalletConnected],
+  )
 
   return (
     <>
@@ -323,37 +430,24 @@ function DesktopModal<T>({
         flexDirection="column"
         bg="backgroundAlt"
         py="32px"
+        pl="48px"
+        pr="16px"
         zIndex="modal"
         borderRadius="card"
         className={desktopWalletSelectionClass}
+        gap="20px"
       >
-        <AtomBox px="48px">
-          <Heading color="color" as="h4">
-            {t('Connect Wallet')}
-          </Heading>
-          <Text color="textSubtle" small pt="24px" pb="32px">
-            {t(
-              'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
-            )}
-          </Text>
-        </AtomBox>
+        <Heading color="color" as="h4">
+          {t('Connect Wallet')}
+        </Heading>
         <WalletSelect
           wallets={wallets}
-          onClick={(w) => {
-            connectToWallet(w)
-            setQrCode(undefined)
-            if (w.qrCode) {
-              w.qrCode().then(
-                (uri) => {
-                  setQrCode(uri)
-                },
-                () => {
-                  // do nothing.
-                },
-              )
-            }
-          }}
+          topWallets={topWallets}
+          previouslyUsedWallets={preWallets}
+          displayCount="all"
+          onClick={onWalletSelected}
         />
+        {mevDocLink ? <MEVSection mevDocLink={mevDocLink} /> : null}
       </AtomBox>
       <AtomBox
         flex={1}
@@ -375,7 +469,7 @@ function DesktopModal<T>({
                 {t('Opening')} {selected.title}
               </Heading>
               {error ? (
-                <ErrorContent message={error} onRetry={() => connectToWallet(selected)} />
+                <ErrorContent message={error} onRetry={() => connectWallet(selected)} />
               ) : (
                 <Text>{t('Please confirm in %wallet%', { wallet: selected.title })}</Text>
               )}
@@ -389,12 +483,44 @@ function DesktopModal<T>({
 }
 
 export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
-  const { wallets: _wallets, login, docLink, docText, onWalletConnectCallBack, ...rest } = props
+  const {
+    wallets: wallets_,
+    topWallets: topWallets_,
+    login,
+    docLink,
+    mevDocLink,
+    docText,
+    onWalletConnectCallBack,
+    fullSize,
+    ...rest
+  } = props
 
-  const [lastUsedWalletName] = useAtom(lastUsedWalletNameAtom)
+  const { isMobile } = useMatchBreakpoints()
+  const [previouslyUsedWalletsId] = useAtom(previouslyUsedWalletsAtom)
+  const previouslyUsedWallets = useMemo(
+    () =>
+      previouslyUsedWalletsId
+        .map((id) => wallets_.find((w) => w.id === id))
+        .filter<WalletConfigV2<T>>((w): w is WalletConfigV2<T> => Boolean(w)),
+    [wallets_, previouslyUsedWalletsId],
+  )
 
-  const wallets = useMemo(() => sortWallets(_wallets, lastUsedWalletName), [_wallets, lastUsedWalletName])
-  const [, setSelected] = useSelectedWallet<T>()
+  const topWallets = useMemo(
+    () => topWallets_.filter((w) => !previouslyUsedWalletsId.includes(w.id)),
+    [previouslyUsedWalletsId, topWallets_],
+  )
+
+  const wallets = useMemo(
+    () =>
+      sortWallets(
+        wallets_.filter((i) => !topWallets.some((t) => t.id === i.id) && !previouslyUsedWalletsId.includes(i.id)),
+        null,
+      ),
+    [wallets_, topWallets, previouslyUsedWalletsId],
+  )
+
+  const [, setSelected] = useSelectedWallet()
+  const [, setLastUsedWallet] = useAtom(lastUsedWalletNameAtom)
   const [, setError] = useAtom(errorAtom)
   const { t } = useTranslation()
 
@@ -409,42 +535,75 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
 
   usePreloadImages(imageSources.slice(0, MOBILE_DEFAULT_DISPLAY_COUNT))
 
-  const connectWallet = (wallet: WalletConfigV2<T>) => {
-    setSelected(wallet)
-    setError('')
-    if (wallet.installed !== false) {
-      login(wallet.connectorId)
-        .then((v) => {
-          if (v) {
-            localStorage.setItem(walletLocalStorageKey, wallet.title)
-            try {
-              onWalletConnectCallBack?.(wallet.title)
-            } catch (e) {
-              console.error(wallet.title, e)
+  const handleWalletConnected = useCallback(
+    (wallet: WalletConfigV2<T>, connectData?: ConnectData) => {
+      setLastUsedWallet(wallet.id)
+      try {
+        onWalletConnectCallBack?.(wallet.title, connectData?.accounts?.[0])
+      } catch (e) {
+        console.error(wallet.title, e)
+      }
+    },
+    [onWalletConnectCallBack, setLastUsedWallet],
+  )
+
+  const connectWallet = useCallback(
+    (wallet: WalletConfigV2<T>) => {
+      setSelected(wallet)
+      setError('')
+      if (wallet.installed !== false) {
+        login(wallet.connectorId)
+          .then((v) => {
+            if (v) {
+              handleWalletConnected(wallet, v)
             }
-          }
-        })
-        .catch((err) => {
-          if (err instanceof WalletConnectorNotFoundError) {
-            setError(t('no provider found'))
-          } else if (err instanceof WalletSwitchChainError) {
-            setError(err.message)
-          } else {
-            setError(t('Error connecting, please authorize wallet to access.'))
-          }
-        })
-    }
-  }
+          })
+          .catch((err) => {
+            if (err instanceof WalletConnectorNotFoundError) {
+              setError(t('no provider found'))
+            } else if (err instanceof WalletSwitchChainError) {
+              setError(err.message)
+            } else {
+              setError(t('Error connecting, please authorize wallet to access.'))
+            }
+          })
+      }
+    },
+    [handleWalletConnected, login, setError, setSelected, t],
+  )
+
+  const mobileContainerStyle: React.CSSProperties = isMobile ? { height: '100%', borderRadius: 0 } : {}
 
   return (
     <ModalV2 closeOnOverlayClick disableOutsidePointerEvents={false} {...rest}>
-      <ModalWrapper onDismiss={props.onDismiss} style={{ overflow: 'visible', border: 'none' }}>
+      <ModalWrapper
+        onDismiss={props.onDismiss}
+        containerStyle={{ border: 'none', ...mobileContainerStyle }}
+        style={{ overflow: 'visible', border: 'none', ...mobileContainerStyle }}
+      >
         <AtomBox position="relative">
-          <TabContainer docLink={docLink} docText={docText}>
+          <TabContainer docLink={docLink} docText={docText} fullSize={fullSize} onDismiss={props.onDismiss}>
             {isMobile ? (
-              <MobileModal connectWallet={connectWallet} wallets={wallets} docLink={docLink} docText={docText} />
+              <MobileModal
+                mevDocLink={mevDocLink}
+                connectWallet={connectWallet}
+                topWallets={topWallets}
+                previouslyUsedWallets={previouslyUsedWallets}
+                wallets={wallets}
+                docLink={docLink}
+                docText={docText}
+              />
             ) : (
-              <DesktopModal connectWallet={connectWallet} wallets={wallets} docLink={docLink} docText={docText} />
+              <DesktopModal
+                mevDocLink={mevDocLink}
+                connectWallet={connectWallet}
+                onWalletConnected={handleWalletConnected}
+                topWallets={topWallets}
+                previouslyUsedWallets={previouslyUsedWallets}
+                wallets={wallets}
+                docLink={docLink}
+                docText={docText}
+              />
             )}
           </TabContainer>
         </AtomBox>

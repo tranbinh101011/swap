@@ -1,11 +1,12 @@
 import { isCyberWallet } from '@cyberlab/cyber-app-sdk'
-import { WalletConfigV2 } from '@pancakeswap/ui-wallets'
+import { WalletConfigV2, WalletIds } from '@pancakeswap/ui-wallets'
 import { WalletFilledIcon } from '@pancakeswap/uikit'
 import { getTrustWalletProvider } from '@pancakeswap/wagmi/connectors/trustWallet'
 import type { ExtendEthereum } from 'global'
 import { Config } from 'wagmi'
 import { ConnectMutateAsync } from 'wagmi/query'
 import safeGetWindow from '@pancakeswap/utils/safeGetWindow'
+import { ChainId } from '@pancakeswap/chains'
 import { chains, createWagmiConfig, walletConnectNoQrCodeConnector } from '../utils/wagmi'
 import { ASSET_CDN } from './constants/endpoints'
 
@@ -21,6 +22,15 @@ export enum ConnectorNames {
   // Ledger = 'ledger',
   TrustWallet = 'trust',
   CyberWallet = 'cyberWallet',
+}
+
+export const TOP_WALLET_MAP: { [chainId: number]: WalletIds[] } = {
+  [ChainId.BSC]: [WalletIds.Metamask, WalletIds.Trust, WalletIds.Okx, WalletIds.BinanceW3W],
+  [ChainId.ETHEREUM]: [WalletIds.Metamask, WalletIds.Trust, WalletIds.Okx],
+  [ChainId.POLYGON_ZKEVM]: [WalletIds.Metamask, WalletIds.Trust, WalletIds.Okx],
+  [ChainId.ZKSYNC]: [WalletIds.Metamask, WalletIds.Trust, WalletIds.Okx],
+  [ChainId.ARBITRUM_ONE]: [WalletIds.Metamask, WalletIds.Trust, WalletIds.Okx],
+  [ChainId.BASE]: [WalletIds.Metamask, WalletIds.Trust, WalletIds.Okx],
 }
 
 const createQrCode =
@@ -89,7 +99,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
   const qrCode = createQrCode(chainId, connect)
   return [
     {
-      id: 'metamask',
+      id: WalletIds.Metamask,
       title: 'Metamask',
       icon: `${ASSET_CDN}/web/wallets/metamask.png`,
       get installed() {
@@ -102,7 +112,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       downloadLink: 'https://metamask.app.link/dapp/pancakeswap.finance/',
     },
     {
-      id: 'trust',
+      id: WalletIds.Trust,
       title: 'Trust Wallet',
       icon: `${ASSET_CDN}/web/wallets/trust.png`,
       connectorId: ConnectorNames.TrustWallet,
@@ -118,7 +128,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       qrCode,
     },
     {
-      id: 'okx',
+      id: WalletIds.Okx,
       title: 'OKX Wallet',
       icon: `${ASSET_CDN}/web/wallets/okx-wallet.png`,
       connectorId: ConnectorNames.Injected,
@@ -135,7 +145,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       qrCode,
     },
     {
-      id: 'BinanceW3W',
+      id: WalletIds.BinanceW3W,
       title: 'Binance Wallet',
       icon: `${ASSET_CDN}/web/wallets/binance-w3w.png`,
       connectorId: isBinanceWeb3WalletInstalled() ? ConnectorNames.Injected : ConnectorNames.BinanceW3W,
@@ -148,19 +158,19 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       },
     },
     {
-      id: 'coinbase',
+      id: WalletIds.Coinbase,
       title: 'Coinbase Wallet',
       icon: `${ASSET_CDN}/web/wallets/coinbase.png`,
       connectorId: ConnectorNames.WalletLink,
     },
     {
-      id: 'walletconnect',
+      id: WalletIds.Walletconnect,
       title: 'WalletConnect',
       icon: `${ASSET_CDN}/web/wallets/walletconnect.png`,
       connectorId: ConnectorNames.WalletConnect,
     },
     {
-      id: 'opera',
+      id: WalletIds.Opera,
       title: 'Opera Wallet',
       icon: `${ASSET_CDN}/web/wallets/opera.png`,
       connectorId: ConnectorNames.Injected,
@@ -170,7 +180,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       downloadLink: 'https://www.opera.com/crypto/next',
     },
     {
-      id: 'brave',
+      id: WalletIds.Brave,
       title: 'Brave Wallet',
       icon: `${ASSET_CDN}/web/wallets/brave.png`,
       connectorId: ConnectorNames.Injected,
@@ -180,7 +190,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       downloadLink: 'https://brave.com/wallet/',
     },
     {
-      id: 'rabby',
+      id: WalletIds.Rabby,
       title: 'Rabby Wallet',
       icon: `${ASSET_CDN}/web/wallets/rabby.png`,
       get installed() {
@@ -196,7 +206,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       qrCode,
     },
     {
-      id: 'math',
+      id: WalletIds.Math,
       title: 'MathWallet',
       icon: `${ASSET_CDN}/web/wallets/mathwallet.png`,
       connectorId: ConnectorNames.Injected,
@@ -206,7 +216,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       qrCode,
     },
     {
-      id: 'tokenpocket',
+      id: WalletIds.Tokenpocket,
       title: 'TokenPocket',
       icon: `${ASSET_CDN}/web/wallets/tokenpocket.png`,
       connectorId: ConnectorNames.Injected,
@@ -216,7 +226,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       qrCode,
     },
     {
-      id: 'safepal',
+      id: WalletIds.SafePal,
       title: 'SafePal',
       icon: `${ASSET_CDN}/web/wallets/safepal.png`,
       connectorId: ConnectorNames.Injected,
@@ -227,7 +237,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       qrCode,
     },
     {
-      id: 'coin98',
+      id: WalletIds.Coin98,
       title: 'Coin98',
       icon: `${ASSET_CDN}/web/wallets/coin98.png`,
       connectorId: ConnectorNames.Injected,
@@ -237,7 +247,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       qrCode,
     },
     {
-      id: 'blocto',
+      id: WalletIds.Blocto,
       title: 'Blocto',
       icon: `${ASSET_CDN}/web/wallets/blocto.png`,
       connectorId: ConnectorNames.Blocto,
@@ -251,7 +261,7 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       },
     },
     {
-      id: 'cyberwallet',
+      id: WalletIds.Cyberwallet,
       title: 'CyberWallet',
       icon: `${ASSET_CDN}/web/wallets/cyberwallet.png`,
       connectorId: ConnectorNames.CyberWallet,
@@ -276,14 +286,24 @@ export const createWallets = <config extends Config = Config, context = unknown>
   chainId: number,
   connect: ConnectMutateAsync<config, context>,
 ) => {
-  const hasInjected = typeof window !== 'undefined' && !window.ethereum
   const config = walletsConfig({ chainId, connect })
-  return hasInjected && config.some((c) => c.installed && c.connectorId === ConnectorNames.Injected)
-    ? config // add injected icon if none of injected type wallets installed
+  const ethereum = safeGetWindow()?.ethereum
+  const hasInjected = !!ethereum
+  const injectedMeta = ethereum ? Object.keys(ethereum).filter((i) => i.match(/^is\w+/)) : []
+  const injectedIsMetamask = injectedMeta.length === 1 && ethereum?.isMetaMask
+  const injectedIsTrust = ethereum?.isTrust
+  const currentInjectedWithinConfig =
+    injectedIsMetamask ||
+    injectedIsTrust ||
+    config.some((c) => c.installed && ConnectorNames.Injected === c.connectorId)
+
+  return !hasInjected || currentInjectedWithinConfig
+    ? config
     : [
         ...config,
+        // add injected icon if none of injected type wallets installed
         {
-          id: 'injected',
+          id: WalletIds.Injected,
           title: 'Injected',
           icon: WalletFilledIcon,
           connectorId: ConnectorNames.Injected,

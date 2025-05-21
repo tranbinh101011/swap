@@ -13,6 +13,7 @@ export interface InjectedProps {
 }
 
 export interface ModalWrapperProps extends InjectedProps, Omit<BoxProps, "title" | "content"> {
+  containerStyle?: React.CSSProperties;
   hideCloseButton?: boolean;
 }
 

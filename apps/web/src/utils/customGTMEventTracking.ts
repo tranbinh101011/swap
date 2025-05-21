@@ -1,6 +1,7 @@
 import { PoolIds } from '@pancakeswap/ifos'
 import { BetPosition } from '@pancakeswap/prediction'
 import { Currency, TradeType } from '@pancakeswap/swap-sdk-core'
+import { getChainFullName } from 'views/universalFarms/utils'
 
 export enum GTMEvent {
   EventTracking = 'eventTracking',
@@ -15,7 +16,6 @@ export enum GTMEvent {
   StakeFarmConfirmed = 'stakeFarmConfirmed',
   StakeFarmTxSent = 'stakeFarmTxSent',
   UnStakeFarm = 'unStakeFarm',
-  WalletConnect = 'walletConnect',
   Web3WalletView = 'Web3WalletView',
   MenuClick = 'menuClick',
   StakePool = 'stakePool',
@@ -38,6 +38,12 @@ export enum GTMEvent {
 
   // Quote
   QUOTE_QRY = 'QUOTE_QRY',
+
+  // wallet
+  ConnectWallet = 'connectWallet',
+  DisconnectWallet = 'disconnectWallet',
+  WalletConnected = 'walletConnected',
+  WalletConnect = 'walletConnect', // deprecated
 }
 
 export enum GTMCategory {
@@ -72,7 +78,6 @@ export enum GTMAction {
   ClickStakeFarmConfirmButton = 'Click Stake Farm Confirm Button',
   StakeFarmTransactionSent = 'Stake Farm Transaction Sent',
   ClickUnStakeFarmButton = 'Click UnStake Farm Button',
-  ClickWalletConnectButton = 'Click Wallet Connect and Connected',
   Web3WalletView = 'Web3 Wallet Page View',
   ClickStakePoolButton = 'Click Stake Pool Button',
   ClickEnablePoolButton = 'Click Enable Pool Button',
@@ -100,6 +105,12 @@ export enum GTMAction {
 
   // Quote
   QuoterQuery = 'Query price from Quoter',
+
+  // Wallet
+  ClickWalletConnectButton = 'Click Wallet Connect and Connected', // deprecated
+  ClickOnWalletBtn = 'click on the connect wallet button',
+  WalletConnectSucc = 'wallet connected successfully',
+  ClickOnDisconnectedBtn = 'click on the disconnected wallet button',
 }
 
 interface CustomGTMDataLayer {
@@ -227,13 +238,46 @@ export const logGTMClickRemoveLiquidityEvent = () => {
   })
 }
 
-export const logGTMWalletConnectEvent = (walletTitle?: string) => {
-  console.info('---WalletConnect---')
+export const logGTMConnectWalletEvent = (chainId: number | undefined) => {
+  const info = chainId && getChainFullName(chainId)
+  console.info('---ConnectWallet---', info)
   window?.dataLayer?.push({
-    event: GTMEvent.WalletConnect,
-    action: GTMAction.ClickWalletConnectButton,
+    event: GTMEvent.ConnectWallet,
+    action: GTMAction.ClickOnWalletBtn,
+    category: GTMCategory.WalletConnect,
+    info,
+  })
+}
+export const logGTMWalletConnectedEvent = (
+  chainId: number | undefined,
+  walletTitle: string | undefined,
+  address: string | undefined,
+) => {
+  const info = chainId && getChainFullName(chainId)
+  console.info('---WalletConnected---', info, walletTitle, address)
+  window?.dataLayer?.push({
+    event: GTMEvent.WalletConnected,
+    action: GTMAction.WalletConnectSucc,
     category: GTMCategory.WalletConnect,
     label: walletTitle,
+    desc: address,
+    info,
+  })
+}
+export const logGTMDisconnectWalletEvent = (
+  chainId: number | undefined,
+  walletTitle: string | undefined,
+  address: string | undefined,
+) => {
+  const info = chainId && getChainFullName(chainId)
+  console.info('---DisconnectWallet---', info, walletTitle, address)
+  window?.dataLayer?.push({
+    event: GTMEvent.DisconnectWallet,
+    action: GTMAction.ClickOnDisconnectedBtn,
+    category: GTMCategory.WalletConnect,
+    label: walletTitle,
+    desc: address,
+    info,
   })
 }
 

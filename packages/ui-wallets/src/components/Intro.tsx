@@ -69,6 +69,7 @@ const StepIntro = ({ docLink, docText }: { docLink: string; docText: string }) =
       my="48px"
       textAlign="center"
       alignItems="center"
+      justifyContent="center"
     >
       <Swiper
         loop

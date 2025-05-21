@@ -1,6 +1,6 @@
 import { atoms } from '@pancakeswap/uikit/css/atoms'
 import { responsiveStyle } from '@pancakeswap/uikit/css/responsiveStyle'
-import { style, keyframes } from '@vanilla-extract/css'
+import { keyframes, style } from '@vanilla-extract/css'
 
 const promotedGradientKf = keyframes({
   '0%': {
@@ -41,6 +41,23 @@ export const modalWrapperClass = style([
     },
   }),
 ])
+export const fullSizeModalWrapperClass = style([
+  style({
+    display: 'flex',
+  }),
+  responsiveStyle({
+    xs: {
+      width: '100%',
+      marginBottom: 0,
+    },
+    md: {
+      height: '690px',
+    },
+    lg: {
+      width: '792px',
+    },
+  }),
+])
 
 export const desktopWalletSelectionClass = style(
   responsiveStyle({
@@ -59,13 +76,13 @@ export const desktopWalletSelectionClass = style(
 export const walletSelectWrapperClass = style(
   responsiveStyle({
     xs: {
-      gridTemplateColumns: '1fr 1fr 1fr 1fr',
-      rowGap: '10px',
+      gridTemplateColumns: '1fr 1fr 1fr',
+      rowGap: '8px',
       columnGap: '8px',
     },
     sm: {
-      rowGap: '24px',
-      columnGap: '16px',
+      rowGap: '5px',
+      columnGap: '8px',
       gridTemplateColumns: '1fr 1fr',
     },
     lg: {
@@ -75,7 +92,13 @@ export const walletSelectWrapperClass = style(
 )
 
 export const walletIconClass = style({
-  width: '50px',
-  height: '50px',
+  width: '48px',
+  height: '48px',
   borderRadius: '12px',
+})
+
+export const scrollbarClass = style({
+  '::-webkit-scrollbar': {
+    width: '6px',
+  },
 })

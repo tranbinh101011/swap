@@ -22,6 +22,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useProfile } from 'state/profile/hooks'
 import { usePendingTransactions } from 'state/transactions/hooks'
 import { useAccount } from 'wagmi'
+import { logGTMDisconnectWalletEvent } from 'utils/customGTMEventTracking'
 import ClaimYourNFT from './ClaimYourNFT'
 import ProfileUserMenuItem from './ProfileUserMenuItem'
 import WalletModal, { WalletView } from './WalletModal'
@@ -31,7 +32,7 @@ const UserMenuItems = () => {
   const { t } = useTranslation()
   const { chainId, isWrongNetwork } = useActiveChainId()
   const { logout } = useAuth()
-  const { address: account } = useAccount()
+  const { address: account, connector } = useAccount()
   const { hasPendingTransactions } = usePendingTransactions()
   const { isInitialized, isLoading, profile } = useProfile()
   const { shouldShowModal } = useAirdropModalStatus()
@@ -48,6 +49,11 @@ const UserMenuItems = () => {
       onPresentWalletModal()
     }
   }, [isWrongNetwork, onPresentWalletModal, onPresentWrongNetworkModal])
+
+  const handleClickDisconnect = useCallback(() => {
+    logGTMDisconnectWalletEvent(chainId, connector?.name, account)
+    logout()
+  }, [logout, connector?.name, account, chainId])
 
   return (
     <>
@@ -67,7 +73,7 @@ const UserMenuItems = () => {
         disabled={isWrongNetwork || chainId !== ChainId.BSC}
       />
       <UserMenuDivider />
-      <UserMenuItem as="button" onClick={logout}>
+      <UserMenuItem as="button" onClick={handleClickDisconnect}>
         <Flex alignItems="center" justifyContent="space-between" width="100%">
           {t('Disconnect')}
           <LogoutIcon />

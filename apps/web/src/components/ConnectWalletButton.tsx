@@ -2,6 +2,8 @@ import { Button, ButtonProps, FlexGap, WalletFilledV2Icon } from '@pancakeswap/u
 
 import { useCallback, useState } from 'react'
 import WalletModalManager from 'components/WalletModalManager'
+import { logGTMConnectWalletEvent } from 'utils/customGTMEventTracking'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import Trans from './Trans'
 
 interface ConnectWalletButtonProps extends ButtonProps {
@@ -11,10 +13,16 @@ interface ConnectWalletButtonProps extends ButtonProps {
 const ConnectWalletButton = ({ children, withIcon, ...props }: ConnectWalletButtonProps) => {
   const [open, setOpen] = useState(false)
   const handleOnDismiss = useCallback(() => setOpen(false), [])
+  const { chainId } = useActiveChainId()
+
+  const handleConnectBtnClick = useCallback(() => {
+    logGTMConnectWalletEvent(chainId)
+    setOpen(true)
+  }, [chainId])
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} {...props}>
+      <Button onClick={handleConnectBtnClick} {...props}>
         <FlexGap gap="8px" justifyContent="center" alignItems="center">
           {children || <Trans>Connect Wallet</Trans>} {withIcon && <WalletFilledV2Icon color="invertedContrast" />}
         </FlexGap>

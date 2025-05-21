@@ -954,7 +954,6 @@
   "Search %subject%": "Search %subject%",
   "Address": "Address",
   "Learn How to Connect": "Learn How to Connect",
-  "Haven’t got a crypto wallet yet?": "Haven’t got a crypto wallet yet?",
   "Neither side wins this round": "Neither side wins this round",
   "The Locked Price & Closed Price are exactly the same (within 8 decimals), so neither side wins. All funds entered into UP and DOWN positions will go to the weekly CAKE burn.": "The Locked Price & Closed Price are exactly the same (within 8 decimals), so neither side wins. All funds entered into UP and DOWN positions will go to the weekly CAKE burn.",
   "To Burn": "To Burn",
@@ -1809,7 +1808,6 @@
   "Slippage": "Slippage",
   "Based on % contributed to stable pair, fees will vary. Deposits with fees >= 0.15% will be rejected": "Based on % contributed to stable pair, fees will vary. Deposits with fees >= 0.15% will be rejected",
   "Before editing your profile, please make sure you've claimed all the unspent CAKE from previous IFOs!": "Before editing your profile, please make sure you've claimed all the unspent CAKE from previous IFOs!",
-  "Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.": "Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.",
   "What’s a Web3 Wallet?": "What’s a Web3 Wallet?",
   "Please confirm in %wallet%": "Please confirm in %wallet%",
   "Opening": "Opening",
@@ -3747,5 +3745,9 @@
   "Cake Balance": "Cake Balance",
   "Not enough CAKE": "Not enough CAKE",
   "Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.": "Your voting power is determined by the number of CAKE you have at the block detailed above. CAKE held in other places does NOT contribute to your voting power.",
-  "Adding liquidity to a low TVL pool carries higher risk of losses from price fluctuations. Proceed with caution.": "Adding liquidity to a low TVL pool carries higher risk of losses from price fluctuations. Proceed with caution."
+  "Adding liquidity to a low TVL pool carries higher risk of losses from price fluctuations. Proceed with caution.": "Adding liquidity to a low TVL pool carries higher risk of losses from price fluctuations. Proceed with caution.",
+  "Previously used": "Previously used",
+  "Top Wallets": "Top Wallets",
+  "More Wallets": "More Wallets",
+  "Wallets with MEV Protection": "Wallets with MEV Protection"
 }
