@@ -142,6 +142,7 @@ interface RemotePoolCL extends RemotePoolBase {
   liquidity: string
   sqrtPrice: string
   tick: number
+  tickSpacing: number
 }
 
 interface RemotePoolBIN extends RemotePoolBase {
@@ -209,7 +210,7 @@ function parsePool(remote: RemotePoolCL | RemotePoolBIN, chainId: keyof typeof h
       liquidity: BigInt(remoteClPool.liquidity),
       sqrtRatioX96: BigInt(remoteClPool.sqrtPrice),
       tick: remoteClPool.tick,
-      tickSpacing: 1,
+      tickSpacing: Number(remoteClPool.tickSpacing),
     } as InfinityClPool
   }
   if (pool.type === PoolType.InfinityBIN) {
