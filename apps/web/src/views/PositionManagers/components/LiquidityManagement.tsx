@@ -209,7 +209,7 @@ export const LiquidityManagement = memo(function LiquidityManagement({
               isSingleDepositToken0={isSingleDepositToken0}
               onAdd={showAddLiquidityModal}
               onRemove={showRemoveLiquidityModal}
-              isDisabled={positionManagerStatus === PositionManagerStatus.FINISHED}
+              isDisabled={disableAddingLiquidity || positionManagerStatus === PositionManagerStatus.FINISHED}
             />
             <AtomBox
               width={{
