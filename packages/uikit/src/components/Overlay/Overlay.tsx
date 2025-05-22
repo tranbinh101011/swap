@@ -40,15 +40,21 @@ const StyledOverlay = styled(Box)<{ isUnmounting?: boolean }>`
 const BodyLock = () => {
   useEffect(() => {
     if (document?.body?.style) {
-      document.body.style.cssText = `
-      overflow: hidden;
-    `;
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      const previousOverflow = document.body.style.overflow;
+      const previousPaddingRight = document.body.style.paddingRight;
+
       document.body.style.overflow = "hidden";
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
+
       return () => {
-        document.body.style.cssText = `
-        overflow: visible;
-        overflow: overlay;
-      `;
+        document.body.style.overflow = previousOverflow || "visible";
+        document.body.style.paddingRight = previousPaddingRight;
+        if (!previousOverflow) {
+          document.body.style.overflow = "overlay";
+        }
       };
     }
 
