@@ -1,5 +1,11 @@
 # @pancakeswap/infinity-sdk
 
+## 1.0.2
+
+### Patch Changes
+
+- 5b4135c: Added `account` support for multicall, quote will mutlicall quote hooked pool with account, added whitelist hooks
+
 ## 1.0.1
 
 ### Patch Changes

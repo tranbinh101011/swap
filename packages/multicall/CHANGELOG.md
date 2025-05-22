@@ -1,5 +1,11 @@
 # @pancakeswap/multicall
 
+## 3.6.4
+
+### Patch Changes
+
+- 5b4135c: Added `account` support for multicall, quote will mutlicall quote hooked pool with account, added whitelist hooks
+
 ## 3.6.3
 
 ### Patch Changes

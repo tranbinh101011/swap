@@ -1,5 +1,14 @@
 # @pancakeswap/smart-router
 
+## 7.2.4
+
+### Patch Changes
+
+- 5b4135c: Added `account` support for multicall, quote will mutlicall quote hooked pool with account, added whitelist hooks
+- Updated dependencies [5b4135c]
+  - @pancakeswap/infinity-sdk@1.0.2
+  - @pancakeswap/multicall@3.6.4
+
 ## 7.2.3
 
 ### Patch Changes

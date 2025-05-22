@@ -1,5 +1,12 @@
 # solana-web
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [5b4135c]
+  - @pancakeswap/widgets-internal@0.4.5
+
 ## 0.1.7
 
 ### Patch Changes

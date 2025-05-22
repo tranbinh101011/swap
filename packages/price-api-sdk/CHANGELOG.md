@@ -1,5 +1,12 @@
 # @pancakeswap/price-api-sdk
 
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies [5b4135c]
+  - @pancakeswap/smart-router@7.2.4
+
 ## 8.0.3
 
 ### Patch Changes
