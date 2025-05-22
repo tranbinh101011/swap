@@ -8,7 +8,7 @@ import { getPoolsObjectName, getPoolsTvlObjectName, getPoolsTvlObjectNameByDate 
 
 async function handleScheduled(event: ScheduledEvent) {
   switch (event.cron) {
-    case '*/30 * * * *':
+    case '0 * * * *':
       logRejectedActions(
         await Promise.allSettled(
           SUPPORTED_CHAINS.map(async (chainId) => {
@@ -18,38 +18,28 @@ async function handleScheduled(event: ScheduledEvent) {
             ])
             const pools = results[0].status === 'fulfilled' ? results[0].value : []
             const explorerPoolsTvls = results[1].status === 'fulfilled' ? results[1].value : []
-            const serializedPools = pools.map((p) => ({
-              ...SmartRouter.Transformer.serializePool(p),
-              tvlUSD: p.tvlUSD.toString(),
-            }))
-            const poolsTvlFromSubgraph = pools.map((p) => ({
-              address: p.address,
-              tvlUSD: p.tvlUSD.toString(),
-            }))
             const address = new Set<string>()
             const poolsTvl: { address: string; tvlUSD: string }[] = []
             for (const item of explorerPoolsTvls) {
-              address.add(item.address)
-              poolsTvl.push(item)
-            }
-            for (const item of poolsTvlFromSubgraph) {
-              if (!address.has(item.address)) {
+              if (Number(item.tvlUSD) > 0) {
+                address.add(item.address)
                 poolsTvl.push(item)
               }
             }
+            for (const item of pools) {
+              if (!address.has(item.address) && Number(item.tvlUSD.toString()) > 0) {
+                poolsTvl.push({
+                  address: item.address,
+                  tvlUSD: item.tvlUSD.toString(),
+                })
+              }
+            }
 
-            await Promise.all([
-              SUBGRAPH_POOLS.put(getPoolsObjectName(chainId), JSON.stringify(serializedPools), {
-                httpMetadata: {
-                  contentType: 'application/json',
-                },
-              }),
-              SUBGRAPH_POOLS.put(getPoolsTvlObjectName(chainId), JSON.stringify(poolsTvl), {
-                httpMetadata: {
-                  contentType: 'application/json',
-                },
-              }),
-            ])
+            await SUBGRAPH_POOLS.put(getPoolsTvlObjectName(chainId), JSON.stringify(poolsTvl), {
+              httpMetadata: {
+                contentType: 'application/json',
+              },
+            })
           }),
         ),
       )
