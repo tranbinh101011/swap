@@ -20,17 +20,27 @@ describe('cacheByLRU', () => {
   })
 
   it('should cache the result of the function', async () => {
-    const cachedFn = cacheByLRU(testFn, { ttl })
+    const testFn = vi.fn(async (x: number) => x * 2)
 
-    const res1 = cachedFn(2)
+    const ttl = 1000 // 1 second TTL
+    const cached = cacheByLRU(testFn, { ttl })
+
+    vi.useFakeTimers()
+    const now = Date.now()
+    vi.setSystemTime(now) // Freeze time at a specific timestamp
+
+    const res1 = cached(2)
     vi.runAllTimers()
     expect(await res1).toBe(4)
-    expect(testFn).toBeCalledTimes(1)
 
-    const res2 = cachedFn(2)
+    // Second call within same TTL window
+    const res2 = cached(2)
     vi.runAllTimers()
     expect(await res2).toBe(4)
-    expect(testFn).toBeCalledTimes(1) // Cached result
+
+    expect(testFn).toBeCalledTimes(1) // Now this passes, cached correctly
+
+    vi.useRealTimers() // Reset timers
   })
 
   it('should revalidate cache after TTL', async () => {

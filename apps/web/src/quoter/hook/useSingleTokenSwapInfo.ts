@@ -6,6 +6,7 @@ import { bestAMMTradeFromQuoterWorkerAtom } from 'quoter/atom/bestAMMTradeFromQu
 import { useCurrentBlock } from 'state/block/hooks'
 import { getTokenAddress } from 'views/Swap/components/Chart/utils'
 import { createQuoteQuery } from '../utils/createQuoteQuery'
+import { multicallGasLimitAtom } from './useMulticallGasLimit'
 
 interface Query {
   inputCurrencyId?: string
@@ -21,6 +22,7 @@ export function useSingleTokenSwapInfo(query: Query): { [key: string]: number } 
   const amount = tryParseAmount('1', inputCurrency ?? undefined)
 
   const blockNumber = useCurrentBlock()
+  const gasLimit = useAtomValue(multicallGasLimitAtom(chainId))
   const quoteOption = createQuoteQuery({
     amount,
     baseCurrency: inputCurrency ?? undefined,
@@ -35,6 +37,7 @@ export function useSingleTokenSwapInfo(query: Query): { [key: string]: number } 
     speedQuoteEnabled: true,
     infinitySwap: false,
     blockNumber,
+    gasLimit,
     routeKey: 'single-token-swap',
   })
 

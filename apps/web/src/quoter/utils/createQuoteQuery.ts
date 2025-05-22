@@ -1,4 +1,4 @@
-import { QuoteQuery } from 'quoter/quoter.types'
+import { PoolQuery, PoolQueryOptions, QuoteQuery } from 'quoter/quoter.types'
 import { createViemPublicClientGetter } from 'utils/viem'
 import { PoolHashHelper } from './PoolHashHelper'
 
@@ -25,4 +25,29 @@ export function createQuoteQuery(query: Omit<QuoteQuery, 'hash' | 'createTime'>)
   cache.set(hash, option1)
 
   return option1
+}
+
+export const createPoolQuery = (quoteQuery: QuoteQuery) => {
+  const { baseCurrency, currency } = quoteQuery
+  const poolQuery: PoolQuery = {
+    currencyA: baseCurrency!,
+    currencyB: currency!,
+    chainId: currency!.chainId,
+    blockNumber: quoteQuery.blockNumber,
+  }
+
+  const poolOptions: PoolQueryOptions = {
+    infinity: quoteQuery.infinitySwap,
+    v2Pools: !!quoteQuery.v2Swap,
+    v3Pools: !!quoteQuery.v3Swap,
+    stableSwap: !!quoteQuery.stableSwap,
+    signal: quoteQuery.signal,
+    provider: quoteQuery.provider,
+    for: quoteQuery.for,
+    gasLimit: quoteQuery.gasLimit,
+  }
+  return {
+    poolQuery,
+    poolOptions,
+  }
 }

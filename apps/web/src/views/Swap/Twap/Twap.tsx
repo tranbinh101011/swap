@@ -28,6 +28,7 @@ import { LottieRefCurrentProps } from 'lottie-react'
 import dynamic from 'next/dynamic'
 import { bestQuoteAtom } from 'quoter/atom/bestQuoteAtom'
 import { useQuoteContext } from 'quoter/hook/QuoteContext'
+import { multicallGasLimitAtom } from 'quoter/hook/useMulticallGasLimit'
 import { QuoteProvider } from 'quoter/QuoteProvider'
 import { createQuoteQuery } from 'quoter/utils/createQuoteQuery'
 import { memo, useCallback, useMemo, useRef } from 'react'
@@ -62,6 +63,8 @@ const useBestTrade = (fromToken?: string, toToken?: string, value?: string) => {
   const dependentCurrency = useCurrency(toToken)
   const { singleHopOnly, split, v2Swap, v3Swap, stableSwap } = useQuoteContext()
   const blockNumber = useCurrentBlock()
+  const { chainId } = useActiveChainId()
+  const gasLimit = useAtomValue(multicallGasLimitAtom(chainId))
   const quoteOption = createQuoteQuery({
     amount,
     currency: dependentCurrency,
@@ -79,6 +82,7 @@ const useBestTrade = (fromToken?: string, toToken?: string, value?: string) => {
     infinitySwap: false,
     blockNumber,
     routeKey: 'twap',
+    gasLimit,
   })
   const tradeResult = useAtomValue(bestQuoteAtom(quoteOption))
   const trade = tradeResult.map((x) => x.trade).unwrapOr(undefined)

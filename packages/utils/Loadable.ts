@@ -1,8 +1,8 @@
 export enum LoadableTypeNames {
-  Pending,
-  Fail,
-  Just,
-  Nothing,
+  Pending = 'Pending',
+  Fail = 'Fail',
+  Just = 'Just',
+  Nothing = 'Nothing',
 }
 
 export type Just<T> = Loadable<T> & {

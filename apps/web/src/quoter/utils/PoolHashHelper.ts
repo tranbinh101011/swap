@@ -33,7 +33,7 @@ export class PoolHashHelper {
 
   static hashPoolQuery = (query: PoolQuery) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { currencyA, currencyB, signal, provider, options, ...rest } = query
+    const { currencyA, currencyB, ...rest } = query
     try {
       const hash = PoolHashHelper.hashCurrenciesWithSort(currencyA, currencyB)
       const hashRest = keccak256(`0x${stringify(rest)}`)
@@ -52,6 +52,7 @@ export class PoolHashHelper {
       slippage,
       controller,
       blockNumber,
+      gasLimit,
       provider,
       signal,
       createTime,

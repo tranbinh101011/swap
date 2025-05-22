@@ -13,12 +13,12 @@ import { routingStrategyAtom, StrategyRoute } from './routingStrategy'
 
 const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
   return atom((get) => {
-    function executeRoutes(strategies: StrategyRoute[], option: QuoteQuery): Loadable<InterfaceOrder> {
+    function executeRoutes(strategies: StrategyRoute[], option: QuoteQuery, level: number): Loadable<InterfaceOrder> {
       try {
         const quotes = strategies.map((route) =>
           get(route.query({ ...option, ...route.overrides, routeKey: route.key })),
         )
-        const anyPending = quotes.some((x) => x?.isPending())
+        const anyPending = quotes.some((x) => x.isPending())
         const best = findBestQuote(...quotes)
         if (!best) {
           if (anyPending) {
@@ -26,13 +26,13 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
           }
           return Loadable.Nothing<InterfaceOrder>()
         }
-        const [bestQuote, bestIndex] = best
+        const [bestQuote] = best
         if (bestQuote) {
           if (!anyPending) {
             // updateStrategy(strategyHash, routes[bestIndex])
             return Loadable.Just<InterfaceOrder>(bestQuote)
           }
-          return Loadable.Nothing<InterfaceOrder>()
+          return Loadable.Pending<InterfaceOrder>()
         }
         return Loadable.Nothing<InterfaceOrder>()
       } catch (ex) {
@@ -69,7 +69,7 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
       const tests = [p1, p2]
       for (let i = 0; i < tests.length; i++) {
         const strategy = tests[i]
-        const quote = executeRoutes(strategy, option)
+        const quote = executeRoutes(strategy, option, i)
         if (quote.isNothing() || quote.isFail()) {
           continue
         }

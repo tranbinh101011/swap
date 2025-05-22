@@ -1,15 +1,17 @@
 import { useDebounce } from '@orbs-network/twap-ui/dist/hooks'
 import { TradeType } from '@pancakeswap/swap-sdk-core'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
+import { POOLS_FAST_REVALIDATE } from 'config/pools'
 import { useCurrency } from 'hooks/Tokens'
 import { useInputBasedAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atomFamily } from 'jotai/utils'
 import { activeQuoteHashAtom } from 'quoter/atom/abortControlAtoms'
 import { baseAllTypeBestTradeAtom, pauseAtom, userTypingAtom } from 'quoter/atom/bestTradeUISyncAtom'
 import { updatePlaceholderAtom } from 'quoter/atom/placeholderAtom'
-import { fetchCommonPoolsOnChain } from 'quoter/atom/poolsAtom'
 import { QUOTE_REVALIDATE_TIME } from 'quoter/consts'
-import { PoolQuery, QuoteQuery } from 'quoter/quoter.types'
+import { QuoteQuery } from 'quoter/quoter.types'
+import { fetchCandidatePools, fetchCandidatePoolsLite } from 'quoter/utils/poolQueries'
 import { useEffect } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
 import { Field } from 'state/swap/actions'
@@ -17,8 +19,9 @@ import { useSwapState } from 'state/swap/hooks'
 import { useAccount } from 'wagmi'
 import { bestQuoteAtom } from '../atom/bestQuoteAtom'
 import { quoteNonceAtom } from '../atom/revalidateAtom'
-import { createQuoteQuery } from '../utils/createQuoteQuery'
+import { createPoolQuery, createQuoteQuery } from '../utils/createQuoteQuery'
 import { useQuoteContext } from './QuoteContext'
+import { multicallGasLimitAtom } from './useMulticallGasLimit'
 
 export const useQuoterSync = () => {
   const swapState = useSwapState()
@@ -57,6 +60,7 @@ export const useQuoterSync = () => {
   const blockNumber = useCurrentBlock()
   const setActiveQuoteHash = useSetAtom(activeQuoteHashAtom)
   const [nonce, setNonce] = useAtom(quoteNonceAtom)
+  const gasLimit = useAtomValue(multicallGasLimitAtom(chainId))
 
   const quoteQueryInit = {
     amount,
@@ -76,37 +80,13 @@ export const useQuoterSync = () => {
     blockNumber,
     nonce,
     for: 'main',
+    gasLimit,
   }
 
   const quoteQuery = createQuoteQuery(quoteQueryInit)
+  useAtomValue(prefetchPoolsAtom(quoteQuery))
   const setPlaceholder = useSetAtom(updatePlaceholderAtom)
   const quoteHistory: QuoteQuery[] = []
-
-  useEffect(() => {
-    if (!inputCurrency || !outputCurrency) {
-      return
-    }
-    const poolQuery: PoolQuery = {
-      quoteHash: quoteQuery.hash,
-      currencyA: inputCurrency,
-      currencyB: outputCurrency,
-      options: {},
-      chainId,
-      infinity: quoteQuery.infinitySwap,
-      v2Pools: !!quoteQuery.v2Swap,
-      v3Pools: !!quoteQuery.v3Swap,
-      signal: quoteQuery.signal,
-      stableSwap: !!quoteQuery.stableSwap,
-      provider: quoteQuery.provider,
-    }
-
-    // Prefetch pools
-    try {
-      fetchCommonPoolsOnChain(poolQuery)
-    } catch (ex) {
-      console.warn(ex)
-    }
-  }, [quoteQuery.hash, inputCurrency, outputCurrency])
 
   useEffect(() => {
     while (quoteHistory.length > 0) {
@@ -177,3 +157,31 @@ export const useQuoterSync = () => {
     setTyping(false)
   }, [quoteResult.value, quoteResult.loading, quoteResult.error, pauseQuote, setTrade, setTyping, setNonce, paused])
 }
+
+const prefetchPoolsAtom = atomFamily(
+  (quoteQuery: QuoteQuery) => {
+    return atom(async () => {
+      if (!quoteQuery.baseCurrency || !quoteQuery.currency) {
+        return
+      }
+      const { poolQuery, poolOptions } = createPoolQuery(quoteQuery)
+      fetchCandidatePools(poolQuery, poolOptions)
+      fetchCandidatePoolsLite(poolQuery, poolOptions)
+    })
+  },
+  (a, b) => {
+    const isEqualQuote = a.hash === b.hash
+    if (!isEqualQuote) {
+      return false
+    }
+
+    const chainId = a.currency?.chainId
+    if (!chainId) {
+      return true
+    }
+    const ttl = POOLS_FAST_REVALIDATE[chainId]
+    const epochA = Math.floor(a.createTime / ttl)
+    const epochB = Math.floor(a.createTime / ttl)
+    return epochB === epochA
+  },
+)

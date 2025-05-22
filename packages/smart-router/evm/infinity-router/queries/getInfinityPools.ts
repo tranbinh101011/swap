@@ -1,27 +1,15 @@
 import { ChainId, getChainName } from '@pancakeswap/chains'
-import {
-  encodeHooksRegistration,
-  hooksList,
-  INFI_BIN_POOL_MANAGER_ADDRESSES,
-  INFI_CL_POOL_MANAGER_ADDRESSES,
-} from '@pancakeswap/infinity-sdk'
+import { hooksList } from '@pancakeswap/infinity-sdk'
 import { Currency, getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
 import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
-import { Address, checksumAddress } from 'viem'
 import { infinityPoolTvlSelector } from '../../v3-router/providers'
-import {
-  BaseInfinityPool,
-  InfinityBinPool,
-  InfinityClPool,
-  InfinityPoolWithTvl,
-  PoolType,
-  WithTvl,
-} from '../../v3-router/types'
-import { parseCurrency } from '../../v3-router/utils/transformer'
+import { InfinityBinPool, InfinityClPool, InfinityPoolWithTvl, PoolType } from '../../v3-router/types'
 import { GetInfinityCandidatePoolsParams } from '../types'
 import { fillPoolsWithBins, getInfinityBinCandidatePoolsWithoutBins } from './getInfinityBinPools'
 import { fillClPoolsWithTicks, getInfinityClCandidatePoolsWithoutTicks } from './getInfinityClPools'
 import { getInfinityPoolTvl, getInfinityTvlReference, InfinityPoolTvlReferenceMap } from './getPoolTvl'
+import { RemotePoolBIN, RemotePoolCL } from './remotePool.type'
+import { toLocalInfinityPool } from './remotePoolTransform'
 
 export const getInfinityCandidatePools = async (params: GetInfinityCandidatePoolsParams) => {
   const pools = await getInfinityCandidatePoolsLite(params)
@@ -122,106 +110,8 @@ async function fetchInfinityPoolsFromApi(currencyA: Currency, currencyB: Currenc
     throw new Error(`Error fetching infinity pools: ${response.statusText}`)
   }
   const data = (await response.json()) as (RemotePoolCL | RemotePoolBIN)[]
-  const filtered = data.map((pool) => parsePool(pool, currencyA.chainId as keyof typeof hooksList)).filter((x) => x)
+  const filtered = data
+    .map((pool) => toLocalInfinityPool(pool, currencyA.chainId as keyof typeof hooksList))
+    .filter((x) => x)
   return filtered as (InfinityClPool | InfinityBinPool)[]
-}
-
-interface RemotePoolBase {
-  id: Address
-  feeTier: number
-  protocolFee: number
-  token0: RemoteToken
-  token1: RemoteToken
-  totalVolumeUSD: string
-  tvlUSD: string
-  hookAddress?: Address
-  isDynamicFee: boolean
-  protocol: 'infinityCl' | 'infinityBin'
-}
-interface RemotePoolCL extends RemotePoolBase {
-  liquidity: string
-  sqrtPrice: string
-  tick: number
-  tickSpacing: number
-}
-
-interface RemotePoolBIN extends RemotePoolBase {
-  binStep: number
-  activeId: number
-}
-
-interface RemoteToken {
-  id: Address
-  decimals: number
-  symbol: string
-}
-function getValidToken(chainId: ChainId, token: RemoteToken): Currency {
-  try {
-    const raw = {
-      address: checksumAddress(token.id),
-      decimals: token.decimals,
-      symbol: token.symbol,
-    }
-    return parseCurrency(chainId, raw)
-  } catch (ex) {
-    console.warn('invalid token', token, ex)
-    throw ex
-  }
-}
-
-function normalizeTvlUSD(tvlUSD: string) {
-  const val = Number(tvlUSD)
-  return Number.isFinite(val) ? Math.ceil(val).toString() : '0'
-}
-
-function parsePool(remote: RemotePoolCL | RemotePoolBIN, chainId: keyof typeof hooksList) {
-  const { id, protocol, feeTier, protocolFee, hookAddress, tvlUSD } = remote
-
-  const type = protocol === 'infinityCl' ? PoolType.InfinityCL : PoolType.InfinityBIN
-  const relatedHook = hooksList[chainId].find((hook) => hook.address.toLowerCase() === hookAddress?.toLocaleLowerCase())
-
-  const currency0 = getValidToken(chainId, remote.token0)
-  const currency1 = getValidToken(chainId, remote.token1)
-  const bnTvlUsd = BigInt(normalizeTvlUSD(tvlUSD))
-
-  const pool: BaseInfinityPool & WithTvl = {
-    id: checksumAddress(id),
-    type,
-    fee: feeTier,
-    protocolFee,
-    hooks: hookAddress ? checksumAddress(hookAddress) : undefined,
-    hooksRegistrationBitmap: relatedHook ? encodeHooksRegistration(relatedHook.hooksRegistration) : undefined,
-    poolManager:
-      type === PoolType.InfinityCL ? INFI_CL_POOL_MANAGER_ADDRESSES[chainId] : INFI_BIN_POOL_MANAGER_ADDRESSES[chainId],
-    currency0,
-    currency1,
-    tvlUSD: bnTvlUsd,
-  }
-
-  if (pool.type === PoolType.InfinityCL) {
-    const remoteClPool = remote as RemotePoolCL
-    if (!remoteClPool.feeTier || !remoteClPool.tick) {
-      return null
-    }
-
-    return {
-      ...pool,
-      type: PoolType.InfinityCL,
-      liquidity: BigInt(remoteClPool.liquidity),
-      sqrtRatioX96: BigInt(remoteClPool.sqrtPrice),
-      tick: remoteClPool.tick,
-      tickSpacing: Number(remoteClPool.tickSpacing),
-    } as InfinityClPool
-  }
-  if (pool.type === PoolType.InfinityBIN) {
-    const removeBinPool = remote as RemotePoolBIN
-    const binPool: InfinityBinPool = {
-      ...pool,
-      type: PoolType.InfinityBIN,
-      binStep: removeBinPool.binStep,
-      activeId: removeBinPool.activeId,
-    }
-    return binPool
-  }
-  throw new Error(`Unknown pool type: ${type}`)
 }

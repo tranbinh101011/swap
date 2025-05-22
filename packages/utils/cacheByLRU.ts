@@ -17,7 +17,7 @@ interface Epoch {
 }
 
 // Type definitions for the cache.
-type CacheOptions<T extends AsyncFunction<any>> = {
+export type CacheOptions<T extends AsyncFunction<any>> = {
   maxCacheSize?: number
   ttl: number
   persist?: {
@@ -27,11 +27,10 @@ type CacheOptions<T extends AsyncFunction<any>> = {
   }
   key?: (params: Parameters<T>) => any
   isValid?: (result: any) => boolean
-  autoRevalidate?: {
-    key: (params: Parameters<T>) => string
-    interval: number
-  }
   maxAge?: number
+  rejectWhenNoCache?: boolean
+  usingStaleValue?: boolean
+  requestTimeout?: number
 }
 
 function defaultIsValid(val: any) {
@@ -55,28 +54,22 @@ function calcCacheKey(args: any[], epoch: number) {
 
 const identity = (args: any) => args
 
-const revalidateTimers = new Map<
-  string,
-  {
-    halfTTSTimer: NodeJS.Timeout | null
-    invalidateTimer: NodeJS.Timeout | null
-  }
->()
-
-function getTimer(id: string) {
-  if (!revalidateTimers.has(id)) {
-    revalidateTimers.set(id, {
-      halfTTSTimer: null,
-      invalidateTimer: null,
-    })
-  }
-  return revalidateTimers.get(id)!
-}
-
+let cacheInstanceId = 1
 export const cacheByLRU = <T extends AsyncFunction<any>>(
   fn: T,
-  { ttl, key, maxCacheSize, persist, isValid, autoRevalidate, maxAge }: CacheOptions<T>,
+  {
+    ttl,
+    key,
+    maxCacheSize,
+    persist,
+    isValid,
+    maxAge,
+    rejectWhenNoCache,
+    usingStaleValue = true,
+    requestTimeout,
+  }: CacheOptions<T>,
 ) => {
+  cacheInstanceId++
   const cache = new LRU<string, CacheItem>({
     maxAge: Math.max(ttl * 2, maxAge || 0),
     maxSize: maxCacheSize || 1000,
@@ -102,15 +95,10 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
     return item.promise
   }
 
-  let startTime = 0
   const epochs: Epoch[] = []
-  return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
-    // Start Time
-    if (!startTime) {
-      startTime = Date.now()
-    }
-    const epoch = (Date.now() - startTime) / ttl
-    const halfTTS = epoch % 1 > 0.5
+  // @ts-ignore
+  const cachedFn = async (...args: Parameters<T>): ReturnType<T> => {
+    const epoch = Date.now() / ttl
     const epochId = Math.floor(epoch)
 
     // Uniq cache ke related to content
@@ -121,19 +109,20 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
       if (cache.has(cacheKey)) {
         return cache.get(cacheKey)!
       }
-      // @ts-ignore
-      const promise = fn(...args)
+      const caller = requestTimeout ? withTimeout(fn, requestTimeout) : fn
+      const promise = caller(...args)
       const item = {
         promise,
         resolved: undefined,
         createTime: Date.now(),
         epochId,
       }
-      epochs.push({
+      const epoch = {
         createTime: item.createTime,
         cacheKey,
         contentCacheKey,
-      })
+      }
+      epochs.push(epoch)
       item.promise = ensurePersist(item, cacheKey)
       cache.set(cacheKey, item)
 
@@ -163,49 +152,40 @@ export const cacheByLRU = <T extends AsyncFunction<any>>(
       return item
     }
 
-    if (autoRevalidate) {
-      let max = 30 // TTS(around 10) * 30 = 300s
-      const id = autoRevalidate.key(args)
-      const timers = getTimer(id)
-      const stop = () => {
-        clearTimeout(timers.halfTTSTimer!)
-        clearInterval(timers.invalidateTimer!)
-      }
-      stop()
-      let onEpoch = epochId + 1
-      timers.halfTTSTimer = setTimeout(() => {
-        timers.invalidateTimer = setInterval(() => {
-          cacheForEpoch(onEpoch++)
-          if (--max === 0) {
-            stop()
-          }
-        }, autoRevalidate.interval)
-      })
-    }
-    if (!autoRevalidate && halfTTS) {
-      cacheForEpoch(epochId + 1)
-    }
-
     const current = cacheForEpoch(epochId)
+
     if (current.resolved) {
       return current.promise
     }
-    for (let i = epochs.length - 2, j = 5; i >= 0 && j > 0; i--, j--) {
-      const epoch = epochs[i]
-      if (maxAge && epoch.createTime + maxAge < Date.now()) {
-        continue
+    if (usingStaleValue) {
+      for (let i = epochs.length - 2; i >= 0; i--) {
+        const epoch = epochs[i]
+        if (maxAge && epoch.createTime + maxAge < Date.now()) {
+          continue
+        }
+        if (epoch.contentCacheKey !== contentCacheKey) {
+          continue
+        }
+        const epochCache = cache.get(epoch.cacheKey)
+
+        if (epochCache && epochCache.resolved) {
+          const timeElapsed = Date.now() - epochCache.createTime
+          if (timeElapsed < 5 * ttl) {
+            return epochCache.promise
+          }
+          break
+        }
       }
-      if (epoch.contentCacheKey !== contentCacheKey) {
-        continue
-      }
-      const epochCache = cache.get(epoch.cacheKey)
-      if (epochCache && epochCache.resolved) {
-        return epochCache.promise
-      }
+    }
+    if (rejectWhenNoCache) {
+      throw new Error(
+        `No cache found: total=${epochs.length}, current=${current.epochId},  cacheInstanceId=${cacheInstanceId}`,
+      )
     }
 
     return current.promise
   }
+  return cachedFn as any as T
 }
 
 async function uploadR2(key: string, value: any) {
@@ -230,4 +210,24 @@ async function _fetchR2Cache(key: string) {
   }
   console.warn(`Failed to fetch cache:https://proofs.pancakeswap.com/cache/${key}`)
   return undefined
+}
+
+function withTimeout<Args extends any[], Return>(
+  fn: (...args: Args) => Promise<Return>,
+  ms: number,
+): (...args: Args) => Promise<Return> {
+  return async (...args: Args): Promise<Return> => {
+    let timer: ReturnType<typeof setTimeout>
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        reject(new Error(`Operation timed out after ${ms}ms`))
+      }, ms)
+    })
+
+    try {
+      return await Promise.race([fn(...args), timeoutPromise])
+    } finally {
+      clearTimeout(timer!)
+    }
+  }
 }

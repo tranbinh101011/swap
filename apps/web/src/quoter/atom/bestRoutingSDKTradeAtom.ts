@@ -5,14 +5,15 @@ import { globalWorkerAtom } from 'hooks/useWorker'
 import { atomFamily } from 'jotai/utils'
 import { QUOTE_TIMEOUT } from 'quoter/consts'
 import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
+import { createPoolQuery } from 'quoter/utils/createQuoteQuery'
 import { gasPriceWeiAtom } from 'quoter/utils/gasPriceAtom'
 import { getVerifiedTrade } from 'quoter/utils/getVerifiedTrade'
 import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
+import { fetchCandidatePools } from 'quoter/utils/poolQueries'
 import { withTimeout } from 'utils/withTimeout'
 import { InterfaceOrder } from 'views/Swap/utils'
 import { InfinityGetBestTradeReturnType, NoValidRouteError, QuoteQuery } from '../quoter.types'
 import { atomWithLoadable } from './atomWithLoadable'
-import { commonPoolsOnChainAtom } from './poolsAtom'
 
 export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
   const { amount, currency, tradeType, maxSplits, v2Swap, v3Swap, infinitySwap } = option
@@ -30,25 +31,9 @@ export const bestRoutingSDKTradeAtom = atomFamily((option: QuoteQuery) => {
     perf.tracker.track('start')
 
     const query = withTimeout(async () => {
+      const { poolQuery, poolOptions } = createPoolQuery(option)
       const [candidatePools, gasPriceWei] = await Promise.all([
-        get(
-          commonPoolsOnChainAtom({
-            quoteHash: option.hash,
-            currencyA: amount.currency,
-            currencyB: currency,
-            chainId: currency.chainId,
-            infinity: infinitySwap,
-            stableSwap: Boolean(option.stableSwap),
-            v2Pools: Boolean(v2Swap),
-            v3Pools: Boolean(v3Swap),
-            signal: option.signal,
-            provider: option.provider,
-            options: {
-              blockNumber: option.blockNumber,
-            },
-            for: option.for,
-          }),
-        ),
+        fetchCandidatePools(poolQuery, poolOptions),
         get(gasPriceWeiAtom(currency?.chainId)),
       ])
       perf.tracker.track('pool_success')
