@@ -22,7 +22,7 @@ import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import Script from 'next/script'
-import { Fragment } from 'react'
+import { Fragment, Suspense } from 'react'
 import { PersistGate } from 'redux-persist/integration/react'
 import 'utils/abortcontroller-polyfill'
 
@@ -174,24 +174,26 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
 
   return (
     <ProductionErrorBoundary>
-      <ShowMenu>
-        <Layout>
-          <Component {...pageProps} />
-          <MobileCard shouldRender={!shouldRenderOnPages(layoutMobileAdIgnoredPages)} mt="4px" mb="12px" />
-          <DesktopCard shouldRender={!shouldRenderOnPages(layoutDesktopAdIgnoredPages)} />
-        </Layout>
-      </ShowMenu>
-      <EasterEgg iterations={2} />
-      <ToastListener />
-      <FixedSubgraphHealthIndicator />
-      <NetworkModal pageSupportedChains={Component.chains} />
-      <TransactionsDetailModal />
-      {isShowScrollToTopButton && <ScrollToTopButtonV2 />}
-      {shouldScreenWallet && <Blocklist />}
-      <ZKSyncAirdropModalWithAutoPopup />
-      <SimpleStakingSunsetModal />
-      <VercelToolbar />
-      <Cb1Membership />
+      <Suspense>
+        <ShowMenu>
+          <Layout>
+            <Component {...pageProps} />
+            <MobileCard shouldRender={!shouldRenderOnPages(layoutMobileAdIgnoredPages)} mt="4px" mb="12px" />
+            <DesktopCard shouldRender={!shouldRenderOnPages(layoutDesktopAdIgnoredPages)} />
+          </Layout>
+        </ShowMenu>
+        <EasterEgg iterations={2} />
+        <ToastListener />
+        <FixedSubgraphHealthIndicator />
+        <NetworkModal pageSupportedChains={Component.chains} />
+        <TransactionsDetailModal />
+        {isShowScrollToTopButton && <ScrollToTopButtonV2 />}
+        {shouldScreenWallet && <Blocklist />}
+        <ZKSyncAirdropModalWithAutoPopup />
+        <SimpleStakingSunsetModal />
+        <VercelToolbar />
+        <Cb1Membership />
+      </Suspense>
     </ProductionErrorBoundary>
   )
 }
