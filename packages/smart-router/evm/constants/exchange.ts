@@ -108,7 +108,7 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   [ChainId.BSC]: [
     bscTokens.wbnb,
     bscTokens.cake,
-    bscTokens.busd,
+    bscTokens.usd1,
     bscTokens.usdt,
     bscTokens.btcb,
     bscTokens.eth,

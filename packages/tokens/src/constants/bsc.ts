@@ -1,7 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { ERC20Token, WBNB } from '@pancakeswap/sdk'
 
-import { BUSD_BSC, CAKE_MAINNET, USDT_BSC } from './common'
+import { BUSD_BSC, CAKE_MAINNET, USD1_BSC, USDT_BSC } from './common'
 
 export const bscTokens = {
   wbnb: WBNB[ChainId.BSC],
@@ -88,6 +88,7 @@ export const bscTokens = {
     'https://powerpool.finance/',
   ),
   busd: BUSD_BSC,
+  usd1: USD1_BSC,
   dai: new ERC20Token(
     ChainId.BSC,
     '0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3',

@@ -63,6 +63,15 @@ export const USDT_BSC = new ERC20Token(
   'https://tether.to/',
 )
 
+export const USD1_BSC = new ERC20Token(
+  ChainId.BSC,
+  '0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d',
+  18,
+  'USD1',
+  'USD1',
+  'https://www.worldlibertyfinancial.com/',
+)
+
 export const USDT_ETH = new ERC20Token(
   ChainId.ETHEREUM,
   '0xdAC17F958D2ee523a2206206994597C13D831ec7',
