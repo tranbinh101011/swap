@@ -1,10 +1,12 @@
 import { ChainId } from '@pancakeswap/chains'
 import { getCurrencyKey } from '@pancakeswap/price-api-sdk'
 import { ZERO_ADDRESS } from '@pancakeswap/swap-sdk-core'
+import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
 import { WALLET_API } from 'config/constants/endpoints'
 import { checksumAddress } from 'utils/checksumAddress'
 import { HomePageToken } from '../types'
 import { queryTokenList } from './queryTokenList'
+import { getHomeCacheSettings } from './settings'
 
 const tokens: HomePageToken[] = [
   {
@@ -70,7 +72,7 @@ async function getTokenPrices(chainId: ChainId, addresses: `0x${string}`[]) {
   })
 }
 
-export async function queryTokens() {
+export const queryTokens = cacheByLRU(async () => {
   const [prices, tokenMap] = await Promise.all([
     getTokenPrices(
       ChainId.BSC,
@@ -95,4 +97,4 @@ export async function queryTokens() {
     topTokens,
     tokenMap,
   }
-}
+}, getHomeCacheSettings('tokens'))

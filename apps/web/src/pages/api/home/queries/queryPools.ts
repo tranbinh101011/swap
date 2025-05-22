@@ -1,12 +1,14 @@
 import { ChainId, getChainName } from '@pancakeswap/chains'
 import { ZERO_ADDRESS } from '@pancakeswap/swap-sdk-core'
-import { TokenInfo } from '@pancakeswap/token-lists'
+import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
 import BN from 'bignumber.js'
 import { fetchExplorerFarmPools } from 'state/farmsV4/state/farmPools/fetcher'
 import { getCakeApr } from 'state/farmsV4/state/poolApr/fetcher'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import { checksumAddress } from 'utils/checksumAddress'
 import { HomePagePoolInfo } from '../types'
+import { queryTokens } from './queryTokens'
+import { getHomeCacheSettings } from './settings'
 
 function scorePools(
   pools: PoolInfo[],
@@ -37,7 +39,11 @@ function scorePools(
     .sort((a, b) => b.score - a.score)
 }
 
-export async function queryPools(cakePrice: number, tokenMap: Record<string, TokenInfo>) {
+export const queryPools = cacheByLRU(async () => {
+  const { tokenMap, topTokens } = await queryTokens()
+  const cake = topTokens.find((x) => x.symbol === 'CAKE')!
+  const cakePrice = cake.price
+
   const poolsInfo = await fetchExplorerFarmPools()
   let filtered = poolsInfo.filter((x) => x.lpApr && x.tvlUsd)
 
@@ -62,7 +68,7 @@ export async function queryPools(cakePrice: number, tokenMap: Record<string, Tok
 
   function tokenLogo(chainId: ChainId, address: `0x${string}`) {
     const key = `${chainId}-${checksumAddress(address)}`
-    return tokenMap[key].logoURI
+    return tokenMap[key]?.logoURI
   }
   return tops.map((p, i) => {
     const chain = getChainName(p.chainId)
@@ -87,4 +93,4 @@ export async function queryPools(cakePrice: number, tokenMap: Record<string, Tok
       apr24h: Number(p.lpApr) + aprs[i],
     } as HomePagePoolInfo
   })
-}
+}, getHomeCacheSettings('pools'))

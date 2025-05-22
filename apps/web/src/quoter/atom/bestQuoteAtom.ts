@@ -94,7 +94,6 @@ export const bestQuoteAtom = atomFamily((_option: QuoteQuery) => {
         return Loadable.Just(placeHolder).setFlag('placeholder').setExtra('placeholderHash', _option.placeholderHash!)
       }
     }
-    console.log(`[ph]`, 'hash', _option.placeholderHash)
     return result.setExtra('placeholderHash', _option.placeholderHash!)
   })
 }, isEqualQuoteQuery)

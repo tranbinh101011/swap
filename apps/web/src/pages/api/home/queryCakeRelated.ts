@@ -1,6 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { calcGaugesVotingABI } from '@pancakeswap/gauges'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
+import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
 import BigNumber from 'bignumber.js'
 import { revenueSharingPoolProxyABI } from 'config/abi/revenueSharingPoolProxy'
 import { veCakeABI } from 'config/abi/veCake'
@@ -15,9 +16,10 @@ import { getViemClients } from 'utils/viem.server'
 import { formatEther } from 'viem/utils'
 import { BRIBE_APR, fetchCakePoolEmission } from 'views/CakeStaking/hooks/useAPR'
 import { fetchCakeStats } from 'views/Home/components/CakeDataRow'
+import { getHomeCacheSettings } from './queries/settings'
 import { CakeRelatedFigures } from './types'
 
-export async function queryCakeRelated() {
+export const queryCakeRelated = cacheByLRU(async function () {
   const veCakeTotalSupply = await getVeCakeTotalSupply()
 
   const [revShareApr, cakePoolEmission, totalCakeDistributed, cakeStats, gaugeTotalWeight] = await Promise.all([
@@ -38,9 +40,9 @@ export async function queryCakeRelated() {
     gaugeTotalWeight: gaugeTotalWeight.toString(),
     weeklyReward: 401644,
   } as CakeRelatedFigures
-}
+}, getHomeCacheSettings('cake-related'))
 
-export async function queryGaugeTotalVote() {
+export const queryGaugeTotalVote = cacheByLRU(async () => {
   const client = getViemClients({ chainId: ChainId.BSC })
   const totalWeight = await client.readContract({
     abi: calcGaugesVotingABI,
@@ -49,7 +51,7 @@ export async function queryGaugeTotalVote() {
     args: [true],
   })
   return formatEther(totalWeight)
-}
+}, getHomeCacheSettings('gauge-total-vote'))
 
 async function getCakeStats() {
   const client = getViemClients({ chainId: ChainId.BSC })

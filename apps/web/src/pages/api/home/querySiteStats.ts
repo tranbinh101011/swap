@@ -1,7 +1,9 @@
+import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
 import { getTotalTvl } from 'utils/getTotalTVL'
+import { getHomeCacheSettings } from './queries/settings'
 import { SiteStats } from './types'
 
-export async function querySiteStats() {
+export const querySiteStats = cacheByLRU(async () => {
   const results = await getTotalTvl()
 
   return {
@@ -10,4 +12,4 @@ export async function querySiteStats() {
     totalValueLocked: results.tvl,
     community: 2_400_000,
   } as SiteStats
-}
+}, getHomeCacheSettings('site-stats'))

@@ -1,10 +1,12 @@
 import { ChainId } from '@pancakeswap/chains'
 import { getPredictionConfig } from '@pancakeswap/prediction'
+import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
 import { fetchPredictionUsers } from 'state/predictions'
 import { getProfile } from 'state/profile/helpers'
 import { Profile } from 'state/types'
+import { getHomeCacheSettings } from './settings'
 
-export async function queryPredictionUser() {
+export const queryPredictionUser = cacheByLRU(async () => {
   const config = await getPredictionConfig(ChainId.BSC)
   const extra = config?.BNB ?? Object.values(config)?.[0]
   const result = await fetchPredictionUsers(
@@ -23,4 +25,4 @@ export async function queryPredictionUser() {
     hasRegistered: Boolean(profile?.hasRegistered),
     profile: profile?.profile as Profile,
   }
-}
+}, getHomeCacheSettings('prediction-user'))
