@@ -5,11 +5,11 @@ import { CHAIN_IDS } from 'utils/wagmi'
 import SwapLayout from 'views/Swap/SwapLayout'
 
 const StyledSkeleton = styled(Skeleton)`
-  background: ${({ theme }) => theme.colors.gradientBubblegum};
+  background: ${({ theme }) => theme.colors.bubblegum};
   opacity: 0.1;
 `
 const BgBox = styled(Box)`
-  background: ${({ theme }) => theme.colors.gradientBubblegum};
+  background: ${({ theme }) => theme.colors.bubblegum};
 `
 const Swap = dynamic(() => import('views/SwapSimplify'), {
   ssr: false,
