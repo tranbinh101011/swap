@@ -32,6 +32,7 @@ import { useFarmCProxyAddress } from 'views/Farms/hooks/useFarmCProxyAddress'
 import useCrossChainHarvestFarm from 'views/Farms/hooks/useCrossChainHarvestFarm'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useAccount } from 'wagmi'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 
 const TokenWrapper = styled.div`
   padding-right: 8px;
@@ -62,8 +63,7 @@ const MultiChainHarvestModal: React.FC<MultiChainHarvestModalProp> = ({
 }) => {
   const { t } = useTranslation()
   const { toastSuccess } = useToast()
-  const { chainId, isWrongNetwork } = useActiveChainId()
-  const { address: account } = useAccount()
+  const { account, chainId, isWrongNetwork } = useAccountActiveChain()
   const { switchNetworkAsync } = useSwitchNetwork()
   const { cProxyAddress } = useFarmCProxyAddress(account, chainId)
   const { onReward } = useCrossChainHarvestFarm(pid, cProxyAddress)

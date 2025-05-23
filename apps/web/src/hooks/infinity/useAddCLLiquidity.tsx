@@ -187,7 +187,7 @@ export const useAddCLPoolAndPosition = (
     true,
     'infinity-cl-add-liquidity-modal',
   )
-  const [onPresentErrorModal, onDismissErrorModal] = useModal(
+  const [onPresentErrorModal] = useModal(
     <ErrorModal title={t('Add Liquidity')} subTitle={txnErrorMessage} />,
     true,
     true,

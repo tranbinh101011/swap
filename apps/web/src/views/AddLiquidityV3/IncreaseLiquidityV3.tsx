@@ -22,7 +22,7 @@ import { useRouter } from 'next/router'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import Page from 'views/Page'
-import { useAccount, useSendTransaction } from 'wagmi'
+import { useSendTransaction } from 'wagmi'
 
 import { BodyWrapper } from 'components/App/AppBody'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -38,7 +38,7 @@ import { ZapLiquidityWidget } from 'components/ZapLiquidityWidget'
 import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import { useActiveChainId } from 'hooks/useActiveChainId'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { V3SubmitButton } from './components/V3SubmitButton'
 import LockedDeposit from './formViews/V3FormView/components/LockedDeposit'
 import { PositionPreview } from './formViews/V3FormView/components/PositionPreview'
@@ -64,8 +64,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
   } = useTranslation()
   const expertMode = useIsExpertMode()
 
-  const { chainId, isWrongNetwork } = useActiveChainId()
-  const { address: account } = useAccount()
+  const { account, chainId, isWrongNetwork } = useAccountActiveChain()
 
   const masterchefV3 = useMasterchefV3()
   const { tokenIds: stakedTokenIds, loading: tokenIdsInMCv3Loading } = useV3TokenIdsByAccount(

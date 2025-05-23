@@ -8,21 +8,22 @@ import { useActiveChainId } from './useActiveChainId'
 interface AccountChainState {
   account?: `0x${string}`
   chainId: number | undefined
+  isWrongNetwork: boolean
   status: 'connected' | 'disconnected' | 'connecting' | 'reconnecting' | null
 }
 
-const accountChainProxy = proxy<AccountChainState>({ chainId: undefined, status: null })
+const accountChainProxy = proxy<AccountChainState>({ chainId: undefined, isWrongNetwork: false, status: null })
 export const accountActiveChainAtom = atomWithProxy(accountChainProxy)
 
 const useAccountActiveChain = () => {
   const { address: account, status } = useAccount()
-  const { chainId } = useActiveChainId()
+  const { chainId, isWrongNetwork } = useActiveChainId()
 
   const [, setProxy] = useAtom(accountActiveChainAtom)
 
   useEffect(() => {
-    setProxy({ account, chainId, status })
-  }, [account, chainId, status, setProxy])
+    setProxy({ account, chainId, isWrongNetwork, status })
+  }, [account, chainId, status, isWrongNetwork, setProxy])
 
   return useAtomValue(accountActiveChainAtom)
 }

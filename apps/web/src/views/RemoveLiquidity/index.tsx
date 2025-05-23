@@ -55,6 +55,7 @@ import { useRemoveLiquidityV2FormState } from 'state/burn/reducer'
 import { useGasPrice } from 'state/user/hooks'
 import { logGTMClickRemoveLiquidityEvent } from 'utils/customGTMEventTracking'
 import { isUserRejected, logError } from 'utils/sentry'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { AppBody, AppHeader } from '../../components/App'
 import ConnectWalletButton from '../../components/ConnectWalletButton'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
@@ -78,8 +79,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
   const native = useNativeCurrency()
   const { isMobile } = useMatchBreakpoints()
 
-  const { chainId, isWrongNetwork } = useActiveChainId()
-  const { address: account } = useAccount()
+  const { account, chainId, isWrongNetwork } = useAccountActiveChain()
   const { signTypedDataAsync } = useSignTypedData()
   const { toastError } = useToast()
   const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])

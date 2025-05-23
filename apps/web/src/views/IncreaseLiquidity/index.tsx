@@ -50,8 +50,7 @@ import { INITIAL_ALLOWED_SLIPPAGE, useUserSlippage } from '@pancakeswap/utils/us
 import { useHookByPoolId } from 'hooks/infinity/useHooksList'
 import { calculateSlippageAmount } from 'utils/exchange'
 import { NavBreadcrumbs } from 'views/RemoveLiquidityInfinity/components/NavBreadcrumbs'
-import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useAccount } from 'wagmi'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useErrorMsg } from './hooks/useErrorMsg'
 import { useIncreaseForm } from './hooks/useIncreaseForm'
 
@@ -94,8 +93,7 @@ export const IncreaseLiquidity = () => {
     t,
     currentLanguage: { locale },
   } = useTranslation()
-  const { chainId, isWrongNetwork } = useActiveChainId()
-  const { address: account } = useAccount()
+  const { account, chainId, isWrongNetwork } = useAccountActiveChain()
   const { tokenId } = useInfinityClammPositionIdRouteParams()
 
   const { position } = useInfinityClPositionFromTokenId(tokenId, chainId)
@@ -194,7 +192,7 @@ export const IncreaseLiquidity = () => {
   const [allowedSlippage] = useUserSlippage() || [INITIAL_ALLOWED_SLIPPAGE]
 
   const { addCLLiquidity, attemptingTx } = useAddCLPoolAndPosition(
-    chainId,
+    chainId ?? 0,
     account ?? zeroAddress,
     currency0Address,
     currency1Address,

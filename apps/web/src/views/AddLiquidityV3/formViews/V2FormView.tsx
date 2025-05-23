@@ -22,7 +22,6 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { CommonBasesType } from 'components/SearchModal/types'
 import { Bound } from 'config/constants/types'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import { CurrencyField as Field } from 'utils/types'
 import { getBlockExploreLink } from 'utils'
 import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
@@ -30,7 +29,7 @@ import { LP2ChildrenProps } from 'views/AddLiquidity'
 
 import { InfoBox } from '@pancakeswap/widgets-internal'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
-import { useAccount } from 'wagmi'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { HideMedium, MediumOnly, RightContainer } from './V3FormView'
 import RangeSelector from './V3FormView/components/RangeSelector'
 
@@ -62,8 +61,7 @@ export default function V2FormView({
 }: LP2ChildrenProps) {
   const mockFn = useCallback(() => undefined, [])
 
-  const { chainId, isWrongNetwork } = useActiveChainId()
-  const { address: account } = useAccount()
+  const { account, chainId, isWrongNetwork } = useAccountActiveChain()
   const { t } = useTranslation()
   const expertMode = useIsExpertMode()
   const pairExplorerLink = useMemo(
