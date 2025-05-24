@@ -100,7 +100,7 @@ test('decode hooks registration', () => {
     afterDonate: true,
   })
 
-  expect(() => decodeHooksRegistration('0x0400')).toThrow('Invariant failed: Invalid hooks registration')
-  expect(() => decodeHooksRegistration(1024)).toThrow('Invariant failed: Invalid hooks registration')
+  expect(() => decodeHooksRegistration('0x4000')).toThrow('Invariant failed: Invalid hooks registration')
+  expect(() => decodeHooksRegistration(16384)).toThrow('Invariant failed: Invalid hooks registration')
   expect(() => decodeHooksRegistration(-1)).toThrow('Invariant failed: Invalid hooks registration')
 })

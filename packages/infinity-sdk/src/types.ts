@@ -25,6 +25,10 @@ export type HooksRegistration = {
   afterSwap?: boolean
   beforeDonate?: boolean
   afterDonate?: boolean
+  beforeSwapReturnsDelta?: boolean
+  afterSwapReturnsDelta?: boolean
+  afterMintReturnsDelta?: boolean
+  afterBurnReturnsDelta?: boolean
 }
 
 export type BinTree = {
