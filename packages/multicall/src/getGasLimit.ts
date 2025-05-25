@@ -56,7 +56,14 @@ export async function getGasLimit({
   const maxGasLimit = toBigInt(maxGasLimitInput)
   const gasBuffer = toBigInt(gasBufferInput)
 
-  const gasLimit = gasLimitOverride || (await getGasLimitOnChain({ chainId, client })) || maxGasLimit
+  let onChainGasLimit: bigint | undefined
+  try {
+    onChainGasLimit = await getGasLimitOnChain({ chainId, client })
+  } catch (error) {
+    console.warn('Failed to fetch gas limit on chain:', error)
+    onChainGasLimit = undefined
+  }
+  const gasLimit = gasLimitOverride || onChainGasLimit || maxGasLimit
   const minGasLimit = gasLimit < maxGasLimit ? gasLimit : maxGasLimit
   return minGasLimit - gasBuffer
 }
