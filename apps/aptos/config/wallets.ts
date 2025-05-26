@@ -1,5 +1,4 @@
 import { WalletConfigV2, WalletIds } from '@pancakeswap/ui-wallets'
-import { isFirefox } from 'react-device-detect'
 
 export enum ConnectorNames {
   Petra = 'petra',
@@ -51,27 +50,6 @@ export const wallets: WalletConfigV2<ConnectorNames>[] = [
     },
   },
   {
-    id: WalletIds.Fewcha,
-    title: 'Fewcha',
-    icon: '/images/wallets/fewcha.png',
-    get installed() {
-      return typeof window !== 'undefined' && Boolean(window.fewcha)
-    },
-    connectorId: ConnectorNames.Fewcha,
-    downloadLink: {
-      desktop: 'https://fewcha.app/',
-    },
-  },
-  {
-    id: WalletIds.Blocto,
-    title: 'Blocto',
-    icon: '/images/wallets/blocto.png',
-    get installed() {
-      return typeof window !== 'undefined' && Boolean(window.bloctoAptos) ? true : undefined // undefined to show SDK
-    },
-    connectorId: ConnectorNames.Blocto,
-  },
-  {
     id: WalletIds.TrustWallet,
     title: 'Trust Wallet',
     icon: 'https://pancakeswap.finance/images/wallets/trust.png',
@@ -91,20 +69,6 @@ export const wallets: WalletConfigV2<ConnectorNames>[] = [
     connectorId: ConnectorNames.SafePal,
     downloadLink: {
       desktop: 'https://chrome.google.com/webstore/detail/safepal-extension-wallet/lgmpcpglpngdoalbgeoldeajfclnhafa',
-    },
-  },
-  {
-    id: WalletIds.Rise,
-    title: 'Rise Wallet',
-    icon: '/images/wallets/rise.png',
-    get installed() {
-      return typeof window !== 'undefined' && Boolean(window.rise)
-    },
-    connectorId: ConnectorNames.Rise,
-    downloadLink: {
-      desktop: isFirefox
-        ? 'https://addons.mozilla.org/en-US/firefox/addon/rise-wallet/'
-        : 'https://chrome.google.com/webstore/detail/rise-aptos-wallet/hbbgbephgojikajhfbomhlmmollphcad',
     },
   },
   {
@@ -129,3 +93,7 @@ export const wallets: WalletConfigV2<ConnectorNames>[] = [
     connectorId: ConnectorNames.Msafe,
   },
 ]
+
+export const TOP_WALLET_MAP: WalletConfigV2<ConnectorNames>[] = [WalletIds.Pontem, WalletIds.Petra]
+  .map((id) => wallets.find((w) => w.id === id))
+  .filter((w): w is WalletConfigV2<ConnectorNames> => Boolean(w))
