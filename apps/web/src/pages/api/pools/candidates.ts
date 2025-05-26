@@ -12,7 +12,7 @@ export default async function handler(req: NextRequest) {
   try {
     const { chainId, addressA, addressB, protocols } = parseCandidatesQuery(raw)
     const pools = await edgeQueries.fetchAllCandidatePools(addressA, addressB, chainId, protocols)
-    const age = POOLS_SLOW_REVALIDATE[chainId] as number
+    const age = Math.floor((POOLS_SLOW_REVALIDATE[chainId] as number) / 1000)
     const staleAge = age * 2
     return NextResponse.json(
       {
