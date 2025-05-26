@@ -59,6 +59,7 @@ export function useMerklInfo(poolAddress?: string): {
       const opportunities = merklDataV4?.filter(
         (opportunity) =>
           opportunity?.tokens?.[0]?.symbol?.toLowerCase().startsWith('cake-lp') ||
+          opportunity?.protocol?.id?.toLowerCase().startsWith('pancake-swap') ||
           opportunity?.protocol?.id?.toLowerCase().startsWith('pancakeswap'),
       )
 
