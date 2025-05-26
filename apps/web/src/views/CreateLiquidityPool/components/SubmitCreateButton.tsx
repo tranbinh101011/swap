@@ -6,8 +6,8 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import ApproveLiquidityTokens from 'components/Liquidity/ApproveLiquidityTokens'
 import { useSelectIdRouteParams } from 'hooks/dynamicRoute/useSelectIdRoute'
 import { useCLPriceRange } from 'hooks/infinity/useCLPriceRange'
-import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import { usePermit2 } from 'hooks/usePermit2'
+import { useStablecoinPriceAmount } from 'hooks/useStablecoinPrice'
 import React, { useMemo } from 'react'
 import { useInverted } from 'state/infinity/shared'
 import { useCurrencyBalances } from 'state/wallet/hooks'
@@ -291,21 +291,27 @@ export const SubmitCreateButton: React.FC<SubmitCreateButtonProps> = ({ ...boxPr
     t,
   ])
 
-  const { data: currency0Price } = useCurrencyUsdPrice(currency0, {
-    enabled: Boolean(currency0),
-  })
-  const { data: currency1Price } = useCurrencyUsdPrice(currency1, {
-    enabled: Boolean(currency1),
-  })
+  const currency0UsdValue = useStablecoinPriceAmount(
+    currency0,
+    depositCurrencyAmount0 ? Number(depositCurrencyAmount0.toExact()) : undefined,
+    {
+      enabled: Boolean(depositCurrencyAmount0),
+    },
+    chainId,
+  )
+  const currency1UsdValue = useStablecoinPriceAmount(
+    currency1,
+    depositCurrencyAmount1 ? Number(depositCurrencyAmount1.toExact()) : undefined,
+    {
+      enabled: Boolean(depositCurrencyAmount1),
+    },
+    chainId,
+  )
   const lowLiquidity = useMemo(() => {
     if (depositCurrencyAmount0?.equalTo(0) || depositCurrencyAmount1?.equalTo(0)) return false
-    if (!currency0Price || !currency1Price) return true
-    return (
-      currency0Price * Number(depositCurrencyAmount0?.toSignificant(6)) +
-        currency1Price * Number(depositCurrencyAmount1?.toSignificant(6)) <
-      1000
-    )
-  }, [currency0Price, currency0Balance, currency1Price, currency1Balance])
+    if (!currency0UsdValue || !currency1UsdValue) return false
+    return currency0UsdValue + currency1UsdValue < 1000
+  }, [currency0UsdValue, currency1UsdValue, depositCurrencyAmount0, depositCurrencyAmount1])
 
   return (
     <Box {...boxProps}>
@@ -352,7 +358,7 @@ export const SubmitCreateButton: React.FC<SubmitCreateButtonProps> = ({ ...boxPr
           />
         )}
       </AutoColumn>
-      <Box mb="8px">
+      <Box mb="8px" mt={lowLiquidity || outOfRange || invalidClRange || invalidBinRange ? '8px' : undefined}>
         <ApproveLiquidityTokens
           isApprovingA={isApprovingA}
           isApprovingB={isApprovingB}
