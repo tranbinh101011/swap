@@ -86,8 +86,14 @@ function reviseGasUseEstimate(
 ): GasUseEstimate {
   const isExactIn = tradeType === TradeType.EXACT_INPUT
   const factor = new Fraction(actualGasUseEstimate, estimate.gasUseEstimate)
-  const gasUseEstimateBase = estimate.gasUseEstimateBase.multiply(factor)
-  const gasUseEstimateQuote = estimate.gasUseEstimateQuote.multiply(factor)
+  const gasUseEstimateBase =
+    factor.denominator > 0n
+      ? estimate.gasUseEstimateBase.multiply(factor)
+      : CurrencyAmount.fromRawAmount(estimate.gasUseEstimateQuote.currency, 0n)
+  const gasUseEstimateQuote =
+    factor.denominator > 0n
+      ? estimate.gasUseEstimateQuote.multiply(factor)
+      : CurrencyAmount.fromRawAmount(estimate.gasUseEstimateQuote.currency, 0n)
   const inputAmountWithGasAdjusted = isExactIn
     ? estimate.inputAmountWithGasAdjusted
     : estimate.inputAmountWithGasAdjusted.subtract(estimate.gasUseEstimateQuote).add(gasUseEstimateQuote)

@@ -1,3 +1,4 @@
+import { isTestnetChainId } from '@pancakeswap/chains'
 import { Currency, getCurrencyAddress } from '@pancakeswap/sdk'
 import { useQuery } from '@tanstack/react-query'
 
@@ -30,6 +31,9 @@ export const currencyUSDPriceAtom = atomFamily(
     return atom(() => {
       if (!currency) {
         throw new Error('No currency provided')
+      }
+      if (isTestnetChainId(currency?.chainId)) {
+        return 0
       }
       return usdPriceBatcher.fetch(currency)
     })

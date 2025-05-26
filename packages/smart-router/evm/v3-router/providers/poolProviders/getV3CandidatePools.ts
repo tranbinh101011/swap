@@ -1,4 +1,4 @@
-import { ChainId } from '@pancakeswap/chains'
+import { ChainId, isTestnetChainId } from '@pancakeswap/chains'
 import { BigintIsh, Currency } from '@pancakeswap/sdk'
 import memoize from '@pancakeswap/utils/memoize'
 import { Address } from 'viem'
@@ -89,6 +89,9 @@ const createFallbackTvlRefGetter = () => {
     const { currencyA } = params
     if (!currencyA?.chainId) {
       throw new Error(`Cannot get tvl references at chain ${currencyA?.chainId}`)
+    }
+    if (isTestnetChainId(currencyA?.chainId)) {
+      return []
     }
     const cached = cache.get(currencyA.chainId)
     if (cached) {

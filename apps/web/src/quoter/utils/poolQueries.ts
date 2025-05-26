@@ -1,4 +1,4 @@
-import { ChainId } from '@pancakeswap/chains'
+import { ChainId, isTestnetChainId } from '@pancakeswap/chains'
 import { Protocol } from '@pancakeswap/farms'
 import { InfinityRouter, Pool, SmartRouter, V2Pool, V3Pool } from '@pancakeswap/smart-router'
 import { InfinityPoolTvlReferenceMap } from '@pancakeswap/smart-router/dist/evm/infinity-router/queries/getPoolTvl'
@@ -208,6 +208,9 @@ export const fetchCandidatePools = async (query: PoolQuery, options: PoolQueryOp
     return edgePoolQueryClient.getAllCandidates(currencyA, currencyB, chainId, blockNumber, protocols, options.signal)
   }
 
+  if (isTestnetChainId(chainId)) {
+    return fallbackQuery()
+  }
   const call = createAsyncCallWithFallbacks(defaultQuery, {
     fallbacks: [fallbackQuery],
     fallbackTimeout: 1_500, // 1.5s waiting for fetch candidate pools remote
