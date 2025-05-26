@@ -1,3 +1,4 @@
+import { findHook, HOOK_CATEGORY } from '@pancakeswap/infinity-sdk'
 import { OrderType } from '@pancakeswap/price-api-sdk'
 import {
   Currency,
@@ -15,7 +16,9 @@ import { FeeAmount } from '@pancakeswap/v3-sdk'
 
 import { BIPS_BASE, INPUT_FRACTION_AFTER_FEE } from 'config/constants/exchange'
 import { Field } from 'state/swap/actions'
+import { isAddressEqual } from 'utils'
 import { basisPointsToPercent } from 'utils/exchange'
+import { zeroAddress } from 'viem'
 import { InterfaceOrder } from 'views/Swap/utils'
 
 export type SlippageAdjustedAmounts = {
@@ -82,8 +85,16 @@ export function computeTradePriceBreakdown(trade?: TradeEssentialForPriceBreakdo
           return currentFee.multiply(ONE_HUNDRED_PERCENT.subtract(v3FeeToPercent(pool.fee)))
         }
         if (SmartRouter.isInfinityClPool(pool) || SmartRouter.isInfinityBinPool(pool)) {
-          const v4FeePercent = new Percent(calculateInfiFeePercent(pool.fee, pool.protocolFee).totalFee, 1e6)
-          return currentFee.multiply(ONE_HUNDRED_PERCENT.subtract(v4FeePercent))
+          let poolFee = pool.fee
+          // override pool fee if the pool is a dynamic fee pool
+          if (pool.hooks && !isAddressEqual(pool.hooks, zeroAddress)) {
+            const hook = findHook(pool.hooks, trade.inputAmount.currency.chainId)
+            if (hook && hook.category?.includes(HOOK_CATEGORY.DynamicFees) && hook.defaultFee) {
+              poolFee = hook.defaultFee
+            }
+          }
+          const infinityFeePercent = new Percent(calculateInfiFeePercent(poolFee, pool.protocolFee).totalFee, 1e6)
+          return currentFee.multiply(ONE_HUNDRED_PERCENT.subtract(infinityFeePercent))
         }
         return currentFee
       }, ONE_HUNDRED_PERCENT),
