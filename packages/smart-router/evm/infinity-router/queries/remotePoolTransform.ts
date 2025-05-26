@@ -68,11 +68,11 @@ export function toLocalInfinityPool(remote: RemotePoolCL | RemotePoolBIN, chainI
     return {
       ...pool,
       type: PoolType.InfinityCL,
-      liquidity: BigInt(remoteClPool.liquidity),
       sqrtRatioX96: BigInt(remoteClPool.sqrtPrice),
       tick: remoteClPool.tick,
       ticks: remoteClPool.ticks ? remoteClPool.ticks.map((x) => parseTick(x)) : [],
       tickSpacing: Number(remoteClPool.tickSpacing),
+      liquidity: BigInt(remoteClPool.liquidity),
     } as InfinityClPool
   }
   if (pool.type === PoolType.InfinityBIN) {
@@ -94,6 +94,7 @@ export function toRemoteInfinityPool(
 ): RemotePoolCL | RemotePoolBIN {
   const base: RemotePoolBase = {
     id: pool.id,
+    chainId: pool.currency0.chainId,
     feeTier: pool.fee,
     protocolFee: pool.protocolFee || 0,
     token0: {
@@ -106,7 +107,6 @@ export function toRemoteInfinityPool(
       decimals: pool.currency1.decimals,
       symbol: pool.currency1.symbol || '',
     },
-    totalVolumeUSD: '0', // default or populate accordingly if available
     tvlUSD: pool.tvlUSD.toString(),
     hookAddress: pool.hooks as Address | undefined,
     isDynamicFee: false, // Assuming default; adjust based on your logic
@@ -117,7 +117,6 @@ export function toRemoteInfinityPool(
     const ticks = pool.ticks ? pool.ticks.map((x) => serializeTick(x)) : []
     return {
       ...base,
-      liquidity: pool.liquidity.toString(),
       sqrtPrice: pool.sqrtRatioX96.toString(),
       tick: pool.tick,
       ticks,

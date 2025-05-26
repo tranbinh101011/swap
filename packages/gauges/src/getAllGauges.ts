@@ -1,5 +1,5 @@
 import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
-import keyBy from 'lodash/keyBy'
+import keyBy from '@pancakeswap/utils/keyBy'
 import { PublicClient } from 'viem'
 import { getGauges } from './constants/config/getGauges'
 import { CONFIG_TESTNET } from './constants/config/testnet'

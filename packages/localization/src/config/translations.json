@@ -3742,5 +3742,7 @@
   "Top Wallets": "Top Wallets",
   "More Wallets": "More Wallets",
   "Wallets with MEV Protection": "Wallets with MEV Protection",
-  "New pools with low liquidity can have bigger price swings, increasing the risk of losses. Please proceed carefully.": "New pools with low liquidity can have bigger price swings, increasing the risk of losses. Please proceed carefully."
+  "New pools with low liquidity can have bigger price swings, increasing the risk of losses. Please proceed carefully.": "New pools with low liquidity can have bigger price swings, increasing the risk of losses. Please proceed carefully.",
+  "Routing timeout, will retry in %seconds%s...": "Routing timeout, will retry in %seconds%s...",
+  "Manual Retry": "Manual Retry"
 }

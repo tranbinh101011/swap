@@ -1,6 +1,6 @@
 import { BigintIsh, Currency, CurrencyAmount, TradeType } from '@pancakeswap/sdk'
 import { AbortControl } from '@pancakeswap/utils/abortControl'
-import chunk from 'lodash/chunk.js'
+import chunk from '@pancakeswap/utils/chunk'
 
 import { RemoteLogger } from '@pancakeswap/utils/RemoteLogger'
 import { getAmountDistribution } from './functions'

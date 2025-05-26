@@ -1,11 +1,10 @@
-import { Currency, Pair, Token } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
-import flatMap from 'lodash/flatMap.js'
+import { Currency, Pair, Token } from '@pancakeswap/sdk'
 
 import { ADDITIONAL_BASES, BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../evm/constants'
+import { wrappedCurrency } from '../evm/utils/currency'
 import { getPairs } from './onchain'
 import { Provider } from './types'
-import { wrappedCurrency } from '../evm/utils/currency'
 
 export enum PairState {
   LOADING,
@@ -39,7 +38,7 @@ export async function getAllCommonPairs(
 
   const bases: Token[] = [...common, ...additionalA, ...additionalB]
 
-  const basePairs: [Token, Token][] = flatMap(bases, (base): [Token, Token][] =>
+  const basePairs: [Token, Token][] = bases.flatMap((base): [Token, Token][] =>
     bases.map((otherBase) => [base, otherBase]),
   )
 

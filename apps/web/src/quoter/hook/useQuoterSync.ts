@@ -86,15 +86,8 @@ export const useQuoterSync = () => {
   const quoteQuery = createQuoteQuery(quoteQueryInit)
   useAtomValue(prefetchPoolsAtom(quoteQuery))
   const setPlaceholder = useSetAtom(updatePlaceholderAtom)
-  const quoteHistory: QuoteQuery[] = []
 
   useEffect(() => {
-    while (quoteHistory.length > 0) {
-      const historyQuote = quoteHistory.pop()
-      historyQuote?.controller?.abort()
-    }
-
-    quoteHistory.push(quoteQuery)
     setActiveQuoteHash(quoteQuery.hash)
   }, [quoteQuery.hash])
 

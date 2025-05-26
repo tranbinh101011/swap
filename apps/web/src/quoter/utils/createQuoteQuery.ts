@@ -20,14 +20,12 @@ export function createQuoteQuery(query: Omit<QuoteQuery, 'hash' | 'createTime'>)
   option1.provider = createViemPublicClientGetter({
     transportSignal: controller.signal,
   })
-  option1.signal = controller.signal
-  option1.controller = controller
   cache.set(hash, option1)
 
   return option1
 }
 
-export const createPoolQuery = (quoteQuery: QuoteQuery) => {
+export const createPoolQuery = (quoteQuery: QuoteQuery, controller?: AbortController) => {
   const { baseCurrency, currency } = quoteQuery
   const poolQuery: PoolQuery = {
     currencyA: baseCurrency!,
@@ -41,10 +39,10 @@ export const createPoolQuery = (quoteQuery: QuoteQuery) => {
     v2Pools: !!quoteQuery.v2Swap,
     v3Pools: !!quoteQuery.v3Swap,
     stableSwap: !!quoteQuery.stableSwap,
-    signal: quoteQuery.signal,
     provider: quoteQuery.provider,
     for: quoteQuery.for,
     gasLimit: quoteQuery.gasLimit,
+    signal: controller?.signal,
   }
   return {
     poolQuery,

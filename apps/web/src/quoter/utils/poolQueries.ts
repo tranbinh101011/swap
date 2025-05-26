@@ -1,7 +1,9 @@
 import { ChainId } from '@pancakeswap/chains'
 import { Protocol } from '@pancakeswap/farms'
 import { InfinityRouter, Pool, SmartRouter, V2Pool, V3Pool } from '@pancakeswap/smart-router'
+import { InfinityPoolTvlReferenceMap } from '@pancakeswap/smart-router/dist/evm/infinity-router/queries/getPoolTvl'
 import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
+import { createAsyncCallWithFallbacks } from '@pancakeswap/utils/withFallback'
 import { Tick } from '@pancakeswap/v3-sdk'
 import { POOLS_FAST_REVALIDATE } from 'config/pools'
 import { getPoolTicks } from 'hooks/useAllTicksQuery'
@@ -9,7 +11,8 @@ import memoize from 'lodash/memoize'
 import { PoolQuery, PoolQueryOptions } from 'quoter/quoter.types'
 import { v2Clients, v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
-import { FetchCandidatePoolsError } from './FetchCandidatePoolsError'
+import { edgePoolQueryClient } from './edgePoolQueryClient'
+import { Protocol as EdgeProtocol } from './edgeQueries.util'
 import { PoolHashHelper } from './PoolHashHelper'
 
 export const poolQueriesFactory = memoize((chainId: ChainId) => {
@@ -28,12 +31,13 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
     key: getCacheKey,
     isValid,
     maxAge: 30_000,
+    requestTimeout: 3_000,
   }
 
   const getV2CandidatePools = cacheByLRU(async (query: PoolQuery, options: PoolQueryOptions) => {
-    const { currencyA, currencyB } = query
+    const { currencyA, currencyB, blockNumber } = query
 
-    const call = async () => {
+    const queryFunc = async () => {
       const provider = options.provider ?? getViemClients
       const pools = await SmartRouter.getV2CandidatePools({
         currencyA,
@@ -44,21 +48,21 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
       })
       return pools as V2Pool[]
     }
-    return call()
+
+    return queryFunc()
   }, cacheOption)
 
   const getV3CandidatePools = cacheByLRU(async (query: PoolQuery, options: PoolQueryOptions) => {
-    const call = async () => {
+    const queryFunc = async () => {
       const pools = await getV3CandidatePoolsWithoutTicks(query, options)
       return fillV3Ticks(pools)
     }
-
-    return call()
+    return queryFunc()
   }, cacheOption)
 
   const getV3CandidatePoolsWithoutTicks = cacheByLRU(async (query: PoolQuery, options: PoolQueryOptions) => {
     const { currencyA, currencyB, blockNumber } = query
-    const call = async () => {
+    const queryFunc = async () => {
       const provider = options.provider ?? getViemClients
       return SmartRouter.getV3CandidatePools({
         currencyA,
@@ -68,11 +72,13 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
         blockNumber,
       })
     }
-    return call()
+
+    return queryFunc()
   }, cacheOption)
 
   const getV3PoolsWithTicksOnChain = cacheByLRU(async (query: PoolQuery, options: PoolQueryOptions) => {
-    const call = async () => {
+    const { currencyA, currencyB, blockNumber } = query
+    const queryFunc = async () => {
       const provider = options.provider ?? getViemClients
 
       const res = await InfinityRouter.getV3CandidatePools({
@@ -83,7 +89,7 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
       })
       return res
     }
-    return call()
+    return queryFunc()
   }, cacheOption)
 
   const fillV3Ticks = async (pools: V3Pool[]) => {
@@ -105,25 +111,46 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
     }))
   }
 
+  const fetchTvMap = cacheByLRU(
+    async (protocol: EdgeProtocol[], chainId: ChainId) => {
+      const url = `/api/pools/tvlref?protocol=${protocol.join(',')}&chainId=${chainId}`
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!res.ok) {
+        throw new Error(`Failed to fetch tvl ref: ${await res.text()}`)
+      }
+      return res.json() as Promise<InfinityPoolTvlReferenceMap>
+    },
+    {
+      ttl: 60_000,
+    },
+  )
+
   const getInfinityCandidatePoolsLight = cacheByLRU(async (query: PoolQuery, options: PoolQueryOptions) => {
-    const { currencyA, currencyB } = query
-    const call = async () => {
+    const { currencyA, currencyB, blockNumber } = query
+    const queryFunc = async () => {
       const provider = options.provider ?? getViemClients
+      const tvMap = await fetchTvMap(['infinityBin', 'infinityCl'], query.chainId)
       const pools = await InfinityRouter.getInfinityCandidatePoolsLite({
         currencyA,
         currencyB,
         clientProvider: provider,
+        tvlRefMap: tvMap,
       })
       return pools
     }
 
-    return call()
+    return queryFunc()
   }, cacheOption)
 
   const getInfinityCandidatePools = cacheByLRU(async (query: PoolQuery, options: PoolQueryOptions) => {
     const { currencyA, currencyB, blockNumber } = query
 
-    const call = async () => {
+    const queryFunc = async () => {
       const provider = options.provider ?? getViemClients
       const pools = await InfinityRouter.getInfinityCandidatePools({
         currencyA,
@@ -133,21 +160,20 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
 
       return pools
     }
-
-    return call()
+    return queryFunc()
   }, cacheOption)
 
   const getStableSwapPools = cacheByLRU(async (query: PoolQuery, options: PoolQueryOptions) => {
     const { currencyA, currencyB, blockNumber } = query
 
-    const call = async () => {
+    const queryFunc = async () => {
       const provider = options.provider ?? getViemClients
       const resolvedPairs = await SmartRouter.getPairCombinations(currencyA, currencyB)
       const pools = await SmartRouter.getStablePoolsOnChain(resolvedPairs ?? [], provider, blockNumber)
       return pools
     }
 
-    return call()
+    return queryFunc()
   }, cacheOption)
 
   return {
@@ -167,7 +193,7 @@ export const fetchCandidatePools = async (query: PoolQuery, options: PoolQueryOp
   if (!currencyA || !currencyB || !chainId || !blockNumber) {
     return []
   }
-  const call = async () => {
+  const fallbackQuery = async () => {
     const poolsArray = await Promise.all([
       options.stableSwap ? queries.getStableSwapPools(query, options) : ([] as Pool[]),
       options.v2Pools ? queries.getV2CandidatePools(query, options) : ([] as Pool[]),
@@ -177,12 +203,17 @@ export const fetchCandidatePools = async (query: PoolQuery, options: PoolQueryOp
     return poolsArray.flat() as Pool[]
   }
 
-  try {
-    return await call()
-  } catch (ex) {
-    console.warn(ex)
-    throw new FetchCandidatePoolsError('fetchCommonPoolsOnChain')
+  const defaultQuery = async () => {
+    const protocols = protocolsFromQuery(options)
+    return edgePoolQueryClient.getAllCandidates(currencyA, currencyB, chainId, blockNumber, protocols, options.signal)
   }
+
+  const call = createAsyncCallWithFallbacks(defaultQuery, {
+    fallbacks: [fallbackQuery],
+    fallbackTimeout: 1_500, // 1.5s waiting for fetch candidate pools remote
+  })
+
+  return call()
 }
 
 export const fetchCandidatePoolsLite = async (query: PoolQuery, options: PoolQueryOptions) => {
@@ -192,7 +223,7 @@ export const fetchCandidatePoolsLite = async (query: PoolQuery, options: PoolQue
     return []
   }
 
-  const call = async () => {
+  const fallbackQuery = async () => {
     const poolsArray = await Promise.all([
       options.stableSwap ? queries.getStableSwapPools(query, options) : ([] as Pool[]),
       options.v2Pools ? queries.getV2CandidatePools(query, options) : ([] as Pool[]),
@@ -202,18 +233,23 @@ export const fetchCandidatePoolsLite = async (query: PoolQuery, options: PoolQue
     return poolsArray.flat() as Pool[]
   }
 
-  try {
-    return await call()
-  } catch (ex) {
-    console.warn(ex)
-    throw new FetchCandidatePoolsError('commonPoolsLiteAtom')
+  const defaultQuery = async () => {
+    const protocols = protocolsFromQuery(options)
+    return edgePoolQueryClient.getAllCandidates(currencyA, currencyB, chainId, blockNumber, protocols)
   }
+
+  const call = createAsyncCallWithFallbacks(defaultQuery, {
+    fallbacks: [fallbackQuery],
+    fallbackTimeout: 3_000,
+  })
+
+  return call()
 }
 
 const protocolsFromQuery = (query: PoolQueryOptions) => {
   const protocols: string[] = []
   if (query.stableSwap) {
-    protocols.push('ss')
+    protocols.push('stable')
   }
   if (query.v2Pools) {
     protocols.push('v2')
@@ -222,7 +258,8 @@ const protocolsFromQuery = (query: PoolQueryOptions) => {
     protocols.push('v3')
   }
   if (query.infinity) {
-    protocols.push('infinity')
+    protocols.push('infinityCl')
+    protocols.push('infinityBin')
   }
   return protocols
 }

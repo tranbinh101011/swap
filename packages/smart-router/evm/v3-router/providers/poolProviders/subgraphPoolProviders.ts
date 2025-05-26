@@ -1,10 +1,10 @@
 import { ChainId } from '@pancakeswap/chains'
 import { Currency, Token } from '@pancakeswap/sdk'
+import memoize from '@pancakeswap/utils/memoize'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { FeeAmount, Pool, parseProtocolFees } from '@pancakeswap/v3-sdk'
 import type { GraphQLClient } from 'graphql-request'
 import { gql } from 'graphql-request'
-import memoize from 'lodash/memoize.js'
 import { Address, getAddress } from 'viem'
 
 import { PoolType, SubgraphProvider, V2PoolWithTvl, V3PoolWithTvl, WithTvl } from '../../types'

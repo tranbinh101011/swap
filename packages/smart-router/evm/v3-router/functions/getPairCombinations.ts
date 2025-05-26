@@ -2,9 +2,8 @@ import { ChainId } from '@pancakeswap/chains'
 import { GaugeType, safeGetGaugesByChain } from '@pancakeswap/gauges'
 import { Currency, Token } from '@pancakeswap/sdk'
 import { getTokensByChain } from '@pancakeswap/tokens'
-import flatMap from 'lodash/flatMap.js'
-import memoize from 'lodash/memoize.js'
-import uniqBy from 'lodash/uniqBy.js'
+import memoize from '@pancakeswap/utils/memoize'
+import uniqBy from '@pancakeswap/utils/uniqBy'
 import type { Address } from 'viem'
 
 import { ADDITIONAL_BASES, BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../../constants'
@@ -170,7 +169,7 @@ export const getPairCombinations = memoize(
 
     const bases = await getCheckAgainstBaseTokens(currencyA, currencyB)
 
-    const basePairs: [Currency, Currency][] = flatMap(bases, (base): [Currency, Currency][] =>
+    const basePairs: [Currency, Currency][] = bases.flatMap((base): [Currency, Currency][] =>
       bases.map((otherBase) => [base, otherBase]),
     )
 

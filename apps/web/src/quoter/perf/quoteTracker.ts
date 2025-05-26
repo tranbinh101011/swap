@@ -4,11 +4,11 @@ import { accountActiveChainAtom } from 'hooks/useAccountActiveChain'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { QuoteQuery } from 'quoter/quoter.types'
-import { getLogger } from 'utils/datadog'
+
+import { BasePerf, PerfTracker } from 'utils/PerfTracker'
 import { InterfaceOrder } from 'views/Swap/utils'
 
-type TrackKey = 'start' | 'pool_success' | 'pool_error' | 'success' | 'fail' | 'duration'
-type QuoteTrace = {
+type QuoteTrace = BasePerf & {
   quoteHash: string
   createAt: number
   currencyA?: `0x${string}` | ''
@@ -19,16 +19,12 @@ type QuoteTrace = {
   v3Swap: boolean
   infinitySwap: boolean
   xSwap: boolean
-  perf: Record<TrackKey, number>
   chainId?: number
   account?: `0x${string}`
   route?: string
   app: string
   quote: string
-  error: string
 }
-
-const logger = getLogger('quote')
 
 const APPS = [
   { regex: /MetaMask/i, app: 'mm' },
@@ -61,35 +57,10 @@ function detectApp() {
 
   return 'web'
 }
-export class RouteTracker {
-  private records: [TrackKey, number][] = []
 
-  private trace: QuoteTrace
-
-  private routeKey: string
-
-  private start: number
-
-  constructor(trace: QuoteTrace, routeKey: string, start: number) {
-    this.trace = trace
-    this.routeKey = routeKey
-    this.start = start
-  }
-
-  public track(key: TrackKey) {
-    this.records.push([key, Date.now() - this.start])
-  }
-
-  public getRecords() {
-    const records: Record<string, number> = {}
-    this.records.forEach(([key, value]) => {
-      records[key] = value
-    })
-    return records as Record<TrackKey, number>
-  }
-
+class RouteTracker extends PerfTracker<QuoteTrace> {
   public success(order: InterfaceOrder) {
-    this.track('success')
+    super.success()
     if (order.trade.tradeType === TradeType.EXACT_INPUT) {
       this.trace.quote = order.trade.outputAmount.toExact()
     } else {
@@ -97,23 +68,8 @@ export class RouteTracker {
     }
   }
 
-  public fail(ex: any) {
-    if (ex instanceof Error) {
-      this.trace.error = ex.message
-    } else {
-      this.trace.error = String(ex)
-    }
-    this.track('fail')
-  }
-
-  public report() {
-    const records = this.getRecords()
-    this.trace.perf = records
-    const end = this.trace.perf.success || this.trace.perf.fail
-    const start = this.trace.perf.start
-    const duration = end - start
-    this.trace.perf.duration = duration
-    logger.info(`quote-${this.routeKey}`, this.trace)
+  public async report() {
+    super.report(`quote-${this.trace.route}`)
   }
 }
 
@@ -143,12 +99,13 @@ export const quoteTraceAtom = atomFamily(
           fail: 0,
           duration: 0,
         },
+        flags: {},
         app: detectApp() || 'web',
         quote: '',
         error: '',
       }
 
-      const tracker = new RouteTracker(trace, params.routeKey!, params.createTime)
+      const tracker = new RouteTracker('quote', trace, params.createTime)
       return {
         trace,
         tracker,

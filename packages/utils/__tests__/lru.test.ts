@@ -110,4 +110,26 @@ describe('cacheByLRU', () => {
     expect(await res3).toBe(20)
     expect(testFn).toBeCalledTimes(3) // Should trigger re-fetch but return old epoch cache immediately
   })
+
+  it('should delete cache and retry after timeout', async () => {
+    const slowFn = vi.fn(async (x: number) => {
+      await sleep(200)
+      return x * 3
+    })
+
+    const cachedFn = cacheByLRU(slowFn, { ttl, requestTimeout: 100 })
+
+    const promise1 = cachedFn(5)
+    vi.advanceTimersByTime(101) // advance past timeout
+
+    await expect(promise1).rejects.toThrow('Operation timed out after 100ms')
+    expect(slowFn).toBeCalledTimes(1)
+
+    // Cache should be cleared, next call should retry and timeout again
+    const promise2 = cachedFn(5)
+    vi.advanceTimersByTime(101)
+
+    await expect(promise2).rejects.toThrow('Operation timed out after 100ms')
+    expect(slowFn).toBeCalledTimes(2) // retried due to previous timeout
+  })
 })

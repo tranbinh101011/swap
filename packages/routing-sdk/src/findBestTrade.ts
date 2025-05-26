@@ -70,6 +70,7 @@ export async function findBestTrade({
   } catch (ex: any) {
     if (ex instanceof Error) {
       RemoteLogger.getLogger(params.quoteId).debug(ex.message)
+      RemoteLogger.getLogger(params.quoteId).debug(ex.stack || '')
       RemoteLogger.getLogger(params.quoteId).debug(`FindBestTrade error: ${ex.toString()}`)
     } else {
       RemoteLogger.getLogger(params.quoteId).debug(`FindBestTrade error: ${ex.toString()}`)

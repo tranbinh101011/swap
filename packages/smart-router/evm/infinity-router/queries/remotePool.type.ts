@@ -1,18 +1,19 @@
 import type { Address } from 'viem/accounts'
 import { SerializedBinReserves, SerializedTick } from '../../v3-router/utils/transformer'
 
-export interface RemotePoolBase {
+export type RemotePoolBase = {
   id: Address
+  chainId: number
+  tvlUSD: string
+  protocol: 'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable'
   feeTier: number
-  protocolFee: number
   token0: RemoteToken
   token1: RemoteToken
-  totalVolumeUSD: string
-  tvlUSD: string
-  hookAddress?: Address
-  isDynamicFee: boolean
-  protocol: 'infinityCl' | 'infinityBin'
+  isDynamicFee?: boolean
+  hookAddress?: Address | null
+  protocolFee: number
 }
+
 export interface RemotePoolCL extends RemotePoolBase {
   liquidity: string
   sqrtPrice: string

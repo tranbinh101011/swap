@@ -18,6 +18,7 @@ export type GetV2PoolsParams = {
 
   // Only use this param if we want to specify pairs we want to get
   pairs?: [Currency, Currency][]
+  fallbackTimeout?: number
 }
 
 type SubgraphProviders = {
@@ -111,7 +112,7 @@ export async function getV2CandidatePools(params: Params) {
   ]
   const getV2PoolsWithFallbacks = createGetV2CandidatePools<SubgraphProviders>(getV2PoolsWithTvlByCommonTokenPrices, {
     fallbacks,
-    fallbackTimeout: 3000,
+    fallbackTimeout: params.fallbackTimeout || 3000,
   })
   return getV2PoolsWithFallbacks(params)
 }

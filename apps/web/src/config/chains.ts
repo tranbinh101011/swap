@@ -1,5 +1,5 @@
 import { ChainId, chainNames } from '@pancakeswap/chains'
-import memoize from 'lodash/memoize'
+import memoize from '@pancakeswap/utils/memoize'
 import {
   Chain,
   arbitrum,

@@ -1,5 +1,6 @@
 import { TradeType } from '@pancakeswap/swap-sdk-core'
 import { Loadable } from '@pancakeswap/utils/Loadable'
+import { TimeoutError } from '@pancakeswap/utils/withTimeout'
 import { getIsWrapping } from 'hooks/useWrapCallback'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
@@ -11,32 +12,76 @@ import { activeQuoteHashAtom } from './abortControlAtoms'
 import { placeholderAtom } from './placeholderAtom'
 import { routingStrategyAtom, StrategyRoute } from './routingStrategy'
 
+function getFailReason(errors: any[]) {
+  const someTimeout = errors.find((x) => x instanceof TimeoutError)
+  if (someTimeout) {
+    return someTimeout
+  }
+  return new NoValidRouteError()
+}
+
 const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
   return atom((get) => {
-    function executeRoutes(strategies: StrategyRoute[], option: QuoteQuery, level: number): Loadable<InterfaceOrder> {
+    function executeRoutes(
+      strategies: StrategyRoute[],
+      option: QuoteQuery,
+      level: number,
+    ): {
+      quote: Loadable<InterfaceOrder>
+      anyShadowFail?: boolean
+      anyTimeout?: boolean
+    } {
       try {
-        const quotes = strategies.map((route) =>
-          get(route.query({ ...option, ...route.overrides, routeKey: route.key })),
-        )
-        const anyPending = quotes.some((x) => x.isPending())
-        const best = findBestQuote(...quotes)
+        const quotes = strategies.map((route) => ({
+          result: get(route.query({ ...option, ...route.overrides, routeKey: route.key })),
+          isShadow: route.isShadow,
+        }))
+        const anyPending = quotes.some((x) => x.result.isPending())
+        const anyFail = quotes.some((x) => x.result.isFail())
+        const errors = quotes.filter((x) => x.result.isFail()).map((x) => x.result.error)
+        const best = findBestQuote(...quotes.map((x) => x.result))
+        const anyShadowFail = quotes.some((x) => x.isShadow && x.result.isFail())
+        const anyTimeout = errors.some((x) => x instanceof TimeoutError)
+
         if (!best) {
           if (anyPending) {
-            return Loadable.Pending<InterfaceOrder>()
+            return {
+              quote: Loadable.Pending<InterfaceOrder>(),
+              anyShadowFail,
+              anyTimeout,
+            }
           }
-          return Loadable.Nothing<InterfaceOrder>()
+          return {
+            quote: anyFail ? Loadable.Fail<InterfaceOrder>(getFailReason(errors)) : Loadable.Nothing<InterfaceOrder>(),
+            anyShadowFail,
+            anyTimeout,
+          }
         }
         const [bestQuote] = best
         if (bestQuote) {
           if (!anyPending) {
             // updateStrategy(strategyHash, routes[bestIndex])
-            return Loadable.Just<InterfaceOrder>(bestQuote)
+            return {
+              quote: Loadable.Just<InterfaceOrder>(bestQuote),
+              anyShadowFail,
+              anyTimeout,
+            }
           }
-          return Loadable.Pending<InterfaceOrder>()
+          return {
+            quote: Loadable.Pending<InterfaceOrder>(),
+            anyShadowFail,
+            anyTimeout,
+          }
         }
-        return Loadable.Nothing<InterfaceOrder>()
+        return {
+          quote: anyFail ? Loadable.Fail<InterfaceOrder>(getFailReason(errors)) : Loadable.Nothing<InterfaceOrder>(),
+          anyShadowFail,
+          anyTimeout,
+        }
       } catch (ex) {
-        return Loadable.Fail<InterfaceOrder>(new NoValidRouteError())
+        return {
+          quote: Loadable.Fail<InterfaceOrder>(getFailReason([ex])),
+        }
       }
     }
 
@@ -69,8 +114,22 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
       const tests = [p1, p2]
       for (let i = 0; i < tests.length; i++) {
         const strategy = tests[i]
-        const quote = executeRoutes(strategy, option, i)
-        if (quote.isNothing() || quote.isFail()) {
+        const { quote, anyShadowFail, anyTimeout } = executeRoutes(strategy, option, i)
+
+        if (quote.isJust() && !anyShadowFail) {
+          return quote
+        }
+
+        if (anyTimeout) {
+          return quote
+        }
+        if (quote.isNothing()) {
+          continue
+        }
+        if (quote.isFail() && i !== tests.length - 1) {
+          continue
+        }
+        if (quote.isJust() && anyShadowFail) {
           continue
         }
         return quote

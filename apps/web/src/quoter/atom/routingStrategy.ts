@@ -45,6 +45,7 @@ const Strategies = {
 interface StrategyConfig {
   key: keyof typeof Strategies
   priority: number
+  isShadow?: boolean
 }
 
 const defaultRoutingConfig: StrategyConfig[] = [

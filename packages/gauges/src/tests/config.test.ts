@@ -1,7 +1,7 @@
 import { ChainId, chainNames } from '@pancakeswap/chains'
 import { FACTORY_ADDRESS_MAP, Token, computePairAddress } from '@pancakeswap/sdk'
+import groupBy from '@pancakeswap/utils/groupBy'
 import { DEPLOYER_ADDRESSES, computePoolAddress } from '@pancakeswap/v3-sdk'
-import groupBy from 'lodash/groupBy'
 import { PublicClient, createPublicClient, fallback, http, parseAbiItem } from 'viem'
 import * as CHAINS from 'viem/chains'
 import { describe, expect, it, test } from 'vitest'

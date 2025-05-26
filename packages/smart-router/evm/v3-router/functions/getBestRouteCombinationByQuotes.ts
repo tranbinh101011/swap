@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ChainId } from '@pancakeswap/chains'
 import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/sdk'
-import flatMap from 'lodash/flatMap.js'
-import mapValues from 'lodash/mapValues.js'
 import FixedReverseHeap from 'mnemonist/fixed-reverse-heap.js'
 import Queue from 'mnemonist/queue.js'
 
@@ -44,14 +42,15 @@ export function getBestRouteCombinationByQuotes(
 
   logger.debug('--- percentToQuotes ---')
   logger.debugJson(
-    mapValues(percentToQuotes, (x) => {
-      return x.map((y) => {
-        return {
+    Object.fromEntries(
+      Object.entries(percentToQuotes).map(([key, value]) => [
+        key,
+        value.map((y) => ({
           pools: y.pools.map((pool) => poolInfoStr(pool)),
           quoteAdjustedForGas: y.quoteAdjustedForGas.info(),
-        }
-      })
-    }),
+        })),
+      ]),
+    ),
     2,
   )
   logger.debug('--- END percentToQuotes ---')
@@ -155,14 +154,17 @@ export function getBestSwapRouteBy(
 } | null {
   const logger = RemoteLogger.getLogger(quoteId)
   // Build a map of percentage to sorted list of quotes, with the biggest quote being first in the list.
-  const percentToSortedQuotes = mapValues(percentToQuotes, (routeQuotes: RouteWithQuote[]) => {
-    return routeQuotes.sort((routeQuoteA, routeQuoteB) => {
-      if (tradeType === TradeType.EXACT_INPUT) {
-        return by(routeQuoteA).greaterThan(by(routeQuoteB)) ? -1 : 1
-      }
-      return by(routeQuoteA).lessThan(by(routeQuoteB)) ? -1 : 1
-    })
-  })
+  const percentToSortedQuotes = Object.fromEntries(
+    Object.entries(percentToQuotes).map(([percent, routeQuotes]) => {
+      const sorted = routeQuotes.sort((routeQuoteA, routeQuoteB) => {
+        if (tradeType === TradeType.EXACT_INPUT) {
+          return by(routeQuoteA).greaterThan(by(routeQuoteB)) ? -1 : 1
+        }
+        return by(routeQuoteA).lessThan(by(routeQuoteB)) ? -1 : 1
+      })
+      return [percent, sorted]
+    }),
+  )
 
   const quoteCompFn =
     tradeType === TradeType.EXACT_INPUT
@@ -532,7 +534,7 @@ const findFirstRouteNotUsingUsedPools = (
   candidateRouteQuotes: RouteWithQuote[],
 ): RouteWithQuote | null => {
   const poolAddressSet = new Set()
-  const usedPoolAddresses = flatMap(usedRoutes, ({ pools }) => pools.map(getPoolAddress))
+  const usedPoolAddresses = usedRoutes.flatMap(({ pools }) => pools.map(getPoolAddress))
 
   for (const poolAddress of usedPoolAddresses) {
     poolAddressSet.add(poolAddress)

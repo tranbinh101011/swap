@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Fraction, TradeType } from '@pancakeswap/sdk'
 import { formatFraction } from '@pancakeswap/utils/formatFractions'
-import memoize from 'lodash/memoize.js'
+import memoize from '@pancakeswap/utils/memoize'
 import invariant from 'tiny-invariant'
 import { Address } from 'viem'
 

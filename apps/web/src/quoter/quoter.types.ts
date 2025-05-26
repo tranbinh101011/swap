@@ -77,15 +77,13 @@ export type QuoteQuery = Options & {
   slippage?: number
   address?: Address
   blockNumber: number
-  signal?: AbortSignal
   provider?: typeof getViemClients
-  controller?: AbortController
   nonce?: number
   placeholderHash?: string
   for?: string
   createTime: number
   routeKey?: string
-  gasLimit: bigint
+  gasLimit?: bigint
 }
 
 export interface StrategyQuery {

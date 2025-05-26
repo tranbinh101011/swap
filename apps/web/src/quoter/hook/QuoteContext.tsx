@@ -78,6 +78,7 @@ export const QuoteContextProvider = ({ children }: { children: React.ReactNode }
         speedQuoteEnabled,
         xEnabled: Boolean(xEnabled && xEnabledOnChain),
       }}
+      key={chainId}
     >
       {children}
     </QuoteContext.Provider>

@@ -1,9 +1,9 @@
 import { getBinPoolTokenPrice } from '@pancakeswap/infinity-sdk'
 import { Currency, Pair, Price } from '@pancakeswap/sdk'
 import { getSwapOutput } from '@pancakeswap/stable-swap-sdk'
+import memoize from '@pancakeswap/utils/memoize'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { Pool as SDKV3Pool, computePoolAddress } from '@pancakeswap/v3-sdk'
-import memoize from 'lodash/memoize.js'
 import { Address } from 'viem'
 
 import { InfinityBinPool, InfinityClPool, Pool, PoolType, StablePool, V2Pool, V3Pool } from '../types'
@@ -99,6 +99,38 @@ export const getPoolAddress = (pool: Pool): Address | '' => {
     return pool.id
   }
   return ''
+}
+
+export const getPoolCurrency0 = (pool: Pool): Currency => {
+  if (isV2Pool(pool)) {
+    return pool.reserve0.currency
+  }
+  if (isV3Pool(pool)) {
+    return pool.token0
+  }
+  if (isInfinityClPool(pool) || isInfinityBinPool(pool)) {
+    return pool.currency0
+  }
+  if (isStablePool(pool)) {
+    return pool.balances[0].currency
+  }
+  throw new Error('Cannot get currency0 by invalid pool')
+}
+
+export const getPoolCurrency1 = (pool: Pool): Currency => {
+  if (isV2Pool(pool)) {
+    return pool.reserve1.currency
+  }
+  if (isV3Pool(pool)) {
+    return pool.token1
+  }
+  if (isInfinityClPool(pool) || isInfinityBinPool(pool)) {
+    return pool.currency1
+  }
+  if (isStablePool(pool)) {
+    return pool.balances[1].currency
+  }
+  throw new Error('Cannot get currency0 by invalid pool')
 }
 
 export function getTokenPrice(pool: Pool, base: Currency, quote: Currency): Price<Currency, Currency> {

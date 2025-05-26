@@ -1,7 +1,7 @@
 import { Gauge } from '@pancakeswap/gauges'
 import { AutoColumn, Skeleton } from '@pancakeswap/uikit'
+import uniqBy from '@pancakeswap/utils/uniqBy'
 import orderBy from 'lodash/orderBy'
-import uniqBy from 'lodash/uniqBy'
 import React, { ReactNode, useCallback, useMemo, useState } from 'react'
 import { FixedSizeList } from 'react-window'
 import styled from 'styled-components'
