@@ -14,6 +14,7 @@ export interface ITokenProps {
   value?: IMultiSelectProps<string>["value"];
   onChange?: (e: IMultiSelectChangeEvent) => void;
   getChainName?: (chainId: number) => string | undefined;
+  getCurrencySymbol?: (currency: Currency) => string | undefined;
   multiple?: boolean;
 }
 
@@ -107,6 +108,7 @@ export const TokenFilter: React.FC<ITokenProps> = ({
   onChange,
   getChainName = defaultGetChainName,
   multiple = true,
+  getCurrencySymbol = (currency) => currency.symbol || "",
 }) => {
   const { theme } = useTheme();
 
@@ -140,12 +142,13 @@ export const TokenFilter: React.FC<ITokenProps> = ({
 
   const itemTemplate = useCallback(
     (option: ISelectItem<string> & ERC20Token) => {
+      const symbol = getCurrencySymbol(option);
       return (
         <ItemContainer>
           <ItemLogoContainer>{option.icon}</ItemLogoContainer>
           <Column>
             <ItemTitle>
-              <ItemSymbol>{option.label}</ItemSymbol>
+              <ItemSymbol>{symbol}</ItemSymbol>
               <ItemName>{option.name}</ItemName>
             </ItemTitle>
             <ItemDesc>{getChainName(option.chainId)}</ItemDesc>

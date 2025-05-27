@@ -1,4 +1,3 @@
-import { getChainNameInKebabCase } from '@pancakeswap/chains'
 import { Protocol } from '@pancakeswap/farms'
 import { Flex } from '@pancakeswap/uikit'
 import {
@@ -17,6 +16,7 @@ import isUndefined from 'lodash/isUndefined'
 import React, { useMemo } from 'react'
 import { UpdaterByChainId } from 'state/lists/updater'
 import styled from 'styled-components'
+import { getCurrencySymbol } from 'utils/getTokenAlias'
 import { usePoolTypeQuery } from 'views/AddLiquiditySelector/hooks/usePoolTypeQuery'
 import { usePoolProtocols, usePoolTypes } from '../constants'
 import { MAINNET_CHAINS, useAllChainsOpts } from '../hooks/useMultiChains'
@@ -150,6 +150,7 @@ export const PoolsFilterPanel: React.FC<React.PropsWithChildren<IPoolsFilterPane
         )}
         {showTokenFilter && !isUndefined(selectedNetwork) && (
           <TokenFilter
+            getCurrencySymbol={getCurrencySymbol}
             selectedNetwork={selectedNetwork}
             selectedTokens={selectedTokens}
             onChange={handleTokensChange}
