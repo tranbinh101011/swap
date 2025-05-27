@@ -20,6 +20,7 @@ import { isInfinityProtocol } from 'utils/protocols'
 import { Address } from 'viem'
 
 import { useHookByPoolId } from 'hooks/infinity/useHooksList'
+import { getCurrencySymbol } from 'utils/getTokenAlias'
 import { getChainFullName } from '../utils'
 import { RewardStatusDisplay } from './FarmStatusDisplay'
 import { checkHasReward } from './FarmStatusDisplay/hooks'
@@ -180,6 +181,7 @@ export const PoolTokenOverview = <T extends PoolInfo = PoolInfo>({ data }: { dat
         quoteToken={data.token1}
         iconWidth="48px"
         getChainName={getChainFullName}
+        getCurrencySymbol={getCurrencySymbol}
         icon={
           <TokenPairLogo
             width={44}

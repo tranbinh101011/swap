@@ -1,7 +1,7 @@
+import { getChainName as defaultGetChainName } from "@pancakeswap/chains";
 import { Currency } from "@pancakeswap/sdk";
 import { Flex, Skeleton, Text } from "@pancakeswap/uikit";
 import { styled } from "styled-components";
-import { getChainName as defaultGetChainName } from "@pancakeswap/chains";
 import { ChainLogo, DoubleCurrencyLogo } from "../CurrencyLogo";
 
 export interface ITokenInfoProps {
@@ -15,6 +15,7 @@ export interface ITokenInfoProps {
   quoteToken: Currency;
   iconWidth?: string;
   getChainName?: (chainId: number) => string | undefined;
+  getCurrencySymbol?: (token: Currency) => string | undefined;
 }
 
 const Container = styled.div`
@@ -51,6 +52,7 @@ export const TokenOverview: React.FC<ITokenInfoProps> = ({
   iconWidth,
   titleFontSize = "16px",
   getChainName = defaultGetChainName,
+  getCurrencySymbol = (token) => token.symbol, // Default alias function
 }) => {
   if (!isReady) {
     return (
@@ -71,7 +73,7 @@ export const TokenOverview: React.FC<ITokenInfoProps> = ({
       {customContent ?? (
         <Flex flexDirection="column">
           <Text bold fontSize={titleFontSize}>
-            {title ?? `${token.symbol} / ${quoteToken.symbol}`}
+            {title ?? `${getCurrencySymbol(token)} / ${getCurrencySymbol(quoteToken)}`}
           </Text>
           <DescWrapper>
             {desc ?? (
