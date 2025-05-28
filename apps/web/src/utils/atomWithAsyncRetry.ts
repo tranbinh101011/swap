@@ -10,7 +10,7 @@ export function atomWithAsyncRetry<T>({
   asyncFn: () => Promise<T>
   maxRetries?: number
   delayMs?: number
-  fallbackValue?: T
+  fallbackValue?: T | (() => Promise<T>)
 }) {
   const triggerAtom = atom(0) // triggers re-fetching when incremented
 
@@ -25,7 +25,15 @@ export function atomWithAsyncRetry<T>({
         attempt++
         if (attempt >= maxRetries) {
           if (!isUndefinedOrNull(fallbackValue)) {
-            return fallbackValue as T
+            try {
+              if (typeof fallbackValue === 'function') {
+                // eslint-disable-next-line no-await-in-loop
+                return await (fallbackValue as () => Promise<T>)()
+              }
+              return fallbackValue as T
+            } catch {
+              return undefined as T
+            }
           }
           throw error
         }
