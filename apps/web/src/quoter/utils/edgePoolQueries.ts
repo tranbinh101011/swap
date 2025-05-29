@@ -79,11 +79,11 @@ const fetchV3Pools = async (addressA: Address, addressB: Address, chainId: Chain
   const currencyA = mockCurrency(addressA, chainId)
   const currencyB = mockCurrency(addressB, chainId)
 
-  const pools = await SmartRouter.getV3CandidatePools({
+  const pools = await InfinityRouter.getV3CandidatePools({
     currencyA,
     currencyB,
-    onChainProvider: getProvider(),
-    subgraphProvider: ({ chainId }) => (chainId ? v3Clients[chainId] : undefined),
+    clientProvider: getProvider(),
+    disableFilterNoTicks: true,
   })
 
   const chain = getChainName(chainId)

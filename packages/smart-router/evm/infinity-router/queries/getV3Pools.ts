@@ -22,6 +22,7 @@ type WithClientProvider = {
 export type GetV3CandidatePoolsParams = {
   currencyA?: Currency
   currencyB?: Currency
+  disableFilterNoTicks?: boolean
 } & WithClientProvider &
   WithMulticallGasLimit
 
@@ -30,22 +31,24 @@ export async function getV3CandidatePools({
   currencyB,
   clientProvider,
   gasLimit,
+  disableFilterNoTicks,
 }: GetV3CandidatePoolsParams) {
   const pairs = await getPairCombinations(currencyA, currencyB)
-  return getV3Pools({ pairs, clientProvider, gasLimit })
+  return getV3Pools({ pairs, clientProvider, gasLimit, disableFilterNoTicks })
 }
 
 export type GetV3PoolsParams = {
   pairs?: [Currency, Currency][]
+  disableFilterNoTicks?: boolean
 } & WithClientProvider &
   WithMulticallGasLimit
 
-export async function getV3Pools({ pairs, clientProvider, gasLimit }: GetV3PoolsParams) {
+export async function getV3Pools({ pairs, clientProvider, gasLimit, disableFilterNoTicks }: GetV3PoolsParams) {
   const pools = await getV3PoolsWithoutTicksOnChain(pairs || [], clientProvider)
   if (!pools.length) {
     return pools
   }
-  return fillPoolsWithTicks({ pools, clientProvider, gasLimit })
+  return fillPoolsWithTicks({ pools, clientProvider, gasLimit, disableFilterNoTicks })
 }
 
 function getBitmapIndex(tick: number, tickSpacing: number) {
@@ -74,10 +77,16 @@ const buildBitmapIndexList = createBitmapIndexListBuilder(1000)
 
 type FillPoolsWithTicksParams = {
   pools: V3Pool[]
+  disableFilterNoTicks?: boolean
 } & WithClientProvider &
   WithMulticallGasLimit
 
-async function fillPoolsWithTicks({ pools, clientProvider, gasLimit }: FillPoolsWithTicksParams): Promise<V3Pool[]> {
+async function fillPoolsWithTicks({
+  pools,
+  clientProvider,
+  gasLimit,
+  disableFilterNoTicks,
+}: FillPoolsWithTicksParams): Promise<V3Pool[]> {
   const chainId: ChainId = pools[0]?.token0.chainId
   const tickLensAddress = V3_TICK_LENS_ADDRESSES[chainId]
   const client = clientProvider?.({ chainId })
@@ -137,5 +146,8 @@ async function fillPoolsWithTicks({ pools, clientProvider, gasLimit }: FillPools
     pool.ticks = [...(pool.ticks || []), ...newTicks]
   }
   // Filter those pools with no ticks found
+  if (disableFilterNoTicks) {
+    return poolsWithTicks
+  }
   return poolsWithTicks.filter((p) => p.ticks?.length)
 }
