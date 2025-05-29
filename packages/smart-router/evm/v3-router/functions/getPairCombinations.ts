@@ -4,11 +4,12 @@ import { Currency, Token } from '@pancakeswap/sdk'
 import { getTokensByChain } from '@pancakeswap/tokens'
 import memoize from '@pancakeswap/utils/memoize'
 import uniqBy from '@pancakeswap/utils/uniqBy'
-import type { Address } from 'viem'
+import { type Address } from 'viem'
 
-import { ADDITIONAL_BASES, BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../../constants'
+import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../../constants'
 import { wrappedCurrency } from '../../utils/currency'
 import { isCurrenciesSameChain, log } from '../utils'
+import { getAdditionalBases } from './getAdditionalBase'
 
 const getToken = memoize(
   (chainId?: ChainId, address?: Address): Token | undefined => {
@@ -104,15 +105,9 @@ const resolver = (currencyA?: Currency, currencyB?: Currency) => {
   return `${token0.chainId}_${token0.address}_${token1.address}`
 }
 
-type TokenBases = {
-  [tokenAddress: Address]: Token[]
-}
-
 async function getAdditionalCheckAgainstBaseTokens(currencyA?: Currency, currencyB?: Currency): Promise<Token[]> {
   const chainId: ChainId | undefined = currencyA?.chainId
-  const additionalBases: TokenBases = {
-    ...(chainId ? ADDITIONAL_BASES[chainId] ?? {} : {}),
-  }
+  const additionalBases = await getAdditionalBases(chainId)
   const uniq = (tokens: Token[]) => uniqBy(tokens, (t) => t.address)
   const additionalA =
     currencyA && chainId
