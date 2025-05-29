@@ -71,11 +71,13 @@ export class TradePlanner extends RoutePlanner {
       } else {
         const { trade } = this.context
         // Add perm2 before unwrap weth
-        this.addCommand(CommandType.PERMIT2_TRANSFER_FROM, [
-          trade.inputAmount.currency.wrapped.address,
-          ADDRESS_THIS,
-          amount,
-        ])
+        if (this.context.options.payerIsUser) {
+          this.addCommand(CommandType.PERMIT2_TRANSFER_FROM, [
+            trade.inputAmount.currency.wrapped.address,
+            ADDRESS_THIS,
+            amount,
+          ])
+        }
         this.addCommand(CommandType.UNWRAP_WETH, [recipient, amount])
       }
     }
