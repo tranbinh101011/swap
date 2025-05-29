@@ -1,5 +1,12 @@
 # @pancakeswap/tokens
 
+## 0.7.5
+
+### Patch Changes
+
+- 2f165c8: Add susdx-susdx routing config
+  - @pancakeswap/token-lists@0.0.15
+
 ## 0.7.4
 
 ### Patch Changes

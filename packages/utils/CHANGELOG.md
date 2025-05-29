@@ -1,5 +1,11 @@
 # @pancakeswap/utils
 
+## 6.1.4
+
+### Patch Changes
+
+- 7270ffa: Remove deps of some lodash functions to support Lambda env.
+
 ## 6.1.3
 
 ### Patch Changes

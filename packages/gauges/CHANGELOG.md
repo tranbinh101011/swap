@@ -1,5 +1,14 @@
 # @pancakeswap/gauges
 
+## 2.0.12
+
+### Patch Changes
+
+- 7270ffa: Remove deps of some lodash functions to support Lambda env.
+- Updated dependencies [2f165c8]
+  - @pancakeswap/tokens@0.7.5
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 2.0.11
 
 ### Patch Changes

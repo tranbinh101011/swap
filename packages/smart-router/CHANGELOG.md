@@ -1,5 +1,21 @@
 # @pancakeswap/smart-router
 
+## 7.2.5
+
+### Patch Changes
+
+- 7270ffa: Remove deps of some lodash functions to support Lambda env.
+- 2f165c8: Add susdx-susdx routing config
+- Updated dependencies [7270ffa]
+- Updated dependencies [2f165c8]
+  - @pancakeswap/gauges@2.0.12
+  - @pancakeswap/tokens@0.7.5
+  - @pancakeswap/infinity-sdk@1.0.2
+  - @pancakeswap/multicall@3.6.4
+  - @pancakeswap/stable-swap-sdk@2.0.6
+  - @pancakeswap/token-lists@0.0.15
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 7.2.4
 
 ### Patch Changes

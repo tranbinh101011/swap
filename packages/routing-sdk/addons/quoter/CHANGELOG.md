@@ -1,5 +1,15 @@
 # @pancakeswap/routing-sdk-addon-v2
 
+## 4.0.3
+
+### Patch Changes
+
+- @pancakeswap/infinity-sdk@1.0.2
+- @pancakeswap/routing-sdk@0.4.1
+- @pancakeswap/routing-sdk-addon-infinity@1.0.2
+- @pancakeswap/routing-sdk-addon-stable-swap@4.0.2
+- @pancakeswap/routing-sdk-addon-v3@4.0.1
+
 ## 4.0.2
 
 ### Patch Changes
