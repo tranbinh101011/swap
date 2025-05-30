@@ -128,6 +128,7 @@
     "nuqs": "^1.17.4",
     "openapi-fetch": "^0.13.5",
     "polished": "^4.2.2",
+    "qrcode.react": "^3.1.0",
     "qs": "^6.0.0",
     "rc-slider": "^11.1.7",
     "react": "^18.2.0",

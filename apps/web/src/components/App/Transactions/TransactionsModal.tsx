@@ -1,10 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Button, InjectedModalProps, Modal, ModalBody, Text } from '@pancakeswap/uikit'
+import { TransactionList } from '@pancakeswap/widgets-internal'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useMemo } from 'react'
 import { useAppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
-import { TransactionList } from '@pancakeswap/widgets-internal'
 import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/reducer'
 import { chains } from 'utils/wagmi'
@@ -76,7 +76,7 @@ export function RecentTransactions() {
       {account ? (
         xOrders.length > 0 || hasTransactions ? (
           <>
-            <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }}>
+            <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }} onClick={(e) => e.stopPropagation()}>
               <Text color="secondary" fontSize="12px" textTransform="uppercase" fontWeight="bold">
                 {t('Recent Transactions')}
               </Text>

@@ -40,9 +40,17 @@ export function getDefaultGasBuffer(chainId?: ChainId) {
 export type GetGasLimitOnChainParams = Pick<GetGasLimitParams, 'chainId' | 'client'>
 
 export async function getGasLimitOnChain({ chainId, client }: GetGasLimitOnChainParams) {
-  const multicall = getMulticallContract({ chainId, client })
-  const gasLeft = (await multicall.read.gasLeft()) as bigint
-  return gasLeft
+  try {
+    if (!chainId || !client) {
+      return BigInt(getDefaultGasLimit(chainId))
+    }
+    const multicall = getMulticallContract({ chainId, client })
+    const gasLeft = (await multicall.read.gasLeft()) as bigint
+    return gasLeft
+  } catch (error) {
+    console.warn('Failed to get gas limit from chain, using default:', error)
+    return BigInt(getDefaultGasLimit(chainId))
+  }
 }
 
 export async function getGasLimit({

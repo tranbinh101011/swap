@@ -1,5 +1,6 @@
 import { Currency } from '@pancakeswap/swap-sdk-core'
 import { AutoColumn, Box, Button, Dots, Message, MessageText, Text, useModal } from '@pancakeswap/uikit'
+import { useAddressBalance } from 'hooks/useAddressBalance'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@pancakeswap/localization'
@@ -227,6 +228,9 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
     inputCurrency && outputCurrency && parsedIndependentFieldAmount?.greaterThan(BIG_INT_ZERO),
   )
 
+  // Get the refresh function from useAddressBalance to update balances after swap
+  const { refresh: refreshBalances } = useAddressBalance(account, { enabled: false })
+
   const onConfirm = useCallback(() => {
     beforeCommit?.()
     logGTMClickSwapConfirmEvent()
@@ -278,6 +282,26 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
       openConfirmSwapModal()
     }
   }, [indirectlyOpenConfirmModalState, openConfirmSwapModal])
+
+  // Keep track of processed txHashes to avoid duplicate refreshes using a ref
+  const processedTxHashesRef = useRef<string[]>([])
+
+  // Watch for completed transactions and refresh balances
+  useEffect(() => {
+    // Only refresh when transaction is completed, txHash exists, and hasn't been processed yet
+    if (confirmState === ConfirmModalState.COMPLETED && txHash && !processedTxHashesRef.current.includes(txHash)) {
+      // Add this txHash to the processed list
+      processedTxHashesRef.current.push(txHash)
+
+      // Refresh balances
+      if (refreshBalances) {
+        // delay refresh balances
+        setTimeout(() => {
+          refreshBalances()
+        }, 15000)
+      }
+    }
+  }, [confirmState, txHash, refreshBalances])
 
   const buttonText = useMemo(() => {
     if (isRecipientEmpty) return t('Enter a recipient')

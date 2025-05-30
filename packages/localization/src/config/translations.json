@@ -1076,7 +1076,6 @@
   "Pay with": "Pay with",
   "Please enable WBNB spending in your wallet": "Please enable WBNB spending in your wallet",
   "Please confirm the transaction in your wallet": "Please confirm the transaction in your wallet",
-  "Your NFTs": "Your NFTs",
   "Contract approved - you can now buy NFT with WBNB!": "Contract approved - you can now buy NFT with WBNB!",
   "Your NFT has been sent to your wallet": "Your NFT has been sent to your wallet",
   "Transaction Confirmed": "Transaction Confirmed",
@@ -3744,5 +3743,11 @@
   "Wallets with MEV Protection": "Wallets with MEV Protection",
   "New pools with low liquidity can have bigger price swings, increasing the risk of losses. Please proceed carefully.": "New pools with low liquidity can have bigger price swings, increasing the risk of losses. Please proceed carefully.",
   "Routing timeout, will retry in %seconds%s...": "Routing timeout, will retry in %seconds%s...",
-  "Manual Retry": "Manual Retry"
+  "Manual Retry": "Manual Retry",
+  "Receive crypto": "Receive crypto",
+  "My Wallet": "My Wallet",
+  "This wallet looks new — choose an option below to add crypto and start trading": "This wallet looks new — choose an option below to add crypto and start trading",
+  "Purchase with credit card, Apple Pay, or Google Pay.": "Purchase with credit card, Apple Pay, or Google Pay.",
+  "Receive crypto from another wallet.": "Receive crypto from another wallet.",
+  "Bridge Crypto": "Bridge Crypto"
 }

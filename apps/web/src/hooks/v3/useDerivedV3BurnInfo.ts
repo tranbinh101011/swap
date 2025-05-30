@@ -1,12 +1,12 @@
 import { PositionDetails } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
+import isUndefinedOrNull from '@pancakeswap/utils/isUndefinedOrNull'
 import { Position } from '@pancakeswap/v3-sdk'
 import { useToken } from 'hooks/Tokens'
 import { ReactNode, useMemo } from 'react'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { useAccount } from 'wagmi'
-import isUndefinedOrNull from '@pancakeswap/utils/isUndefinedOrNull'
 import { usePool } from './usePools'
 import { useV3PositionFees } from './useV3PositionFees'
 

@@ -1,34 +1,20 @@
-import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import {
-  Box,
-  Flex,
-  LogoutIcon,
-  RefreshIcon,
-  UserMenu as UIKitUserMenu,
-  UserMenuDivider,
-  UserMenuItem,
-  UserMenuVariant,
-  useModal,
-} from '@pancakeswap/uikit'
+import { Box, UserMenu as UIKitUserMenu, UserMenuVariant, useMatchBreakpoints } from '@pancakeswap/uikit'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import useAirdropModalStatus from 'components/GlobalCheckClaimStatus/hooks/useAirdropModalStatus'
 import Trans from 'components/Trans'
+import { WalletContent, WalletModalV2 } from 'components/WalletModalV2'
+import ReceiveModal from 'components/WalletModalV2/ReceiveModal'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useDomainNameForAddress } from 'hooks/useDomain'
-import NextLink from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import { useProfile } from 'state/profile/hooks'
 import { usePendingTransactions } from 'state/transactions/hooks'
-import { useAccount } from 'wagmi'
 import { logGTMDisconnectWalletEvent } from 'utils/customGTMEventTracking'
-import ClaimYourNFT from './ClaimYourNFT'
-import ProfileUserMenuItem from './ProfileUserMenuItem'
-import WalletModal, { WalletView } from './WalletModal'
-import WalletUserMenuItem from './WalletUserMenuItem'
+import { useAccount } from 'wagmi'
 
-const UserMenuItems = () => {
+const UserMenuItems = ({ onReceiveClick }: { onReceiveClick: () => void }) => {
   const { t } = useTranslation()
   const { chainId, isWrongNetwork } = useActiveChainId()
   const { logout } = useAuth()
@@ -37,18 +23,11 @@ const UserMenuItems = () => {
   const { isInitialized, isLoading, profile } = useProfile()
   const { shouldShowModal } = useAirdropModalStatus()
 
-  const [onPresentWalletModal] = useModal(<WalletModal initialView={WalletView.WALLET_INFO} />)
-  const [onPresentTransactionModal] = useModal(<WalletModal initialView={WalletView.TRANSACTIONS} />)
-  const [onPresentWrongNetworkModal] = useModal(<WalletModal initialView={WalletView.WRONG_NETWORK} />)
   const hasProfile = isInitialized && !!profile
 
-  const onClickWalletMenu = useCallback((): void => {
-    if (isWrongNetwork) {
-      onPresentWrongNetworkModal()
-    } else {
-      onPresentWalletModal()
-    }
-  }, [isWrongNetwork, onPresentWalletModal, onPresentWrongNetworkModal])
+  // Use PancakeSwap's breakpoint system
+  const { isMobile } = useMatchBreakpoints()
+  const isMobileView = isMobile
 
   const handleClickDisconnect = useCallback(() => {
     logGTMDisconnectWalletEvent(chainId, connector?.name, account)
@@ -56,43 +35,31 @@ const UserMenuItems = () => {
   }, [logout, connector?.name, account, chainId])
 
   return (
-    <>
-      <WalletUserMenuItem isWrongNetwork={isWrongNetwork} onPresentWalletModal={onClickWalletMenu} />
-      <UserMenuItem as="button" disabled={isWrongNetwork} onClick={onPresentTransactionModal}>
-        {t('Recent Transactions')}
-        {hasPendingTransactions && <RefreshIcon spin />}
-      </UserMenuItem>
-      <UserMenuDivider />
-      <NextLink href={`/profile/${account?.toLowerCase()}`} passHref>
-        <UserMenuItem disabled={isWrongNetwork || chainId !== ChainId.BSC}>{t('Your NFTs')}</UserMenuItem>
-      </NextLink>
-      {shouldShowModal && <ClaimYourNFT />}
-      <ProfileUserMenuItem
-        isLoading={isLoading}
-        hasProfile={hasProfile}
-        disabled={isWrongNetwork || chainId !== ChainId.BSC}
-      />
-      <UserMenuDivider />
-      <UserMenuItem as="button" onClick={handleClickDisconnect}>
-        <Flex alignItems="center" justifyContent="space-between" width="100%">
-          {t('Disconnect')}
-          <LogoutIcon />
-        </Flex>
-      </UserMenuItem>
-    </>
+    <WalletContent
+      account={account}
+      onDismiss={() => {}}
+      onReceiveClick={onReceiveClick}
+      onDisconnect={handleClickDisconnect}
+    />
   )
 }
 
 const UserMenu = () => {
   const { t } = useTranslation()
-  const { address: account } = useAccount()
+  const { address: account, connector } = useAccount()
+  const { chainId, isWrongNetwork } = useActiveChainId()
   const { domainName, avatar } = useDomainNameForAddress(account)
-  const { isWrongNetwork } = useActiveChainId()
+  const { logout } = useAuth()
   const { hasPendingTransactions, pendingNumber } = usePendingTransactions()
   const { profile } = useProfile()
   const avatarSrc = profile?.nft?.image?.thumbnail ?? avatar
   const [userMenuText, setUserMenuText] = useState<string>('')
   const [userMenuVariable, setUserMenuVariable] = useState<UserMenuVariant>('default')
+  const { isMobile } = useMatchBreakpoints()
+  // State for mobile modal
+  const [showMobileWalletModal, setShowMobileWalletModal] = useState(false)
+  const [showDesktopPopup] = useState(true)
+  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
 
   useEffect(() => {
     if (hasPendingTransactions) {
@@ -104,24 +71,55 @@ const UserMenu = () => {
     }
   }, [hasPendingTransactions, pendingNumber, t])
 
+  const handleClickDisconnect = useCallback(() => {
+    logGTMDisconnectWalletEvent(chainId, connector?.name, account)
+    logout()
+  }, [logout, connector?.name, account, chainId])
+
   if (account) {
     return (
-      <UIKitUserMenu
-        account={domainName || account}
-        ellipsis={!domainName}
-        avatarSrc={avatarSrc}
-        text={userMenuText}
-        variant={userMenuVariable}
-      >
-        {({ isOpen }) => (isOpen ? <UserMenuItems /> : null)}
-      </UIKitUserMenu>
+      <>
+        <UIKitUserMenu
+          account={domainName || account}
+          ellipsis={!domainName}
+          avatarSrc={avatarSrc}
+          text={userMenuText}
+          variant={userMenuVariable}
+          popperStyle={{
+            minWidth: '380px',
+          }}
+          onClick={() => {
+            if (isMobile) {
+              setShowMobileWalletModal(true)
+            }
+          }}
+        >
+          {!isMobile
+            ? () =>
+                showDesktopPopup ? <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} /> : undefined // ({ isOpen }) => isOpen ||showDesktopPopup && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />
+            : undefined}
+        </UIKitUserMenu>
+
+        <WalletModalV2
+          isOpen={showMobileWalletModal}
+          account={account}
+          onReceiveClick={() => setIsReceiveModalOpen(true)}
+          onDisconnect={handleClickDisconnect}
+          onDismiss={() => setShowMobileWalletModal(false)}
+        />
+        {account && (
+          <ReceiveModal account={account} onDismiss={() => setIsReceiveModalOpen(false)} isOpen={isReceiveModalOpen} />
+        )}
+      </>
     )
   }
 
   if (isWrongNetwork) {
     return (
       <UIKitUserMenu text={t('Network')} variant="danger">
-        {({ isOpen }) => (isOpen ? <UserMenuItems /> : null)}
+        {!isMobile
+          ? ({ isOpen }) => isOpen && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />
+          : undefined}
       </UIKitUserMenu>
     )
   }

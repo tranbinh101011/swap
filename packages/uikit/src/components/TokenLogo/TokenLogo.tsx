@@ -15,7 +15,6 @@ const TokenLogo: React.FC<React.PropsWithChildren<TokenLogoProps>> = ({ srcs, al
   const [, refresh] = useState<number>(0);
 
   const src: string | undefined = srcs.find((s) => !BAD_SRCS[s]);
-
   if (src) {
     return (
       <img
@@ -23,7 +22,7 @@ const TokenLogo: React.FC<React.PropsWithChildren<TokenLogoProps>> = ({ srcs, al
         ref={imageRef}
         alt={alt}
         src={src}
-        onError={() => {
+        onError={(e) => {
           // eslint-disable-next-line no-param-reassign
           if (src) BAD_SRCS[src] = true;
           refresh((i) => i + 1);

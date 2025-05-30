@@ -1,13 +1,13 @@
-import { WalletConfigV2, WalletIds } from '@pancakeswap/ui-wallets'
-import { ChainId } from '@pancakeswap/chains'
 import { isCyberWallet } from '@cyberlab/cyber-app-sdk'
+import { ChainId } from '@pancakeswap/chains'
+import { WalletConfigV2, WalletIds } from '@pancakeswap/ui-wallets'
 import { WalletFilledIcon } from '@pancakeswap/uikit'
+import safeGetWindow from '@pancakeswap/utils/safeGetWindow'
 import { getTrustWalletProvider } from '@pancakeswap/wagmi/connectors/trustWallet'
 import type { ExtendEthereum } from 'global'
+import { chains, createWagmiConfig, walletConnectNoQrCodeConnector } from 'utils/wagmi'
 import { Config } from 'wagmi'
 import { ConnectMutateAsync } from 'wagmi/query'
-import { chains, createWagmiConfig, walletConnectNoQrCodeConnector } from 'utils/wagmi'
-import safeGetWindow from '@pancakeswap/utils/safeGetWindow'
 import { ASSET_CDN } from './constants/endpoints'
 
 export enum ConnectorNames {
@@ -95,7 +95,7 @@ export const TOP_WALLET_MAP: { [chainId: number]: WalletIds[] } = {
   [ChainId.POLYGON_ZKEVM]: [WalletIds.Metamask, WalletIds.Trust, WalletIds.Okx],
 }
 
-const walletsConfig = <config extends Config = Config, context = unknown>({
+export const walletsConfig = <config extends Config = Config, context = unknown>({
   chainId,
   connect,
 }: {

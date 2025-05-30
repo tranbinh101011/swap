@@ -10,7 +10,7 @@ import {
 import uriToHttp from '@pancakeswap/utils/uriToHttp'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { useMemo } from 'react'
-import { isAddressEqual } from 'utils'
+import { isAddressEqual, safeGetAddress } from 'utils'
 import { zeroAddress } from 'viem'
 
 interface TokenPairImageProps extends Omit<UIKitTokenPairImageProps, 'primarySrc' | 'secondarySrc'> {
@@ -39,7 +39,9 @@ export const getImageUrlFromToken = (token: Currency) => {
   return token
     ? token.isNative && token.chainId !== ChainId.BSC
       ? `${ASSET_CDN}/web/native/${token.chainId}.png`
-      : `https://tokens.pancakeswap.finance/images/${tokenImageChainNameMapping[token.chainId]}${address}.png`
+      : `https://tokens.pancakeswap.finance/images/${tokenImageChainNameMapping[token.chainId]}${safeGetAddress(
+          address,
+        )}.png`
     : ''
 }
 
