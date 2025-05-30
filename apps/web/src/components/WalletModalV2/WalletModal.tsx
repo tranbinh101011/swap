@@ -349,7 +349,7 @@ export const WalletContent = ({
                         {asset.price?.totalUsd
                           ? asset.price?.totalUsd < 0.01
                             ? '<$0.01'
-                            : `${formatAmount(asset.price.totalUsd)}`
+                            : `$${formatAmount(asset.price.totalUsd)}`
                           : '$0.00'}
                       </Text>
                     </Box>
