@@ -26,12 +26,12 @@
   },
   {
     "chainId": 56,
-    "address": "0xeD000AB362Ef11E962658Fc04c1A7D667a647213",
-    "link": "https://app.merkl.xyz/opportunities/bsc/ERC20/0xeD000AB362Ef11E962658Fc04c1A7D667a647213"
+    "address": "0x03F83FdFb168E7A2A621691E4B15297B1917ab91",
+    "link": "https://app.merkl.xyz/opportunities/bsc/CLAMM/0x03F83FdFb168E7A2A621691E4B15297B1917ab91"
   },
   {
     "chainId": 56,
-    "address": "0x03F83FdFb168E7A2A621691E4B15297B1917ab91",
-    "link": "https://app.merkl.xyz/opportunities/bsc/CLAMM/0x03F83FdFb168E7A2A621691E4B15297B1917ab91"
+    "address": "0xd5a79aB649E0a5F20e995026d034a0bF28B8aACa",
+    "link": "https://app.merkl.xyz/opportunities/bsc/CLAMM/0xd5a79aB649E0a5F20e995026d034a0bF28B8aACa"
   }
 ]
