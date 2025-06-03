@@ -23,7 +23,7 @@ const Wrapper = styled(Box)`
 const InfinitySwapInner = () => {
   const { query } = useRouter()
   const { isMobile } = useMatchBreakpoints()
-  const { isChartExpanded, isChartDisplayed, setIsChartDisplayed, setIsChartExpanded } = useContext(SwapFeaturesContext)
+  const { isChartExpanded, isChartDisplayed, setIsChartDisplayed } = useContext(SwapFeaturesContext)
   const [isSwapHotTokenDisplay, setIsSwapHotTokenDisplay] = useSwapHotTokenDisplay()
   // const { t } = useTranslation()
   const [firstTime, setFirstTime] = useState(true)
@@ -53,7 +53,7 @@ const InfinitySwapInner = () => {
           flexDirection="column"
           alignItems="center"
           height="100%"
-          width={isChartDisplayed && !isMobile ? 'auto' : '100%'}
+          width="100%"
           mt={isChartExpanded && !isMobile ? '42px' : undefined}
           position="relative"
           zIndex={1}

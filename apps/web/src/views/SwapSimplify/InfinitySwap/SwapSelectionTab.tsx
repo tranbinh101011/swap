@@ -5,6 +5,7 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { styled } from 'styled-components'
+import { useTheme } from '@pancakeswap/hooks'
 import { SettingsMode } from '../../../components/Menu/GlobalSettings/types'
 import { SwapType } from '../../Swap/types'
 import { isTwapSupported } from '../../Swap/utils'
@@ -107,6 +108,7 @@ export const SwapSelection = ({
   //   setIsChartDisplayed?.((currentIsChartDisplayed) => !currentIsChartDisplayed)
   // }
 
+  const { theme } = useTheme()
   const tSwapProps = useMemo(() => {
     const isTSwapSupported = isTwapSupported(chainId)
     return {
@@ -114,11 +116,11 @@ export const SwapSelection = ({
       style: {
         cursor: isTSwapSupported ? 'pointer' : 'not-allowed',
         pointerEvents: isTSwapSupported ? 'auto' : 'none',
-        color: !isTSwapSupported ? 'rgba(0, 0, 0, 0.15)' : undefined,
+        color: !isTSwapSupported ? theme.colors.textDisabled : undefined,
         userSelect: 'none',
       } as React.CSSProperties,
     }
-  }, [chainId])
+  }, [chainId, theme.colors.textDisabled])
 
   return (
     <SwapSelectionWrapper style={style}>
