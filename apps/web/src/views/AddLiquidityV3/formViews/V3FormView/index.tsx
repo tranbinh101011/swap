@@ -17,10 +17,10 @@ import {
 } from '@pancakeswap/uikit'
 import {
   ConfirmationModalContent,
+  LiquidityChartRangeInput,
   NumericalInput,
   ZOOM_LEVELS,
   ZoomLevels,
-  LiquidityChartRangeInput,
 } from '@pancakeswap/widgets-internal'
 
 import { tryParsePrice } from 'hooks/v3/utils'
@@ -61,9 +61,10 @@ import { useSendTransaction, useWalletClient } from 'wagmi'
 
 import { ZapLiquidityWidget } from 'components/ZapLiquidityWidget'
 import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { MevToggle } from 'views/Mev/MevToggle'
 import LockedDeposit from './components/LockedDeposit'
 import { PositionPreview } from './components/PositionPreview'
 import RangeSelector from './components/RangeSelector'
@@ -593,6 +594,7 @@ export default function V3FormView({
             commonBasesType={CommonBasesType.LIQUIDITY}
           />
         </LockedDeposit>
+        <MevToggle size="sm" />
       </DynamicSection>
       <HideMedium style={{ gap: 16, flexDirection: 'column' }}>
         {buttons}

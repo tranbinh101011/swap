@@ -25,10 +25,12 @@ import { ManualConfigModal } from './ManualConfigModal'
 import { WalletType } from './types'
 import { getImageUrl } from './utils'
 
-export const ToggleWrapper = styled.div`
+export const ToggleWrapper = styled.div<{
+  size: 'sm' | 'md'
+}>`
   border: 1px solid ${({ theme }) => theme.colors.cardBorder};
   background-color: ${({ theme }) => theme.colors.tertiary};
-  padding: 16px;
+  padding: ${({ size }) => (size === 'sm' ? '12px 16px' : '16px')};
   display: flex;
   width: 100%;
   gap: 4px;
@@ -41,12 +43,13 @@ export const ModalImg = styled.img`
   width: 258px;
 `
 
-export const MevToggle: React.FC = () => {
+export const MevToggle: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
   const { t } = useTranslation()
   const shouldShowMEVToggle = useShouldShowMEVToggle()
   const { isMEVEnabled } = useIsMEVEnabled()
   const { isOpen, onOpen, onDismiss } = useModalV2()
   const { theme } = useTheme()
+  const isSmall = size === 'sm'
   const { tooltip, tooltipVisible, targetRef } = useTooltip(
     t('PancakeSwap MEV Guard protects you from frontrunning and sandwich attacks when Swapping.'),
     {
@@ -61,13 +64,14 @@ export const MevToggle: React.FC = () => {
 
   return (
     <>
-      <ToggleWrapper>
-        <FlexGap gap="4px">
+      <ToggleWrapper size={size}>
+        <FlexGap gap="4px" alignItems="center">
           <ShieldIcon width="24px" />
-          <Text>{t('Enable')}</Text>
+          <Text fontSize={isSmall ? '14px' : undefined}>{t('Enable')}</Text>
           <Text
             ref={targetRef}
             bold
+            fontSize={isSmall ? '14px' : undefined}
             style={{
               textDecoration: 'underline',
               textDecorationStyle: 'dotted',
@@ -80,7 +84,7 @@ export const MevToggle: React.FC = () => {
           </Text>
           {tooltipVisible && tooltip}
         </FlexGap>
-        <Toggle scale="md" checked={isMEVEnabled} onClick={onOpen} />
+        <Toggle scale={size} checked={isMEVEnabled} onClick={onOpen} />
       </ToggleWrapper>
       <MevModal isOpen={isOpen} onDismiss={onDismiss} />
     </>

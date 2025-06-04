@@ -22,14 +22,15 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { CommonBasesType } from 'components/SearchModal/types'
 import { Bound } from 'config/constants/types'
-import { CurrencyField as Field } from 'utils/types'
 import { getBlockExploreLink } from 'utils'
 import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
+import { CurrencyField as Field } from 'utils/types'
 import { LP2ChildrenProps } from 'views/AddLiquidity'
 
 import { InfoBox } from '@pancakeswap/widgets-internal'
-import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
+import { MevToggle } from 'views/Mev/MevToggle'
 import { HideMedium, MediumOnly, RightContainer } from './V3FormView'
 import RangeSelector from './V3FormView/components/RangeSelector'
 
@@ -188,6 +189,7 @@ export default function V2FormView({
           showCommonBases
           commonBasesType={CommonBasesType.LIQUIDITY}
         />
+        <MevToggle size="sm" />
       </AutoColumn>
       <HideMedium>{buttons}</HideMedium>
 

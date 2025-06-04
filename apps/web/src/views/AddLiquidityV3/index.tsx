@@ -344,6 +344,7 @@ export function UniversalAddLiquidity({
               )}
             </DynamicSection>
           </AutoColumn>
+
           {selectorType === SELECTOR_TYPE.STABLE && (
             <StableConfigContext.Provider value={stableConfig}>
               <AddStableLiquidity currencyA={baseCurrency} currencyB={quoteCurrency}>

@@ -6,8 +6,8 @@ import { CommitButton } from 'components/CommitButton'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 
 import { ApprovalState } from 'hooks/useApproveCallback'
-import { CurrencyField as Field } from 'utils/types'
 import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
+import { CurrencyField as Field } from 'utils/types'
 
 import { useTranslation } from '@pancakeswap/localization'
 import { useIsExpertMode } from '@pancakeswap/utils/user'
@@ -25,9 +25,10 @@ import { FormattedSlippage } from 'views/AddLiquidity/AddStableLiquidity/compone
 
 import { RowFixed } from 'components/Layout/Row'
 
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ReactElement } from 'react'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { useActiveChainId } from 'hooks/useActiveChainId'
+import { MevToggle } from 'views/Mev/MevToggle'
 import { useAccount } from 'wagmi'
 import { HideMedium, MediumOnly, RightContainer } from './V3FormView'
 
@@ -182,6 +183,7 @@ export default function StableFormView({
           showCommonBases
           commonBasesType={CommonBasesType.LIQUIDITY}
         />
+        <MevToggle size="sm" />
       </AutoColumn>
       <HideMedium>{buttons}</HideMedium>
 
