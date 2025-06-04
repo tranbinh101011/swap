@@ -28,7 +28,7 @@ import { RowFixed } from 'components/Layout/Row'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ReactElement } from 'react'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { MevToggle } from 'views/Mev/MevToggle'
+import { MevProtectToggle } from 'views/Mev/MevProtectToggle'
 import { useAccount } from 'wagmi'
 import { HideMedium, MediumOnly, RightContainer } from './V3FormView'
 
@@ -183,7 +183,7 @@ export default function StableFormView({
           showCommonBases
           commonBasesType={CommonBasesType.LIQUIDITY}
         />
-        <MevToggle size="sm" />
+        <MevProtectToggle size="sm" />
       </AutoColumn>
       <HideMedium>{buttons}</HideMedium>
 

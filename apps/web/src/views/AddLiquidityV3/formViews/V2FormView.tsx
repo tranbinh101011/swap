@@ -30,7 +30,7 @@ import { LP2ChildrenProps } from 'views/AddLiquidity'
 import { InfoBox } from '@pancakeswap/widgets-internal'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
-import { MevToggle } from 'views/Mev/MevToggle'
+import { MevProtectToggle } from 'views/Mev/MevProtectToggle'
 import { HideMedium, MediumOnly, RightContainer } from './V3FormView'
 import RangeSelector from './V3FormView/components/RangeSelector'
 
@@ -189,7 +189,7 @@ export default function V2FormView({
           showCommonBases
           commonBasesType={CommonBasesType.LIQUIDITY}
         />
-        <MevToggle size="sm" />
+        <MevProtectToggle size="sm" />
       </AutoColumn>
       <HideMedium>{buttons}</HideMedium>
 

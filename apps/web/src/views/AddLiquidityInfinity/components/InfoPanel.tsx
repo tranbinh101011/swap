@@ -16,7 +16,7 @@ import { chainNameConverter } from 'utils/chainNameConverter'
 import { getCurrencyAddress } from 'utils/getCurrencyAddress'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { Address } from 'viem'
-import { MevToggle } from 'views/Mev/MevToggle'
+import { MevProtectToggle } from 'views/Mev/MevProtectToggle'
 import { InfinityBinPoolDerivedAprButton, InfinityCLPoolDerivedAprButton } from 'views/universalFarms/components'
 import { getChainFullName } from 'views/universalFarms/utils'
 import { FieldAddDepositAmount } from './FieldAddDepositAmount'
@@ -132,7 +132,7 @@ export const InfoPanel = ({ poolId, chainId }: InfoPanelProps) => {
             baseCurrency={inverted ? currency1 : currency0}
             quoteCurrency={inverted ? currency0 : currency1}
           />
-          <MevToggle size="sm" />
+          <MevProtectToggle size="sm" />
         </FlexGap>
       </CardBody>
     </StyledCard>

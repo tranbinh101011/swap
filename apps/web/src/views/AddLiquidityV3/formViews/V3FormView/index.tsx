@@ -64,7 +64,7 @@ import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
-import { MevToggle } from 'views/Mev/MevToggle'
+import { MevProtectToggle } from 'views/Mev/MevProtectToggle'
 import LockedDeposit from './components/LockedDeposit'
 import { PositionPreview } from './components/PositionPreview'
 import RangeSelector from './components/RangeSelector'
@@ -594,7 +594,7 @@ export default function V3FormView({
             commonBasesType={CommonBasesType.LIQUIDITY}
           />
         </LockedDeposit>
-        <MevToggle size="sm" />
+        <MevProtectToggle size="sm" />
       </DynamicSection>
       <HideMedium style={{ gap: 16, flexDirection: 'column' }}>
         {buttons}
