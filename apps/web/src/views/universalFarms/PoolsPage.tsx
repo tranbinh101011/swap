@@ -1,9 +1,10 @@
 import { useIntersectionObserver } from '@pancakeswap/hooks'
-import { Flex, Spinner, TableView, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Flex, Loading, Spinner, TableView, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useRouter } from 'next/router'
 import { Suspense, useCallback, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 
+import { useTranslation } from '@pancakeswap/localization'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { getFarmKey } from 'state/farmsV4/search/farm.util'
 import { PoolInfo } from 'state/farmsV4/state/type'
@@ -131,14 +132,25 @@ const List = () => {
 
   const list = _list.unwrapOr([])
   const pending = _list.isPending() && list.length === 0
+  const isExtending = _list.isPending() && list.length > 0
+  const { t } = useTranslation()
 
   return (
     <>
-      <PoolsContent
-        style={{
-          opacity: _list.isPending() ? 0.2 : 1,
-        }}
-      >
+      <PoolsContent>
+        {isExtending && (
+          <Flex
+            justifyContent="center"
+            alignItems="center"
+            width="100%"
+            style={{
+              height: '40px',
+            }}
+          >
+            {t('Expanding Search..')}
+            <Loading ml="8px" />
+          </Flex>
+        )}
         {!pending && (
           <>
             {isMobile ? (

@@ -3747,5 +3747,6 @@
   "Purchase with credit card, Apple Pay, or Google Pay.": "Purchase with credit card, Apple Pay, or Google Pay.",
   "Receive crypto from another wallet.": "Receive crypto from another wallet.",
   "Bridge Crypto": "Bridge Crypto",
-  "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'": "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'"
+  "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'": "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'",
+  "Expanding Search..": "Expanding Search.."
 }

@@ -198,7 +198,7 @@ const sortFunction = (farms: FarmInfo[], sortField: keyof PoolInfo | null, activ
     const sameChain = farm.chainId === activeChainId ? 1 : 0
     const w = aprWeight * 0.1 + tvlWeight * 0.3 + volWeight * 0.6 // Adjust weights as needed
 
-    return w * 0.2 + sameChain * 80 // Boost weight for active chain
+    return w * 0.9 + sameChain * 10 // Boost weight for active chain
   }
 
   const weightedFarms: Weighted<FarmInfo>[] = farms.map((farm) => ({
