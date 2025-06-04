@@ -2,6 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { Currency, getCurrencyAddress, Token, WBNB } from '@pancakeswap/sdk'
 import { WrappedTokenInfo } from '@pancakeswap/token-lists'
 import uriToHttp from '@pancakeswap/utils/uriToHttp'
+import makeBlockiesUrl from 'blockies-react-svg/dist/es/makeBlockiesUrl.mjs'
 import { getBasicTokensImage } from 'components/Logo/CurrencyLogo'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import memoize from 'lodash/memoize'
@@ -42,24 +43,28 @@ export const getImageUrlsFromToken = (token: Currency & { logoURI?: string | und
 }
 
 const _getCurrencyLogoSrcs = (currency: Currency & { logoURI?: string | undefined }) => {
-  const uriLocations = currency instanceof WrappedTokenInfo && currency.logoURI ? uriToHttp(currency.logoURI) : []
-  const imageUrls = getImageUrlsFromToken(currency)
-  const basicTokenImage = getBasicTokensImage(currency)
+  const allUrls = () => {
+    const uriLocations = currency instanceof WrappedTokenInfo && currency.logoURI ? uriToHttp(currency.logoURI) : []
+    const imageUrls = getImageUrlsFromToken(currency)
+    const basicTokenImage = getBasicTokensImage(currency)
 
-  if (currency?.isNative) return [getImageUrlFromToken(currency)]
-  if (currency?.isToken) {
-    const tokenLogoURL = getTokenLogoURL(currency as Token)
-    if (currency instanceof WrappedTokenInfo) {
-      if (!tokenLogoURL) return [...imageUrls, ...uriLocations, basicTokenImage]
-      return [...imageUrls, ...uriLocations, tokenLogoURL, basicTokenImage]
+    if (currency?.isNative) return [getImageUrlFromToken(currency)]
+    if (currency?.isToken) {
+      const tokenLogoURL = getTokenLogoURL(currency as Token)
+      if (currency instanceof WrappedTokenInfo) {
+        if (!tokenLogoURL) return [...imageUrls, ...uriLocations, basicTokenImage]
+        return [...imageUrls, ...uriLocations, tokenLogoURL, basicTokenImage]
+      }
+      if (!tokenLogoURL) return [...imageUrls, basicTokenImage]
+      return [...imageUrls, tokenLogoURL, basicTokenImage]
     }
-    if (!tokenLogoURL) return [...imageUrls, basicTokenImage]
-    return [...imageUrls, tokenLogoURL, basicTokenImage]
+    return []
   }
-  return []
+  const addr = getCurrencyAddress(currency)
+  const pxImage = makeBlockiesUrl(addr)
+  const list = allUrls()?.filter((x) => x)
+  list.push(pxImage)
+  return list
 }
 
-export const getCurrencyLogoSrcs = memoize(
-  _getCurrencyLogoSrcs,
-  (currency) => `${getCurrencyAddress(currency)}#${currency?.logoURI}`,
-)
+export const getCurrencyLogoSrcs = memoize(_getCurrencyLogoSrcs, (currency) => `${getCurrencyAddress(currency)}`)
