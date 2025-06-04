@@ -1,8 +1,7 @@
 import { BIG_ONE, BIG_TWO, BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import BN from 'bignumber.js'
 import { equalsIgnoreCase } from '@pancakeswap/utils/equalsIgnoreCase'
-import toNumber from 'lodash/toNumber'
-import { SerializedFarmPublicData, FarmData, isStableFarm } from '../types'
+import BN from 'bignumber.js'
+import { FarmData, isStableFarm, SerializedFarmPublicData } from '../types'
 import { getFullDecimalMultiplier } from './getFullDecimalMultiplier'
 
 // Find BUSD price for token
@@ -203,7 +202,7 @@ export const getFarmsPrices = (
   const isNativeFirst = nativeStableFarm?.token?.symbol === nativeStableLp.wNative
 
   const nativePriceUSD =
-    nativeStableFarm && toNumber(nativeStableFarm?.tokenPriceVsQuote) !== 0
+    nativeStableFarm && Number(nativeStableFarm?.tokenPriceVsQuote) !== 0
       ? isNativeFirst
         ? new BN(nativeStableFarm.tokenPriceVsQuote)
         : BIG_ONE.div(new BN(nativeStableFarm.tokenPriceVsQuote))

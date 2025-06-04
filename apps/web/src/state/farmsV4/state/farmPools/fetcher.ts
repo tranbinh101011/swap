@@ -21,7 +21,7 @@ import { isInfinityProtocol } from 'utils/protocols'
 import { publicClient } from 'utils/viem'
 import { type Address } from 'viem'
 
-import uniqWith from 'lodash/uniqWith'
+import uniqWith from '@pancakeswap/utils/uniqWith'
 import { InfinityPoolInfo, PoolInfo } from '../type'
 import { parseFarmPools } from '../utils'
 

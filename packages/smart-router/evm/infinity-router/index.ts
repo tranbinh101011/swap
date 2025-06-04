@@ -6,4 +6,5 @@ export * as Transformer from './transformer'
 
 export * from './logger'
 
+export type * from './queries/remotePool.type'
 export type { InfinityRoute, InfinityTrade, InfinityTradeWithoutGraph } from './types'

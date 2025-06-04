@@ -10,7 +10,7 @@ import { useCallback, useEffect } from 'react'
 import { useExtendPoolsAtom } from 'state/farmsV4/state/extendPools/atom'
 import { isInfinityProtocol } from 'utils/protocols'
 import { ChainIdAddressKey, InfinityPoolInfo, PoolInfo } from '../type'
-import { CakeApr, cakeAprSetterAtom, emptyCakeAprPoolsAtom, merklAprAtom, poolAprAtom } from './atom'
+import { CakeApr, cakeAprSetterAtom, CakeAprValue, emptyCakeAprPoolsAtom, merklAprAtom, poolAprAtom } from './atom'
 import { getAllNetworkMerklApr, getCakeApr, getLpApr } from './fetcher'
 
 const generatePoolKey = memoize((pools: PoolInfo[]) => {
@@ -62,10 +62,17 @@ const useCakeAPR = (key: ChainIdAddressKey | null, pool: PoolInfo | null) => {
   return poolApr?.cakeApr
 }
 
+export type AprInfo = {
+  lpApr: `${number}`
+  cakeApr: CakeAprValue
+  merklApr: `${number}`
+}
+
 export const usePoolApr = (
   key: ChainIdAddressKey | null,
   pool: PoolInfo | null,
   apr24h: boolean = false,
+  enabled: boolean = true,
 ): {
   lpApr: `${number}`
   cakeApr: CakeApr[keyof CakeApr]
@@ -130,7 +137,8 @@ export const usePoolApr = (
     // calcV3PoolApr depend on pool's TvlUsd
     // so if there are local pool without tvlUsd, don't to fetch queryFn
     // issue: PAN-3698
-    enabled: typeof pool?.tvlUsd !== 'undefined' && !poolApr?.lpApr && !!key && cakePrice && cakePrice.gt(BIG_ZERO),
+    enabled:
+      enabled && typeof pool?.tvlUsd !== 'undefined' && !poolApr?.lpApr && !!key && cakePrice && cakePrice.gt(BIG_ZERO),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

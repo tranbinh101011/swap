@@ -21,39 +21,58 @@ export const useInfinityCakeAPR = ({ chainId, poolId, tvlUSD, cakePrice }: Infin
   // just fetch all campaigns at once, avoid to fetch every pool
   const campaigns = useCampaignsByChainId({ chainId })
   return useMemo(() => {
-    if (!tvlUSD || Number(tvlUSD) === 0 || !cakePrice || !poolId || !chainId) {
-      return {
-        value: '0' as `${number}`,
-      }
-    }
-    const validCampaigns = campaigns?.filter(
-      (c) => c?.duration && Number(c.duration) > 0 && c?.startTime && Number(c.startTime) * 1000 <= Date.now(),
-    )
-
-    const cakeRewardsPerYear = validCampaigns
-      ?.filter((c) => (Number(c.startTime) + Number(c.duration)) * 1000 >= Date.now())
-      .reduce((acc, campaign) => {
-        const { totalRewardAmount, duration } = campaign
-        return new BigNumber(totalRewardAmount).dividedBy(1e18).dividedBy(duration).times(SECONDS_PER_YEAR).plus(acc)
-      }, new BigNumber(0))
-
-    const poolCakeRewardsPerYear = validCampaigns
-      ?.filter((c) => c.poolId === poolId)
-      .filter((c) => (Number(c.startTime) + Number(c.duration)) * 1000 >= Date.now())
-      .reduce((acc, campaign) => {
-        const { totalRewardAmount, duration } = campaign
-        return new BigNumber(totalRewardAmount).dividedBy(1e18).dividedBy(duration).times(SECONDS_PER_YEAR).plus(acc)
-      }, new BigNumber(0))
-
-    const APR = (poolCakeRewardsPerYear?.times(cakePrice).dividedBy(tvlUSD).toFixed(6) ?? '0') as `${number}`
-
-    return {
-      value: APR,
-      cakePerYear: cakeRewardsPerYear,
-      poolWeight: cakeRewardsPerYear ? poolCakeRewardsPerYear?.dividedBy(cakeRewardsPerYear) : BIG_ZERO,
-      userTvlUsd: new BigNumber(tvlUSD),
-    }
+    return getInfinityCakeAPR({
+      chainId,
+      poolId,
+      tvlUSD,
+      cakePrice,
+      campaigns,
+    })
   }, [cakePrice, campaigns, chainId, poolId, tvlUSD])
+}
+
+export const getInfinityCakeAPR = ({
+  chainId,
+  poolId,
+  tvlUSD,
+  cakePrice,
+  campaigns,
+}: InfinityCakeAPRProps & {
+  campaigns: ReturnType<typeof useCampaignsByChainId>
+}) => {
+  // just fetch all campaigns at once, avoid to fetch every pool
+  if (!tvlUSD || Number(tvlUSD) === 0 || !cakePrice || !poolId || !chainId) {
+    return {
+      value: '0' as `${number}`,
+    }
+  }
+  const validCampaigns = campaigns?.filter(
+    (c) => c?.duration && Number(c.duration) > 0 && c?.startTime && Number(c.startTime) * 1000 <= Date.now(),
+  )
+
+  const cakeRewardsPerYear = validCampaigns
+    ?.filter((c) => (Number(c.startTime) + Number(c.duration)) * 1000 >= Date.now())
+    .reduce((acc, campaign) => {
+      const { totalRewardAmount, duration } = campaign
+      return new BigNumber(totalRewardAmount).dividedBy(1e18).dividedBy(duration).times(SECONDS_PER_YEAR).plus(acc)
+    }, new BigNumber(0))
+
+  const poolCakeRewardsPerYear = validCampaigns
+    ?.filter((c) => c.poolId === poolId)
+    .filter((c) => (Number(c.startTime) + Number(c.duration)) * 1000 >= Date.now())
+    .reduce((acc, campaign) => {
+      const { totalRewardAmount, duration } = campaign
+      return new BigNumber(totalRewardAmount).dividedBy(1e18).dividedBy(duration).times(SECONDS_PER_YEAR).plus(acc)
+    }, new BigNumber(0))
+
+  const APR = (poolCakeRewardsPerYear?.times(cakePrice).dividedBy(tvlUSD).toFixed(6) ?? '0') as `${number}`
+
+  return {
+    value: APR,
+    cakePerYear: cakeRewardsPerYear,
+    poolWeight: cakeRewardsPerYear ? poolCakeRewardsPerYear?.dividedBy(cakeRewardsPerYear) : BIG_ZERO,
+    userTvlUsd: new BigNumber(tvlUSD),
+  }
 }
 
 type InfinityPositionCakeAPR<T extends InfinityCLPositionDetail | InfinityBinPositionDetail> = InfinityCakeAPRProps & {

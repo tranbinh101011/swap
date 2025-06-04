@@ -27,19 +27,17 @@ export const lpAprAtom = atom<LpApr>((get) => {
   }, {} as LpApr)
 })
 
-export type CakeApr = Record<
-  ChainIdAddressKey,
-  {
-    // default apr
-    value: `${number}`
-    // boost apr
-    boost?: `${number}`
-    poolWeight?: BigNumber
-    cakePerYear?: BigNumber
-    userTvlUsd?: BigNumber
-    totalSupply?: bigint
-  }
->
+export type CakeAprValue = {
+  // default apr
+  value: `${number}`
+  // boost apr
+  boost?: `${number}`
+  poolWeight?: BigNumber
+  cakePerYear?: BigNumber
+  userTvlUsd?: BigNumber
+  totalSupply?: bigint
+}
+export type CakeApr = Record<ChainIdAddressKey, CakeAprValue>
 export const cakeAprAtom = atom<CakeApr>({})
 
 export const cakeAprSetterAtom = atom(null, (get, set, newApr: CakeApr) => {

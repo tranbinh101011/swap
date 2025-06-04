@@ -18,6 +18,7 @@ export const usePoolById = <
 >(
   poolId?: Address,
   overrideChainId?: ChainId,
+  enabled: boolean = true,
 ): [PoolState, TPool | null] => {
   const { chainId: activeChainId } = useActiveChainId()
   const chainId = overrideChainId || activeChainId
@@ -26,7 +27,7 @@ export const usePoolById = <
   const { data } = useQuery({
     queryKey: ['poolInfo', poolId, chainId, latestTxReceipt?.blockHash],
     queryFn: () => fetchPoolInfo(poolId!, chainId),
-    enabled: isPoolId(poolId) && !!chainId,
+    enabled: isPoolId(poolId) && !!chainId && enabled,
     retry: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,

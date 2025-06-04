@@ -25,7 +25,6 @@
     "@pancakeswap/v3-sdk": "workspace:*",
     "bignumber.js": "^9.0.0",
     "dayjs": "^1.11.10",
-    "lodash": "^4.17.21",
     "viem": "catalog:"
   }
 }

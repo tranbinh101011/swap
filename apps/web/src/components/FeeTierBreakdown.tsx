@@ -3,15 +3,18 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Percent } from '@pancakeswap/sdk'
 import { Flex, InfoIcon, Text, useModal } from '@pancakeswap/uikit'
 import { FeeTierTooltip, Liquidity } from '@pancakeswap/widgets-internal'
-import { useInfinityFeeTier } from 'hooks/infinity/useInfinityFeeTier'
+import { InfinityFeeTier, InfinityFeeTierPoolParams, useInfinityFeeTier } from 'hooks/infinity/useInfinityFeeTier'
 import { usePoolById } from 'hooks/infinity/usePool'
 import { useCallback, useMemo } from 'react'
+import { getPoolInfoForInfiFee } from 'state/farmsV4/search/farm.util'
+import { PoolInfo } from 'state/farmsV4/state/type'
 import { Address } from 'viem'
 
 interface FeeTierBreakdownProps {
   poolId?: Address
   chainId?: number
   hookData?: HookData
+  poolInfo?: PoolInfo
   infoIconVisible?: boolean
 }
 export const InfinityFeeTierBreakdown = ({
@@ -19,11 +22,37 @@ export const InfinityFeeTierBreakdown = ({
   chainId,
   hookData,
   infoIconVisible = true,
+  poolInfo,
 }: FeeTierBreakdownProps) => {
-  const { t } = useTranslation()
-  const [, pool] = usePoolById(poolId, chainId)
+  const enabled = !poolInfo?.farm
 
-  const { protocol, type, percent, lpFee, protocolFee } = useInfinityFeeTier(pool)
+  const [, pool] = usePoolById(poolId, chainId, enabled)
+  const farm = poolInfo?.farm
+
+  const info = farm ? getPoolInfoForInfiFee(farm) : pool
+  if (!info) {
+    return null
+  }
+  return (
+    <InfinityFeeTierBreakdownDisplay
+      pool={info!}
+      poolId={poolId}
+      chainId={chainId}
+      hookData={hookData}
+      infoIconVisible={infoIconVisible}
+    />
+  )
+}
+
+export const InfinityFeeTierBreakdownDisplay = ({
+  pool,
+
+  hookData,
+  infoIconVisible = true,
+}: FeeTierBreakdownProps & {
+  pool: InfinityFeeTierPoolParams
+}) => {
+  const infinityFeeTier = useInfinityFeeTier(pool)
   const [onPresentHookDetailModal] = useModal(<Liquidity.HookModal hookData={hookData} />)
   const handleInfoIconClick = useCallback(
     (e) => {
@@ -34,28 +63,9 @@ export const InfinityFeeTierBreakdown = ({
     [onPresentHookDetailModal],
   )
 
-  const p = useMemo(() => {
-    if (percent.equalTo(0) && hookData?.defaultFee) {
-      return new Percent(hookData.defaultFee, 1e6)
-    }
-    return percent
-  }, [hookData?.defaultFee, percent])
-
   const tooltips = useMemo(() => {
-    return (
-      <>
-        <Text bold> {t('%t% LP', { t: protocol.toUpperCase() })}</Text>
-        <Text>
-          {' '}
-          -{' '}
-          {t('%p%% LP Fee', {
-            p: (lpFee.equalTo(0) ? new Percent(hookData?.defaultFee ?? 0, 1e6) : lpFee).toSignificant(2),
-          })}
-        </Text>
-        <Text> - {t('%p%% Protocol Fee', { p: protocolFee.toSignificant(2) })}</Text>
-      </>
-    )
-  }, [lpFee, protocolFee, t, protocol])
+    return <FeeTierTooltips infinityFeeTier={infinityFeeTier} hookData={hookData} />
+  }, [infinityFeeTier, hookData])
 
   if (!pool) {
     return null
@@ -63,7 +73,12 @@ export const InfinityFeeTierBreakdown = ({
 
   return (
     <Flex alignItems="center">
-      <FeeTierTooltip tooltips={tooltips} dynamic={pool?.dynamic} type={type} percent={p} />
+      <FeeTierTooltip
+        tooltips={tooltips}
+        dynamic={pool?.dynamic}
+        type={infinityFeeTier.type}
+        percent={infinityFeeTier.percent}
+      />
       {hookData?.category?.includes(HOOK_CATEGORY.DynamicFees) && infoIconVisible ? (
         <InfoIcon
           color="textSubtle"
@@ -75,5 +90,27 @@ export const InfinityFeeTierBreakdown = ({
         />
       ) : null}
     </Flex>
+  )
+}
+
+export const FeeTierTooltips: React.FC<{
+  infinityFeeTier: InfinityFeeTier
+  hookData?: HookData
+}> = ({ infinityFeeTier, hookData }) => {
+  const { t } = useTranslation()
+  const { protocol, lpFee, protocolFee } = infinityFeeTier
+
+  return (
+    <>
+      <Text bold> {t('%t% LP', { t: protocol.toUpperCase() })}</Text>
+      <Text>
+        {' '}
+        -{' '}
+        {t('%p%% LP Fee', {
+          p: (lpFee.equalTo(0) ? new Percent(hookData?.defaultFee ?? 0, 1e6) : lpFee).toSignificant(2),
+        })}
+      </Text>
+      <Text> - {t('%p%% Protocol Fee', { p: protocolFee.toSignificant(2) })}</Text>
+    </>
   )
 }

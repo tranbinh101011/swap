@@ -355,6 +355,7 @@ export type UniversalFarmConfigV4 = {
   pid: number
   protocol: Protocol.InfinityCLAMM | Protocol.InfinityBIN
   poolId: Address
+  feeAmount: number
 } & FarmBaseConfig
 /**
  * minimal pool info for a farm

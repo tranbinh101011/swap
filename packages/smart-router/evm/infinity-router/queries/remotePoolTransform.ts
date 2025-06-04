@@ -6,10 +6,19 @@ import {
   INFI_CL_POOL_MANAGER_ADDRESSES,
 } from '@pancakeswap/infinity-sdk'
 
-import { Currency } from '@pancakeswap/swap-sdk-core'
+import { Currency, CurrencyAmount, Percent } from '@pancakeswap/swap-sdk-core'
 import { checksumAddress } from 'viem'
 import { Address } from 'viem/accounts'
-import { BaseInfinityPool, InfinityBinPool, InfinityClPool, PoolType, WithTvl } from '../../v3-router/types'
+import {
+  BaseInfinityPool,
+  InfinityBinPool,
+  InfinityClPool,
+  PoolType,
+  StablePool,
+  V2Pool,
+  V3Pool,
+  WithTvl,
+} from '../../v3-router/types'
 import {
   parseBinPoolBinReserves,
   parseCurrency,
@@ -17,7 +26,20 @@ import {
   serializeBinPoolBinReserves,
   serializeTick,
 } from '../../v3-router/utils/transformer'
-import { RemotePoolBase, RemotePoolBIN, RemotePoolCL, RemoteToken } from './remotePool.type'
+import {
+  RemotePool,
+  RemotePoolBase,
+  RemotePoolBIN,
+  RemotePoolCL,
+  RemotePoolStable,
+  RemotePoolV2,
+  RemotePoolV3,
+  RemoteToken,
+} from './remotePool.type'
+
+type WithChainId = {
+  chainId: ChainId
+}
 
 function getValidToken(chainId: ChainId, token: RemoteToken): Currency {
   try {
@@ -38,8 +60,68 @@ function normalizeTvlUSD(tvlUSD: string) {
   return Number.isFinite(val) ? Math.ceil(val).toString() : '0'
 }
 
+export function parseRemotePool(remote: RemotePool) {
+  if (remote.protocol === 'infinityCl') {
+    return toLocalInfinityPool(remote as RemotePoolCL, remote.chainId as keyof typeof hooksList)
+  }
+  if (remote.protocol === 'infinityBin') {
+    return toLocalInfinityPool(remote as RemotePoolBIN, remote.chainId as keyof typeof hooksList)
+  }
+  if (remote.protocol === 'v2') {
+    return parseRemoteV2Pool(remote as RemotePoolV2)
+  }
+  if (remote.protocol === 'v3') {
+    return parseRemoteV3Pool(remote as RemotePoolV3)
+  }
+  if (remote.protocol === 'stable') {
+    return parseRemoteStablePool(remote as RemotePoolStable)
+  }
+  throw new Error(`Unsupported pool protocol`)
+}
+
+export function parseRemoteStablePool(remote: RemotePoolStable) {
+  const chainId = remote.chainId as ChainId
+  const currency0 = getValidToken(chainId, remote.token0)
+  const currency1 = getValidToken(chainId, remote.token1)
+  return {
+    type: PoolType.STABLE,
+    address: checksumAddress(remote.id),
+    balances: [CurrencyAmount.fromRawAmount(currency0, 0), CurrencyAmount.fromRawAmount(currency1, 0)],
+    amplifier: 0n,
+    fee: new Percent(remote.feeTier || 0, 1_000),
+  } as StablePool
+}
+
+export function parseRemoteV2Pool(remote: RemotePoolV2) {
+  const chainId = remote.chainId as ChainId
+  const currency0 = getValidToken(chainId, remote.token0)
+  const currency1 = getValidToken(chainId, remote.token1)
+  return {
+    type: PoolType.V2,
+    address: checksumAddress(remote.id),
+    reserve0: CurrencyAmount.fromRawAmount(currency0, 0),
+    reserve1: CurrencyAmount.fromRawAmount(currency1, 0),
+  } as V2Pool
+}
+
+export function parseRemoteV3Pool(remote: RemotePoolV3) {
+  const chainId = remote.chainId as ChainId
+  const currency0 = getValidToken(chainId, remote.token0)
+  const currency1 = getValidToken(chainId, remote.token1)
+  return {
+    type: PoolType.V3,
+    token0: currency0,
+    token1: currency1,
+    fee: remote.feeTier,
+    liquidity: remote.liquidity ? BigInt(remote.liquidity) : 0n,
+    sqrtRatioX96: 0n,
+    token0ProtocolFee: new Percent(0, 1_000_000),
+    token1ProtocolFee: new Percent(0, 1_000_000),
+  } as V3Pool
+}
+
 export function toLocalInfinityPool(remote: RemotePoolCL | RemotePoolBIN, chainId: keyof typeof hooksList) {
-  const { id, protocol, feeTier, protocolFee, hookAddress, tvlUSD } = remote
+  const { id, feeTier, protocol, protocolFee, hookAddress, tvlUSD } = remote
 
   const type = protocol === 'infinityCl' ? PoolType.InfinityCL : PoolType.InfinityBIN
   const relatedHook = hooksList[chainId].find((hook) => hook.address.toLowerCase() === hookAddress?.toLocaleLowerCase())
@@ -48,8 +130,9 @@ export function toLocalInfinityPool(remote: RemotePoolCL | RemotePoolBIN, chainI
   const currency1 = getValidToken(chainId, remote.token1)
   const bnTvlUsd = BigInt(normalizeTvlUSD(tvlUSD))
 
-  const pool: BaseInfinityPool & WithTvl = {
+  const pool: BaseInfinityPool & WithTvl & WithChainId = {
     id: checksumAddress(id),
+    chainId,
     type,
     fee: feeTier,
     protocolFee,
@@ -68,11 +151,11 @@ export function toLocalInfinityPool(remote: RemotePoolCL | RemotePoolBIN, chainI
     return {
       ...pool,
       type: PoolType.InfinityCL,
-      sqrtRatioX96: BigInt(remoteClPool.sqrtPrice),
+      sqrtRatioX96: remoteClPool.sqrtPrice ? BigInt(remoteClPool.sqrtPrice) : 0n,
       tick: remoteClPool.tick,
       ticks: remoteClPool.ticks ? remoteClPool.ticks.map((x) => parseTick(x)) : [],
       tickSpacing: Number(remoteClPool.tickSpacing),
-      liquidity: BigInt(remoteClPool.liquidity),
+      liquidity: remoteClPool.liquidity ? BigInt(remoteClPool.liquidity) : 0n,
     } as InfinityClPool
   }
   if (pool.type === PoolType.InfinityBIN) {
@@ -95,8 +178,6 @@ export function toRemoteInfinityPool(
   const base: RemotePoolBase = {
     id: pool.id,
     chainId: pool.currency0.chainId,
-    feeTier: pool.fee,
-    protocolFee: pool.protocolFee || 0,
     token0: {
       id: pool.currency0.wrapped.address as Address,
       decimals: pool.currency0.decimals,
@@ -108,9 +189,12 @@ export function toRemoteInfinityPool(
       symbol: pool.currency1.symbol || '',
     },
     tvlUSD: pool.tvlUSD.toString(),
+    apr24h: '0',
+    volumeUSD24h: '0',
     hookAddress: pool.hooks as Address | undefined,
     isDynamicFee: false, // Assuming default; adjust based on your logic
     protocol: pool.type === PoolType.InfinityCL ? 'infinityCl' : 'infinityBin',
+    feeTier: pool.fee,
   }
 
   if (pool.type === PoolType.InfinityCL) {
@@ -121,6 +205,8 @@ export function toRemoteInfinityPool(
       tick: pool.tick,
       ticks,
       tickSpacing: pool.tickSpacing,
+      protocolFee: pool.protocolFee || 0,
+      feeTier: pool.fee,
     } as RemotePoolCL
   }
 
@@ -131,6 +217,8 @@ export function toRemoteInfinityPool(
       binStep: pool.binStep,
       activeId: pool.activeId,
       reserveOfBin: bins,
+      protocolFee: pool.protocolFee || 0,
+      feeTier: pool.fee,
     } as RemotePoolBIN
   }
 

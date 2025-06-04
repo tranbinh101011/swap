@@ -1,40 +1,34 @@
 import { ChainId } from '@pancakeswap/chains'
 import first from 'lodash/first'
-import { PublicClient, createPublicClient, custom, fallback, http } from 'viem'
+import { PublicClient, createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 import { CHAINS } from 'config/chains'
 import { PUBLIC_NODES } from 'config/nodes'
-
-import { isInBinance } from '@binance/w3w-utils'
 
 export type CreatePublicClientParams = {
   transportSignal?: AbortSignal
 }
 
 export function createViemPublicClients({ transportSignal }: CreatePublicClientParams = {}) {
-  const isBinanceWallet = typeof window !== 'undefined' && isInBinance()
-
   return CHAINS.reduce((prev, cur) => {
     return {
       ...prev,
       [cur.id]: createPublicClient({
         chain: cur,
-        transport: isBinanceWallet
-          ? custom(window.ethereum as any)
-          : fallback(
-              (PUBLIC_NODES[cur.id] as string[]).map((url) =>
-                http(url, {
-                  timeout: 10_000,
-                  fetchOptions: {
-                    signal: transportSignal,
-                  },
-                }),
-              ),
-              {
-                rank: false,
+        transport: fallback(
+          (PUBLIC_NODES[cur.id] as string[]).map((url) =>
+            http(url, {
+              timeout: 10_000,
+              fetchOptions: {
+                signal: transportSignal,
               },
-            ),
+            }),
+          ),
+          {
+            rank: false,
+          },
+        ),
         batch: {
           multicall: {
             batchSize: cur.id === ChainId.POLYGON_ZKEVM ? 128 : 1024 * 25,

@@ -1,15 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Percent } from '@pancakeswap/swap-sdk-core'
-import {
-  BasicDataType,
-  Box,
-  Grid,
-  IColumnsType,
-  ITableViewProps,
-  Skeleton,
-  Text,
-  useMatchBreakpoints,
-} from '@pancakeswap/uikit'
+import { getCurrencyAddress, Percent } from '@pancakeswap/swap-sdk-core'
+import { Box, Grid, IColumnsType, ITableViewProps, Skeleton, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { FeeTierTooltip, FiatNumberDisplay, Liquidity, TokenOverview } from '@pancakeswap/widgets-internal'
 import { InfinityFeeTierBreakdown } from 'components/FeeTierBreakdown'
 import { TokenPairLogo } from 'components/TokenImage'
@@ -20,6 +11,8 @@ import { isInfinityProtocol } from 'utils/protocols'
 import { Address } from 'viem'
 
 import { useHookByPoolId } from 'hooks/infinity/useHooksList'
+import { useTokenByChainId } from 'hooks/Tokens'
+import { getFarmAprInfo, getFarmHookData } from 'state/farmsV4/search/farm.util'
 import { getCurrencySymbol } from 'utils/getTokenAlias'
 import { getChainFullName } from '../utils'
 import { RewardStatusDisplay } from './FarmStatusDisplay'
@@ -27,7 +20,7 @@ import { checkHasReward } from './FarmStatusDisplay/hooks'
 import { PoolGlobalAprButton } from './PoolAprButton'
 import { PoolListItemAction } from './PoolListItemAction'
 
-export const FeeTierComponent = <T extends BasicDataType>({
+export const FeeTierComponent = <T extends PoolInfo>({
   dynamic,
   fee,
   item,
@@ -37,14 +30,20 @@ export const FeeTierComponent = <T extends BasicDataType>({
   item: T
 }) => {
   const percent = useMemo(() => new Percent(fee ?? 0, item.feeTierBase || 1), [fee, item.feeTierBase])
-  const hookData = useHookByPoolId(
+  const farmHookData = getFarmHookData(item.farm)
+  const hookData_ = useHookByPoolId(
     item.chainId,
     isInfinityProtocol(item.protocol) ? (item as { poolId?: `0x${string}` })?.poolId : undefined,
   )
+  const hookData = farmHookData || hookData_
+
   if (isInfinityProtocol(item.protocol)) {
+    // @ts-ignore
+    const id = item.farm?.id || item.poolId
     return (
       <InfinityFeeTierBreakdown
-        poolId={item.poolId}
+        poolInfo={item as any as PoolInfo}
+        poolId={id}
         chainId={item.chainId}
         hookData={hookData}
         infoIconVisible={false}
@@ -63,14 +62,15 @@ export const useAPRConfig = () => {
         dataIndex: 'lpApr',
         key: 'apr',
         minWidth: '160px',
-        render: (value, info) =>
-          value ? (
+        render: (value, info) => {
+          return value ? (
             <Box style={{ maxWidth: '220px', overflow: 'hidden' }}>
-              <PoolGlobalAprButton pool={info} />
+              <PoolGlobalAprButton pool={info} aprInfo={getFarmAprInfo(info.farm)} />
             </Box>
           ) : (
             <Skeleton width={60} />
-          ),
+          )
+        },
       } as IColumnsType<PoolInfo>),
     [t],
   )
@@ -171,26 +171,21 @@ export const usePoolFeatureConfig = (showPoolType = true) => {
 }
 
 export const PoolTokenOverview = <T extends PoolInfo = PoolInfo>({ data }: { data: T }) => {
+  const token0 = useTokenByChainId(getCurrencyAddress(data.token0), data.chainId) || data.token0
+  const token1 = useTokenByChainId(getCurrencyAddress(data.token1), data.chainId) || data.token1
+
   const showReward = checkHasReward(data.chainId, data.lpAddress)
 
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <TokenOverview
         isReady
-        token={data.token0}
-        quoteToken={data.token1}
+        token={token0}
+        quoteToken={token1}
         iconWidth="48px"
         getChainName={getChainFullName}
         getCurrencySymbol={getCurrencySymbol}
-        icon={
-          <TokenPairLogo
-            width={44}
-            height={44}
-            variant="inverted"
-            primaryToken={data.token0}
-            secondaryToken={data.token1}
-          />
-        }
+        icon={<TokenPairLogo width={44} height={44} variant="inverted" primaryToken={token0} secondaryToken={token1} />}
       />
       {showReward && <RewardStatusDisplay />}
     </div>

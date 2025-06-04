@@ -72,23 +72,27 @@ export const PoolAprButton: React.FC<PoolGlobalAprButtonProps> = ({
         showApyButton={showApyButton}
       />
       {tooltipVisible && tooltip}
-      {hasBCake ? (
-        <V2PoolAprModal modal={modal} poolInfo={pool} combinedApr={baseApr} lpApr={Number(lpApr ?? 0)} />
-      ) : pool.protocol === Protocol.V3 ? (
-        <V3PoolAprModal
-          modal={modal}
-          poolInfo={pool}
-          cakeApr={cakeApr}
-          positionDetail={userPosition as PositionDetail}
-        />
-      ) : isInfinityProtocol(pool.protocol) ? (
-        <InfinityPoolAprModal
-          modal={modal}
-          poolInfo={pool}
-          cakeApr={cakeApr}
-          positionDetail={userPosition as InfinityCLPositionDetail}
-        />
-      ) : null}
+      {modal.isOpen && (
+        <>
+          {hasBCake ? (
+            <V2PoolAprModal modal={modal} poolInfo={pool} combinedApr={baseApr} lpApr={Number(lpApr ?? 0)} />
+          ) : pool.protocol === Protocol.V3 ? (
+            <V3PoolAprModal
+              modal={modal}
+              poolInfo={pool}
+              cakeApr={cakeApr}
+              positionDetail={userPosition as PositionDetail}
+            />
+          ) : isInfinityProtocol(pool.protocol) ? (
+            <InfinityPoolAprModal
+              modal={modal}
+              poolInfo={pool}
+              cakeApr={cakeApr}
+              positionDetail={userPosition as InfinityCLPositionDetail}
+            />
+          ) : null}
+        </>
+      )}
     </StopPropagation>
   )
 }

@@ -240,11 +240,9 @@ async function fetchAllPools({
     })
 
     // Add chains if tokens are not specified
-    if (tokens.length === 0) {
-      chains.forEach((chain) => {
-        params.append('chains', chain)
-      })
-    }
+    chains.forEach((chain) => {
+      params.append('chains', chain)
+    })
 
     // Add pools if specified
     pools.forEach((pool) => {
@@ -269,6 +267,7 @@ async function fetchAllPools({
 
   while (hasNextPage && pageCount < maxPages) {
     const url = `${baseUrl}?${buildUrlParams(cursor || undefined)}`
+    console.log(url)
 
     try {
       // eslint-disable-next-line no-await-in-loop

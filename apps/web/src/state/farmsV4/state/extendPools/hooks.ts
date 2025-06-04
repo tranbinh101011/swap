@@ -21,7 +21,7 @@ export const useFetchPools = (queries: FetchPoolsProps, enabled = true) => {
   const [hasNextPage, setHasNextPage] = useState(true)
   const { fetchPoolList, extendPools, paginator, resetExtendPools } = useExtendPools()
   const queryKey = useMemo(
-    () => ['useFetchPools', ...chains, ...tokens, ...protocols, hasNextPage ? paginator.size : pageNo],
+    () => ['useFetchPools', ...chains, ...tokens, ...protocols, !hasNextPage ? paginator.size : pageNo],
     [chains, tokens, protocols, pageNo, hasNextPage, paginator.size],
   )
   const { isLoading } = useQuery({

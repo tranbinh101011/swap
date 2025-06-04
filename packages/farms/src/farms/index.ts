@@ -1,11 +1,10 @@
 import { ChainId } from '@pancakeswap/chains'
-import set from 'lodash/set'
 import { fetchUniversalFarms } from '../fetchUniversalFarms'
 import { UniversalFarmConfig } from '../types'
+import { getFarmConfigKey } from '../utils'
 import { bscTestnetFarmConfig } from './bscTestnet'
 import { polygonZkEVMTestnetFarmConfig } from './polygonZkEVMTestnet'
 import { zkSyncTestnetFarmConfig } from './zkSyncTestnet'
-import { getFarmConfigKey } from '../utils'
 
 const chainIds: ChainId[] = [
   ChainId.BSC_TESTNET,
@@ -27,7 +26,6 @@ export const fetchAllUniversalFarms = async (): Promise<UniversalFarmConfig[]> =
 
     return combinedFarms
   } catch (error) {
-    console.error('Failed to fetch universal farms:', error)
     return []
   }
 }
@@ -37,7 +35,9 @@ export const fetchAllUniversalFarmsMap = async (): Promise<Record<string, Univer
     const farmConfig = await fetchAllUniversalFarms()
 
     return farmConfig.reduce((acc, farm) => {
-      set(acc, getFarmConfigKey(farm), farm)
+      const key = getFarmConfigKey(farm)
+      // eslint-disable-next-line no-param-reassign
+      acc[key] = farm
       return acc
     }, {} as Record<string, UniversalFarmConfig>)
   } catch (error) {

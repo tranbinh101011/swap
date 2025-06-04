@@ -204,6 +204,7 @@ export const queryInfinityPoolInfoOnChain = async (
       // @todo: @Chef-Jerry check if it's farming
       isFarming: false,
       dynamic: binPoolKey.fee === DYNAMIC_FEE_FLAG,
+      feeAmount: binPoolKey.fee,
     } satisfies InfinityBinPoolInfo
   }
 

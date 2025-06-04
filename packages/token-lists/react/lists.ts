@@ -1,5 +1,5 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
-import { atomWithStorage, loadable } from 'jotai/utils'
+import { atomFamily, atomWithStorage, loadable } from 'jotai/utils'
 import { type AsyncStorage } from 'jotai/vanilla/utils/atomWithStorage'
 import localForage from 'localforage'
 import { ListsState } from './reducer'
@@ -15,6 +15,26 @@ const noopStorage: AsyncStorage<any> = {
 
 // eslint-disable-next-line symbol-description
 const EMPTY = Symbol()
+
+export function findTokenByAddress(state: ListsState, chainId: number, address: string) {
+  const urls = state.activeListUrls ?? Object.keys(state.byUrl)
+  for (const url of urls) {
+    const list = state.byUrl[url]?.current
+    const token = list?.tokens.find((t) => t.chainId === chainId && t.address.toLowerCase() === address.toLowerCase())
+    if (token) return token
+  }
+  return undefined
+}
+
+export function findTokenBySymbol(state: ListsState, chainId: number, symbol: string) {
+  const urls = state.activeListUrls ?? Object.keys(state.byUrl)
+  for (const url of urls) {
+    const list = state.byUrl[url]?.current
+    const token = list?.tokens.find((t) => t.chainId === chainId && t.symbol.toLowerCase() === symbol.toLowerCase())
+    if (token) return token
+  }
+  return undefined
+}
 
 export const createListsAtom = (storeName: string, reducer: any, initialState: any) => {
   /**
@@ -62,6 +82,14 @@ export const createListsAtom = (storeName: string, reducer: any, initialState: a
 
   const isReadyAtom = loadable(listsStorageAtom)
 
+  const tokenAtom = atomFamily((key: { chainId: number; address: string }) =>
+    atom((get) => findTokenByAddress(get(defaultStateAtom), key.chainId, key.address)),
+  )
+
+  const tokenBySymbolAtom = atomFamily((key: { chainId: number; symbol: string }) =>
+    atom((get) => findTokenBySymbol(get(defaultStateAtom), key.chainId, key.symbol)),
+  )
+
   function useListState() {
     return useAtom(defaultStateAtom)
   }
@@ -73,6 +101,8 @@ export const createListsAtom = (storeName: string, reducer: any, initialState: a
 
   return {
     listsAtom: defaultStateAtom,
+    tokenAtom,
+    tokenBySymbolAtom,
     useListStateReady,
     useListState,
   }

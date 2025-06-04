@@ -1,8 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { LinkExternal, Text } from '@pancakeswap/uikit'
+import { displayApr } from '@pancakeswap/utils/displayApr'
 import { PropsWithChildren } from 'react'
 import styled from 'styled-components'
-import { displayApr } from '@pancakeswap/utils/displayApr'
 
 const StyledLi = styled.li`
   flex-wrap: nowrap;
@@ -51,16 +51,17 @@ export const AprTooltipContent: React.FC<PropsWithChildren<AprTooltipContentProp
   children,
 }) => {
   const { t } = useTranslation()
+  const cakeAprValue = Number(cakeApr?.value ?? 0)
   return (
     <>
       <Text>
         {t('Combined APR')}: <b>{displayApr(combinedApr)}</b>
       </Text>
       <ul>
-        {cakeApr ? (
+        {cakeApr && cakeAprValue ? (
           <li>
             {t('Farm APR')}: &nbsp;&nbsp;
-            <b>{displayApr(Number(cakeApr.value ?? 0))}</b>
+            <b>{displayApr(cakeAprValue)}</b>
           </li>
         ) : null}
         <li>

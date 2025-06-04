@@ -13,6 +13,8 @@ test('exports', () => {
       "rejectVersionUpdate",
       "updateListVersion",
       "getTokenList",
+      "findTokenByAddress",
+      "findTokenBySymbol",
       "createListsAtom",
       "NEW_LIST_STATE",
       "createTokenListReducer",

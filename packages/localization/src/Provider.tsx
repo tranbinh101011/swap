@@ -1,11 +1,8 @@
-import { createContext, useCallback, useEffect, useState, useMemo } from 'react'
-import memoize from 'lodash/memoize'
-import omitBy from 'lodash/omitBy'
-import reduce from 'lodash/reduce'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { EN, languages } from './config/languages'
-import { ContextApi, ProviderState, TranslateFunction, Language } from './types'
 import { LS_KEY, fetchLocale, getLanguageCodeFromLS } from './helpers'
 import useLastUpdated from './hooks/useLastUpdated'
+import { ContextApi, Language, ProviderState, TranslateFunction } from './types'
 
 const initialState: ProviderState = {
   isFetching: true,
@@ -18,13 +15,13 @@ function isUndefinedOrNull(value: any): boolean {
 
 const includesVariableRegex = new RegExp(/%\S+?%/, 'gm')
 
-const translatedTextIncludesVariable = memoize((translatedText: string): boolean => {
+const translatedTextIncludesVariable = (translatedText: string): boolean => {
   return !!translatedText?.match(includesVariableRegex)
-})
+}
 
-const getRegExpForDataKey = memoize((dataKey: string): RegExp => {
+const getRegExpForDataKey = (dataKey: string): RegExp => {
   return new RegExp(`%${dataKey}%`, 'g')
-})
+}
 
 // Export the translations directly
 const languageMap = new Map<Language['locale'], Record<string, string>>()
@@ -106,16 +103,16 @@ export const LanguageProvider: React.FC<React.PropsWithChildren> = ({ children }
         // Check the existence of at least one combination of %%, separated by 1 or more non space characters
         const includesVariable = translatedTextIncludesVariable(key)
         if (includesVariable) {
-          return reduce(
-            omitBy(data, isUndefinedOrNull),
-            (result, dataValue, dataKey) => {
-              if (dataValue !== undefined && dataValue !== null) {
-                return result.replace(getRegExpForDataKey(dataKey), dataValue.toString())
+          return Object.entries(data)
+            .filter(([, value]) => value !== undefined && value !== null)
+            .reduce((result, [key, value]) => {
+              if (value !== undefined && value !== null) {
+                // explicitly narrow the type
+                const regex = getRegExpForDataKey(key)
+                return result.replace(regex, value.toString())
               }
               return result
-            },
-            translatedText,
-          )
+            }, translatedText)
         }
       }
 

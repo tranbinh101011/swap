@@ -1,3 +1,4 @@
+import { isTestnetChainId } from '@pancakeswap/chains'
 import { UniversalFarmConfig } from '@pancakeswap/farms'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -6,14 +7,11 @@ import mapValues from 'lodash/mapValues'
 import { useMemo } from 'react'
 import { InfinityBinPositionDetail, InfinityCLPositionDetail } from 'state/farmsV4/state/accountPositions/type'
 import type { InfinityPoolInfo } from 'state/farmsV4/state/type'
+import { useUserShowTestnet } from 'state/user/hooks/useUserShowTestnet'
 import { isInfinityProtocol } from 'utils/protocols'
 import { Address } from 'viem'
-import { useAccount } from 'wagmi'
-import { useUserShowTestnet } from 'state/user/hooks/useUserShowTestnet'
-import { isTestnetChainId } from '@pancakeswap/chains'
 
 import { fetchCampaignsByPoolIds } from './useCampaigns'
-import { usePoolFarmRewardsFormAPI } from './useFarmReward'
 
 export const useMultiChainPoolsFarmingStatus = (pools: UniversalFarmConfig[]) => {
   const [isShowTestnet] = useUserShowTestnet()

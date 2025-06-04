@@ -1,23 +1,34 @@
 import { Protocol } from '@pancakeswap/farms'
-import { BinPool, Pool } from '@pancakeswap/infinity-sdk'
+import { HookData } from '@pancakeswap/infinity-sdk'
 import { Percent } from '@pancakeswap/swap-sdk-core'
 import { useMemo } from 'react'
 import { calculateInfiFeePercent } from 'views/Swap/V3Swap/utils/exchange'
 
-export const useInfinityFeeTier = (pool: Pool | BinPool | null) => {
+export type InfinityFeeTierPoolParams = {
+  protocolFee: number
+  fee: number
+  poolType: 'Bin' | 'CL' | undefined
+  dynamic?: boolean
+  hookData?: HookData
+}
+export const useInfinityFeeTier = (pool: InfinityFeeTierPoolParams | null) => {
   return useMemo(() => {
     return getInfinityFeeTier(pool)
   }, [pool])
 }
 
-function getInfinityFeeTier(
-  pool: {
-    protocolFee: number
-    fee: number
-    poolType: 'Bin' | 'CL' | undefined
-    dynamic?: boolean
-  } | null,
-) {
+export type InfinityFeeTier = {
+  protocol: 'Infinity LBAMM' | 'Infinity CLAMM'
+  type: Protocol.InfinityBIN | Protocol.InfinityCLAMM
+  percent: Percent
+  lpFee: Percent
+  protocolFee: Percent
+  dynamic?: boolean
+  hasPool: boolean
+  hookData?: HookData
+}
+
+function getInfinityFeeTier(pool: InfinityFeeTierPoolParams | null): InfinityFeeTier {
   const { totalFee, lpFee, protocolFee } = calculateInfiFeePercent(pool?.fee ?? 0, pool?.protocolFee)
 
   return {

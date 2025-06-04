@@ -4,7 +4,7 @@ import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import BigNumber from 'bignumber.js'
 import { useCurrencyByChainId } from 'hooks/Tokens'
 import { useEffect, useMemo } from 'react'
-import { usePoolApr } from 'state/farmsV4/hooks'
+import { AprInfo, usePoolApr } from 'state/farmsV4/hooks'
 import { InfinityPoolInfo, PoolInfo } from 'state/farmsV4/state/type'
 import { isInfinityProtocol } from 'utils/protocols'
 import { useMyPositions } from 'views/PoolDetail/components/MyPositionsContext'
@@ -15,11 +15,15 @@ import { PoolAprButton } from './PoolAprButton'
 type PoolGlobalAprButtonProps = {
   pool: PoolInfo
   detailMode?: boolean
+  aprInfo?: AprInfo
 }
 
-export const PoolGlobalAprButton: React.FC<PoolGlobalAprButtonProps> = ({ pool, detailMode }) => {
+export const PoolGlobalAprButton: React.FC<PoolGlobalAprButtonProps> = ({ pool, detailMode, aprInfo }) => {
   const key = useMemo(() => `${pool.chainId}:${pool.lpAddress}` as const, [pool.chainId, pool.lpAddress])
-  const { lpApr, cakeApr, merklApr } = usePoolApr(key, pool, true)
+
+  const hookAprInfo = usePoolApr(key, pool, !aprInfo)
+  const { lpApr, merklApr, cakeApr } = aprInfo ?? hookAprInfo
+
   const numerator = useMemo(() => {
     const lpAprNumerator = new BigNumber(lpApr).times(cakeApr?.userTvlUsd ?? BIG_ZERO)
     return lpAprNumerator

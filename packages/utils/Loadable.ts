@@ -28,6 +28,7 @@ export type Pending<T> = Loadable<T> & {
   loading: true
 }
 
+type UnwrapOr<T, U> = T extends Array<any> ? T : U extends undefined ? T | undefined : T | U
 export class Loadable<T> {
   type: LoadableTypeNames
 
@@ -60,8 +61,8 @@ export class Loadable<T> {
     return new Loadable<T>(LoadableTypeNames.Fail, undefined, error, false) as Fail<T>
   }
 
-  static Pending<T>(): Pending<T> {
-    return new Loadable<T>(LoadableTypeNames.Pending, undefined, undefined, true) as Pending<T>
+  static Pending<T>(value?: T): Pending<T> {
+    return new Loadable<T>(LoadableTypeNames.Pending, value, undefined, true) as Pending<T>
   }
 
   isJust(): this is Just<T> {
@@ -80,6 +81,10 @@ export class Loadable<T> {
     return this.type === LoadableTypeNames.Pending
   }
 
+  hasValue() {
+    return this.isJust() || this.value // has stale value
+  }
+
   map<U>(fn: (value: T) => U): Loadable<U> {
     if (this.isJust()) {
       try {
@@ -94,6 +99,14 @@ export class Loadable<T> {
     }
     if (this.isNothing()) {
       return Loadable.Nothing<U>()
+    }
+    if (this.value !== undefined) {
+      try {
+        const newValue = fn(this.value)
+        return Loadable.Pending(newValue)
+      } catch (error) {
+        return Loadable.Fail<U>(error)
+      }
     }
     return Loadable.Pending<U>()
   }
@@ -113,6 +126,14 @@ export class Loadable<T> {
     if (this.isNothing()) {
       return Loadable.Nothing<U>()
     }
+    if (this.value !== undefined) {
+      try {
+        const newValue = await fn(this.value)
+        return Loadable.Pending(newValue)
+      } catch (error) {
+        return Loadable.Fail<U>(error)
+      }
+    }
     return Loadable.Pending<U>()
   }
 
@@ -129,17 +150,17 @@ export class Loadable<T> {
     throw new Error('Cannot unwrap Pending')
   }
 
-  unwrapOr(defaultValue: T | undefined): T | undefined {
+  unwrapOr<U>(defaultValue: U): UnwrapOr<T, U> {
     if (this.isJust()) {
-      return this.value
+      return this.value as UnwrapOr<T, U>
     }
-    if (this.isNothing() || defaultValue === undefined || defaultValue === null) {
-      return undefined
+
+    if (this.isPending()) {
+      if (this.value) {
+        return this.value as UnwrapOr<T, U>
+      }
     }
-    if (this.isFail()) {
-      throw new Error(`Cannot unwrapOr Fail: ${this.error}`)
-    }
-    throw new Error('Cannot unwrapOr Pending')
+    return defaultValue as UnwrapOr<T, U>
   }
 
   public setFlag(flag: string) {
@@ -159,4 +180,8 @@ export class Loadable<T> {
   public getExtra(key: string) {
     return this.extra[key]
   }
+}
+
+export const isLoadable = <T>(value: any): value is Loadable<T> => {
+  return value instanceof Loadable
 }

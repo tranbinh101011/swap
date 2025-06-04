@@ -65,6 +65,14 @@ function listUrlRowHTMLId(listUrl: string) {
   return `list-row-${listUrl.replace(/\./g, '-')}`
 }
 
+function resolveLogo(list: TokenList): string {
+  const uri = list.logoURI
+  if (uri?.match(/static\.coingecko\.com/)) {
+    return 'https://tokens.pancakeswap.finance/images/projects/coingecko.png'
+  }
+  return uri || ''
+}
+
 const ListRow = memo(function ListRow({ listUrl, chainId: chainIdProp }: { listUrl: string; chainId?: number }) {
   const { chainId: activeChainId } = useActiveChainId()
   const chainId = chainIdProp || activeChainId
@@ -124,6 +132,7 @@ const ListRow = memo(function ListRow({ listUrl, chainId: chainIdProp }: { listU
   )
 
   if (!list) return null
+  const logoURI = resolveLogo(list)
 
   return (
     <RowWrapper
@@ -133,8 +142,8 @@ const ListRow = memo(function ListRow({ listUrl, chainId: chainIdProp }: { listU
       id={listUrlRowHTMLId(listUrl)}
     >
       {tooltipVisible && tooltip}
-      {list.logoURI ? (
-        <ListLogo size="40px" style={{ marginRight: '1rem' }} logoURI={list.logoURI} alt={`${list.name} list logo`} />
+      {logoURI ? (
+        <ListLogo size="40px" style={{ marginRight: '1rem' }} logoURI={logoURI} alt={`${list.name} list logo`} />
       ) : (
         <div style={{ width: '24px', height: '24px', marginRight: '1rem' }} />
       )}

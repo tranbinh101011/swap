@@ -15,22 +15,25 @@ type filtersParams = Partial<
     sortField: keyof PoolInfo | null
     positionStatus: POSITION_STATUS
     farmsOnly: boolean
+    search: string
   }
 >
 
 export const useFilterToQueries = () => {
   const nextRouter = useRouter()
   const allChainIds = useAllChainIds()
-
+  const urlQuery = new URLSearchParams(window.location.search)
   const {
-    type,
+    type: _type,
     network,
     token: queryTokenParams,
     sort,
     status,
     farmsOnly: queryFarmsOnly,
+    search,
     ...othersQueries
   } = nextRouter.query
+  const type = _type || urlQuery.get('type')
 
   const positionStatus = useMemo(
     () => (status ? Number(Array.isArray(status) ? status[0] : status) : POSITION_STATUS.ACTIVE),
@@ -86,10 +89,10 @@ export const useFilterToQueries = () => {
       if (filters.selectedNetwork && filters.selectedNetwork.length !== allChainIds.length) {
         params.network = filters.selectedNetwork.map((i) => i.toString())
       }
-      // Tokens might be too long, so keep them at the end to prevent other queries from being cut off by the browser.
-      if (filters.selectedTokens?.length) {
-        params.token = filters.selectedTokens
+      if (filters.search) {
+        params.search = filters.search
       }
+      // Tokens might be too long, so keep them at the end to prevent other queries from being cut off by the browser.
       nextRouter.replace(
         {
           query: {
@@ -140,16 +143,10 @@ export const useFilterToQueries = () => {
       queriesReset.farmsOnly = farmsOnly
     }
 
-    const queryTokens = Array.isArray(queryTokenParams) ? queryTokenParams : queryTokenParams ? [queryTokenParams] : []
-    if (queryTokens.length !== selectedTokens.length) {
-      queriesReset.selectedTokens = selectedTokens
-    }
-
     if (Object.keys(queriesReset).length) {
       replaceURLQueriesByFilter({
         selectedProtocolIndex,
         selectedNetwork,
-        selectedTokens,
         sortOrder,
         sortField,
         positionStatus,
@@ -183,6 +180,7 @@ export const useFilterToQueries = () => {
     sortField,
     positionStatus,
     farmsOnly,
+    search: search as string,
     replaceURLQueriesByFilter,
   }
 }

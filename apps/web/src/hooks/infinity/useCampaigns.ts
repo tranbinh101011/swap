@@ -102,7 +102,7 @@ const fetchCampaignsByPageNo = async ({
 
 type CampaignsByChanIdProps = Omit<CampaignsByPoolIdProps, 'poolIds' | 'page' | 'fetchAll'>
 
-const fetchAllCampaignsByChainId = async ({ chainId, includeInactive = true }: CampaignsByChanIdProps) => {
+export const fetchAllCampaignsByChainId = async ({ chainId, includeInactive = true }: CampaignsByChanIdProps) => {
   if (!chainId) {
     return []
   }

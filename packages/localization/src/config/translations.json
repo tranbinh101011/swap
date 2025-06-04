@@ -3055,9 +3055,6 @@
   "Liquidity Pools & Farms": "Liquidity Pools & Farms",
   "View Pool Details": "View Pool Details",
   "View Info Page": "View Info Page",
-  "Don’t see expected pools?": "Don’t see expected pools?",
-  "Extend the search": "Extend the search",
-  "Search has been extended": "Search has been extended",
   "Farms only": "Farms only",
   "overview": "overview",
   "My Liquidity Value": "My Liquidity Value",
@@ -3749,5 +3746,6 @@
   "This wallet looks new — choose an option below to add crypto and start trading": "This wallet looks new — choose an option below to add crypto and start trading",
   "Purchase with credit card, Apple Pay, or Google Pay.": "Purchase with credit card, Apple Pay, or Google Pay.",
   "Receive crypto from another wallet.": "Receive crypto from another wallet.",
-  "Bridge Crypto": "Bridge Crypto"
+  "Bridge Crypto": "Bridge Crypto",
+  "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'": "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'"
 }
