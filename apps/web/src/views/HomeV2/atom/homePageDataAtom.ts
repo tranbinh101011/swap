@@ -11,7 +11,6 @@ export const homePageDataAtom = atomWithAsyncRetry({
     pools: [],
     currencies: [],
     chains: [],
-    cakeRelated: undefined,
     stats: undefined,
     partners: [],
     topWinner: undefined,

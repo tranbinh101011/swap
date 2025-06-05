@@ -1,8 +1,8 @@
 import { ArrowDownIcon, useMatchBreakpoints } from '@pancakeswap/uikit'
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import { handleHomepageSnapDown } from 'views/HomeV2/util/handleHomepageSnapDown'
 import { ScrollDownArrow } from '../cards/component/ScrollDownArrow'
-import { snapToNext } from '../hook/useScrollToNearestSnap'
 
 interface ScrollableFullScreenProps {
   children: React.ReactNode
@@ -36,13 +36,7 @@ export const ScrollableFullScreen: React.FC<ScrollableFullScreenProps> = ({ chil
   return (
     <FullScreenContainer offsetHeight={headerHeight} className="homepage-snap">
       {children}
-      <ScrollDownArrow
-        isMobile={isMobile}
-        isTablet={isTablet}
-        onClick={() => {
-          snapToNext('down', 'homepage-snap', window.innerHeight * 0.1)
-        }}
-      >
+      <ScrollDownArrow isMobile={isMobile} isTablet={isTablet} onClick={handleHomepageSnapDown}>
         <ArrowDownIcon width="32px" color="textSubtle" />
       </ScrollDownArrow>
     </FullScreenContainer>
