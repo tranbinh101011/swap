@@ -699,6 +699,9 @@ export default function V3FormView({
                   currencyB={quoteCurrency ?? undefined}
                   feeAmount={feeAmount}
                   ticksAtLimit={ticksAtLimit}
+                  tickUpper={tickUpper}
+                  tickLower={tickLower}
+                  tickCurrent={pool?.tickCurrent}
                   price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
                   priceLower={priceLower}
                   priceUpper={priceUpper}
