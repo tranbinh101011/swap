@@ -1,4 +1,5 @@
 import { POOLS_SLOW_REVALIDATE } from 'config/pools'
+import { getCorsHeaders, handleCors } from 'edge/cors'
 import { NextRequest, NextResponse } from 'next/server'
 import { edgeQueries } from 'quoter/utils/edgePoolQueries'
 import { parseCandidatesQuery } from 'quoter/utils/edgeQueries.util'
@@ -8,6 +9,10 @@ export const config = {
 }
 
 export default async function handler(req: NextRequest) {
+  const cors = handleCors(req)
+  if (cors) {
+    return cors
+  }
   const raw = new URL(req.url).search.slice(1)
   try {
     const { chainId, addressA, addressB, protocols } = parseCandidatesQuery(raw)
@@ -24,6 +29,7 @@ export default async function handler(req: NextRequest) {
         headers: {
           'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${staleAge}`,
           'Content-Type': 'application/json',
+          ...getCorsHeaders(req),
         },
       },
     )

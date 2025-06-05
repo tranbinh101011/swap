@@ -1,4 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
+import { getCorsHeaders, handleCors } from 'edge/cors'
 import { NextRequest, NextResponse } from 'next/server'
 import { edgeQueries } from 'quoter/utils/edgePoolQueries'
 import { getEdgeChainName, parseTvQuery } from 'quoter/utils/edgeQueries.util'
@@ -8,6 +9,10 @@ export const config = {
 }
 
 export default async function handler(req: NextRequest) {
+  const cors = handleCors(req)
+  if (cors) {
+    return cors
+  }
   const raw = new URL(req.url).search.slice(1)
   try {
     const { chainId, protocols } = parseTvQuery(raw)
@@ -26,6 +31,7 @@ export default async function handler(req: NextRequest) {
         headers: {
           'Cache-Control': `public, s-maxage=60, stale-while-revalidate=60`,
           'Content-Type': 'application/json',
+          ...getCorsHeaders(req),
         },
       },
     )
