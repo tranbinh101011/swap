@@ -5,9 +5,10 @@ import { CHAINS } from 'config/chains'
 import { PUBLIC_NODES } from 'config/nodes'
 import memoize from 'lodash/memoize'
 import { Transport, custom } from 'viem'
-import { createConfig, fallback, http } from 'wagmi'
+import { createConfig, http } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
 import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
+import { fallbackWithRank } from './fallbackWithRank'
 import { CLIENT_CONFIG, publicClient } from './viem'
 
 export const chains = CHAINS
@@ -62,12 +63,12 @@ export const transports = chains.reduce((ts, chain) => {
   if (ts) {
     return {
       ...ts,
-      [chain.id]: fallback(httpStrings.map((t: any) => http(t))),
+      [chain.id]: fallbackWithRank(httpStrings.map((t: any) => http(t))),
     }
   }
 
   return {
-    [chain.id]: fallback(httpStrings.map((t: any) => http(t))),
+    [chain.id]: fallbackWithRank(httpStrings.map((t: any) => http(t))),
   }
 }, {} as Record<number, Transport>)
 
@@ -83,12 +84,12 @@ const injectedTransports = chains.reduce((ts, chain) => {
 
   if (ts) {
     // eslint-disable-next-line no-param-reassign
-    ts[chain.id] = fallback(allTransports)
+    ts[chain.id] = fallbackWithRank(allTransports)
     return ts
   }
 
   return {
-    [chain.id]: fallback(allTransports),
+    [chain.id]: fallbackWithRank(allTransports),
   }
 }, {} as Record<number, Transport>)
 
