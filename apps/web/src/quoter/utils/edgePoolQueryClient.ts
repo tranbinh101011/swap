@@ -1,6 +1,6 @@
-import { ChainId } from '@pancakeswap/chains'
 import { InfinityBinPool, InfinityClPool, SmartRouter, StablePool, V2Pool, V3Pool } from '@pancakeswap/smart-router'
 
+import { ChainId } from '@pancakeswap/chains'
 import { Currency, getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
 import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
 import qs from 'qs'
@@ -24,7 +24,8 @@ const _fetchPools = async function <T>(
   })
 
   const queryApi = async () => {
-    const res = await fetch(`/api/pools/candidates?${query}`, {
+    const api = `${process.env.NEXT_PUBLIC_EDGE_ENDPOINT || ''}/api/pools/candidates?${query}`
+    const res = await fetch(api, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

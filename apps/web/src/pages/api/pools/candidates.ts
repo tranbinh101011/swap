@@ -35,6 +35,6 @@ export default async function handler(req: NextRequest) {
     )
   } catch (ex) {
     console.error(ex)
-    return NextResponse.json({ error: `fetch candidates error ` }, { status: 400 })
+    return NextResponse.json({ error: `fetch candidates error ` }, { status: 400, headers: getCorsHeaders(req) })
   }
 }

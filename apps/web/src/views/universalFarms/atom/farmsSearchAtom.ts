@@ -42,8 +42,8 @@ async function fetchFarmList({
     address,
     chains: chains?.join(','),
   })
-  const url = `/api/farm/list?${queryStr}`
-  const response = await fetch(url, {
+  const api = `${process.env.NEXT_PUBLIC_EDGE_ENDPOINT || ''}/api/farm/list?${queryStr}`
+  const response = await fetch(api, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
