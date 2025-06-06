@@ -470,7 +470,7 @@ export default function V3FormView({
   }, [expertMode, onAdd, onPresentAddLiquidityModal])
   const poolCurrentPrice = useMemo(() => {
     if (!pool) return undefined
-    return new Price(pool.token0, pool.token1, 2n ** 192n * 2n, pool.sqrtRatioX96 * pool.sqrtRatioX96)
+    return new Price(pool.token0, pool.token1, 2n ** 192n, pool.sqrtRatioX96 * pool.sqrtRatioX96)
   }, [pool])
   const [marketPrice, marketPriceSlippage] = usePoolMarketPriceSlippage(pool?.token0, pool?.token1, poolCurrentPrice)
   const [displayMarketPriceSlippageWarning, disableAddByHighSlippage] = useMemo(() => {
