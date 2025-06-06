@@ -194,7 +194,7 @@ export const useV3PositionApr = (pool: PoolInfo, userPosition: PositionDetail) =
       .plus(cakeApr.value ?? BIG_ZERO)
       .plus(parseFloat(cakeApr.value) > 0 ? merklApr : 0)
       .times(userTVLUsd)
-  }, [cakeApr.value, lpApr, merklApr, outOfRange, removed, userPosition.isStaked, userTVLUsd])
+  }, [cakeApr.value, lpApr, merklApr, outOfRange, removed, userTVLUsd])
   const denominator = userTVLUsd
 
   return {

@@ -67,7 +67,7 @@ const AprButtonText = forwardRef<HTMLElement, AprButtonTextProps>(({ baseApr, ha
         </TooltipText>
       </FlexGap>
     ),
-    [baseApr],
+    [baseApr, hasFarm],
   )
 
   if (typeof baseApr === 'undefined') {

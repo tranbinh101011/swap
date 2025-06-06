@@ -54,7 +54,7 @@ export const PoolGlobalAprButton: React.FC<PoolGlobalAprButtonProps> = ({ pool, 
     return (
       <PoolAprButton
         pool={pool}
-        lpApr={parseFloat(lpApr) ?? 0}
+        lpApr={parseFloat(lpApr) || 0}
         cakeApr={cakeApr}
         merklApr={parseFloat(merklApr) ?? 0}
       />
@@ -65,7 +65,7 @@ export const PoolGlobalAprButton: React.FC<PoolGlobalAprButtonProps> = ({ pool, 
     <>
       <PoolAprButton
         pool={pool}
-        lpApr={parseFloat(lpApr) ?? 0}
+        lpApr={parseFloat(lpApr) || 0}
         cakeApr={cakeApr}
         merklApr={parseFloat(merklApr) ?? 0}
         onAPRTextClick={APRBreakdownModalState.onOpen}

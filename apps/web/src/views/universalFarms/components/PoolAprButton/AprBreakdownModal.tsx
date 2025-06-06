@@ -14,14 +14,11 @@ export const APRBreakdownModal = ({ isOpen, onDismiss, closeOnOverlayClick, ...p
   const { additionalDetails, primaryMsg } = useMemo(
     () => ({
       primaryMsg: t(
-        'User have to obtain veCAKE and this position must be staking in farm to apply the combined APR with boosted farming rewards.',
+        'Calculated at the current rates with historical trading volume data, and subject to change based on various external variables.',
       ),
-      additionalDetails: [
-        t(
-          'Calculated at the current rates with historical trading volume data, and subject to change based on various external variables.',
-        ),
-        t('This figure is provided for your convenience only, and by no means represents guaranteed returns.'),
-      ],
+      additionalDetails: t(
+        'This figure is provided for your convenience only, and by no means represents guaranteed returns.',
+      ),
     }),
     [t],
   )

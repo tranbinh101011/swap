@@ -1,10 +1,9 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { Currency } from "@pancakeswap/swap-sdk-core";
 import { FlexGap, IColumnsType, TableView, Tag, Text, TooltipText, useTooltip } from "@pancakeswap/uikit";
+import { displayApr } from "@pancakeswap/utils/displayApr";
 import { useMemo } from "react";
 import styled from "styled-components";
-import { formatNumber } from "@pancakeswap/utils/formatNumber";
-import BigNumber from "bignumber.js";
 
 import { CurrencyLogo, DoubleCurrencyLogo } from "../../components/CurrencyLogo";
 
@@ -86,10 +85,7 @@ export const RewardCard = ({ rewards }: IRewardCardProps) => {
           <FlexGap alignItems="flex-start" flexDirection="column">
             {apr ? (
               <TooltipText fontSize="16px" bold decorationColor="secondary">
-                {`${formatNumber(new BigNumber(apr).times(100), {
-                  maxDecimalDisplayDigits: 2,
-                  roundingMode: BigNumber.ROUND_UP,
-                })}%`}
+                {displayApr(parseFloat(apr) || 0)}
               </TooltipText>
             ) : null}
             <Text fontSize="12px" color="textSubtle">
