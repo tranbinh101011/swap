@@ -6,7 +6,9 @@ import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { isBetterQuoteTrade } from 'quoter/utils/getBetterQuote'
 import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
-import { InterfaceOrder } from 'views/Swap/utils'
+import { warningSeverity } from 'utils/exchange'
+import { InterfaceOrder, isXOrder } from 'views/Swap/utils'
+import { computeTradePriceBreakdown } from 'views/Swap/V3Swap/utils/exchange'
 import { NoValidRouteError, QuoteQuery } from '../quoter.types'
 import { activeQuoteHashAtom } from './abortControlAtoms'
 import { placeholderAtom } from './placeholderAtom'
@@ -116,8 +118,18 @@ const bestQuoteWithoutHashAtom = atomFamily((_option: QuoteQuery) => {
         const strategy = tests[i]
         const { quote, anyShadowFail, anyTimeout } = executeRoutes(strategy, option, i)
 
-        if (quote.isJust() && !anyShadowFail) {
-          return quote
+        if (quote.isJust()) {
+          const order = quote.unwrap()
+          if (i !== tests.length - 1) {
+            const { priceImpactWithoutFee } = computeTradePriceBreakdown(isXOrder(order) ? order.ammTrade : order.trade)
+            const isHighImpact = warningSeverity(priceImpactWithoutFee) >= 3
+            if (isHighImpact) {
+              continue
+            }
+          }
+          if (!anyShadowFail) {
+            return quote
+          }
         }
 
         if (anyTimeout) {

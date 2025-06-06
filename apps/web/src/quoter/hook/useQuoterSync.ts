@@ -174,7 +174,7 @@ const prefetchPoolsAtom = atomFamily(
     }
     const ttl = POOLS_FAST_REVALIDATE[chainId]
     const epochA = Math.floor(a.createTime / ttl)
-    const epochB = Math.floor(a.createTime / ttl)
+    const epochB = Math.floor(b.createTime / ttl)
     return epochB === epochA
   },
 )
