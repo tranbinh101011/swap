@@ -1,5 +1,5 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { BoxProps, Flex } from "../../components/Box";
 import { Button } from "../../components/Button";
@@ -12,7 +12,7 @@ import { ModalV2, ModalV2Props } from "../../widgets/Modal/ModalV2";
 type DialogProps = ModalV2Props &
   BoxProps & {
     title?: string;
-    message?: string;
+    message?: string | React.ReactNode;
     defaultValue?: string;
     confirmText?: string;
     cancelText?: string;
@@ -75,7 +75,7 @@ export const Dialog: React.FC<DialogProps> = ({
         width={["100%", "100%", "100%", "367px"]}
       >
         <FlexGap flexDirection="column" gap="20px" mt="auto">
-          <Text>{message}</Text>
+          {React.isValidElement(message) ? message : <Text>{message}</Text>}
           {useInput ? (
             <Input
               value={value}

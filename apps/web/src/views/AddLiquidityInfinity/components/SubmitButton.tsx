@@ -1,11 +1,15 @@
 import { BinPool } from '@pancakeswap/infinity-sdk'
 import { useTranslation } from '@pancakeswap/localization'
-import { AddIcon, AutoColumn } from '@pancakeswap/uikit'
+import { AddIcon, AutoColumn, Text, usePrompt } from '@pancakeswap/uikit'
+import BigNumber from 'bignumber.js'
 import PageLoader from 'components/Loader/PageLoader'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import { useInfinityPoolIdRouteParams } from 'hooks/dynamicRoute/usePoolIdRoute'
+import { usePoolCurrentPrice } from 'hooks/infinity/usePoolCurrentPrice'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePermit2 } from 'hooks/usePermit2'
+import { usePoolMarketPriceSlippage } from 'hooks/usePoolMarketPriceSlippage'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { usePoolInfo } from 'state/farmsV4/hooks'
@@ -18,9 +22,9 @@ import {
   InvalidBinRangeMessage,
   InvalidCLRangeMessage,
   LowTVLMessage,
+  MarketPriceSlippageWarning,
   OutOfRangeMessage,
 } from 'views/CreateLiquidityPool/components/SubmitCreateButton'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useAccount } from 'wagmi'
 import { useAddDepositAmounts, useAddDepositAmountsEnabled } from '../hooks/useAddDepositAmounts'
 import { useAddFormSubmitCallback } from '../hooks/useAddFormSubmitCallback'
@@ -44,15 +48,61 @@ export const SubmitButton = () => {
   }, [pool])
 
   const currencies = useMemo(() => ({ CURRENCY_A: currencyA, CURRENCY_B: currencyB }), [currencyA, currencyB])
-
+  const poolCurrentPrice = usePoolCurrentPrice(pool)
+  const [, marketPriceSlippage] = usePoolMarketPriceSlippage(pool?.token0, pool?.token1, poolCurrentPrice)
+  const [displayMarketPriceSlippageWarning, disableAddByHighSlippage] = useMemo(() => {
+    if (marketPriceSlippage === undefined) return [false, false]
+    const slippage = new BigNumber(marketPriceSlippage.toFixed(0)).abs()
+    return [
+      slippage.gt(5), // 5% slippage
+      slippage.gt(10), // 10% slippage
+    ]
+  }, [marketPriceSlippage])
   const addIsUnsupported = useIsTransactionUnsupported(currencyA, currencyB)
   const addIsWarning = useIsTransactionWarning(currencyA, currencyB)
 
   const { onSubmit, attemptingTx } = useAddFormSubmitCallback()
+  const prompt = usePrompt()
   const handleSubmit = useCallback(async () => {
-    await onSubmit()
+    if (displayMarketPriceSlippageWarning) {
+      const confirmWord = 'confirm'
+      let resolve: (value: boolean) => void
+      const p = new Promise<boolean>((res) => {
+        resolve = res
+      })
+
+      prompt({
+        message: (
+          <>
+            <AutoColumn gap="8px">
+              <Text>
+                {t(
+                  'The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage.',
+                  {
+                    slippage: `${marketPriceSlippage?.toFixed(0)}%`,
+                  },
+                )}
+              </Text>
+              <Text>{t('To proceed, please type the word "%word%"', { word: confirmWord })}</Text>
+            </AutoColumn>
+          </>
+        ),
+        onConfirm: (value: string) => {
+          return resolve(value === confirmWord)
+        },
+      })
+      await p.then(async (confirmed) => {
+        if (!confirmed) {
+          return
+        }
+
+        await onSubmit()
+      })
+    } else {
+      await onSubmit()
+    }
     // router.push('/liquidity/pools')
-  }, [onSubmit, router])
+  }, [onSubmit, displayMarketPriceSlippageWarning, marketPriceSlippage, prompt, t])
 
   const { depositCurrencyAmount0, depositCurrencyAmount1 } = useAddDepositAmounts()
   const parsedAmounts = useMemo(
@@ -159,7 +209,14 @@ export const SubmitButton = () => {
       return [t('Insufficient %symbol% balance', { symbol: currencyB?.symbol ?? 'Unknown' }), undefined]
     }
 
-    return [t('Add'), <AddIcon key="add-icon" color={enabled ? 'invertedContrast' : 'textDisabled'} width="24px" />]
+    return [
+      t('Add'),
+      <AddIcon
+        key="add-icon"
+        color={!enabled || disableAddByHighSlippage ? 'textDisabled' : 'invertedContrast'}
+        width="24px"
+      />,
+    ]
   }, [
     currency0Balance,
     currency1Balance,
@@ -168,6 +225,7 @@ export const SubmitButton = () => {
     depositCurrencyAmount0,
     depositCurrencyAmount1,
     enabled,
+    disableAddByHighSlippage,
     isDeposit0Enabled,
     isDeposit1Enabled,
     t,
@@ -179,6 +237,9 @@ export const SubmitButton = () => {
 
   return (
     <AutoColumn mt="24px" gap="8px">
+      {displayMarketPriceSlippageWarning ? (
+        <MarketPriceSlippageWarning slippage={`${marketPriceSlippage?.toFixed(0)} %`} />
+      ) : null}
       {Number(poolInfo?.tvlUsd) < 1000 ? <LowTVLMessage /> : null}
       {outOfRange && <OutOfRangeMessage />}
       {invalidClRange && <InvalidCLRangeMessage />}
@@ -193,6 +254,7 @@ export const SubmitButton = () => {
         />
       )}
       <V3SubmitButton
+        highMarketPriceSlippage={disableAddByHighSlippage}
         addIsUnsupported={addIsUnsupported}
         addIsWarning={addIsWarning}
         account={account ?? undefined}

@@ -3741,5 +3741,10 @@
   "Receive crypto from another wallet.": "Receive crypto from another wallet.",
   "Bridge Crypto": "Bridge Crypto",
   "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'": "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'",
-  "Expanding Search..": "Expanding Search.."
+  "Expanding Search..": "Expanding Search..",
+  "To proceed, please type the word \"%word%\"": "To proceed, please type the word \"%word%\"",
+  "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage.": "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage.",
+  "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage. Please proceed with caution.": "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage. Please proceed with caution.",
+  "The price is estimated from the market price. Please verify it before using it.": "The price is estimated from the market price. Please verify it before using it.",
+  "Use this Price": "Use this Price"
 }

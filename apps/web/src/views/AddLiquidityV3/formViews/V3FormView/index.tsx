@@ -59,11 +59,15 @@ import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
 import { QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
 import { useSendTransaction, useWalletClient } from 'wagmi'
 
+import { Price } from '@pancakeswap/swap-sdk-core'
+import BigNumber from 'bignumber.js'
 import { ZapLiquidityWidget } from 'components/ZapLiquidityWidget'
 import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { usePoolMarketPriceSlippage } from 'hooks/usePoolMarketPriceSlippage'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
+import { MarketPriceSlippageWarning } from 'views/CreateLiquidityPool/components/SubmitCreateButton'
 import { MevProtectToggle } from 'views/Mev/MevProtectToggle'
 import LockedDeposit from './components/LockedDeposit'
 import { PositionPreview } from './components/PositionPreview'
@@ -464,9 +468,23 @@ export default function V3FormView({
     expertMode ? onAdd() : onPresentAddLiquidityModal()
     logGTMClickAddLiquidityEvent()
   }, [expertMode, onAdd, onPresentAddLiquidityModal])
+  const poolCurrentPrice = useMemo(() => {
+    if (!pool) return undefined
+    return new Price(pool.token0, pool.token1, 2n ** 192n * 2n, pool.sqrtRatioX96 * pool.sqrtRatioX96)
+  }, [pool])
+  const [marketPrice, marketPriceSlippage] = usePoolMarketPriceSlippage(pool?.token0, pool?.token1, poolCurrentPrice)
+  const [displayMarketPriceSlippageWarning, disableAddByHighSlippage] = useMemo(() => {
+    if (marketPriceSlippage === undefined) return [false, false]
+    const slippage = new BigNumber(marketPriceSlippage.toFixed(0)).abs()
+    return [
+      slippage.gt(5), // 5% slippage
+      slippage.gt(10), // 10% slippage
+    ]
+  }, [marketPriceSlippage])
 
   const buttons = (
     <V3SubmitButton
+      highMarketPriceSlippage={disableAddByHighSlippage}
       addIsUnsupported={addIsUnsupported}
       addIsWarning={addIsWarning}
       account={account ?? undefined}
@@ -799,6 +817,10 @@ export default function V3FormView({
                 </Button>
               </Flex>
             )}
+
+            {displayMarketPriceSlippageWarning ? (
+              <MarketPriceSlippageWarning slippage={`${marketPriceSlippage?.toFixed(0)} %`} />
+            ) : null}
 
             {outOfRange ? (
               <Message variant="warning">

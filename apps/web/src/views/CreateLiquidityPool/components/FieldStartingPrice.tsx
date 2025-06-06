@@ -1,9 +1,23 @@
 import { useIsMounted, usePreviousValue } from '@pancakeswap/hooks'
 import { getIdFromCurrencyPrice } from '@pancakeswap/infinity-sdk'
 import { useTranslation } from '@pancakeswap/localization'
-import { BalanceInput, Box, BoxProps, FlexGap, PreTitle, useMatchBreakpoints } from '@pancakeswap/uikit'
+import {
+  AutoRow,
+  BalanceInput,
+  Box,
+  BoxProps,
+  Button,
+  FlexGap,
+  PreTitle,
+  QuestionHelper,
+  Text,
+  useMatchBreakpoints,
+} from '@pancakeswap/uikit'
 import { escapeRegExp } from '@pancakeswap/utils/escapeRegExp'
+import { formatPrice } from '@pancakeswap/utils/formatFractions'
+import { GreyCard } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
+import { usePoolMarketPrice } from 'hooks/usePoolMarketPriceSlippage'
 import { tryParsePrice } from 'hooks/v3/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useActiveIdQueryState, useBinStepQueryState, useStartingPriceQueryState } from 'state/infinity/create'
@@ -35,6 +49,8 @@ export const FieldStartingPrice: React.FC<FieldStartingPriceProps> = ({ ...boxPr
   const [inverted] = useInverted()
   const prevInverted = usePreviousValue(inverted)
   const [forceSynced, setForceSynced] = useState(false)
+
+  const [, , marketPrice] = usePoolMarketPrice(currency0, currency1)
 
   const updatePriceToBinId = useCallback(
     (value: string) => {
@@ -114,6 +130,15 @@ export const FieldStartingPrice: React.FC<FieldStartingPriceProps> = ({ ...boxPr
     }
   }, [prevInverted, inverted, isMounted, startPrice, updatePrice, quoteCurrency, baseCurrency])
 
+  const handleSetMarketPrice = useCallback(() => {
+    if (marketPrice) {
+      const price = inverted ? marketPrice.invert() : marketPrice
+      const formattedPrice = formatPrice(price)
+      if (!formattedPrice) return
+      updatePrice(formattedPrice)
+    }
+  }, [inverted, marketPrice, updatePrice])
+
   // const startPriceAsFraction = useStartPriceAsFraction()
   return (
     <Box {...boxProps}>
@@ -125,12 +150,37 @@ export const FieldStartingPrice: React.FC<FieldStartingPriceProps> = ({ ...boxPr
         {startPriceAsFraction && startPriceAsFraction.denominator !== 0n ? startPriceAsFraction?.toFixed(8) : ''}
       </pre>
       <pre>inverted: {inverted?.toString()}</pre> */}
+      {/* <span>startPrice: {startPrice}</span> */}
       <ResponsiveTwoColumns mt="0px">
         <FlexGap mt={['16px', '16px', '16px', '16px', '16px', '0']} gap="5px" alignItems="center">
           <PreTitle>{t('Set Starting Price')}</PreTitle>
         </FlexGap>
+
         <StartingPriceInput value={startPrice} onUserInput={updatePrice} unit={unit} />
       </ResponsiveTwoColumns>
+      {marketPrice ? (
+        <GreyCard mt="8px" padding="12px">
+          <AutoRow alignItems="center" justifyContent="space-between">
+            <FlexGap alignItems="center" gap="4px">
+              <Text fontSize="12px">
+                {formatPrice(inverted ? marketPrice.invert() : marketPrice)}{' '}
+                {t('%assetA% per %assetB%', {
+                  assetA: inverted ? currency0?.symbol : currency1?.symbol,
+                  assetB: inverted ? currency1?.symbol : currency0?.symbol,
+                })}
+              </Text>
+              <QuestionHelper
+                placement="bottom"
+                color="textSubtle"
+                text={t('The price is estimated from the market price. Please verify it before using it.')}
+              />
+            </FlexGap>
+            <Button scale="xs" variant="tertiary" onClick={handleSetMarketPrice}>
+              {t('Use this Price')}
+            </Button>
+          </AutoRow>
+        </GreyCard>
+      ) : null}
     </Box>
   )
 }
@@ -157,6 +207,11 @@ const StartingPriceInput: React.FC<StartingPriceInputProps> = ({ value, onUserIn
       parseFloat(inputValue) !== parseFloat(value) &&
       !String(value).endsWith('.')
     ) {
+      setInputValue(value)
+      return
+    }
+
+    if (inputValue === null && value !== null) {
       setInputValue(value)
     }
   }, [inputValue, isMounted, value])

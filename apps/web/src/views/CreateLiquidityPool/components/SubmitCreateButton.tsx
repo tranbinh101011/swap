@@ -80,6 +80,23 @@ export const LowTVLMessage = () => {
   )
 }
 
+export const MarketPriceSlippageWarning = ({ slippage }) => {
+  const { t } = useTranslation()
+  return (
+    <Message variant="warning">
+      <RowBetween>
+        <Text ml="12px" fontSize="12px">
+          <b>{t('Warning')}: </b>
+          {t(
+            'The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage. Please proceed with caution.',
+            { slippage },
+          )}
+        </Text>
+      </RowBetween>
+    </Message>
+  )
+}
+
 export const InvalidBinRangeMessage: React.FC<{
   minBinId?: number | null
   maxBinId?: number | null

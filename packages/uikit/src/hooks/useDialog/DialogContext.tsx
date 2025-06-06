@@ -4,16 +4,20 @@ import { Dialog } from "./Dialog";
 
 export type PromptFn = (params: {
   title?: string;
-  message?: string;
+  message?: string | React.ReactNode;
   defaultValue?: string;
   onConfirm: (value: string) => void;
 }) => void;
 
-export type ConfirmFn = (params: { title?: string; message?: string; onConfirm: (value: boolean) => void }) => void;
+export type ConfirmFn = (params: {
+  title?: string;
+  message?: string | React.ReactNode;
+  onConfirm: (value: boolean) => void;
+}) => void;
 
 export type DialogOptions = {
   title?: string;
-  message?: string;
+  message?: string | React.ReactNode;
   defaultValue?: string;
   placeholder?: string;
 

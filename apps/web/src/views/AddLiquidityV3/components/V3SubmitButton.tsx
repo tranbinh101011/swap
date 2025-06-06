@@ -40,6 +40,7 @@ export interface V3SubmitButtonProps {
   endIcon?: ReactNode
   depositADisabled: boolean
   depositBDisabled: boolean
+  highMarketPriceSlippage?: boolean
 }
 
 export function V3SubmitButton({
@@ -67,6 +68,7 @@ export function V3SubmitButton({
   endIcon,
   depositADisabled,
   depositBDisabled,
+  highMarketPriceSlippage,
 }: V3SubmitButtonProps) {
   const { t } = useTranslation()
 
@@ -115,6 +117,7 @@ export function V3SubmitButton({
           }
           onClick={onClick}
           disabled={
+            highMarketPriceSlippage ||
             !isValid ||
             attemptingTxn ||
             (approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
