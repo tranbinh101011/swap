@@ -11,6 +11,7 @@ import { useAtom } from 'jotai/index'
 import { queryChainIdAtom } from 'hooks/useActiveChainId'
 import { EXCHANGE_PAGE_PATHS } from 'config/constants/exchange'
 import { getHashFromRouter } from 'utils/getHashFromRouter'
+import useAuth from 'hooks/useAuth'
 import { useSwitchNetworkLoading } from './useSwitchNetworkLoading'
 
 const checkSwitchReloadNeeded = async (connector: Connector, chainId: number, address: `0x${string}` | undefined) => {
@@ -21,11 +22,10 @@ const checkSwitchReloadNeeded = async (connector: Connector, chainId: number, ad
 
     return Boolean(
       provider &&
-        (provider.isTokenPocket ||
-          (Array.isArray(provider.session?.namespaces?.eip155?.accounts) &&
-            !provider.session.namespaces.eip155.accounts.some((account: string) =>
-              account?.includes(`${chainId}:${address}`),
-            ))),
+        Array.isArray(provider.session?.namespaces?.eip155?.accounts) &&
+        !provider.session.namespaces.eip155.accounts.some((account: string) =>
+          account?.includes(`${chainId}:${address}`),
+        ),
     )
   } catch (error) {
     console.error(error, 'Error detecting provider')
@@ -101,6 +101,8 @@ export function useSwitchNetwork() {
   const { toastError } = useToast()
   const { isConnected, connector, address } = useAccount()
 
+  const { logout } = useAuth()
+
   const switchNetworkLocal = useSwitchNetworkLocal()
 
   const isLoading = _isLoading || loading
@@ -114,7 +116,7 @@ export function useSwitchNetwork() {
           .then(async (c) => {
             switchNetworkLocal(chainId)
             if (await checkSwitchReloadNeeded(connector, chainId, address)) {
-              window.location.reload()
+              await logout()
             }
             return c
           })
@@ -128,7 +130,18 @@ export function useSwitchNetwork() {
         resolve(switchNetworkLocal(chainId))
       })
     },
-    [isConnected, _switchNetworkAsync, isLoading, setLoading, switchNetworkLocal, toastError, t, connector, address],
+    [
+      isConnected,
+      _switchNetworkAsync,
+      isLoading,
+      setLoading,
+      switchNetworkLocal,
+      toastError,
+      t,
+      connector,
+      address,
+      logout,
+    ],
   )
 
   const switchNetwork = useCallback(
