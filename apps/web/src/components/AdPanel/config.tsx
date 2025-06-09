@@ -100,6 +100,7 @@ const commonLayoutAdIgnoredPages = [
 export const layoutMobileAdIgnoredPages = [
   ...commonLayoutAdIgnoredPages,
   '/',
+  '/swap',
   '/prediction',
   '/liquidity/pools',
   '/migration/bcake',
