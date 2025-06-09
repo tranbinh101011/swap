@@ -270,8 +270,7 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
   const handlePercentInput = useCallback(
     (percent: number) => {
       if (maxAmountInput) {
-        const { multiply } = maxAmountInput
-        handleAmountChange(multiply(new Percent(percent, 100)).toExact())
+        handleAmountChange(maxAmountInput.multiply(new Percent(percent, 100)).toExact())
       }
     },
     [maxAmountInput, handleAmountChange],
