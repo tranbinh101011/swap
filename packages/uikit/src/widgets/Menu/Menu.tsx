@@ -80,6 +80,7 @@ const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
   setLang,
   cakePriceUsd,
   links,
+  homeLink: homeLink_,
   subLinks,
   footerLinks,
   activeItem,
@@ -152,7 +153,7 @@ const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
             {banner && isMounted && <TopBannerContainer height={topBannerHeight}>{banner}</TopBannerContainer>}
             <StyledNav id="nav">
               <Flex>
-                {logoComponent ?? <Logo href={homeLink?.href ?? "/home"} />}
+                {logoComponent ?? <Logo href={homeLink_ ?? homeLink?.href ?? "/home"} />}
                 <AtomBox display={{ xs: "none", lg: "block" }}>
                   <MenuItems
                     ml="24px"

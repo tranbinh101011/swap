@@ -15,6 +15,7 @@ export interface NavProps {
   rightSide?: ReactNode;
   banner?: ReactElement;
   links: Array<MenuItemsType>;
+  homeLink?: string;
   subLinks?: Array<SubMenuItemsType>;
   footerLinks: Array<FooterLinkType>;
   activeItem?: string;

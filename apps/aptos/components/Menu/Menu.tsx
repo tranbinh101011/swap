@@ -76,6 +76,7 @@ export const Menu = (props) => {
     <>
       {isClient ? (
         <UIMenu
+          homeLink="/"
           linkComponent={LinkComponent}
           chainId={chainId}
           links={menuItems}
