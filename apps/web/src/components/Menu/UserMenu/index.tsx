@@ -8,9 +8,10 @@ import ReceiveModal from 'components/WalletModalV2/ReceiveModal'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useDomainNameForAddress } from 'hooks/useDomain'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useProfile } from 'state/profile/hooks'
 import { usePendingTransactions } from 'state/transactions/hooks'
+import styled from 'styled-components'
 import { logGTMDisconnectWalletEvent } from 'utils/customGTMEventTracking'
 import { useAccount } from 'wagmi'
 
@@ -44,6 +45,26 @@ const UserMenuItems = ({ onReceiveClick }: { onReceiveClick: () => void }) => {
   )
 }
 
+// Custom wrapper for UIKitUserMenu that adds click functionality for desktop
+const ClickableUserMenu = styled.div`
+  position: relative;
+`
+
+const ClickablePopover = styled.div<{ isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1001;
+  min-width: 380px;
+  background-color: ${({ theme }) => theme.card.background};
+  border: 1px solid ${({ theme }) => theme.colors.cardBorder};
+  border-radius: 16px;
+  margin-top: 8px;
+  visibility: ${({ isOpen }) => (isOpen ? 'visible' : 'hidden')};
+  opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
+  transition: visibility 0.2s, opacity 0.2s;
+`
+
 const UserMenu = () => {
   const { t } = useTranslation()
   const { address: account, connector } = useAccount()
@@ -60,6 +81,24 @@ const UserMenu = () => {
   const [showMobileWalletModal, setShowMobileWalletModal] = useState(false)
   const [showDesktopPopup] = useState(true)
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
+
+  // State for click-based menu
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // Handle click outside to close menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [menuRef])
 
   useEffect(() => {
     if (hasPendingTransactions) {
@@ -79,26 +118,36 @@ const UserMenu = () => {
   if (account) {
     return (
       <>
-        <UIKitUserMenu
-          account={domainName || account}
-          ellipsis={!domainName}
-          avatarSrc={avatarSrc}
-          text={userMenuText}
-          variant={userMenuVariable}
-          popperStyle={{
-            minWidth: '380px',
-          }}
-          onClick={() => {
-            if (isMobile) {
-              setShowMobileWalletModal(true)
-            }
-          }}
-        >
-          {!isMobile
-            ? () =>
-                showDesktopPopup ? <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} /> : undefined // ({ isOpen }) => isOpen ||showDesktopPopup && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />
-            : undefined}
-        </UIKitUserMenu>
+        <ClickableUserMenu ref={menuRef}>
+          <UIKitUserMenu
+            account={domainName || account}
+            ellipsis={!domainName}
+            avatarSrc={avatarSrc}
+            text={userMenuText}
+            variant={userMenuVariable}
+            popperStyle={{
+              minWidth: '380px',
+            }}
+            onClick={() => {
+              if (isMobile) {
+                setShowMobileWalletModal(true)
+              } else {
+                // Toggle menu on click for desktop
+                setIsMenuOpen((prev) => !prev)
+              }
+            }}
+          >
+            {/* Make sure the menu won't be triggered by hover */}
+            {undefined}
+          </UIKitUserMenu>
+
+          {/* Custom click-based menu for desktop */}
+          {!isMobile && (
+            <ClickablePopover isOpen={isMenuOpen}>
+              {isMenuOpen && showDesktopPopup && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />}
+            </ClickablePopover>
+          )}
+        </ClickableUserMenu>
 
         <WalletModalV2
           isOpen={showMobileWalletModal}
@@ -116,11 +165,28 @@ const UserMenu = () => {
 
   if (isWrongNetwork) {
     return (
-      <UIKitUserMenu text={t('Network')} variant="danger">
-        {!isMobile
-          ? ({ isOpen }) => isOpen && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />
-          : undefined}
-      </UIKitUserMenu>
+      <ClickableUserMenu ref={menuRef}>
+        <UIKitUserMenu
+          text={t('Network')}
+          variant="danger"
+          onClick={() => {
+            if (!isMobile) {
+              setIsMenuOpen((prev) => !prev)
+            }
+          }}
+        >
+          {!isMobile && !isMenuOpen
+            ? ({ isOpen }) => isOpen && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />
+            : undefined}
+        </UIKitUserMenu>
+
+        {/* Custom click-based menu for desktop */}
+        {!isMobile && (
+          <ClickablePopover isOpen={isMenuOpen}>
+            {isMenuOpen && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />}
+          </ClickablePopover>
+        )}
+      </ClickableUserMenu>
     )
   }
 

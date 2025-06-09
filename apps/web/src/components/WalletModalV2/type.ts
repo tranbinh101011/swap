@@ -1,0 +1,6 @@
+export enum ViewState {
+  WALLET_INFO,
+  SEND_ASSETS,
+  SEND_FORM,
+  CONFIRM_TRANSACTION,
+}

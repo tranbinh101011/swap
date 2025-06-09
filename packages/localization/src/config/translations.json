@@ -3747,5 +3747,17 @@
   "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage. Please proceed with caution.": "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage. Please proceed with caution.",
   "The price is estimated from the market price. Please verify it before using it.": "The price is estimated from the market price. Please verify it before using it.",
   "Use this Price": "Use this Price",
-  "Displayed amounts include fees. In LBAMM pools, accrued fees are added back to the pool reserves.": "Displayed amounts include fees. In LBAMM pools, accrued fees are added back to the pool reserves."
+  "Displayed amounts include fees. In LBAMM pools, accrued fees are added back to the pool reserves.": "Displayed amounts include fees. In LBAMM pools, accrued fees are added back to the pool reserves.",
+  "Invalid wallet address": "Invalid wallet address",
+  "Send": "Send",
+  "Insufficient balance": "Insufficient balance",
+  "Send Assets": "Send Assets",
+  "Network Fee": "Network Fee",
+  "Transaction submitted": "Transaction submitted",
+  "Transaction completed": "Transaction completed",
+  "has been sent to": "has been sent to",
+  "Sending tokens": "Sending tokens",
+  "Assets": "Assets",
+  "Select Networks": "Select Networks",
+  "Your %symbol% has been sent to %address%": "Your %symbol% has been sent to %address%"
 }

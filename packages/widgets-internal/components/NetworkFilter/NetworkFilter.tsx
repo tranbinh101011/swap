@@ -1,4 +1,4 @@
-import { Trans } from "@pancakeswap/localization";
+import { Trans, useTranslation } from "@pancakeswap/localization";
 import {
   Button,
   IMultiSelectChangeEvent,
@@ -110,6 +110,7 @@ export const NetworkFilter: React.FC<INetworkProps> = ({ data, value, onChange, 
   const [isShow, setIsShow] = useState(false);
   const [mobileActiveValue, setMobileActiveValue] = useState<number>(-1);
   const { isMobile } = useMatchBreakpoints();
+  const { t } = useTranslation();
 
   const activeIndex =
     isMobile && mobileActiveValue !== -1 && data ? data.findIndex((opt) => opt.value === mobileActiveValue) : undefined;
@@ -186,6 +187,7 @@ export const NetworkFilter: React.FC<INetworkProps> = ({ data, value, onChange, 
         onHide={() => setIsShow(false)}
         onChange={handleSelectChange}
         itemTemplate={customItemTemplate}
+        placeholder={t("Select Networks")}
       />
     </StyledContainer>
   );
