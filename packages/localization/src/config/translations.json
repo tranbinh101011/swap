@@ -3746,5 +3746,6 @@
   "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage.": "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage.",
   "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage. Please proceed with caution.": "The pool price shows a significant deviation from current market rates (%slippage%). This increases the risk of losses from arbitrage. Please proceed with caution.",
   "The price is estimated from the market price. Please verify it before using it.": "The price is estimated from the market price. Please verify it before using it.",
-  "Use this Price": "Use this Price"
+  "Use this Price": "Use this Price",
+  "Displayed amounts include fees. In LBAMM pools, accrued fees are added back to the pool reserves.": "Displayed amounts include fees. In LBAMM pools, accrued fees are added back to the pool reserves."
 }

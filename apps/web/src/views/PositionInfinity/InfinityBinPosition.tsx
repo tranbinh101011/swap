@@ -8,7 +8,20 @@ import { NextSeo } from 'next-seo'
 
 import { useTranslation } from '@pancakeswap/localization'
 import { CurrencyAmount, Fraction } from '@pancakeswap/swap-sdk-core'
-import { AutoRow, Box, Breadcrumbs, Card, CardBody, Container, Flex, Link, RowBetween, Text } from '@pancakeswap/uikit'
+import {
+  AutoRow,
+  Box,
+  Breadcrumbs,
+  Card,
+  CardBody,
+  Container,
+  Flex,
+  FlexGap,
+  Link,
+  QuestionHelper,
+  RowBetween,
+  Text,
+} from '@pancakeswap/uikit'
 import { formatNumber } from '@pancakeswap/utils/formatNumber'
 import { LightGreyCard } from 'components/Card'
 import { CurrencyLogo } from 'components/Logo'
@@ -113,9 +126,17 @@ export const InfinityBinPosition = () => {
                       <InfinityBinPoolPositionAprButton pool={poolInfo} userPosition={position} />
                     </Flex>
                   )}
-                  <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-                    {t('Liquidity')}
-                  </Text>
+                  <FlexGap gap="4px" alignItems="center">
+                    <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
+                      {t('Liquidity')}
+                    </Text>
+                    <QuestionHelper
+                      color="secondary"
+                      text={t(
+                        'Displayed amounts include fees. In LBAMM pools, accrued fees are added back to the pool reserves.',
+                      )}
+                    />
+                  </FlexGap>
 
                   <Text fontSize="24px" fontWeight={600} mb="8px">
                     $

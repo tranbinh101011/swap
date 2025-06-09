@@ -362,6 +362,11 @@ export const RemoveBinPosition = () => {
               </Text>
             </Flex>
           </LightGreyCard>
+          <Message variant="primary" mt="16px" mb="8px">
+            <Text fontSize="14px">
+              {t('Displayed amounts include fees. In LBAMM pools, accrued fees are added back to the pool reserves.')}
+            </Text>
+          </Message>
           <Flex mt="24px" justifyContent="space-between" alignItems="center">
             <Message
               icon={<ErrorIcon color="yellow" />}
