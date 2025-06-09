@@ -55,7 +55,7 @@ export const SubmitButton = () => {
     const slippage = new BigNumber(marketPriceSlippage.toFixed(0)).abs()
     return [
       slippage.gt(5), // 5% slippage
-      slippage.gt(10), // 10% slippage
+      slippage.gt(25), // 25% slippage
     ]
   }, [marketPriceSlippage])
   const addIsUnsupported = useIsTransactionUnsupported(currencyA, currencyB)
