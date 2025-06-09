@@ -3,6 +3,7 @@ import { nearestUsableTick, tickToPrice } from '@pancakeswap/v3-sdk'
 import { Bound } from '@pancakeswap/widgets-internal'
 import { useEffect, useMemo } from 'react'
 import { useClRangeQueryState, useInverted } from 'state/infinity/shared'
+import { formatRangeSelectorPrice } from 'utils/formatRangeSelectorPrice'
 import { useTicksAtLimit } from 'views/AddLiquidityInfinity/hooks/useTicksAtLimit'
 
 export const useCLPriceRange = (
@@ -50,17 +51,17 @@ export const useCLPriceRange = (
 
     if (lowerPrice) {
       if (inverted) {
-        maxPrice_ = lowerPrice.invert().toSignificant(5)
+        maxPrice_ = formatRangeSelectorPrice(lowerPrice.invert())
       } else {
-        minPrice_ = lowerPrice.toSignificant(5)
+        minPrice_ = formatRangeSelectorPrice(lowerPrice)
       }
     }
 
     if (upperPrice) {
       if (inverted) {
-        minPrice_ = upperPrice?.invert().toSignificant(5)
+        minPrice_ = formatRangeSelectorPrice(upperPrice?.invert())
       } else {
-        maxPrice_ = upperPrice?.toSignificant(5)
+        maxPrice_ = formatRangeSelectorPrice(upperPrice)
       }
     }
 

@@ -104,6 +104,7 @@ const StepCounter = ({
 
           <NumericalInput
             value={localValue}
+            maxDecimals={9}
             fontSize="20px"
             align="center"
             disabled={locked}

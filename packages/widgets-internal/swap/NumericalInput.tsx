@@ -11,6 +11,7 @@ export type NumericalInputProps = {
   value: string | number | undefined;
   onUserInput: (input: string) => void;
   fontSize?: string;
+  maxDecimals?: number;
 } & SwapCSS.InputVariants &
   Omit<React.HTMLProps<HTMLInputElement>, "ref" | "onChange" | "as">;
 
@@ -22,11 +23,12 @@ export const NumericalInput = memo(function InnerInput({
   align,
   className,
   loading,
+  maxDecimals,
   ...rest
 }: NumericalInputProps) {
   const enforcer = (nextUserInput: string) => {
     if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
-      onUserInput(truncateDecimals(nextUserInput));
+      onUserInput(truncateDecimals(nextUserInput, maxDecimals));
     }
   };
 
@@ -43,7 +45,7 @@ export const NumericalInput = memo(function InnerInput({
         })
       )}
       {...rest}
-      value={truncateDecimals(value?.toString())}
+      value={truncateDecimals(value?.toString(), maxDecimals)}
       onChange={(event) => {
         // replace commas with periods, because we exclusively uses period as the decimal separator
         enforcer(event.target.value.replace(/,/g, "."));

@@ -6,7 +6,7 @@ export const MAX_DECIMALS_DISPLAY = 6;
  * @param maxDecimals - The maximum number of decimal places to keep
  * @returns The truncated decimal string
  */
-export function truncateDecimals(value?: string): string {
+export function truncateDecimals(value?: string, maxDecimals = MAX_DECIMALS_DISPLAY): string {
   if (!value) {
     return "";
   }
@@ -16,9 +16,9 @@ export function truncateDecimals(value?: string): string {
   }
 
   const [wholeNumber, decimal] = value.split(".");
-  if (!decimal || decimal.length <= MAX_DECIMALS_DISPLAY) {
+  if (!decimal || decimal.length <= maxDecimals) {
     return value;
   }
 
-  return `${wholeNumber}.${decimal.slice(0, MAX_DECIMALS_DISPLAY)}`;
+  return `${wholeNumber}.${decimal.slice(0, maxDecimals)}`;
 }

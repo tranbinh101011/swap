@@ -105,6 +105,7 @@ export const StepCounterV2 = ({
             </IconButton>
           )}
           <NumericalInput
+            maxDecimals={9}
             value={localValue}
             fontSize="20px"
             align="center"
