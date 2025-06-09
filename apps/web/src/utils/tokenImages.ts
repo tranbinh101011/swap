@@ -67,4 +67,7 @@ const _getCurrencyLogoSrcs = (currency: Currency & { logoURI?: string | undefine
   return list
 }
 
-export const getCurrencyLogoSrcs = memoize(_getCurrencyLogoSrcs, (currency) => `${getCurrencyAddress(currency)}`)
+export const getCurrencyLogoSrcs = memoize(
+  _getCurrencyLogoSrcs,
+  (currency) => `${currency.chainId}-${getCurrencyAddress(currency)}`,
+)
