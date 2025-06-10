@@ -147,7 +147,7 @@ export const getAllNetworkMerklApr = async (signal?: AbortSignal) => {
   const resp = await fetch(
     `https://api.merkl.xyz/v4/opportunities/?chainId=${supportedChainIdV4.join(
       ',',
-    )}&test=false&status=LIVE&items=1000&action=POOL,HOLD`,
+    )}&test=false&status=LIVE&action=POOL,HOLD`,
     { signal },
   )
   if (resp.ok) {
