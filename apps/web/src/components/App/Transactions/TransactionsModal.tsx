@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Button, FlexGap, InjectedModalProps, Modal, ModalBody, SwapLoading, Text } from '@pancakeswap/uikit'
+import { Box, Button, FlexGap, InjectedModalProps, Modal, ModalBody, SwapLoading, Text } from '@pancakeswap/uikit'
 import { TransactionList } from '@pancakeswap/widgets-internal'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useMemo } from 'react'
@@ -100,11 +100,11 @@ export function RecentTransactions() {
   }, [t, isRecentBridgeOrdersLoading])
 
   return (
-    <>
+    <Box onClick={(e) => e.stopPropagation()}>
       {account ? (
         xOrders.length > 0 || hasTransactions || recentCrossChainOrders.length > 0 ? (
           <>
-            <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }} onClick={(e) => e.stopPropagation()}>
+            <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }}>
               {recentTransactionsHeading}
               {hasTransactions && (
                 <Button variant="tertiary" scale="xs" onClick={clearAllTransactionsCallback}>
@@ -159,7 +159,7 @@ export function RecentTransactions() {
       ) : (
         <ConnectWalletButton />
       )}
-    </>
+    </Box>
   )
 }
 

@@ -89,7 +89,13 @@ const UserMenu = () => {
   // Handle click outside to close menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      // Check if the click target is within portal-root
+
+      const portalRoot = document.getElementById('portal-root')
+      const isClickInPortal = portalRoot?.contains(event.target as Node)
+
+      // Only close if click is outside menu and not in portal-root
+      if (menuRef.current && !menuRef.current.contains(event.target as Node) && !isClickInPortal) {
         setIsMenuOpen(false)
       }
     }
