@@ -41,8 +41,7 @@ const fetchInfinityPools = async (addressA: Address, addressB: Address, chainId:
       return InfinityRouter.toLocalInfinityPool(pool, chainId as keyof typeof hooksList)
     })
     .filter((x) => x) as InfinityPoolWithTvl[]
-  const currencyA = mockCurrency(addressA, chainId)
-  const currencyB = mockCurrency(addressB, chainId)
+  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
   const filtered = SmartRouter.infinityPoolTvlSelector(currencyA, currencyB, localPools)
   const clPools = filtered.filter((pool) => pool.type === PoolType.InfinityCL) as InfinityClPool[]
   const binPools = filtered.filter((pool) => pool.type === PoolType.InfinityBIN) as InfinityBinPool[]
@@ -61,8 +60,7 @@ const fetchInfinityPools = async (addressA: Address, addressB: Address, chainId:
 }
 
 const fetchV2Pools = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const currencyA = mockCurrency(addressA, chainId)
-  const currencyB = mockCurrency(addressB, chainId)
+  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
 
   const pools = await SmartRouter.getV2CandidatePools({
     currencyA,
@@ -76,8 +74,7 @@ const fetchV2Pools = async (addressA: Address, addressB: Address, chainId: Chain
 }
 
 const fetchV3Pools = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const currencyA = mockCurrency(addressA, chainId)
-  const currencyB = mockCurrency(addressB, chainId)
+  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
 
   const pools = await InfinityRouter.getV3CandidatePools({
     currencyA,
@@ -93,8 +90,7 @@ const fetchV3Pools = async (addressA: Address, addressB: Address, chainId: Chain
 }
 
 const fetchSSPool = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const currencyA = mockCurrency(addressA, chainId)
-  const currencyB = mockCurrency(addressB, chainId)
+  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
   const client = getProvider()
   const blockNumber = await client({ chainId })?.getBlockNumber()
 

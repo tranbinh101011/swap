@@ -74,7 +74,7 @@ async function getBestRoutes(
   const {
     maxHops = 3,
     maxSplits = 4,
-    distributionPercent = 5,
+    distributionPercent: _distributionPercent = 5,
     poolProvider,
     quoteProvider,
     blockNumber,
@@ -88,6 +88,7 @@ async function getBestRoutes(
     ...routeConfig,
     ...(ROUTE_CONFIG_BY_CHAIN[chainId as ChainId] || {}),
   }
+  const distributionPercent = routeConfig.maxSplits ? _distributionPercent : 100
   const logger = RemoteLogger.getLogger(quoteId)
   const isExactIn = tradeType === TradeType.EXACT_INPUT
   const inputCurrency = isExactIn ? amount.currency : currency
