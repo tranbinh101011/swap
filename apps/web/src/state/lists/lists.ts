@@ -14,7 +14,7 @@ export const initialState = {
 
 const listReducer = createTokenListReducer(initialState, DEFAULT_LIST_OF_LISTS, DEFAULT_ACTIVE_LIST_URLS)
 
-export const { listsAtom, tokenBySymbolAtom, useListState, useListStateReady } = createListsAtom(
+export const { listsAtom, tokenBySymbolAtom, useListState, useListStateReady, fetchListAtom } = createListsAtom(
   'listInfinity',
   listReducer,
   initialState,

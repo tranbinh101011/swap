@@ -105,7 +105,6 @@ export const PoolsFilterPanel: React.FC<React.PropsWithChildren<IPoolsFilterPane
   )
 
   useEffect(() => {
-    console.log('set value', value.search)
     setSearchText(value.search ?? '')
   }, [value.search])
 

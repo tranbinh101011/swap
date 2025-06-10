@@ -5,10 +5,11 @@ import { Suspense, useCallback, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 
 import { useTranslation } from '@pancakeswap/localization'
+import { DEFAULT_ACTIVE_LIST_URLS } from 'config/constants/lists'
+import { useTokenListPrepared } from 'hooks/useTokenListPrepared'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { getFarmKey } from 'state/farmsV4/search/farm.util'
 import { PoolInfo } from 'state/farmsV4/state/type'
-import { useListStateReady } from 'state/lists/lists'
 import { farmsSearchAtom, farmsSearchPagingAtom } from './atom/farmsSearchAtom'
 import { searchQueryAtom, updateFilterAtom, updateSortAtom } from './atom/searchQueryAtom'
 import {
@@ -35,7 +36,6 @@ export const PoolsPage = () => {
 
   const updateFilter = useSetAtom(updateFilterAtom)
   const query = useAtomValue(searchQueryAtom)
-  const isReady = useListStateReady()
 
   useEffect(() => {
     const params = farmQueryToUrlParams(query)
@@ -70,11 +70,9 @@ export const PoolsPage = () => {
           </PoolsFilterPanel>
         </CardHeader>
         <CardBody>
-          {isReady && (
-            <Suspense fallback={null}>
-              <List />
-            </Suspense>
-          )}
+          <Suspense fallback={null}>
+            <List />
+          </Suspense>
         </CardBody>
       </Card>
     </FarmSearchContextProvider>
@@ -130,8 +128,10 @@ const List = () => {
     }
   }, [isIntersecting, setPaging])
 
+  const listPrepared = useTokenListPrepared(DEFAULT_ACTIVE_LIST_URLS)
+
   const list = _list.unwrapOr([])
-  const pending = _list.isPending() && list.length === 0
+  const pending = listPrepared.isPending() && _list.isPending() && list.length === 0
   const isExtending = _list.isPending() && list.length > 0
   const { t } = useTranslation()
 

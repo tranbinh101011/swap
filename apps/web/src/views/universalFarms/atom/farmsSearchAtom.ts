@@ -1,5 +1,6 @@
 import { ChainId, isTestnetChainId } from '@pancakeswap/chains'
-import { Native, ZERO_ADDRESS } from '@pancakeswap/sdk'
+import { supportedChainIdV4 } from '@pancakeswap/farms'
+import { getCurrencyAddress, Native, ZERO_ADDRESS } from '@pancakeswap/sdk'
 import { SmartRouter } from '@pancakeswap/smart-router'
 import { TokenInfo } from '@pancakeswap/token-lists'
 import { Loadable } from '@pancakeswap/utils/Loadable'
@@ -21,7 +22,7 @@ import { FarmQuery } from 'state/farmsV4/search/edgeFarmQueries'
 import { FarmInfo, farmToPoolInfo, getFarmKey, SerializedFarmInfo } from 'state/farmsV4/search/farm.util'
 import { farmFilters } from 'state/farmsV4/search/filters'
 import { PoolInfo } from 'state/farmsV4/state/type'
-import { tokenBySymbolAtom } from 'state/lists/lists'
+import { listsAtom, tokenBySymbolAtom } from 'state/lists/lists'
 import { userShowTestnetAtom } from 'state/user/hooks/useUserShowTestnet'
 import { Address } from 'viem/accounts'
 
@@ -113,6 +114,7 @@ const searchAtom = atomFamily((query: FarmQuery) => {
   return atom((get) => {
     const { protocols, chains: _chains, sortBy, activeChainId, keywords } = query
     const useShowTestnet = get(userShowTestnetAtom)
+    const { tokensMap, symbolsMap } = get(tokensMapAtom)
     const chains = _chains.filter((chain) => {
       if (isTestnetChainId(chain) && !useShowTestnet) {
         return false
@@ -122,25 +124,29 @@ const searchAtom = atomFamily((query: FarmQuery) => {
 
     const lists = [get(farmListAtom)]
     if (activeChainId) {
-      const firstKeywords = keywords.trim().split(/(\s+|,|\/)/)[0]
+      const prts = keywords
+        .trim()
+        .split(/(\s+|,|-|\/)/)
+        .map((x) => x.trim())
+        .filter((x) => x)
+        .slice(0, 3) // max 3
       // Extend Symbol if Required
-      if (firstKeywords.trim()) {
-        const address = get(
-          getTokenBySymbolAtom({
-            symbol: firstKeywords.trim(),
-            chainId: activeChainId,
-          }),
-        ).unwrapOr(undefined)
 
-        if (address) {
-          const extendToken = get(
-            extendListAtom({
-              protocols,
-              chains: [activeChainId],
-              address,
-            }),
-          )
-          lists.push(extendToken)
+      for (const prt of prts) {
+        const relatedTokens = symbolsMap[prt.toLowerCase()]
+        if (relatedTokens) {
+          for (const token of relatedTokens) {
+            if (supportedChainIdV4.includes(token.chainId)) {
+              const extendToken = get(
+                extendListAtom({
+                  protocols,
+                  chains: [token.chainId],
+                  address: token.address,
+                }),
+              )
+              lists.push(extendToken)
+            }
+          }
         }
       }
 
@@ -188,7 +194,10 @@ const searchAtom = atomFamily((query: FarmQuery) => {
     })
 
     const filtered = farmFilters.search(
-      farms.filter(farmFilters.chainFilter(chains)).filter(farmFilters.protocolFilter(protocols)),
+      farms
+        .filter(farmFilters.chainFilter(chains))
+        .filter(farmFilters.protocolFilter(protocols))
+        .filter(filterTokens(tokensMap)),
       query.keywords,
     )
     const sorted = farmFilters.sortFunction(filtered, sortBy, activeChainId)
@@ -271,3 +280,43 @@ export const farmsSearchAtom = atomFamily((query) => {
     return withFilledData
   })
 }, isEqual)
+
+const filterTokens = (tokensMap: Record<string, TokenInfo>) => {
+  return (farm: FarmInfo) => {
+    const [token0, token1] = SmartRouter.getCurrenciesOfPool(farm.pool)
+    if (!token0 || !token1) return false
+    const key0 = `${token0.chainId}:${getCurrencyAddress(token0)}`.toLowerCase()
+    const key1 = `${token0.chainId}:${getCurrencyAddress(token1)}`.toLowerCase()
+
+    if (!tokensMap[key0] || !tokensMap[key1]) {
+      return false
+    }
+    return true
+  }
+}
+
+const tokensMapAtom = atom((get) => {
+  const state = get(listsAtom)
+
+  const records: Record<string, TokenInfo> = {}
+  const symbols: Record<string, TokenInfo[]> = {}
+  Object.keys(state.byUrl).forEach((url) => {
+    const list = state.byUrl[url]
+    if (list.current) {
+      list.current.tokens.forEach((token) => {
+        records[`${token.chainId}:${token.address}`.toLowerCase()] = token
+        if (!symbols[token.symbol.toLowerCase()]) {
+          symbols[token.symbol.toLowerCase()] = []
+        }
+        const tokens = symbols[token.symbol.toLowerCase()]
+        if (!tokens.find((x) => x.chainId === token.chainId && x.address === token.address)) {
+          tokens.push(token)
+        }
+      })
+    }
+  })
+  return {
+    tokensMap: records,
+    symbolsMap: symbols,
+  }
+})

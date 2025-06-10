@@ -1,7 +1,10 @@
+import { nanoid } from '@reduxjs/toolkit'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { atomFamily, atomWithStorage, loadable } from 'jotai/utils'
 import { type AsyncStorage } from 'jotai/vanilla/utils/atomWithStorage'
 import localForage from 'localforage'
+import { fetchTokenList } from './actions'
+import { getTokenList } from './getTokenList'
 import { ListsState } from './reducer'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -90,6 +93,24 @@ export const createListsAtom = (storeName: string, reducer: any, initialState: a
     atom((get) => findTokenBySymbol(get(defaultStateAtom), key.chainId, key.symbol)),
   )
 
+  const fetchListAtom = atom<null, [string], Promise<void>>(null, async (get, set, url) => {
+    const state = get(defaultStateAtom)
+    const listState = state.byUrl[url]
+    if (listState?.current || listState?.loadingRequestId) {
+      return
+    }
+
+    const requestId = nanoid()
+    set(defaultStateAtom, fetchTokenList.pending({ url, requestId }))
+
+    try {
+      const tokenList = await getTokenList(url)
+      set(defaultStateAtom, fetchTokenList.fulfilled({ url, tokenList, requestId }))
+    } catch (error: any) {
+      set(defaultStateAtom, fetchTokenList.rejected({ url, requestId, errorMessage: error.message }))
+    }
+  })
+
   function useListState() {
     return useAtom(defaultStateAtom)
   }
@@ -103,6 +124,7 @@ export const createListsAtom = (storeName: string, reducer: any, initialState: a
     listsAtom: defaultStateAtom,
     tokenAtom,
     tokenBySymbolAtom,
+    fetchListAtom,
     useListStateReady,
     useListState,
   }
