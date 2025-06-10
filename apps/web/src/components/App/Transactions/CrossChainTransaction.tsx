@@ -99,7 +99,14 @@ export function CrossChainTransaction({ order }: { order: UserBridgeOrder }) {
   const isBridgeStatusLoading = !bridgeStatusData && isFetching
 
   if (!inputToken || !outputToken || !inputChainId || !outputChainId) {
-    return null
+    // Show FAILED State
+    return (
+      <TransactionListItemV2 status={TransactionStatusV2.Failed}>
+        <Text bold small>
+          {t('Failed')}
+        </Text>
+      </TransactionListItemV2>
+    )
   }
 
   return (

@@ -35,7 +35,7 @@ const TimelineWrapper = styled(FlexGap).attrs({ flexDirection: 'column' })`
 
 const Line = styled.div<{ height?: number }>`
   position: absolute;
-  top: 60%;
+  top: 67%;
   left: 0;
   width: 2px;
   min-height: 18px;
@@ -206,7 +206,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
         </MessageBox>
       )}
       {!isLast && (
-        <Line height={(messageBoxRef.current?.offsetHeight || 0) + (titleRef.current?.offsetHeight || 0) / 2 + 16} />
+        <Line height={(messageBoxRef.current?.offsetHeight || 0) + (titleRef.current?.offsetHeight || 0) / 2 + 12} />
       )}
     </Box>
   )

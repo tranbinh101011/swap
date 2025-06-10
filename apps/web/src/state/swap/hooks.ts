@@ -270,6 +270,15 @@ export function useDefaultsFromURLSearch():
       }
     }
 
+    // If input and output currencies are the same, set output currency to native currency (other default currency)
+    if (finalInputCurrencyId === finalOutputCurrencyId && finalOutputChainId === finalInputChainId) {
+      if (finalOutputCurrencyId !== native.symbol) {
+        finalOutputCurrencyId = native.symbol
+      } else {
+        finalOutputCurrencyId = defaultOutputCurrency
+      }
+    }
+
     dispatch(
       replaceSwapState({
         typedValue: parsed.typedValue,
