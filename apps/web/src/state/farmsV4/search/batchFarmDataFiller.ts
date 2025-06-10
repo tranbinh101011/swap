@@ -16,6 +16,7 @@ import { getPoolManagerAddress } from 'utils/addressHelpers'
 import { isInfinityProtocol } from 'utils/protocols'
 import { ContractFunctionReturnType } from 'viem'
 import { Address } from 'viem/accounts'
+import { safeGetAddress } from 'utils'
 import { createBatchProcessor, multicallBatcher } from './batchProcessor'
 import { FarmInfo, getFarmKey, isValidPoolKeyResult, parsePoolKeyResult, parseSlot0 } from './farm.util'
 
@@ -149,7 +150,7 @@ export async function batchGetMerklAprData(pools: PoolInfo[]) {
   const aprs = await cachedGetAllNetworkMerklApr()
   return pools.map((pool) => {
     const farm = pool.farm!
-    const key = `${farm.chainId}-${farm.id}`
+    const key = `${farm.chainId}:${safeGetAddress(farm.id)}`
     const merklApr = aprs[key] || '0'
     return {
       id: getFarmKey(farm),

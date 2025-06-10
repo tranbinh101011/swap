@@ -151,10 +151,6 @@ export const usePoolApr = (
   }
 }
 
-export const usePoolsApr = () => {
-  return useAtomValue(poolAprAtom)
-}
-
 export const usePoolAprUpdater = () => {
   const pools = useAtomValue(emptyCakeAprPoolsAtom)
   const updateCakeApr = useSetAtom(cakeAprSetterAtom)
