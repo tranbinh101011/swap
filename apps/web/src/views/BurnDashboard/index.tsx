@@ -64,7 +64,7 @@ export const BurnDashboard = () => {
             <Skeleton width="240px" height="48px" borderRadius="default" />
           ) : data && data?.timestamp ? (
             <StyledGradientCard>
-              <Text bold>{t(`Last updated at: ${lastUpdatedAt}`)}</Text>
+              <Text bold>{t(`Last updated on: ${lastUpdatedAt}`)}</Text>
             </StyledGradientCard>
           ) : null}
           <NextLinkFromReactRouter
