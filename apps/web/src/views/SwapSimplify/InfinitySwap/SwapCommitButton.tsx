@@ -24,7 +24,7 @@ import { useIsTransactionUnsupported } from 'hooks/Trades'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useAtomValue } from 'jotai'
 import { baseAllTypeBestTradeAtom } from 'quoter/atom/bestTradeUISyncAtom'
-import { NoValidRouteError } from 'quoter/quoter.types'
+import { BridgeTradeError, NoValidRouteError } from 'quoter/quoter.types'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
@@ -32,9 +32,12 @@ import { useRoutingSettingChanged } from 'state/user/smartRouter'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { logGTMClickSwapConfirmEvent, logGTMClickSwapEvent } from 'utils/customGTMEventTracking'
 import { warningSeverity } from 'utils/exchange'
-import { isClassicOrder, isXOrder } from 'views/Swap/utils'
+import { useBridgeCheckApproval } from 'views/Swap/Bridge/hooks/useBridgeCheckApproval'
+import { computeBridgeOrderFee, getBridgeOrderPriceImpact } from 'views/Swap/Bridge/utils'
 import { ConfirmSwapModalV2 } from 'views/Swap/V3Swap/containers/ConfirmSwapModalV2'
+import { isBridgeOrder, isClassicOrder, isXOrder } from 'views/Swap/utils'
 import { useAccount, useChainId } from 'wagmi'
+import { ConfirmSwapModalV3 } from '../../Swap/Bridge/CrossChainConfirmSwapModal/ConfirmSwapModalV3'
 import { useParsedAmounts, useSlippageAdjustedAmounts, useSwapInputError } from '../../Swap/V3Swap/hooks'
 import { useConfirmModalState } from '../../Swap/V3Swap/hooks/useConfirmModalState'
 import { useSwapConfig } from '../../Swap/V3Swap/hooks/useSwapConfig'
@@ -60,11 +63,11 @@ const useSettingModal = (onDismiss) => {
 
 const useSwapCurrencies = () => {
   const {
-    [Field.INPUT]: { currencyId: inputCurrencyId },
-    [Field.OUTPUT]: { currencyId: outputCurrencyId },
+    [Field.INPUT]: { currencyId: inputCurrencyId, chainId: inputChainId },
+    [Field.OUTPUT]: { currencyId: outputCurrencyId, chainId: outputChainId },
   } = useSwapState()
-  const inputCurrency = useCurrency(inputCurrencyId) as Currency
-  const outputCurrency = useCurrency(outputCurrencyId) as Currency
+  const inputCurrency = useCurrency(inputCurrencyId, inputChainId) as Currency
+  const outputCurrency = useCurrency(outputCurrencyId, outputChainId) as Currency
   return { inputCurrency, outputCurrency }
 }
 
@@ -152,13 +155,21 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   const { isRecipientEmpty, isRecipientError } = useIsRecipientError()
 
   const tradePriceBreakdown = useMemo(
-    () => computeTradePriceBreakdown(isXOrder(order) ? undefined : order?.trade),
+    () =>
+      isBridgeOrder(order)
+        ? computeBridgeOrderFee(order)
+        : computeTradePriceBreakdown(isXOrder(order) ? undefined : order?.trade),
     [order],
   )
 
   // warnings on slippage
   const priceImpactSeverity = warningSeverity(
-    tradePriceBreakdown ? tradePriceBreakdown.priceImpactWithoutFee : undefined,
+    tradePriceBreakdown
+      ? // if tradePriceBreakdown is array, it means it's a bridge order
+        Array.isArray(tradePriceBreakdown)
+        ? getBridgeOrderPriceImpact(tradePriceBreakdown)
+        : tradePriceBreakdown.priceImpactWithoutFee
+      : undefined,
   )
 
   const relevantTokenBalances = useCurrencyBalances(account ?? undefined, [
@@ -218,10 +229,28 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
     () => (isClassicOrder(order) && !((order.trade?.routes?.length ?? 0) > 0)) || hasNoValidRouteError,
     [order, hasNoValidRouteError],
   )
-  const isValid = useMemo(() => !swapInputError && !tradeLoading, [swapInputError, tradeLoading])
+
+  const hasBridgeTradeError = useMemo(() => Boolean(tradeError && tradeError instanceof BridgeTradeError), [tradeError])
+
+  const isValid = useMemo(
+    () =>
+      !swapInputError &&
+      !tradeLoading &&
+      !hasBridgeTradeError &&
+      parsedAmounts[Field.OUTPUT]?.greaterThan(BIG_INT_ZERO),
+    [swapInputError, tradeLoading, hasBridgeTradeError, parsedAmounts],
+  )
+
+  const { isLoading: isBridgeCheckApprovalLoading } = useBridgeCheckApproval(order)
+
   const disabled = useMemo(
-    () => !isValid || (priceImpactSeverity > 3 && !isExpertMode) || isRecipientEmpty || isRecipientError,
-    [isExpertMode, isRecipientEmpty, isRecipientError, isValid, priceImpactSeverity],
+    () =>
+      isBridgeCheckApprovalLoading ||
+      !isValid ||
+      (priceImpactSeverity > 3 && !isExpertMode) ||
+      isRecipientEmpty ||
+      isRecipientError,
+    [isExpertMode, isRecipientEmpty, isRecipientError, isValid, priceImpactSeverity, isBridgeCheckApprovalLoading],
   )
 
   const userHasSpecifiedInputOutput = Boolean(
@@ -243,23 +272,40 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   }, [])
   const openSettingModal = useSettingModal(onSettingModalDismiss)
   const [openConfirmSwapModal] = useModal(
-    <ConfirmSwapModalV2
-      order={order}
-      orderHash={orderHash}
-      originalOrder={tradeToConfirm}
-      txHash={txHash}
-      confirmModalState={confirmState}
-      pendingModalSteps={confirmActions ?? []}
-      swapErrorMessage={errorMessage}
-      currencyBalances={currencyBalances}
-      onAcceptChanges={handleAcceptChanges}
-      onConfirm={onConfirm}
-      openSettingModal={openSettingModal}
-      customOnDismiss={reset}
-    />,
+    isBridgeOrder(order) ? (
+      <ConfirmSwapModalV3
+        order={order}
+        orderHash={orderHash}
+        originalOrder={tradeToConfirm}
+        txHash={txHash}
+        confirmModalState={confirmState}
+        pendingModalSteps={confirmActions ?? []}
+        swapErrorMessage={errorMessage}
+        currencyBalances={currencyBalances}
+        onAcceptChanges={handleAcceptChanges}
+        onConfirm={onConfirm}
+        openSettingModal={openSettingModal}
+        customOnDismiss={reset}
+      />
+    ) : (
+      <ConfirmSwapModalV2
+        order={order}
+        orderHash={orderHash}
+        originalOrder={tradeToConfirm}
+        txHash={txHash}
+        confirmModalState={confirmState}
+        pendingModalSteps={confirmActions ?? []}
+        swapErrorMessage={errorMessage}
+        currencyBalances={currencyBalances}
+        onAcceptChanges={handleAcceptChanges}
+        onConfirm={onConfirm}
+        openSettingModal={openSettingModal}
+        customOnDismiss={reset}
+      />
+    ),
     true,
     true,
-    'confirmSwapModalV2',
+    isBridgeOrder(order) ? 'confirmSwapModalV3' : 'confirmSwapModalV2',
   )
 
   const handleSwap = useCallback(() => {
@@ -304,18 +350,37 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   }, [confirmState, txHash, refreshBalances])
 
   const buttonText = useMemo(() => {
+    // NOTE: use if statement for readability
+
     if (isRecipientEmpty) return t('Enter a recipient')
     if (isRecipientError) return t('Invalid recipient')
-    return (
-      swapInputError ||
-      (tradeLoading && <Dots>{t('Searching For The Best Price')}</Dots>) ||
-      (priceImpactSeverity > 3 && !isExpertMode
-        ? t('Price Impact Too High')
-        : priceImpactSeverity > 2
-        ? t('Swap Anyway')
-        : t('Swap'))
-    )
-  }, [isExpertMode, isRecipientEmpty, isRecipientError, priceImpactSeverity, swapInputError, t, tradeLoading])
+    if (tradeError instanceof BridgeTradeError) {
+      if (tradeError.message.includes("doesn't have enough funds to support this deposit")) {
+        return t('Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!')
+      }
+      return tradeError.message
+    }
+    if (swapInputError) return swapInputError
+
+    if (tradeLoading) return <Dots>{t('Searching For The Best Price')}</Dots>
+    if (isBridgeCheckApprovalLoading) return <Dots>{t('Checking for approval')}</Dots>
+
+    if (priceImpactSeverity > 3 && !isExpertMode) return t('Price Impact Too High')
+
+    if (priceImpactSeverity > 2) return t('Swap Anyway')
+
+    return t('Swap')
+  }, [
+    isExpertMode,
+    isRecipientEmpty,
+    isRecipientError,
+    priceImpactSeverity,
+    swapInputError,
+    t,
+    tradeLoading,
+    tradeError,
+    isBridgeCheckApprovalLoading,
+  ])
 
   if (noRoute && userHasSpecifiedInputOutput && tradeError instanceof TimeoutError) {
     return <TimeoutButton />
@@ -334,6 +399,7 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
         variant={isValid && priceImpactSeverity > 2 && !errorMessage ? 'danger' : 'primary'}
         disabled={disabled}
         onClick={handleSwap}
+        checkChainId={isValid ? inputCurrency?.chainId : undefined}
       >
         {buttonText}
       </CommitButton>
@@ -413,7 +479,14 @@ const ResetRoutesButton = () => {
               >
                 {t('Check your settings')}
               </RoutingSettingsButton>
-              <MessageText>{t('or')}</MessageText>
+              <MessageText
+                style={{
+                  position: 'relative',
+                  top: '-1px',
+                }}
+              >
+                {t('or')}
+              </MessageText>
               <Button variant="text" scale="xs" p="0" onClick={resetRoutingSetting}>
                 {t('Reset to default')}
               </Button>

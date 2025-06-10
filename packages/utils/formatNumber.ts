@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { BIG_ZERO, BIG_ONE, BIG_TEN } from './bigNumber'
+import { BIG_ONE, BIG_TEN, BIG_ZERO } from './bigNumber'
 
 const DEFAULT_FORMAT_CONFIG = {
   prefix: '',
@@ -62,4 +62,20 @@ export function formatNumberWithFullDigits(
 ) {
   const valueInBN = new BigNumber(value)
   return formatNumber(valueInBN, { ...options, maximumSignificantDigits: getTotalDigits(valueInBN) })
+}
+
+/**
+ * Convert scientific notation (exponentials) to decimal
+ */
+export function formatScientificToDecimal(value: string | number): string {
+  if (typeof value === 'number') {
+    return formatScientificToDecimal(value.toString())
+  }
+  // If it's already a regular decimal string, return as is
+  if (!value.includes('e')) {
+    return value
+  }
+
+  // Convert scientific notation to decimal
+  return Number(value).toLocaleString('fullwide', { useGrouping: false })
 }

@@ -2,8 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
 import { Text } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
-import replaceBrowserHistoryMultiple from '@pancakeswap/utils/replaceBrowserHistoryMultiple'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { ReactNode, Suspense, useCallback, useMemo } from 'react'
 
 import CurrencyInputPanelSimplify from 'components/CurrencyInputPanelSimplify'
 import { CommonBasesType } from 'components/SearchModal/types'
@@ -12,9 +11,14 @@ import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
+import replaceBrowserHistoryMultiple from '@pancakeswap/utils/replaceBrowserHistoryMultiple'
+import { CHAIN_QUERY_NAME } from 'config/chains'
+import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
+import currencyId from 'utils/currencyId'
+import { useBridgeAvailableRoutes } from 'views/Swap/Bridge/hooks/useBridgeAvailableRoutes'
+import { getDefaultToken } from 'views/Swap/utils'
 import { useAccount } from 'wagmi'
 import useWarningImport from '../../Swap/hooks/useWarningImport'
 import { useIsWrapping } from '../../Swap/V3Swap/hooks'
@@ -32,22 +36,28 @@ interface Props {
 }
 
 export function FormMain({ inputAmount, outputAmount, tradeLoading, isUserInsufficientBalance }: Props) {
-  const { address: account } = useAccount()
   const { t } = useTranslation()
+  const { address: account } = useAccount()
   const warningSwapHandler = useWarningImport()
+
   const {
     independentField,
     typedValue,
-    [Field.INPUT]: { currencyId: inputCurrencyId },
-    [Field.OUTPUT]: { currencyId: outputCurrencyId },
+    [Field.INPUT]: { currencyId: inputCurrencyId, chainId: inputChainId },
+    [Field.OUTPUT]: { currencyId: outputCurrencyId, chainId: outputChainId },
   } = useSwapState()
-  const isWrapping = useIsWrapping()
-  const inputCurrency = useCurrency(inputCurrencyId)
-  const outputCurrency = useCurrency(outputCurrencyId)
   const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
-  const [inputBalance] = useCurrencyBalances(account, [inputCurrency, outputCurrency])
-  const maxAmountInput = useMemo(() => maxAmountSpend(inputBalance), [inputBalance])
+
+  const isWrapping = useIsWrapping()
   const loadedUrlParams = useDefaultsFromURLSearch()
+
+  const inputCurrency = useCurrency(inputCurrencyId, inputChainId)
+  const outputCurrency = useCurrency(outputCurrencyId, outputChainId)
+
+  const [inputBalance] = useCurrencyBalances(account, [inputCurrency, outputCurrency])
+
+  const maxAmountInput = useMemo(() => maxAmountSpend(inputBalance), [inputBalance])
+
   const handleTypeInput = useCallback((value: string) => onUserInput(Field.INPUT, value), [onUserInput])
   const handleTypeOutput = useCallback((value: string) => onUserInput(Field.OUTPUT, value), [onUserInput])
 
@@ -66,27 +76,67 @@ export function FormMain({ inputAmount, outputAmount, tradeLoading, isUserInsuff
     }
   }, [maxAmountInput, onUserInput])
 
+  const { canSwitch, switchNetwork } = useSwitchNetwork()
+
+  const supportedBridgeChains = useBridgeAvailableRoutes()
+
   const handleCurrencySelect = useCallback(
     (
       newCurrency: Currency,
       field: Field,
-      currentInputCurrencyId: string | undefined,
-      currentOutputCurrencyId: string | undefined,
+      _currentInputCurrencyId: string | undefined,
+      _currentOutputCurrencyId: string | undefined,
     ) => {
       onCurrencySelection(field, newCurrency)
 
       warningSwapHandler(newCurrency)
 
       const isInput = field === Field.INPUT
-      const oldCurrencyId = isInput ? currentInputCurrencyId : currentOutputCurrencyId
-      const otherCurrencyId = isInput ? currentOutputCurrencyId : currentInputCurrencyId
+
+      if (isInput && canSwitch) {
+        switchNetwork(newCurrency.chainId)
+      }
+
+      if (isInput && newCurrency.chainId !== outputChainId) {
+        const isOutputChainSupported =
+          outputChainId &&
+          supportedBridgeChains.data?.some(
+            (route) => route.originChainId === newCurrency.chainId && route.destinationChainId === outputChainId,
+          )
+
+        if (!isOutputChainSupported) {
+          // if output chain is not supported, reset output currency
+          onCurrencySelection(Field.OUTPUT, {
+            address: getDefaultToken(newCurrency.chainId) as `0x${string}`,
+            chainId: newCurrency.chainId,
+          } as Currency)
+        }
+      }
+
       const newCurrencyId = currencyId(newCurrency)
+
+      // Output chain name (undefined if no need to apply)
+      const chainOut = !isInput && inputChainId !== newCurrency.chainId && CHAIN_QUERY_NAME[newCurrency.chainId]
+
+      const isSameCurrency = !chainOut && newCurrencyId === inputCurrencyId && newCurrencyId === outputCurrencyId
+
       replaceBrowserHistoryMultiple({
-        ...(newCurrencyId === otherCurrencyId && { [isInput ? 'outputCurrency' : 'inputCurrency']: oldCurrencyId }),
         [isInput ? 'inputCurrency' : 'outputCurrency']: newCurrencyId,
+        ...(isSameCurrency && { [isInput ? 'outputCurrency' : 'inputCurrency']: undefined }),
+        chainOut: chainOut || null, // null to remove from URL if no need to apply
       })
     },
-    [onCurrencySelection, warningSwapHandler],
+    [
+      onCurrencySelection,
+      warningSwapHandler,
+      canSwitch,
+      switchNetwork,
+      outputChainId,
+      supportedBridgeChains,
+      inputChainId,
+      inputCurrencyId,
+      outputCurrencyId,
+    ],
   )
   const handleInputSelect = useCallback(
     (newCurrency: Currency) =>
@@ -111,54 +161,65 @@ export function FormMain({ inputAmount, outputAmount, tradeLoading, isUserInsuff
   const inputLoading = typedValue ? !isTypingInput && tradeLoading : false
   const outputLoading = typedValue ? isTypingInput && tradeLoading : false
 
+  const isBridge = inputCurrency?.chainId !== outputCurrency?.chainId
+
   return (
     <FormContainer>
-      <CurrencyInputPanelSimplify
-        id="swap-currency-input"
-        showUSDPrice
-        showMaxButton
-        showCommonBases
-        inputLoading={!isWrapping && inputLoading}
-        currencyLoading={!loadedUrlParams}
-        label={!isTypingInput && !isWrapping ? t('From (estimated)') : t('From')}
-        defaultValue={isWrapping ? typedValue : inputValue}
-        maxAmount={maxAmountInput}
-        showQuickInputButton
-        currency={inputCurrency}
-        onUserInput={handleTypeInput}
-        onPercentInput={handlePercentInput}
-        onMax={handleMaxInput}
-        onCurrencySelect={handleInputSelect}
-        otherCurrency={outputCurrency}
-        commonBasesType={CommonBasesType.SWAP_LIMITORDER}
-        title={
-          <Text color="textSubtle" fontSize={12} bold>
-            {t('From')}
-          </Text>
-        }
-        isUserInsufficientBalance={isUserInsufficientBalance}
-      />
+      <Suspense>
+        <CurrencyInputPanelSimplify
+          id="swap-currency-input"
+          showUSDPrice
+          showMaxButton
+          showCommonBases
+          inputLoading={!isWrapping && inputLoading}
+          currencyLoading={!loadedUrlParams}
+          label={!isTypingInput && !isWrapping ? t('From (estimated)') : t('From')}
+          defaultValue={isWrapping ? typedValue : inputValue}
+          maxAmount={maxAmountInput}
+          showQuickInputButton
+          currency={inputCurrency}
+          onUserInput={handleTypeInput}
+          onPercentInput={handlePercentInput}
+          onMax={handleMaxInput}
+          onCurrencySelect={handleInputSelect}
+          otherCurrency={outputCurrency}
+          commonBasesType={CommonBasesType.SWAP_LIMITORDER}
+          title={
+            <Text color="textSubtle" fontSize={12} bold>
+              {t('From')}
+            </Text>
+          }
+          isUserInsufficientBalance={isUserInsufficientBalance}
+          modalTitle={t('From')}
+          showSearchHeader
+        />
+      </Suspense>
       <FlipButton />
-      <CurrencyInputPanelSimplify
-        id="swap-currency-output"
-        showUSDPrice
-        showCommonBases
-        showMaxButton={false}
-        inputLoading={!isWrapping && outputLoading}
-        currencyLoading={!loadedUrlParams}
-        label={isTypingInput && !isWrapping ? t('To (estimated)') : t('To')}
-        defaultValue={isWrapping ? typedValue : outputValue}
-        currency={outputCurrency}
-        onUserInput={handleTypeOutput}
-        onCurrencySelect={handleOutputSelect}
-        otherCurrency={inputCurrency}
-        commonBasesType={CommonBasesType.SWAP_LIMITORDER}
-        title={
-          <Text color="textSubtle" fontSize={12} bold>
-            {t('To')}
-          </Text>
-        }
-      />
+      <Suspense>
+        <CurrencyInputPanelSimplify
+          disabled={isBridge}
+          id="swap-currency-output"
+          showUSDPrice
+          showCommonBases
+          showMaxButton={false}
+          inputLoading={!isWrapping && outputLoading}
+          currencyLoading={!loadedUrlParams}
+          label={isTypingInput && !isWrapping ? t('To (estimated)') : t('To')}
+          defaultValue={isWrapping ? typedValue : outputValue}
+          currency={outputCurrency}
+          onUserInput={handleTypeOutput}
+          onCurrencySelect={handleOutputSelect}
+          otherCurrency={inputCurrency}
+          commonBasesType={CommonBasesType.SWAP_LIMITORDER}
+          title={
+            <Text color="textSubtle" fontSize={12} bold>
+              {t('To')}
+            </Text>
+          }
+          modalTitle={t('To')}
+          showSearchHeader
+        />
+      </Suspense>
       <AssignRecipientButton />
       <Recipient />
     </FormContainer>

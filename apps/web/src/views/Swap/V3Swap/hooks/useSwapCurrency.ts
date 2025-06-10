@@ -3,20 +3,22 @@ import { useCurrency } from 'hooks/Tokens'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 
-export const useSwapCurrencyIds = (): [string | undefined, string | undefined] => {
-  const {
-    [Field.INPUT]: { currencyId: inputCurrencyId },
-    [Field.OUTPUT]: { currencyId: outputCurrencyId },
-  } = useSwapState()
+interface SwapStateCurrency {
+  readonly currencyId: string | undefined
+  readonly chainId: number | undefined
+}
 
-  return [inputCurrencyId, outputCurrencyId]
+export const useSwapCurrencyIds = (): [SwapStateCurrency | undefined, SwapStateCurrency | undefined] => {
+  const { [Field.INPUT]: inputCurrency, [Field.OUTPUT]: outputCurrency } = useSwapState()
+
+  return [inputCurrency, outputCurrency]
 }
 
 export const useSwapCurrency = (): [Currency | undefined, Currency | undefined] => {
-  const [inputCurrencyId, outputCurrencyId] = useSwapCurrencyIds()
+  const [stateInputCurrency, stateOutputCurrency] = useSwapCurrencyIds()
 
-  const inputCurrency = useCurrency(inputCurrencyId) as Currency
-  const outputCurrency = useCurrency(outputCurrencyId) as Currency
+  const inputCurrency = useCurrency(stateInputCurrency?.currencyId, stateInputCurrency?.chainId) as Currency
+  const outputCurrency = useCurrency(stateOutputCurrency?.currencyId, stateOutputCurrency?.chainId) as Currency
 
   return [inputCurrency, outputCurrency]
 }

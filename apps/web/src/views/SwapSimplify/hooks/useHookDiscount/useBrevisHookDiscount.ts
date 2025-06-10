@@ -16,7 +16,11 @@ export const useBrevisHookDiscount = (pools: Route['pools']) => {
   const brevisHooks = useBrevisHooks(chainId)
 
   const brevisHookPools = useMemo(() => {
-    return pools.filter((pool) => {
+    if (!pools?.length) {
+      return []
+    }
+
+    return pools?.filter((pool) => {
       if (SmartRouter.isInfinityBinPool(pool) || SmartRouter.isInfinityClPool(pool)) {
         if (!pool.hooks) return false
         return brevisHooks.find((h) => isAddressEqual(h.address, pool.hooks!.toLowerCase()))

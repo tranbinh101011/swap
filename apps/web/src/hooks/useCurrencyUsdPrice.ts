@@ -48,3 +48,20 @@ export const currencyUSDPriceAtom = atomFamily(
     return getCurrencyAddress(a) === getCurrencyAddress(b)
   },
 )
+
+export const currenciesUSDPriceAtom = atomFamily(
+  (currencies: Currency[]) => {
+    return atom(async (get) => {
+      return Promise.all(currencies.map((currency) => get(currencyUSDPriceAtom(currency))))
+    })
+  },
+  (a, b) => {
+    if (a === b) {
+      return true
+    }
+    if (a.length !== b.length) {
+      return false
+    }
+    return a.every((currency, index) => getCurrencyAddress(currency) === getCurrencyAddress(b[index]))
+  },
+)

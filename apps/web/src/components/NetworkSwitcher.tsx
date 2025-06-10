@@ -12,7 +12,7 @@ import { chainNameConverter } from 'utils/chainNameConverter'
 import { chains as evmChains } from 'utils/wagmi'
 import { NetworkSwitcherModal, networkSwitcherModalAtom } from './NetworkSwitcherModal'
 
-const SHORT_SYMBOL = {
+export const SHORT_SYMBOL = {
   [ChainId.ETHEREUM]: 'ETH',
   [ChainId.BSC]: 'BNB',
   [ChainId.BSC_TESTNET]: 'tBNB',

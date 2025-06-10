@@ -1,25 +1,22 @@
 import { useDebounce } from '@orbs-network/twap-ui/dist/hooks'
+import { INFINITY_SUPPORTED_CHAINS } from '@pancakeswap/infinity-sdk'
 import { TradeType } from '@pancakeswap/swap-sdk-core'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
-import { POOLS_FAST_REVALIDATE } from 'config/pools'
 import { useCurrency } from 'hooks/Tokens'
 import { useInputBasedAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { atomFamily } from 'jotai/utils'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { activeQuoteHashAtom } from 'quoter/atom/abortControlAtoms'
+import { bestCrossChainQuoteAtom } from 'quoter/atom/bestCrossChainAtom'
 import { baseAllTypeBestTradeAtom, pauseAtom, userTypingAtom } from 'quoter/atom/bestTradeUISyncAtom'
 import { updatePlaceholderAtom } from 'quoter/atom/placeholderAtom'
 import { QUOTE_REVALIDATE_TIME } from 'quoter/consts'
-import { QuoteQuery } from 'quoter/quoter.types'
-import { fetchCandidatePools, fetchCandidatePoolsLite } from 'quoter/utils/poolQueries'
 import { useEffect } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { useAccount } from 'wagmi'
-import { bestQuoteAtom } from '../atom/bestQuoteAtom'
 import { quoteNonceAtom } from '../atom/revalidateAtom'
-import { createPoolQuery, createQuoteQuery } from '../utils/createQuoteQuery'
+import { createQuoteQuery } from '../utils/createQuoteQuery'
 import { useQuoteContext } from './QuoteContext'
 import { multicallGasLimitAtom } from './useMulticallGasLimit'
 
@@ -29,12 +26,12 @@ export const useQuoterSync = () => {
   const {
     independentField,
     typedValue,
-    [Field.INPUT]: { currencyId: inputCurrencyId },
-    [Field.OUTPUT]: { currencyId: outputCurrencyId },
+    [Field.INPUT]: { currencyId: inputCurrencyId, chainId: inputCurrencyChainId },
+    [Field.OUTPUT]: { currencyId: outputCurrencyId, chainId: outputCurrencyChainId },
   } = debouncedSwapState
   const { address } = useAccount()
-  const inputCurrency = useCurrency(inputCurrencyId)
-  const outputCurrency = useCurrency(outputCurrencyId)
+  const inputCurrency = useCurrency(inputCurrencyId, inputCurrencyChainId)
+  const outputCurrency = useCurrency(outputCurrencyId, outputCurrencyChainId)
   const isExactIn = independentField === Field.INPUT
   const independentCurrency = isExactIn ? inputCurrency : outputCurrency
   const dependentCurrency = isExactIn ? outputCurrency : inputCurrency
@@ -58,9 +55,14 @@ export const useQuoterSync = () => {
 
   const { slippageTolerance: slippage } = useInputBasedAutoSlippageWithFallback(amount)
   const blockNumber = useCurrentBlock()
+  const destinationBlockNumber = useCurrentBlock(outputCurrencyChainId)
   const setActiveQuoteHash = useSetAtom(activeQuoteHashAtom)
   const [nonce, setNonce] = useAtom(quoteNonceAtom)
   const gasLimit = useAtomValue(multicallGasLimitAtom(chainId))
+  const gasLimitDestinationChain = useAtomValue(multicallGasLimitAtom(outputCurrencyChainId))
+
+  // NOTE: move support infinity check here so we could extends to cross chain swap
+  const infinitySupportByChain = INFINITY_SUPPORTED_CHAINS.includes(chainId)
 
   const quoteQueryInit = {
     amount,
@@ -71,20 +73,22 @@ export const useQuoterSync = () => {
     maxSplits: split ? undefined : 0,
     v2Swap,
     v3Swap,
-    infinitySwap,
+    infinitySwap: Boolean(infinitySwap), // chain support is check inner
     stableSwap,
     speedQuoteEnabled,
     xEnabled,
     slippage,
     address,
     blockNumber,
+    destinationBlockNumber,
+    gasLimitDestinationChain,
     nonce,
     for: 'main',
     gasLimit,
   }
+  const isCrossChain = inputCurrencyChainId !== outputCurrencyChainId
 
   const quoteQuery = createQuoteQuery(quoteQueryInit)
-  useAtomValue(prefetchPoolsAtom(quoteQuery))
   const setPlaceholder = useSetAtom(updatePlaceholderAtom)
 
   useEffect(() => {
@@ -95,16 +99,18 @@ export const useQuoterSync = () => {
     setTyping(true)
   }, [typedValue, setTyping])
 
-  const quoteResult = useAtomValue(bestQuoteAtom(quoteQuery))
+  const quoteResult = useAtomValue(bestCrossChainQuoteAtom(quoteQuery))
+
   useEffect(() => {
     let t = 0
+    const revalidateTime = isCrossChain ? QUOTE_REVALIDATE_TIME * 2 : QUOTE_REVALIDATE_TIME
     const interval = setInterval(() => {
-      const outdated = Date.now() - quoteQuery.createTime! > QUOTE_REVALIDATE_TIME
+      const outdated = Date.now() - quoteQuery.createTime! > revalidateTime
       if (paused || (!outdated && quoteResult.loading)) {
         return
       }
       if (t > 0) {
-        if (t % QUOTE_REVALIDATE_TIME === 0) {
+        if (t % revalidateTime === 0) {
           setNonce((v) => v + 1)
         }
       }
@@ -115,7 +121,7 @@ export const useQuoterSync = () => {
       clearInterval(interval)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quoteQuery.hash, paused, quoteResult.loading])
+  }, [quoteQuery.hash, paused, quoteResult.loading, isCrossChain])
 
   useEffect(() => {
     if (quoteResult.isJust() && !quoteResult.hasFlag('placeholder')) {
@@ -150,31 +156,3 @@ export const useQuoterSync = () => {
     setTyping(false)
   }, [quoteResult.value, quoteResult.loading, quoteResult.error, pauseQuote, setTrade, setTyping, setNonce, paused])
 }
-
-const prefetchPoolsAtom = atomFamily(
-  (quoteQuery: QuoteQuery) => {
-    return atom(async () => {
-      if (!quoteQuery.baseCurrency || !quoteQuery.currency) {
-        return
-      }
-      const { poolQuery, poolOptions } = createPoolQuery(quoteQuery)
-      fetchCandidatePools(poolQuery, poolOptions)
-      fetchCandidatePoolsLite(poolQuery, poolOptions)
-    })
-  },
-  (a, b) => {
-    const isEqualQuote = a.hash === b.hash
-    if (!isEqualQuote) {
-      return false
-    }
-
-    const chainId = a.currency?.chainId
-    if (!chainId) {
-      return true
-    }
-    const ttl = POOLS_FAST_REVALIDATE[chainId]
-    const epochA = Math.floor(a.createTime / ttl)
-    const epochB = Math.floor(b.createTime / ttl)
-    return epochB === epochA
-  },
-)

@@ -191,7 +191,7 @@ export function listToTokenMap(list: TokenList, key?: string): TokenAddressMap {
 // -------------------------------------
 //   Hooks
 // -------------------------------------
-export function useAllLists(): {
+export function useAllLists(chainId?: ChainId): {
   readonly [url: string]: {
     readonly current: TokenList | null
     readonly pendingUpdate: TokenList | null
@@ -199,8 +199,9 @@ export function useAllLists(): {
     readonly error: string | null
   }
 } {
-  const { chainId } = useActiveChainId()
-  return useAllListsByChainId(chainId)
+  const { chainId: activeChainId } = useActiveChainId()
+  const selectedChainId = chainId ?? activeChainId
+  return useAllListsByChainId(selectedChainId)
 }
 export function useAllListsByChainId(chainId: number): {
   readonly [url: string]: {
@@ -227,9 +228,10 @@ function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddress
 }
 
 // filter out unsupported lists
-export function useActiveListUrls(): string[] | undefined {
-  const { chainId } = useActiveChainId()
-  return useActiveListUrlsByChainId(chainId)
+export function useActiveListUrls(chainId?: ChainId): string[] | undefined {
+  const { chainId: activeChainId } = useActiveChainId()
+  const selectedChainId = chainId ?? activeChainId
+  return useActiveListUrlsByChainId(selectedChainId)
 }
 
 export function useActiveListUrlsByChainId(chainId: number): string[] | undefined {
@@ -263,8 +265,8 @@ export function useWarningTokenList(): TokenAddressMap {
   return useAtomValue(combinedTokenMapFromWarningUrlsAtom)
 }
 
-export function useIsListActive(url: string): boolean {
-  const activeListUrls = useActiveListUrls()
+export function useIsListActive(url: string, chainId?: ChainId): boolean {
+  const activeListUrls = useActiveListUrls(chainId)
   return useMemo(() => Boolean(activeListUrls?.includes(url)), [activeListUrls, url])
 }
 

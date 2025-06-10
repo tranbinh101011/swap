@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { ChainId } from '@pancakeswap/chains'
-import { Currency, ERC20Token, NativeCurrency, Token } from '@pancakeswap/sdk'
+import { Currency, ERC20Token, Native, NativeCurrency, Token } from '@pancakeswap/sdk'
 import { type Address, erc20Abi, zeroAddress } from 'viem'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
@@ -23,7 +23,7 @@ import useUserAddedTokens, { useUserAddedTokensByChainIds } from '../state/user/
 import { useActiveChainId } from './useActiveChainId'
 import useNativeCurrency from './useNativeCurrency'
 
-const mapWithoutUrls = (tokenMap?: TokenAddressMap<ChainId>, chainId?: number) => {
+export const mapWithoutUrls = (tokenMap?: TokenAddressMap<ChainId>, chainId?: number) => {
   if (!tokenMap || !chainId) return {}
   return Object.keys(tokenMap[chainId] || {}).reduce<{ [address: string]: ERC20Token }>((newMap, address) => {
     const checksumAddress = safeGetAddress(address)
@@ -55,24 +55,24 @@ export function useAllTokens(overrideChainId?: number): { [address: string]: ERC
   const tokenMap = useAtomValue(combinedTokenMapFromActiveUrlsAtom)
   const userAddedTokens = useUserAddedTokens(chainId)
   return useMemo(() => {
-    return (
-      userAddedTokens
-        // reduce into all ALL_TOKENS filtered by the current chain
-        .reduce<{ [address: string]: ERC20Token }>(
-          (tokenMap_, token) => {
-            const checksumAddress = safeGetAddress(token.address)
+    const allTokens = userAddedTokens
+      // reduce into all ALL_TOKENS filtered by the current chain
+      .reduce<{ [address: string]: ERC20Token }>(
+        (tokenMap_, token) => {
+          const checksumAddress = safeGetAddress(token.address)
 
-            if (checksumAddress) {
-              tokenMap_[checksumAddress] = token
-            }
+          if (checksumAddress) {
+            tokenMap_[checksumAddress] = token
+          }
 
-            return tokenMap_
-          },
-          // must make a copy because reduce modifies the map, and we do not
-          // want to make a copy in every iteration
-          mapWithoutUrls(tokenMap, chainId),
-        )
-    )
+          return tokenMap_
+        },
+        // must make a copy because reduce modifies the map, and we do not
+        // want to make a copy in every iteration
+        mapWithoutUrls(tokenMap, chainId),
+      )
+
+    return allTokens
   }, [userAddedTokens, tokenMap, chainId])
 }
 
@@ -191,10 +191,11 @@ export function useUnsupportedTokens(overrideChainId?: number): { [address: stri
   return useMemo(() => mapWithoutUrls(unsupportedTokensMap, chainId), [unsupportedTokensMap, chainId])
 }
 
-export function useWarningTokens(): { [address: string]: ERC20Token } {
+export function useWarningTokens(chainId?: ChainId): { [address: string]: ERC20Token } {
+  const { chainId: activeChainId } = useActiveChainId()
+  const selectedChainId = chainId ?? activeChainId
   const warningTokensMap = useWarningTokenList()
-  const { chainId } = useActiveChainId()
-  return useMemo(() => mapWithoutUrls(warningTokensMap, chainId), [warningTokensMap, chainId])
+  return useMemo(() => mapWithoutUrls(warningTokensMap, selectedChainId), [warningTokensMap, selectedChainId])
 }
 
 export function useIsTokenActive(token: ERC20Token | undefined | null, chainId?: number): boolean {
@@ -220,9 +221,10 @@ export function useIsUserAddedToken(currency: Currency | undefined | null, chain
   return !!userAddedTokens.find((token) => currency?.equals(token))
 }
 
-export function useToken(tokenAddress?: string): ERC20Token | undefined | null {
-  const { chainId } = useActiveChainId()
-  return useTokenByChainId(tokenAddress, chainId)
+export function useToken(tokenAddress?: string, chainId?: number): ERC20Token | undefined | null {
+  const { chainId: activeChainId } = useActiveChainId()
+  const chainIdToUse = chainId ?? activeChainId
+  return useTokenByChainId(tokenAddress, chainIdToUse)
 }
 // undefined if invalid or does not exist
 // null if loading
@@ -287,14 +289,15 @@ export function useOnRampToken(currencyId?: string): Currency | undefined {
   }, [token, chainId, currencyId])
 }
 
-export function useCurrency(currencyId: string | undefined): UnsafeCurrency {
-  const native: NativeCurrency = useNativeCurrency()
+export function useCurrency(currencyId: string | undefined, chainId?: number): UnsafeCurrency {
+  const native: NativeCurrency = useNativeCurrency(chainId)
+
   const isNative =
     currencyId?.toUpperCase() === native.symbol?.toUpperCase() ||
     currencyId?.toLowerCase() === GELATO_NATIVE ||
     currencyId?.toLowerCase() === zeroAddress
 
-  const token = useToken(isNative ? undefined : currencyId)
+  const token = useToken(isNative ? undefined : currencyId, chainId)
   return isNative ? native : token
 }
 
@@ -319,6 +322,17 @@ export function useOnRampCurrency(currencyId: string | undefined): NativeCurrenc
     currencyId?.toLowerCase() === GELATO_NATIVE ||
     currencyId?.toLowerCase() === zeroAddress
   const token = useOnRampToken(currencyId)
+
+  return isNative ? native : token
+}
+
+export function convertTokenToCurrency(token: ERC20Token): Currency {
+  const native = Native.onChain(token.chainId)
+
+  const isNative =
+    token.symbol?.toUpperCase() === native.symbol?.toUpperCase() ||
+    token.symbol?.toLowerCase() === GELATO_NATIVE ||
+    token.symbol?.toLowerCase() === zeroAddress
 
   return isNative ? native : token
 }

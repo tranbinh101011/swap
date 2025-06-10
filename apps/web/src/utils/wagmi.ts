@@ -4,7 +4,7 @@ import { blocto } from '@pancakeswap/wagmi/connectors/blocto'
 import { CHAINS } from 'config/chains'
 import { PUBLIC_NODES } from 'config/nodes'
 import memoize from 'lodash/memoize'
-import { Transport, custom } from 'viem'
+import { Transport } from 'viem'
 import { createConfig, http } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
 import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
@@ -72,27 +72,6 @@ export const transports = chains.reduce((ts, chain) => {
   }
 }, {} as Record<number, Transport>)
 
-const injectedTransports = chains.reduce((ts, chain) => {
-  let httpStrings: string[] | readonly string[] = []
-
-  httpStrings = PUBLIC_NODES[chain.id] ? PUBLIC_NODES[chain.id] : []
-
-  const injectedTransport =
-    typeof window !== 'undefined' && window.ethereum ? custom(window.ethereum as any) : undefined
-
-  const allTransports = [injectedTransport, ...httpStrings.map((t: any) => http(t))].filter(Boolean) as Transport[]
-
-  if (ts) {
-    // eslint-disable-next-line no-param-reassign
-    ts[chain.id] = fallbackWithRank(allTransports)
-    return ts
-  }
-
-  return {
-    [chain.id]: fallbackWithRank(allTransports),
-  }
-}, {} as Record<number, Transport>)
-
 export const cyberWalletConnector = isCyberWallet()
   ? createCyberWalletConnector({
       name: 'PancakeSwap',
@@ -129,7 +108,7 @@ export const createW3WWagmiConfig = () => {
     chains,
     ssr: true,
     syncConnectedChain: true,
-    transports: injectedTransports,
+    transports,
     ...CLIENT_CONFIG,
 
     connectors: [injectedConnector, binanceWeb3WalletConnector()],

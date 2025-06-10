@@ -136,7 +136,7 @@ export const GasTokenSelector = ({ inputCurrency, ...props }: GasTokenSelectorPr
   const [gasToken, setGasToken] = useGasToken()
   const gasTokenInfo = paymasterInfo[gasToken.isToken ? gasToken?.wrapped.address : '']
 
-  const nativeBalances = useNativeBalances([account])
+  const nativeBalances = useNativeBalances(account)
   const [balances, balancesLoading] = useTokenBalancesWithLoadingIndicator(
     account,
     paymasterTokens.filter((token) => token.isToken) as any[],
@@ -162,7 +162,7 @@ export const GasTokenSelector = ({ inputCurrency, ...props }: GasTokenSelectorPr
     })
   }, [config, setGasToken])
 
-  const getTokenBalance = memoize((address: Address) => balances[address])
+  const getTokenBalance = memoize((chainId: number, address: Address) => balances[`${chainId}-${address}`])
 
   const onSelectorButtonClick = useCallback(() => {
     setIsOpen(true)
@@ -183,8 +183,8 @@ export const GasTokenSelector = ({ inputCurrency, ...props }: GasTokenSelectorPr
   const tokenListSortComparator = (tokenA: Currency, tokenB: Currency) => {
     if (tokenA.isNative || tokenB.isNative) return 1
 
-    const balanceA = getTokenBalance(tokenA.wrapped.address)
-    const balanceB = getTokenBalance(tokenB.wrapped.address)
+    const balanceA = getTokenBalance(tokenA.chainId, tokenA.wrapped.address)
+    const balanceB = getTokenBalance(tokenB.chainId, tokenB.wrapped.address)
 
     if (!balanceA || !balanceB) return 0
 
@@ -214,7 +214,8 @@ export const GasTokenSelector = ({ inputCurrency, ...props }: GasTokenSelectorPr
       () =>
         account && itemInfo?.discount !== 'FREE'
           ? Boolean(item.isToken) &&
-            (!getTokenBalance(item.wrapped.address) || formatAmount(getTokenBalance(item.wrapped.address)) === '0')
+            (!getTokenBalance(item.chainId, item.wrapped.address) ||
+              formatAmount(getTokenBalance(item.chainId, item.wrapped.address)) === '0')
           : false,
       [item, itemInfo],
     )
@@ -250,13 +251,13 @@ export const GasTokenSelector = ({ inputCurrency, ...props }: GasTokenSelectorPr
 
           {balancesLoading ? (
             <CircleLoader />
-          ) : (account && nativeBalances[account]) || getTokenBalance(item.wrapped.address) ? (
+          ) : (account && nativeBalances[account]) || getTokenBalance(item.chainId, item.wrapped.address) ? (
             <StyledBalanceText>
               <NumberDisplay
                 value={
                   item.isNative && account
                     ? formatAmount(nativeBalances[account])
-                    : formatAmount(getTokenBalance(item.wrapped.address))
+                    : formatAmount(getTokenBalance(item.chainId, item.wrapped.address))
                 }
               />
             </StyledBalanceText>

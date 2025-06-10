@@ -1,3 +1,4 @@
+import { Token } from '@pancakeswap/sdk'
 import { useReadContracts } from '@pancakeswap/wagmi'
 import { useQueryClient } from '@tanstack/react-query'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -227,6 +228,7 @@ export type MultipleSameDataCallParameters<
   TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
 > = {
   addresses: (Address | undefined)[]
+  tokens?: (Token | undefined)[]
   abi: TAbi
   functionName?: string | undefined
   // FIXME: wagmiv2
@@ -243,8 +245,9 @@ export type MultipleSameDataCallParametersWagmi<TAbi extends Abi | readonly unkn
   options?: {
     enabled?: boolean
     watch?: boolean
+    refetchInterval?: number
   }
-  chainId?: number
+  chainId?: number | number[]
   args?: readonly unknown[] | undefined
 }
 
@@ -257,12 +260,15 @@ export function useMultipleContractSingleDataWagmi({
   options,
 }: MultipleSameDataCallParametersWagmi) {
   const contracts = useMemo(() => {
-    return addresses.map((address) => ({
+    return addresses.map((address, index) => ({
       abi,
       address,
       functionName,
       args,
-      chainId,
+      // We need to support multiple chainIds
+      // For example, when we fetch the balance of cross-chain pairs
+      // we need to fetch the balance of the token on both chains
+      chainId: !Array.isArray(chainId) ? chainId : chainId.length === addresses.length ? chainId[index] : undefined,
     }))
   }, [abi, functionName, args, addresses, chainId])
 
@@ -273,7 +279,7 @@ export function useMultipleContractSingleDataWagmi({
     batchSize: 2048,
     contracts,
     watch: options?.watch,
-    query: { enabled: options?.enabled },
+    query: { enabled: options?.enabled, refetchInterval: options?.refetchInterval },
   })
 }
 
@@ -286,7 +292,7 @@ export function useMultipleContractSingleData<TAbi extends Abi | readonly unknow
 }: // FIXME: wagmiv2
 // MultipleSameDataCallParameters<TAbi, TFunctionName>): CallState<ContractFunctionResult<TAbi, TFunctionName>>[] {
 MultipleSameDataCallParameters<TAbi, TFunctionName>): CallState<any>[] {
-  const { enabled = true, blocksPerFetch } = options ?? {}
+  const { enabled = true, blocksPerFetch, chainId } = options ?? {}
   const callData: Hex | undefined = useMemo(
     () =>
       abi && enabled
@@ -313,8 +319,9 @@ MultipleSameDataCallParameters<TAbi, TFunctionName>): CallState<any>[] {
         : [],
     [addresses, callData],
   )
+  const { chainId: activeChainId } = useActiveChainId()
 
-  const { chainId } = useActiveChainId()
+  const usedChainId = chainId ?? activeChainId
 
   const results = useCallsData(calls, options?.blocksPerFetch ? { blocksPerFetch } : DEFAULT_OPTIONS, chainId)
 
@@ -322,10 +329,10 @@ MultipleSameDataCallParameters<TAbi, TFunctionName>): CallState<any>[] {
 
   return useMemo(() => {
     const currentBlockNumber = queryClient.getQueryCache().find<number>({
-      queryKey: ['blockNumber', chainId],
+      queryKey: ['blockNumber', usedChainId],
     })?.state?.data
     return results.map((result) => toCallState(result, abi, functionName, currentBlockNumber))
-  }, [queryClient, chainId, results, abi, functionName])
+  }, [queryClient, usedChainId, results, abi, functionName])
 }
 
 export type SingleCallParameters<

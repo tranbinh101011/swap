@@ -1,14 +1,14 @@
 import { Currency, CurrencyAmount, Pair, Percent, Token } from '@pancakeswap/sdk'
-import { useCallback, useMemo } from 'react'
-import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { useV2Pair } from 'hooks/usePairs'
 import useTotalSupply from 'hooks/useTotalSupply'
+import { useCallback, useMemo } from 'react'
+import { wrappedCurrency } from 'utils/wrappedCurrency'
 
 import { useTranslation } from '@pancakeswap/localization'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
-import { useRemoveLiquidityV2FormDispatch, useRemoveLiquidityV2FormState } from 'state/burn/reducer'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
-import { useTokenBalances } from '../wallet/hooks'
+import { useRemoveLiquidityV2FormDispatch, useRemoveLiquidityV2FormState } from 'state/burn/reducer'
+import { useTokenBalancesWithLoadingIndicator } from '../wallet/hooks'
 import { Field, typeInput } from './actions'
 
 export function useDerivedBurnInfo(
@@ -36,11 +36,13 @@ export function useDerivedBurnInfo(
   const [, pair] = useV2Pair(currencyA, currencyB)
 
   // balances
-  const relevantTokenBalances = useTokenBalances(
+  const [relevantTokenBalances] = useTokenBalancesWithLoadingIndicator(
     account ?? undefined,
     useMemo(() => [pair?.liquidityToken], [pair?.liquidityToken]),
   )
-  const userLiquidity: undefined | CurrencyAmount<Token> = relevantTokenBalances?.[pair?.liquidityToken?.address ?? '']
+  const userLiquidity: undefined | CurrencyAmount<Token> = pair?.liquidityToken
+    ? relevantTokenBalances?.[`${pair.liquidityToken.chainId}-${pair.liquidityToken.address}`]
+    : undefined
 
   const [tokenA, tokenB] = [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
   const tokens = {

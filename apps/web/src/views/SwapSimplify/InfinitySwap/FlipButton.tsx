@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic'
-import { CSSProperties, memo, useCallback, useMemo, useRef } from 'react'
+import { CSSProperties, memo, useCallback, useMemo, useRef, useState } from 'react'
 
 import { AutoColumn, Button, useMatchBreakpoints } from '@pancakeswap/uikit'
 
@@ -7,6 +7,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import replaceBrowserHistoryMultiple from '@pancakeswap/utils/replaceBrowserHistoryMultiple'
 
 import { AutoRow } from 'components/Layout/Row'
+
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
@@ -15,10 +16,13 @@ import { keyframes, styled } from 'styled-components'
 import { useTheme } from '@pancakeswap/hooks'
 import { SwapUIV2 } from '@pancakeswap/widgets-internal'
 import { LottieRefCurrentProps } from 'lottie-react'
-import { useAllowRecipient } from '../../Swap/V3Swap/hooks'
 
+import { CHAIN_QUERY_NAME } from 'config/chains'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
 import ArrowDark from '../../../../public/images/swap/arrow_dark.json' assert { type: 'json' }
 import ArrowLight from '../../../../public/images/swap/arrow_light.json' assert { type: 'json' }
+import { useAllowRecipient } from '../../Swap/V3Swap/hooks'
 
 const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
 
@@ -80,32 +84,52 @@ export const FlipButton = memo(function FlipButton({
   const lottieRef = useRef<LottieRefCurrentProps | null>(null)
   const { isDark } = useTheme()
   const { isDesktop } = useMatchBreakpoints()
+  const { switchNetworkAsync, isLoading } = useSwitchNetwork()
+  const { chainId: activeChainId } = useActiveChainId()
 
+  const [isSwitching, setIsSwitching] = useState(false)
   const animationData = useMemo(() => (isDark ? ArrowDark : ArrowLight), [isDark])
 
   const { onSwitchTokens } = useSwapActionHandlers()
   const {
-    [Field.INPUT]: { currencyId: inputCurrencyId },
-    [Field.OUTPUT]: { currencyId: outputCurrencyId },
+    [Field.INPUT]: { currencyId: inputCurrencyId, chainId: inputChainId },
+    [Field.OUTPUT]: { currencyId: outputCurrencyId, chainId: outputChainId },
   } = useSwapState()
 
-  const onFlip = useCallback(() => {
+  const onFlip = useCallback(async () => {
+    setIsSwitching(true)
     onSwitchTokens()
+
     if (replaceBrowser) {
+      // If cross-chain swap, switch network to new Input Currency's chain
+
+      if (outputChainId && activeChainId !== outputChainId && !isLoading) {
+        await switchNetworkAsync(outputChainId)
+      }
+
       replaceBrowserHistoryMultiple({
         inputCurrency: outputCurrencyId,
         outputCurrency: inputCurrencyId,
+        ...(inputChainId &&
+          outputChainId &&
+          inputChainId !== outputChainId && {
+            chainOut: CHAIN_QUERY_NAME[inputChainId],
+            chain: CHAIN_QUERY_NAME[outputChainId],
+          }),
       })
     }
-  }, [onSwitchTokens, inputCurrencyId, outputCurrencyId])
+    setIsSwitching(false)
+  }, [onSwitchTokens, inputCurrencyId, outputCurrencyId, activeChainId, isLoading, setIsSwitching])
 
   const handleAnimatedButtonClick = useCallback(() => {
+    if (isSwitching) return
+
     onFlip()
 
     if (flipButtonRef.current && !flipButtonRef.current.classList.contains('switch-animation')) {
       flipButtonRef.current.classList.add('switch-animation')
     }
-  }, [onFlip])
+  }, [onFlip, isSwitching])
 
   const handleAnimationEnd = useCallback(() => {
     flipButtonRef.current?.classList.remove('switch-animation')

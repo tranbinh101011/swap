@@ -1,49 +1,42 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Button, InjectedModalProps, Modal, ModalBody, Text } from '@pancakeswap/uikit'
+import { Button, FlexGap, InjectedModalProps, Modal, ModalBody, SwapLoading, Text } from '@pancakeswap/uikit'
 import { TransactionList } from '@pancakeswap/widgets-internal'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useMemo } from 'react'
 import { useAppDispatch } from 'state'
-import { clearAllTransactions } from 'state/transactions/actions'
 import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/reducer'
 import { chains } from 'utils/wagmi'
-import { GetXOrderReceiptResponseOrder } from 'views/Swap/x/api'
 import { useRecentXOrders } from 'views/Swap/x/useRecentXOders'
+
+import { clearAllTransactions } from 'state/transactions/actions'
+import { useRecentBridgeOrders } from 'views/Swap/Bridge/hooks/useRecentBridgeOrders'
 import { useAccount } from 'wagmi'
+
 import ConnectWalletButton from '../../ConnectWalletButton'
 import { AutoRow } from '../../Layout/Row'
+import { CrossChainTransaction } from './CrossChainTransaction'
 import Transaction from './Transaction'
 import { XTransaction } from './XTransaction'
+import { CrossChainTransactionItem, TransactionItem, XTransactionItem } from './types'
 
-type XTransactionItem = {
-  type: 'xOrder'
-  item: GetXOrderReceiptResponseOrder
+function getTransactionTimestamp(item: TransactionItem): number {
+  switch (item.type) {
+    case 'tx':
+      return item.item.addedTime
+    case 'xOrder':
+      return new Date(item.item.createdAt).getTime()
+    case 'crossChainOrder':
+      return new Date(item.order.timestamp).getTime()
+    default:
+      return 0
+  }
 }
 
-type TransactionItem =
-  | {
-      type: 'tx'
-      item: TransactionDetails
-    }
-  | XTransactionItem
-
 function sortByTransactionTime(a: TransactionItem, b: TransactionItem) {
-  if (a.type === 'tx' && b.type === 'tx') {
-    return b.item.addedTime > a.item.addedTime ? 1 : -1
-  }
-
-  if (a.type === 'xOrder' && b.type === 'xOrder') {
-    return new Date(b.item.createdAt).getTime() > new Date(a.item.createdAt).getTime() ? 1 : -1
-  }
-
-  if (b.type === 'tx' && a.type === 'xOrder') {
-    return b.item.addedTime > new Date(a.item.createdAt).getTime() ? 1 : -1
-  }
-  if (b.type === 'xOrder' && a.type === 'tx') {
-    return new Date(b.item.createdAt).getTime() > a.item.addedTime ? 1 : -1
-  }
-  return 0
+  const timeA = getTransactionTimestamp(a)
+  const timeB = getTransactionTimestamp(b)
+  return timeB - timeA
 }
 
 export function RecentTransactions() {
@@ -55,6 +48,30 @@ export function RecentTransactions() {
     address: account,
     refetchInterval: 10_000,
   })
+
+  // Cross-Chain Orders
+  const {
+    data: crossChainOrdersResponse,
+    isFetching: isRecentBridgeOrdersLoading,
+    fetchNextPage,
+  } = useRecentBridgeOrders({
+    address: account,
+  })
+
+  const hasMoreCrossChainOrders = Boolean(
+    crossChainOrdersResponse?.pages[crossChainOrdersResponse.pages.length - 1].hasNextPage,
+  )
+
+  const recentCrossChainOrders: CrossChainTransactionItem[] =
+    crossChainOrdersResponse?.pages.flatMap(
+      (page) =>
+        page?.rows.map(
+          (order): CrossChainTransactionItem => ({
+            type: 'crossChainOrder',
+            order,
+          }),
+        ) ?? [],
+    ) ?? []
 
   const sortedRecentTransactions = useAllSortedRecentTransactions()
 
@@ -71,15 +88,24 @@ export function RecentTransactions() {
     dispatch(clearAllTransactions())
   }, [dispatch])
 
+  const recentTransactionsHeading = useMemo(() => {
+    return (
+      <FlexGap alignItems="center" gap="8px">
+        <Text color="secondary" fontSize="12px" textTransform="uppercase" bold>
+          {t('Recent Transactions')}
+        </Text>
+        {isRecentBridgeOrdersLoading && <SwapLoading />}
+      </FlexGap>
+    )
+  }, [t, isRecentBridgeOrdersLoading])
+
   return (
     <>
       {account ? (
-        xOrders.length > 0 || hasTransactions ? (
+        xOrders.length > 0 || hasTransactions || recentCrossChainOrders.length > 0 ? (
           <>
             <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }} onClick={(e) => e.stopPropagation()}>
-              <Text color="secondary" fontSize="12px" textTransform="uppercase" fontWeight="bold">
-                {t('Recent Transactions')}
-              </Text>
+              {recentTransactionsHeading}
               {hasTransactions && (
                 <Button variant="tertiary" scale="xs" onClick={clearAllTransactionsCallback}>
                   {t('clear all')}
@@ -90,9 +116,10 @@ export function RecentTransactions() {
               Object.entries(sortedRecentTransactions).map(([chainId_, transactions]) => {
                 const chainIdNumber = Number(chainId_)
                 const content = (
-                  <TransactionWithX
+                  <UnifiedTransactionList
                     transactions={Object.values(transactions)}
                     xOrders={chainIdNumber === chainId ? xOrders : undefined}
+                    crossChainOrders={recentCrossChainOrders}
                     chainId={chainIdNumber}
                   />
                 )
@@ -109,11 +136,25 @@ export function RecentTransactions() {
                 )
               })
             ) : (
-              <TransactionWithX xOrders={xOrders} chainId={chainId} />
+              <UnifiedTransactionList xOrders={xOrders} crossChainOrders={recentCrossChainOrders} chainId={chainId} />
+            )}
+            {hasMoreCrossChainOrders && (
+              <Button
+                variant="text"
+                scale="sm"
+                mt="16px"
+                disabled={isRecentBridgeOrdersLoading}
+                onClick={() => fetchNextPage()}
+              >
+                {isRecentBridgeOrdersLoading ? t('Loading...') : t('Load More')}
+              </Button>
             )}
           </>
         ) : (
-          <Text>{t('No recent transactions')}</Text>
+          <>
+            {recentTransactionsHeading}
+            <Text mt="8px">{t('No recent transactions')}</Text>
+          </>
         )
       ) : (
         <ConnectWalletButton />
@@ -134,14 +175,16 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
   )
 }
 
-function TransactionWithX({
+function UnifiedTransactionList({
   transactions,
   xOrders = [],
   chainId,
+  crossChainOrders = [],
 }: {
   transactions?: TransactionDetails[]
   xOrders?: TransactionItem[]
   chainId?: number
+  crossChainOrders?: TransactionItem[]
 }) {
   const allTransactionItems = useMemo(
     () =>
@@ -153,9 +196,10 @@ function TransactionWithX({
               item: t,
             } as TransactionItem),
         ),
+        ...crossChainOrders,
         ...xOrders,
       ].sort(sortByTransactionTime),
-    [transactions, xOrders],
+    [transactions, xOrders, crossChainOrders],
   )
 
   if (!chainId) {
@@ -167,6 +211,9 @@ function TransactionWithX({
       {allTransactionItems.map((tx) => {
         if (tx.type === 'tx') {
           return <Transaction key={tx.item.hash + tx.item.addedTime} tx={tx.item} chainId={chainId} />
+        }
+        if (tx.type === 'crossChainOrder') {
+          return <CrossChainTransaction key={tx.order.orderId} order={tx.order} />
         }
         return <XTransaction key={tx.item.hash} order={tx.item} />
       })}

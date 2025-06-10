@@ -8,7 +8,7 @@ import { TokenList } from '../src/types'
  * Contains the logic for resolving a list URL to a validated token list
  * @param listUrl list url
  */
-export async function getTokenList(listUrl: string): Promise<TokenList> {
+export async function getTokenList(listUrl: string): Promise<TokenList | undefined> {
   const urls: string[] = uriToHttp(listUrl)
   const { default: Ajv } = await import('ajv')
   const validator = new Ajv({ allErrors: true }).compile(schema)
@@ -27,9 +27,11 @@ export async function getTokenList(listUrl: string): Promise<TokenList> {
       }
       return json as TokenList
     } catch (error) {
-      if (i === urls.length - 1) {
-        throw new Error(`Failed to download list ${listUrl}`)
-      }
+      // if (i === urls.length - 1) {
+      // throw new Error(`Failed to download list ${listUrl}`)
+      // }
+
+      return undefined
     }
   }
   throw new Error('Unrecognized list URL protocol.')

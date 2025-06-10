@@ -1,12 +1,15 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Currency, CurrencyAmount, Token } from '@pancakeswap/sdk'
-import { ArrowForwardIcon, Column, QuestionHelper, Text } from '@pancakeswap/uikit'
+import { ChainId, Currency, CurrencyAmount, Token } from '@pancakeswap/sdk'
+import { WrappedTokenInfo } from '@pancakeswap/token-lists'
+import { ArrowForwardIcon, AutoColumn, Column, CopyButton, FlexGap, QuestionHelper, Text } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
+import AddToWalletButton from 'components/AddToWallet/AddToWalletButton'
 import { LightGreyCard } from 'components/Card'
-import { useActiveChainId } from 'hooks/useActiveChainId'
+import { ViewOnExplorerButton } from 'components/ViewOnExplorerButton'
+import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
+import { CSSProperties, MutableRefObject, useCallback, useMemo, useState } from 'react'
 import { FixedSizeList } from 'react-window'
 import { styled } from 'styled-components'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
@@ -40,22 +43,105 @@ const FixedContentRow = styled.div`
 `
 
 function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
-  return <StyledBalanceText title={balance.toExact()}>{formatAmount(balance, 4)}</StyledBalanceText>
+  return (
+    <StyledBalanceText title={balance.toExact()} bold>
+      {formatAmount(balance, 4)}
+    </StyledBalanceText>
+  )
 }
 
-const MenuItem = styled(RowBetween)<{ disabled: boolean; selected: boolean }>`
-  padding: 4px 20px;
+const MenuItem = styled(RowBetween)`
   height: 56px;
+  padding: 0 8px;
+`
+
+const MenuItemInner = styled.div<{ disabled?: boolean; selected: boolean }>`
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 16px;
+
   display: grid;
   grid-template-columns: auto minmax(auto, 1fr) minmax(0, 72px);
   grid-gap: 10px;
   cursor: ${({ disabled }) => !disabled && 'pointer'};
-  pointer-events: ${({ disabled }) => disabled && 'none'};
   &:hover {
     background-color: ${({ theme, disabled }) => !disabled && theme.colors.background};
   }
   opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
+
+  transition: background-color 0.1s;
 `
+
+function ComplementSection({
+  selectedCurrency,
+  isSelected,
+  showActions,
+}: {
+  selectedCurrency: Currency
+  isSelected: boolean
+  showActions: boolean
+}) {
+  const { t } = useTranslation()
+
+  if (selectedCurrency.isNative) {
+    return null
+  }
+
+  return (
+    <FlexGap ml="8px" alignItems="center">
+      {isSelected ? (
+        <>
+          <CopyButton
+            data-dd-action-name="Copy token address"
+            width="13px"
+            buttonColor="textSubtle"
+            text={selectedCurrency.wrapped.address}
+            tooltipMessage={t('Token address copied')}
+            defaultTooltipMessage={t('Copy token address')}
+            tooltipPlacement="top"
+          />
+          <ViewOnExplorerButton
+            address={selectedCurrency.wrapped.address}
+            chainId={selectedCurrency.chainId}
+            type="token"
+            color="textSubtle"
+            width="15px"
+            ml="8px"
+            tooltipPlacement="top"
+          />
+          <AddToWalletButton
+            data-dd-action-name="Add to wallet"
+            variant="text"
+            p="0"
+            ml="12px"
+            height="auto"
+            width="fit-content"
+            tokenAddress={selectedCurrency.wrapped.address}
+            tokenSymbol={selectedCurrency.symbol}
+            tokenDecimals={selectedCurrency.decimals}
+            tokenLogo={
+              selectedCurrency.wrapped instanceof WrappedTokenInfo ? selectedCurrency.wrapped.logoURI : undefined
+            }
+            tooltipPlacement="top"
+          />
+        </>
+      ) : (
+        showActions && (
+          <CopyButton
+            data-dd-action-name="Copy token address"
+            width="13px"
+            buttonColor="textSubtle"
+            text={selectedCurrency.wrapped.address}
+            tooltipMessage={t('Token address copied')}
+            defaultTooltipMessage={t('Copy token address')}
+            tooltipPlacement="top"
+            opacity={0.5}
+          />
+        )
+      )}
+    </FlexGap>
+  )
+}
 
 function CurrencyRow({
   currency,
@@ -63,12 +149,14 @@ function CurrencyRow({
   isSelected,
   otherSelected,
   style,
+  showChainLogo,
 }: {
   currency: Currency
   onSelect: () => void
   isSelected: boolean
   otherSelected: boolean
   style: CSSProperties
+  showChainLogo?: boolean
 }) {
   const { address: account } = useAccount()
   const { t } = useTranslation()
@@ -76,29 +164,63 @@ function CurrencyRow({
   const selectedTokenList = useCombinedActiveList()
   const isOnSelectedList = isTokenOnList(selectedTokenList, currency)
   const customAdded = useIsUserAddedToken(currency)
+  const [isHovered, setIsHovered] = useState(false)
 
   const balance = useCurrencyBalance(account ?? undefined, currency)
+  const currencyUsdPrice = useCurrencyUsdPrice(currency, { enabled: Boolean(balance) })
+  const balanceUSD = useMemo(() => {
+    if (!balance || !currencyUsdPrice.data) return undefined
+    return (Number(balance.toExact()) * currencyUsdPrice.data).toFixed(2)
+  }, [balance, currencyUsdPrice])
+
+  const setIsHoveredCallback = useCallback(() => {
+    setIsHovered(true)
+  }, [])
+
+  const setIsHoveredLeaveCallback = useCallback(() => {
+    setIsHovered(false)
+  }, [])
 
   // only show add or remove buttons if not on selected list
   return (
-    <MenuItem
-      style={style}
-      className={`token-item-${key}`}
-      onClick={() => (isSelected ? null : onSelect())}
-      disabled={isSelected}
-      selected={otherSelected}
-    >
-      <CurrencyLogo currency={currency} size="28px" />
+    <MenuItem style={style} className={`token-item-${key}`}>
+      <MenuItemInner
+        disabled={isSelected}
+        selected={otherSelected}
+        onClick={() => (isSelected ? null : onSelect())}
+        onMouseEnter={setIsHoveredCallback}
+        onMouseLeave={setIsHoveredLeaveCallback}
+      >
+        <CurrencyLogo showChainLogo={showChainLogo} currency={currency} size="40px" />
 
-      <Column>
-        <Text bold>{getTokenSymbolAlias(currency?.wrapped?.address, currency?.chainId, currency?.symbol)}</Text>
-        <Text color="textSubtle" small ellipsis maxWidth="200px">
-          {!isOnSelectedList && customAdded && `${t('Added by user')} •`} {currency?.name}
-        </Text>
-      </Column>
-      <RowFixed style={{ justifySelf: 'flex-end' }}>
-        {balance ? <Balance balance={balance} /> : account ? <CircleLoader /> : <ArrowForwardIcon />}
-      </RowFixed>
+        <Column>
+          <FlexGap alignItems="center">
+            <Text bold>{getTokenSymbolAlias(currency?.wrapped?.address, currency?.chainId, currency?.symbol)}</Text>
+            <ComplementSection isSelected={isSelected} selectedCurrency={currency} showActions={isHovered} />
+          </FlexGap>
+          <Text color="textSubtle" small ellipsis maxWidth="200px">
+            {!isOnSelectedList && customAdded && `${t('Added by user')} •`} {currency?.name}
+          </Text>
+        </Column>
+        <RowFixed style={{ justifySelf: 'flex-end' }}>
+          {balance ? (
+            <AutoColumn justify="flex-end">
+              <Balance balance={balance} />
+              <div>
+                {balanceUSD && Number(balanceUSD) > 0 && (
+                  <Text color="textSubtle" small ellipsis maxWidth="200px">
+                    ${balanceUSD}
+                  </Text>
+                )}
+              </div>
+            </AutoColumn>
+          ) : account ? (
+            <CircleLoader />
+          ) : (
+            <ArrowForwardIcon />
+          )}
+        </RowFixed>
+      </MenuItemInner>
     </MenuItem>
   )
 }
@@ -115,6 +237,8 @@ export default function CurrencyList({
   showImportView,
   setImportToken,
   breakIndex,
+  showChainLogo,
+  chainId,
 }: {
   height: number | string
   currencies: Currency[]
@@ -127,10 +251,10 @@ export default function CurrencyList({
   showImportView: () => void
   setImportToken: (token: Token) => void
   breakIndex: number | undefined
+  showChainLogo?: boolean
+  chainId?: ChainId
 }) {
-  const { chainId } = useActiveChainId()
-
-  const native = useNativeCurrency()
+  const native = useNativeCurrency(chainId)
 
   const itemData: (Currency | undefined)[] = useMemo(() => {
     let formatted: (Currency | undefined)[] = showNative
@@ -152,7 +276,7 @@ export default function CurrencyList({
       const otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
 
       const handleSelect = () => onCurrencySelect(currency)
-      const token = wrappedCurrency(currency, chainId)
+      const token = wrappedCurrency(currency, currency?.chainId)
       const showImport = index > currencies.length
 
       if (index === breakIndex || !data) {
@@ -192,19 +316,20 @@ export default function CurrencyList({
           isSelected={isSelected}
           onSelect={handleSelect}
           otherSelected={otherSelected}
+          showChainLogo={showChainLogo}
         />
       )
     },
     [
       selectedCurrency,
       otherCurrency,
-      chainId,
       currencies.length,
       breakIndex,
       onCurrencySelect,
       t,
       showImportView,
       setImportToken,
+      showChainLogo,
     ],
   )
 

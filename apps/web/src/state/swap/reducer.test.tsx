@@ -1,6 +1,6 @@
-import { StrictMode } from 'react'
 import { fireEvent, render } from '@testing-library/react'
 import { useAtom } from 'jotai'
+import { StrictMode } from 'react'
 import { Field, selectCurrency } from './actions'
 import { swapReducerAtom } from './reducer'
 
@@ -23,6 +23,7 @@ describe('swap reducer', () => {
                   selectCurrency({
                     field: Field.OUTPUT,
                     currencyId: '0x0000',
+                    chainId: 1,
                   }),
                 )
               }

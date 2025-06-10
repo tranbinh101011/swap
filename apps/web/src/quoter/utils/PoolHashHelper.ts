@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Currency, getCurrencyAddress, sortCurrencies } from '@pancakeswap/swap-sdk-core'
 import { keccak256, stringify } from 'viem/utils'
 import { PoolQuery, QuoteQuery, StrategyQuery } from '../quoter.types'
@@ -12,7 +13,10 @@ export class PoolHashHelper {
       list.push(b)
     }
 
-    const sorted = sortCurrencies(list)
+    const isCrossChain = a?.chainId !== b?.chainId
+
+    // For cross-chain quotes, we don't sort the currencies
+    const sorted = isCrossChain ? list : sortCurrencies(list)
     const str = sorted.map((currency) => `${getCurrencyAddress(currency)}_${currency.chainId}`).join(',')
     const hash = keccak256(`0x${str}`)
     return hash
@@ -32,7 +36,6 @@ export class PoolHashHelper {
   }
 
   static hashPoolQuery = (query: PoolQuery) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { currencyA, currencyB, ...rest } = query
     try {
       const hash = PoolHashHelper.hashCurrenciesWithSort(currencyA, currencyB)
@@ -45,7 +48,18 @@ export class PoolHashHelper {
   }
 
   static hashQuoteQuery = (query: QuoteQuery) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { amount, currency, blockNumber, gasLimit, provider, createTime, hash, placeholderHash, routeKey, ...rest } =
+      query
+    const chainId = query.baseCurrency?.chainId
+    // NOTE: Support for cross-chain quotes
+    const destinationChainId = query.currency?.chainId
+    const restHash = keccak256(`0x${stringify(rest)}:${chainId}:${destinationChainId}`)
+    const hashCurrencies = PoolHashHelper.hashCurrencies(amount?.currency, currency || undefined)
+    const prts = [amount?.toExact(), hashCurrencies, restHash]
+    return keccak256(`0x${prts.join(':')}`)
+  }
+
+  static hashPlaceHolderQuoteQuery = (query: QuoteQuery) => {
     const {
       amount,
       currency,
@@ -57,10 +71,17 @@ export class PoolHashHelper {
       hash,
       placeholderHash,
       routeKey,
-      ...rest
+      nonce,
+      infinitySwap,
+      v2Swap,
+      v3Swap,
+      stableSwap,
     } = query
     const chainId = query.baseCurrency?.chainId
-    const restHash = keccak256(`0x${stringify(rest)}:${chainId}`)
+    // NOTE: Support for cross-chain quotes
+    const destinationChainId = query.currency?.chainId
+    const rest = { slippage, nonce, infinitySwap, v2Swap, v3Swap, stableSwap }
+    const restHash = keccak256(`0x${stringify(rest)}:${chainId}:${destinationChainId}`)
     const hashCurrencies = PoolHashHelper.hashCurrencies(amount?.currency, currency || undefined)
     const prts = [amount?.toExact(), hashCurrencies, restHash]
     return keccak256(`0x${prts.join(':')}`)
@@ -82,7 +103,7 @@ export const isEqualCurrency = (a: Currency | undefined, b: Currency | undefined
   if (!a || !b) {
     return false
   }
-  return getCurrencyAddress(a) === getCurrencyAddress(b)
+  return getCurrencyAddress(a) === getCurrencyAddress(b) && a.chainId === b.chainId
 }
 
 export const isEqualQuoteQuery = (a: QuoteQuery, b: QuoteQuery) => {

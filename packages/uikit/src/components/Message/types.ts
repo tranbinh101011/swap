@@ -6,6 +6,7 @@ export const variants = {
   DANGER: "danger",
   SUCCESS: "success",
   PRIMARY: "primary",
+  SECONDARY: "secondary",
 } as const;
 
 export type Variant = (typeof variants)[keyof typeof variants];

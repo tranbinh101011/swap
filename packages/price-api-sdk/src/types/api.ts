@@ -45,3 +45,8 @@ export type AMMPriceResponse = {
   messageType: ResponseType.AMM_PRICE_RESPONSE
   message: AMMOrder
 }
+
+export type BridgeQuoteResponse = {
+  messageType: ResponseType.MM_PRICE_RESPONSE
+  message: string
+}

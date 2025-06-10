@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserRouter, Link } from "react-router-dom";
+import { Box, Flex, Grid } from "../Box";
+import Button from "../Button/Button";
+import { LinkExternal } from "../Link";
+import { EllipsisIcon } from "../Svg";
+import { Text } from "../Text";
 import InlineMenu from "./InlineMenu";
 import SubMenuComp from "./SubMenu";
 import { SubMenuItem } from "./styles";
-import { LinkExternal } from "../Link";
-import { Box, Flex, Grid } from "../Box";
-import { Text } from "../Text";
-import Button from "../Button/Button";
-import { EllipsisIcon } from "../Svg";
 
 export default {
   title: "Components/Menu",

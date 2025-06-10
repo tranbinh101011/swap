@@ -11,15 +11,17 @@ import { Field, replaceSwapState } from 'state/swap/actions'
 import { queryParametersToSwapState, useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 
-import { CAKE, STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
 import { SwapUIV2 } from '@pancakeswap/widgets-internal'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
+import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/router'
 import { swapReducerAtom } from 'state/swap/reducer'
-import useWarningImport from '../../Swap/hooks/useWarningImport'
+import { useBridgeAvailableRoutes } from 'views/Swap/Bridge/hooks/useBridgeAvailableRoutes'
+import { getDefaultToken } from 'views/Swap/utils'
 import { useIsWrapping } from '../../Swap/V3Swap/hooks'
+import useWarningImport from '../../Swap/hooks/useWarningImport'
 import { FlipButton } from './FlipButton'
 
 interface Props {
@@ -38,24 +40,50 @@ export function FormMainForHomePage({ inputAmount, outputAmount, tradeLoading }:
   const {
     independentField,
     typedValue,
-    [Field.INPUT]: { currencyId: inputCurrencyId },
-    [Field.OUTPUT]: { currencyId: outputCurrencyId },
+    [Field.INPUT]: { currencyId: inputCurrencyId, chainId: inputChainId },
+    [Field.OUTPUT]: { currencyId: outputCurrencyId, chainId: outputChainId },
   } = useSwapState()
   const isWrapping = useIsWrapping()
-  const inputCurrency = useCurrency(inputCurrencyId)
-  const outputCurrency = useCurrency(outputCurrencyId)
+  const inputCurrency = useCurrency(inputCurrencyId, inputChainId)
+  const outputCurrency = useCurrency(outputCurrencyId, outputChainId)
   const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
 
   useDefaults()
   const handleTypeInput = useCallback((value: string) => onUserInput(Field.INPUT, value), [onUserInput])
   const handleTypeOutput = useCallback((value: string) => onUserInput(Field.OUTPUT, value), [onUserInput])
 
+  const supportedBridgeChains = useBridgeAvailableRoutes()
+
+  const { canSwitch, switchNetwork } = useSwitchNetwork()
+
   const handleCurrencySelect = useCallback(
     (newCurrency: Currency, field: Field) => {
+      const isInput = field === Field.INPUT
+
+      if (isInput) {
+        const isOutputChainSupported =
+          outputChainId &&
+          supportedBridgeChains.data?.some(
+            (route) => route.originChainId === newCurrency.chainId && route.destinationChainId === outputChainId,
+          )
+
+        if (!isOutputChainSupported) {
+          // if output chain is not supported, reset output currency
+          onCurrencySelection(Field.OUTPUT, {
+            address: getDefaultToken(newCurrency.chainId),
+            chainId: newCurrency.chainId,
+          } as Currency)
+        }
+
+        if (canSwitch) {
+          switchNetwork(newCurrency.chainId)
+        }
+      }
+
       onCurrencySelection(field, newCurrency)
       warningSwapHandler(newCurrency)
     },
-    [onCurrencySelection, warningSwapHandler],
+    [onCurrencySelection, warningSwapHandler, outputChainId, supportedBridgeChains.data, canSwitch, switchNetwork],
   )
   const handleInputSelect = useCallback(
     (newCurrency: Currency) => handleCurrencySelect(newCurrency, Field.INPUT),
@@ -102,6 +130,8 @@ export function FormMainForHomePage({ inputAmount, outputAmount, tradeLoading }:
               {t('From')}
             </Text>
           }
+          showSearchHeader
+          modalTitle={t('From')}
         />
         <FlipButton compact={isMobile} replaceBrowser={false} />
         <CurrencyInputPanelSimplify
@@ -125,6 +155,8 @@ export function FormMainForHomePage({ inputAmount, outputAmount, tradeLoading }:
               {t('To')}
             </Text>
           }
+          showSearchHeader
+          modalTitle={t('To')}
         />
       </Column>
     </SwapUIV2.InputPanelWrapper>
@@ -143,11 +175,7 @@ function useDefaults(): { inputCurrencyId: string | undefined; outputCurrencyId:
   useEffect(() => {
     if (!chainId || !native || !isReady) return
 
-    const parsed = queryParametersToSwapState(
-      {},
-      native.symbol,
-      CAKE[chainId]?.address ?? STABLE_COIN[chainId]?.address ?? USDC[chainId]?.address ?? USDT[chainId]?.address,
-    )
+    const parsed = queryParametersToSwapState({}, native.symbol, getDefaultToken(chainId))
 
     dispatch(
       replaceSwapState({
@@ -155,6 +183,8 @@ function useDefaults(): { inputCurrencyId: string | undefined; outputCurrencyId:
         field: parsed.independentField,
         inputCurrencyId: parsed[Field.INPUT].currencyId,
         outputCurrencyId: parsed[Field.OUTPUT].currencyId,
+        inputChainId: parsed[Field.INPUT].chainId || chainId,
+        outputChainId: parsed[Field.OUTPUT].chainId || chainId,
         recipient: null,
       }),
     )

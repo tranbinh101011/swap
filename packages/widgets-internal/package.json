@@ -36,7 +36,8 @@
     "next": "catalog:",
     "react": "^18.2.0",
     "styled-components": "6.0.7",
-    "styled-system": "^5.1.5"
+    "styled-system": "^5.1.5",
+    "react-device-detect": "*"
   },
   "devDependencies": {
     "@sentry/nextjs": "^9.6.0",

@@ -5,7 +5,9 @@ import { memo, useMemo } from 'react'
 import { styled } from 'styled-components'
 
 import { PriceOrder } from '@pancakeswap/price-api-sdk'
-import { isClassicOrder, isXOrder } from 'views/Swap/utils'
+import { computeBridgeOrderFee } from 'views/Swap/Bridge/utils'
+import { isBridgeOrder, isClassicOrder, isXOrder } from 'views/Swap/utils'
+import { RouteDisplayEssentials } from 'views/Swap/V3Swap/components/RouteDisplayModal'
 import { useIsWrapping, useSlippageAdjustedAmounts } from '../../Swap/V3Swap/hooks'
 import { computeTradePriceBreakdown } from '../../Swap/V3Swap/utils/exchange'
 import { useHasDynamicHook } from '../hooks/useHasDynamicHook'
@@ -33,8 +35,11 @@ interface Props {
 export const TradeDetails = memo(function TradeDetails({ loaded, order }: Props) {
   const slippageAdjustedAmounts = useSlippageAdjustedAmounts(order)
   const isWrapping = useIsWrapping()
-  const { priceImpactWithoutFee, lpFeeAmount } = useMemo(
-    () => computeTradePriceBreakdown(isXOrder(order) ? order.ammTrade : order?.trade),
+  const priceBreakdown = useMemo(
+    () =>
+      isBridgeOrder(order)
+        ? computeBridgeOrderFee(order)
+        : computeTradePriceBreakdown(isXOrder(order) ? order.ammTrade : order?.trade),
     [order],
   )
   const hasStablePool = useMemo(
@@ -56,13 +61,13 @@ export const TradeDetails = memo(function TradeDetails({ loaded, order }: Props)
     <AdvancedDetailsFooter show>
       <AutoColumn gap="0px">
         <TradeSummary
+          expectedFillTimeSec={isBridgeOrder(order) ? order.expectedFillTimeSec : undefined}
           isX={isXOrder(order)}
           slippageAdjustedAmounts={slippageAdjustedAmounts}
           inputAmount={inputAmount}
           outputAmount={outputAmount}
           tradeType={tradeType}
-          priceImpactWithoutFee={priceImpactWithoutFee ?? undefined}
-          realizedLPFee={lpFeeAmount ?? undefined}
+          priceBreakdown={priceBreakdown}
           hasStablePair={hasStablePool}
           hasDynamicHook={hasDynamicHook}
           loading={!loaded}
@@ -71,7 +76,14 @@ export const TradeDetails = memo(function TradeDetails({ loaded, order }: Props)
           {isXOrder(order) ? (
             <XRoutesBreakdown wrapperStyle={{ padding: 0 }} loading={!loaded} />
           ) : (
-            <RoutesBreakdown routes={order?.trade?.routes} wrapperStyle={{ padding: 0 }} loading={!loaded} />
+            <RoutesBreakdown
+              routes={
+                // TODO: remove when bridge is implemented
+                order?.trade?.routes as RouteDisplayEssentials[]
+              }
+              wrapperStyle={{ padding: 0 }}
+              loading={!loaded}
+            />
           )}
         </Box>
       </AutoColumn>

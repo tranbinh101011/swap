@@ -6,7 +6,7 @@ export const INITIAL_ALLOWED_SLIPPAGE = 50
 
 const userSlippageAtom = atomWithStorage('pcs:slippage', INITIAL_ALLOWED_SLIPPAGE)
 
-const userSlippageAtomWithLocalStorage = atom(
+export const userSlippageAtomWithLocalStorage = atom(
   (get) => get(userSlippageAtom),
   (_get, set, slippage: number) => {
     if (typeof slippage === 'number') {

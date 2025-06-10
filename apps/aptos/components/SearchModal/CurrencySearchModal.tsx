@@ -1,31 +1,31 @@
-import { useCallback, useState, useRef, useEffect } from 'react'
 import { Currency, Token } from '@pancakeswap/aptos-swap-sdk'
 import {
+  Button,
+  Heading,
+  InjectedModalProps,
+  MODAL_SWIPE_TO_CLOSE_VELOCITY,
+  ModalBackButton,
+  ModalBody,
+  ModalCloseButton,
   ModalContainer,
   ModalHeader,
   ModalTitle,
-  ModalBackButton,
-  ModalCloseButton,
-  ModalBody,
-  InjectedModalProps,
-  Heading,
-  Button,
   useMatchBreakpoints,
-  MODAL_SWIPE_TO_CLOSE_VELOCITY,
 } from '@pancakeswap/uikit'
 import { ImportList } from '@pancakeswap/widgets-internal'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { styled } from 'styled-components'
 import { usePreviousValue } from '@pancakeswap/hooks'
-import { TokenList } from '@pancakeswap/token-lists'
 import { useTranslation } from '@pancakeswap/localization'
+import { TokenList } from '@pancakeswap/token-lists'
 import { enableList, removeList, useFetchListCallback } from '@pancakeswap/token-lists/react'
+import { styled } from 'styled-components'
+import { useListState } from '../../state/lists'
+import { useAllLists } from '../../state/lists/hooks'
 import CurrencySearch from './CurrencySearch'
 import ImportToken from './ImportToken'
 import Manage from './Manage'
 import { CurrencyModalView } from './types'
-import { useListState } from '../../state/lists'
-import { useAllLists } from '../../state/lists/hooks'
 
 const Footer = styled.div`
   width: 100%;

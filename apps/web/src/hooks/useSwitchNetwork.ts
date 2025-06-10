@@ -1,17 +1,17 @@
-import { useRouter } from 'next/router'
 import { useTranslation } from '@pancakeswap/localization'
 import { useToast } from '@pancakeswap/uikit'
 import { CHAIN_QUERY_NAME } from 'config/chains'
+import { EXCHANGE_PAGE_PATHS } from 'config/constants/exchange'
 import { ExtendEthereum } from 'global'
+import { queryChainIdAtom } from 'hooks/useActiveChainId'
+import useAuth from 'hooks/useAuth'
+import { useAtom } from 'jotai/index'
+import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { useAppDispatch } from 'state'
 import { clearUserStates } from 'utils/clearUserStates'
-import { Connector, useAccount, useSwitchChain } from 'wagmi'
-import { useAtom } from 'jotai/index'
-import { queryChainIdAtom } from 'hooks/useActiveChainId'
-import { EXCHANGE_PAGE_PATHS } from 'config/constants/exchange'
 import { getHashFromRouter } from 'utils/getHashFromRouter'
-import useAuth from 'hooks/useAuth'
+import { Connector, useAccount, useSwitchChain } from 'wagmi'
 import { useSwitchNetworkLoading } from './useSwitchNetworkLoading'
 
 const checkSwitchReloadNeeded = async (connector: Connector, chainId: number, address: `0x${string}` | undefined) => {
@@ -56,10 +56,15 @@ export function useSwitchNetworkLocal() {
       const removeQueriesFromPath =
         newChainQueryName !== chainQueryName &&
         EXCHANGE_PAGE_PATHS.some((item) => {
-          return router.pathname === '/' || router.pathname.startsWith(item)
+          // Swap page (and root page) should not remove queries as they support cross-chain swap
+          if (item === '/swap' || item === '/') return false
+          return router.pathname.startsWith(item)
         })
+
       const uriHash = getHashFromRouter(router)?.[0]
+
       const { chainId: _chainId, ...omittedQuery } = router.query
+
       router.replace(
         {
           pathname: router.pathname,
@@ -74,7 +79,9 @@ export function useSwitchNetworkLocal() {
           shallow: true,
         },
       )
+
       setQueryChainId(newChainId)
+
       // Blocto in-app browser throws change event when no account change which causes user state reset therefore
       // this event should not be handled to avoid unexpected behaviour.
       if (!isBloctoMobileApp) {

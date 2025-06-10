@@ -7,7 +7,7 @@ import { Call } from 'state/multicall/actions'
 import { fetchChunk } from 'state/multicall/fetchChunk'
 import { toRoutingSDKPool, toSerializableInfinityTrade } from 'utils/convertTrade'
 import { getLogger } from 'utils/datadog'
-import { createViemPublicClientGetter } from 'utils/viem'
+import { getViemClients } from 'utils/viem'
 
 const { parseCurrency, parseCurrencyAmount, parsePool, serializeTrade } = SmartRouter.Transformer
 
@@ -167,7 +167,7 @@ addEventListener('message', (event: MessageEvent<WorkerEvent>) => {
       quoteCurrencyUsdPrice,
       account,
     } = parsed.data
-    const onChainProvider = createViemPublicClientGetter({ transportSignal: abortController.signal })
+    const onChainProvider = getViemClients
     const onChainQuoteProvider = SmartRouter.createQuoteProvider({ onChainProvider, gasLimit, account })
     const currencyAAmount = parseCurrencyAmount(chainId, amount)
 
@@ -237,7 +237,7 @@ addEventListener('message', (event: MessageEvent<WorkerEvent>) => {
     }
 
     const { amount, chainId, currency, tradeType, gasPriceWei, maxHops, candidatePools, maxSplits } = parsed.data
-    const onChainProvider = createViemPublicClientGetter({ transportSignal: abortController.signal })
+    const onChainProvider = getViemClients
     const currencyAAmount = parseCurrencyAmount(chainId, amount)
     const currencyB = parseCurrency(chainId, currency)
     // FIXME: typing issue

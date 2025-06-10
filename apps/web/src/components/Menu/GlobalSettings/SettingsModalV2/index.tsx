@@ -26,7 +26,7 @@ import { RecentTransactionsTab } from './RecentTransactionsTab'
 import { SettingsTab } from './SettingsTab'
 import { TabContent } from './TabContent'
 
-enum TabIndex {
+export enum SettingsTabIndex {
   SETTINGS = 0,
   RECENT_TRANSACTIONS = 1,
   CUSTOMIZE_ROUTING = 2,
@@ -41,7 +41,7 @@ interface SettingsModalV2Props {
    * (2) Customize Routing |
    * (3) Expert Mode
    */
-  defaultTabIndex?: TabIndex
+  defaultTabIndex?: SettingsTabIndex
 
   mode?: SettingsMode
   onDismiss?: () => void
@@ -50,7 +50,7 @@ interface SettingsModalV2Props {
 export const SettingsModalV2 = ({
   onDismiss,
   mode = SettingsMode.SWAP_LIQUIDITY,
-  defaultTabIndex = TabIndex.SETTINGS,
+  defaultTabIndex = SettingsTabIndex.SETTINGS,
 }: SettingsModalV2Props) => {
   const { t } = useTranslation()
   const { isMobile } = useMatchBreakpoints()
@@ -59,14 +59,14 @@ export const SettingsModalV2 = ({
   const [expertMode, setExpertMode] = useExpertMode()
   const [isRoutingSettingChange, reset] = useRoutingSettingChanged()
 
-  const [activeTabIndex, setActiveTabIndex] = useState<TabIndex>(defaultTabIndex)
+  const [activeTabIndex, setActiveTabIndex] = useState<SettingsTabIndex>(defaultTabIndex)
 
   const { onDismiss: onDismissGlobalSettings } = useModalV2()
 
   const ariaId = useId()
 
   const onTabChange = useCallback(
-    (index: TabIndex) => {
+    (index: SettingsTabIndex) => {
       setActiveTabIndex(index)
     },
     [setActiveTabIndex],
@@ -74,7 +74,7 @@ export const SettingsModalV2 = ({
 
   const renderTabHeading = useCallback(() => {
     switch (activeTabIndex) {
-      case TabIndex.CUSTOMIZE_ROUTING:
+      case SettingsTabIndex.CUSTOMIZE_ROUTING:
         return (
           <TabContent type="to_right">
             <Flex alignItems="center">
@@ -82,7 +82,7 @@ export const SettingsModalV2 = ({
             </Flex>
           </TabContent>
         )
-      case TabIndex.EXPERT_MODE:
+      case SettingsTabIndex.EXPERT_MODE:
         return (
           <TabContent type="to_right">
             <Heading>{t('Expert Mode')}</Heading>
@@ -109,12 +109,14 @@ export const SettingsModalV2 = ({
 
   const renderTab = useCallback(() => {
     switch (activeTabIndex) {
-      case TabIndex.SETTINGS: {
+      case SettingsTabIndex.SETTINGS: {
         return (
           <SettingsTab
             key="settings_tab"
-            onCustomizeRoutingClick={() => setActiveTabIndex(TabIndex.CUSTOMIZE_ROUTING)}
-            setShowConfirmExpertModal={(show) => setActiveTabIndex(show ? TabIndex.EXPERT_MODE : TabIndex.SETTINGS)}
+            onCustomizeRoutingClick={() => setActiveTabIndex(SettingsTabIndex.CUSTOMIZE_ROUTING)}
+            setShowConfirmExpertModal={(show) =>
+              setActiveTabIndex(show ? SettingsTabIndex.EXPERT_MODE : SettingsTabIndex.SETTINGS)
+            }
             showExpertModeAcknowledgement={showExpertModeAcknowledgement}
             expertMode={expertMode}
             setExpertMode={setExpertMode}
@@ -122,15 +124,17 @@ export const SettingsModalV2 = ({
           />
         )
       }
-      case TabIndex.RECENT_TRANSACTIONS:
+      case SettingsTabIndex.RECENT_TRANSACTIONS:
         return <RecentTransactionsTab key="recent_txns_tab" ariaId={ariaId} />
-      case TabIndex.CUSTOMIZE_ROUTING:
+      case SettingsTabIndex.CUSTOMIZE_ROUTING:
         return <CustomizeRoutingTab key="customize_routing_tab" />
-      case TabIndex.EXPERT_MODE:
+      case SettingsTabIndex.EXPERT_MODE:
         return (
           <ExpertModeTab
             key="expert_mode_tab"
-            setShowConfirmExpertModal={(show) => setActiveTabIndex(show ? TabIndex.EXPERT_MODE : TabIndex.SETTINGS)}
+            setShowConfirmExpertModal={(show) =>
+              setActiveTabIndex(show ? SettingsTabIndex.EXPERT_MODE : SettingsTabIndex.SETTINGS)
+            }
             toggleExpertMode={() => setExpertMode((s) => !s)}
             setShowExpertModeAcknowledgement={setShowExpertModeAcknowledgement}
           />
@@ -159,7 +163,7 @@ export const SettingsModalV2 = ({
       minHeight={isMobile ? '500px' : undefined}
       headerPadding="2px 14px 0 24px"
       headerRightSlot={
-        activeTabIndex === TabIndex.CUSTOMIZE_ROUTING &&
+        activeTabIndex === SettingsTabIndex.CUSTOMIZE_ROUTING &&
         isRoutingSettingChange && (
           <TabContent type="to_right">
             <Button ml="8px" variant="text" scale="sm" onClick={reset}>
@@ -171,8 +175,8 @@ export const SettingsModalV2 = ({
       title={renderTabHeading()}
       onDismiss={onDismiss}
       onBack={
-        activeTabIndex === TabIndex.CUSTOMIZE_ROUTING || activeTabIndex === TabIndex.EXPERT_MODE
-          ? () => setActiveTabIndex(TabIndex.SETTINGS)
+        activeTabIndex === SettingsTabIndex.CUSTOMIZE_ROUTING || activeTabIndex === SettingsTabIndex.EXPERT_MODE
+          ? () => setActiveTabIndex(SettingsTabIndex.SETTINGS)
           : undefined
       }
     >
@@ -196,7 +200,7 @@ export function RoutingSettingsButton({
 
   return (
     <>
-      <AtomBox textAlign="center" pt="12px">
+      <AtomBox textAlign="center">
         <NotificationDot show={isRoutingSettingChange && showRedDot}>
           <Button variant="text" onClick={() => setIsOpen(true)} scale="sm" {...buttonProps}>
             {children || t('Customize Routing')}

@@ -191,6 +191,7 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
 
 export const fetchCandidatePools = async (query: PoolQuery, options: PoolQueryOptions) => {
   const { chainId, currencyA, currencyB, blockNumber } = query
+
   const queries = poolQueriesFactory(chainId)
   if (!currencyA || !currencyB || !chainId || !blockNumber) {
     return []

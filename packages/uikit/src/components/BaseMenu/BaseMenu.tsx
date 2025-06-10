@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
+import getPortalRoot from "../../util/getPortalRoot";
 import { ClickableElementContainer } from "./styles";
 import { BaseMenuProps } from "./types";
-import getPortalRoot from "../../util/getPortalRoot";
 
 const BaseMenu: React.FC<BaseMenuProps & { children: any }> = ({ component, options, children, isOpen = false }) => {
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
@@ -55,7 +55,7 @@ const BaseMenu: React.FC<BaseMenuProps & { children: any }> = ({ component, opti
   });
 
   const menu = (
-    <div ref={setMenuElement} style={styles.popper} {...attributes.popper}>
+    <div ref={setMenuElement} style={{ ...styles.popper, zIndex: 100 }} {...attributes.popper}>
       {typeof children === "function" ? children({ toggle, open, close }) : children}
     </div>
   );

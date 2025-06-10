@@ -38,6 +38,7 @@ export enum GTMEvent {
 
   // Quote
   QUOTE_QRY = 'QUOTE_QRY',
+  BRIDGE_QUOTE_QRY = 'BRIDGE_QUOTE_QRY',
 
   // wallet
   ConnectWallet = 'connectWallet',
@@ -105,6 +106,7 @@ export enum GTMAction {
 
   // Quote
   QuoterQuery = 'Query price from Quoter',
+  BridgeQuoterQuery = 'Query price from Bridge Quoter',
 
   // Wallet
   ClickWalletConnectButton = 'Click Wallet Connect and Connected', // deprecated
@@ -460,5 +462,32 @@ export const logGTMQuoteQueryEvent = (
     currencyB: currencyB?.symbol || '',
     type,
     time,
+  })
+}
+
+export const logGTMBridgeQuoteQueryEvent = (
+  type: 'start' | 'succ' | 'fail',
+  options: {
+    originChainId?: number
+    destinationChainId?: number
+    originToken?: string
+    destinationToken?: string
+    amount?: string
+    time?: number
+  },
+) => {
+  const { originChainId, destinationChainId, originToken, destinationToken, amount, time } = options
+
+  window?.dataLayer?.push({
+    event: GTMEvent.BRIDGE_QUOTE_QRY,
+    action: GTMAction.BridgeQuoterQuery,
+    category: GTMCategory.Swap,
+    originChainId,
+    destinationChainId,
+    originToken,
+    destinationToken,
+    amount,
+    time,
+    type,
   })
 }

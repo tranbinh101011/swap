@@ -74,7 +74,7 @@ function ImportToken({ tokens, handleCurrencySelect, chainId: chainIdProp }: Imp
           {t(
             'Anyone can create tokens on %network% with any name, including creating fake versions of existing tokens and tokens that claim to represent projects that do not have a token.',
             {
-              network: chains.find((c) => c.id === chainId)?.name,
+              network: chains.find((c) => c.id === tokens?.[0]?.chainId || chainId)?.name,
             },
           )}
           <br />

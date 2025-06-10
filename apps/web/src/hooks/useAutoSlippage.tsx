@@ -8,6 +8,7 @@ import { L2_CHAIN_IDS } from 'config/chains'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMemo } from 'react'
 
+import { BridgeTrade } from '@pancakeswap/price-api-sdk'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useGasPrice } from 'state/user/hooks'
 import useNativeCurrency from './useNativeCurrency'
@@ -36,6 +37,7 @@ const isV4Trade = (
     | SmartRouterTrade<TradeType>
     | InfinityRouter.InfinityTradeWithoutGraph<TradeType>
     | ExclusiveDutchOrderTrade<Currency, Currency>
+    | BridgeTrade
     | undefined,
 ): trade is InfinityRouter.InfinityTradeWithoutGraph<TradeType> => {
   return trade !== undefined && trade !== null && 'gasUseEstimate' in trade && !('orderInfo' in trade)
@@ -46,7 +48,8 @@ const guesstimateGas = (
   trade?:
     | SmartRouterTrade<TradeType>
     | InfinityRouter.InfinityTradeWithoutGraph<TradeType>
-    | ExclusiveDutchOrderTrade<Currency, Currency>,
+    | ExclusiveDutchOrderTrade<Currency, Currency>
+    | BridgeTrade,
 ): number => {
   if (!trade) return 0
   // A very rough gas estimation based on the trade type
@@ -59,7 +62,8 @@ const calculateGasEstimateUSD = (
   trade?:
     | SmartRouterTrade<TradeType>
     | InfinityRouter.InfinityTradeWithoutGraph<TradeType>
-    | ExclusiveDutchOrderTrade<Currency, Currency>,
+    | ExclusiveDutchOrderTrade<Currency, Currency>
+    | BridgeTrade,
   baseGasEstimatePrice?: any,
 ) => {
   if (!supportsGasEstimate || !trade) return null
@@ -131,6 +135,7 @@ type SupportedTrade =
   | SmartRouterTrade<TradeType>
   | InfinityRouter.InfinityTradeWithoutGraph<TradeType>
   | ExclusiveDutchOrderTrade<Currency, Currency>
+  | BridgeTrade
 
 export default function useClassicAutoSlippageTolerance(trade?: SupportedTrade): Percent {
   const { chainId } = useActiveChainId()

@@ -28,12 +28,12 @@ import { PancakeSwapXTag } from 'components/PancakeSwapXTag'
 import { paymasterInfo } from 'config/paymaster'
 import { usePaymaster } from 'hooks/usePaymaster'
 import { isAddressEqual } from 'utils'
-import { InterfaceOrder, isXOrder } from 'views/Swap/utils'
+import { SlippageButton } from 'views/Swap/components/SlippageButton'
+import { InterfaceOrder, isBridgeOrder, isXOrder } from 'views/Swap/utils'
 import { useHasDynamicHook } from 'views/SwapSimplify/hooks/useHasDynamicHook'
 import FormattedPriceImpact from '../../components/FormattedPriceImpact'
 import { StyledBalanceMaxMini, SwapCallbackError } from '../../components/styleds'
 import { SlippageAdjustedAmounts, formatExecutionPrice } from '../utils/exchange'
-import { SlippageButton } from './SlippageButton'
 
 const SwapModalFooterContainer = styled(AutoColumn)`
   margin-top: 12px;
@@ -166,7 +166,7 @@ export const SwapModalFooterV2 = memo(function SwapModalFooterV2({
           </RowFixed>
           <FormattedPriceImpact isX={isXOrder(order)} priceImpact={priceImpactWithoutFee} />
         </RowBetween>
-        {!isXOrder(order) && (
+        {!isXOrder(order) && !isBridgeOrder(order) && (
           <RowBetween mb="8px">
             <RowFixed>
               <QuestionHelperV2

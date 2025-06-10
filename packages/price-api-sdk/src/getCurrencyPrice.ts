@@ -82,9 +82,16 @@ export async function getCurrencyListUsdPrice(
   if (!requestUrl || !currencyListParams) {
     throw new Error(`Invalid request for currency prices, request url: ${requestUrl}`)
   }
-  const res = await fetch(requestUrl, options)
-  const data = await res.json()
-  return data
+
+  try {
+    const res = await fetch(requestUrl, options)
+    const data = await res.json()
+    return data
+  } catch (error) {
+    // in case wallet api is down, return empty object
+    console.error('Failed to get currency list usd price:', error)
+    return {}
+  }
 }
 
 export async function getTokenPrices(
@@ -96,6 +103,7 @@ export async function getTokenPrices(
     address,
     chainId,
   }))
+
   const prices = await getCurrencyListUsdPrice(requestParams, options)
   return addresses.map((address) => {
     const key = getCurrencyKey({

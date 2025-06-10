@@ -26,7 +26,7 @@ import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useAtomValue } from 'jotai'
 import { LottieRefCurrentProps } from 'lottie-react'
 import dynamic from 'next/dynamic'
-import { bestQuoteAtom } from 'quoter/atom/bestQuoteAtom'
+import { bestSameChainAtom } from 'quoter/atom/bestSameChainAtom'
 import { useQuoteContext } from 'quoter/hook/QuoteContext'
 import { multicallGasLimitAtom } from 'quoter/hook/useMulticallGasLimit'
 import { QuoteProvider } from 'quoter/QuoteProvider'
@@ -84,7 +84,7 @@ const useBestTrade = (fromToken?: string, toToken?: string, value?: string) => {
     routeKey: 'twap',
     gasLimit,
   })
-  const tradeResult = useAtomValue(bestQuoteAtom(quoteOption))
+  const tradeResult = useAtomValue(bestSameChainAtom(quoteOption))
   const trade = tradeResult.map((x) => x.trade).unwrapOr(undefined)
 
   const inCurrency = useCurrency(fromToken)

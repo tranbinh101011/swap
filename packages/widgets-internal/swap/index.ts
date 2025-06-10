@@ -1,5 +1,6 @@
 export * from "./ApproveModalContent";
 export * from "./ApproveModalContentV1";
+export { ApproveModalContentV3 } from "./ApproveModalContentV3";
 export * from "./ConfirmationModalContent";
 export * from "./ConfirmationPendingContent";
 export * from "./ExpertModal";
@@ -11,6 +12,7 @@ export * from "./NumericalInput";
 export * from "./SwapCallbackError";
 export * from "./SwapPendingModalContent";
 export * from "./SwapPendingModalContentV1";
+export { SwapPendingModalContentV3 } from "./SwapPendingModalContentV3";
 export * from "./SwapTransactionReceiptModalContent";
 export * from "./SwapTransactionReceiptModalContentV1";
 export * as Swap from "./SwapWidget";

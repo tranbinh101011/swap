@@ -1,4 +1,5 @@
 export * from "./components";
+export * from "./components/PriceRangeChartWithPeriodAndLiquidity";
 export * as FarmWidget from "./farm";
 export * as Ifo from "./ifo";
 export * as Liquidity from "./liquidity";
@@ -8,4 +9,4 @@ export * from "./swap";
 export { SwapUIV2 } from "./swap-v2";
 export * from "./swap/LiquidityChartRangeInput";
 export * as UsdvWidget from "./usdv";
-export * from "./components/PriceRangeChartWithPeriodAndLiquidity";
+export * from "./utils/displaySymbolWithChainName";

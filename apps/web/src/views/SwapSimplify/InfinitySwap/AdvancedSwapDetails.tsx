@@ -1,33 +1,28 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Percent, TradeType } from '@pancakeswap/sdk'
 import { LegacyPair as Pair } from '@pancakeswap/smart-router/legacy-router'
-import {
-  AutoColumn,
-  Flex,
-  Link,
-  Modal,
-  ModalV2,
-  QuestionHelper,
-  QuestionHelperV2,
-  SearchIcon,
-  SkeletonV2,
-  Text,
-} from '@pancakeswap/uikit'
+import { AutoColumn, Box, Link, QuestionHelperV2, SkeletonV2, Text } from '@pancakeswap/uikit'
 import { formatAmount, formatFraction } from '@pancakeswap/utils/formatFractions'
-import { memo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 
-import { NumberDisplay } from '@pancakeswap/widgets-internal'
+import { OrderType } from '@pancakeswap/price-api-sdk'
+import { NumberDisplay, SwapUIV2 } from '@pancakeswap/widgets-internal'
+import BigNumber from 'bignumber.js'
+import { LightGreyCard } from 'components/Card'
 import { RowBetween, RowFixed } from 'components/Layout/Row'
-import { RoutingSettingsButton } from 'components/Menu/GlobalSettings/SettingsModalV2'
 import { useAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
+import { currenciesUSDPriceAtom } from 'hooks/useCurrencyUsdPrice'
+import { useAtomValue } from 'jotai'
 import { Field } from 'state/swap/actions'
 import { styled } from 'styled-components'
+import { BridgeFeeToolTip, TotalFeeToolTip, TradingFeeToolTip } from 'views/Swap/Bridge/components/FeeToolTip'
+import { BridgeOrderFee, getBridgeOrderPriceImpact } from 'views/Swap/Bridge/utils'
+import { formatDollarAmount } from 'views/V3Info/utils/numbers'
+import { EstimatedTime } from '../../Swap/Bridge/CrossChainConfirmSwapModal/components/EstimatedTime'
+import { SlippageAdjustedAmounts, TradePriceBreakdown } from '../../Swap/V3Swap/utils/exchange'
 import FormattedPriceImpact from '../../Swap/components/FormattedPriceImpact'
-import { RouterViewer } from '../../Swap/components/RouterViewer'
-import SwapRoute from '../../Swap/components/SwapRoute'
+import { SlippageButton } from '../../Swap/components/SlippageButton'
 import { useFeeSaved } from '../../Swap/hooks/useFeeSaved'
-import { SlippageButton } from '../../Swap/V3Swap/components/SlippageButton'
-import { SlippageAdjustedAmounts } from '../../Swap/V3Swap/utils/exchange'
 
 const DetailsTitle = styled(Text)`
   text-decoration: underline dotted;
@@ -37,24 +32,134 @@ const DetailsTitle = styled(Text)`
   cursor: help;
 `
 
+type DisplayFee = {
+  label: string
+  amount: BigNumber
+  hasDynamicFee: boolean
+}
+
+const BridgeTradingViewSection = ({ priceBreakdown }: { priceBreakdown: BridgeOrderFee[] }) => {
+  const { t } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const lpFeeAmounts = useMemo(() => {
+    return priceBreakdown.filter((p) => p.lpFeeAmount).map((p) => p.lpFeeAmount as CurrencyAmount<Currency>)
+  }, [priceBreakdown])
+
+  const currencies = useMemo(() => {
+    return lpFeeAmounts.map((lp) => lp.currency)
+  }, [lpFeeAmounts])
+
+  const usdPrices = useAtomValue(currenciesUSDPriceAtom(currencies))
+
+  const currencyUsdPrices = useMemo(() => {
+    return lpFeeAmounts.map((lpFeeAmount, index) => {
+      return new BigNumber(lpFeeAmount?.toExact() ?? 0).times(usdPrices[index] ?? 0)
+    })
+  }, [usdPrices, lpFeeAmounts])
+
+  // Group and sum up fees by type
+  const groupedFees = useMemo(() => {
+    return priceBreakdown
+      .filter((p) => p.lpFeeAmount)
+      .reduce((acc, curr, index) => {
+        const type = curr.type
+        const existingFee = acc[type] || {
+          label: curr.type === OrderType.PCS_BRIDGE ? t('Bridge Fee') : t('Trading Fee'),
+          amount: new BigNumber(0),
+          hasDynamicFee: false,
+        }
+
+        // eslint-disable-next-line no-param-reassign
+        acc[type] = {
+          ...existingFee,
+          amount: existingFee.amount.plus(currencyUsdPrices[index] || 0),
+          hasDynamicFee: Boolean(existingFee.hasDynamicFee || curr.hasDynamicFee),
+        }
+
+        return acc
+      }, {} as Record<OrderType, DisplayFee>)
+  }, [currencyUsdPrices, priceBreakdown, t])
+
+  return (
+    <SwapUIV2.Collapse
+      isOpen={isOpen}
+      onToggle={() => setIsOpen(!isOpen)}
+      title={
+        <RowBetween>
+          <RowFixed>
+            <QuestionHelperV2 text={<TotalFeeToolTip />} placement="top">
+              <DetailsTitle fontSize="14px" color="textSubtle">
+                {t('Total Fee')}
+              </DetailsTitle>
+            </QuestionHelperV2>
+          </RowFixed>
+          <SkeletonV2
+            width="70px"
+            height="16px"
+            borderRadius="8px"
+            minHeight="auto"
+            isDataReady={lpFeeAmounts.length > 0}
+          >
+            <Text fontSize="14px" textAlign="right">
+              {priceBreakdown.some((p) => p.type === OrderType.PCS_CLASSIC) ? '~' : ''}
+              {formatDollarAmount(
+                currencyUsdPrices.reduce((acc, curr) => acc.plus(curr), new BigNumber(0)).toNumber(),
+                3,
+              )}
+            </Text>
+          </SkeletonV2>
+        </RowBetween>
+      }
+      content={
+        <LightGreyCard mt="4px" padding="8px 16px">
+          {/** display grouped fees */}
+          {Object.values(groupedFees).map((fee, index) => {
+            const type = Object.keys(groupedFees)[index]
+
+            return (
+              <RowBetween key={fee.label}>
+                <QuestionHelperV2
+                  text={type === OrderType.PCS_BRIDGE ? <BridgeFeeToolTip /> : <TradingFeeToolTip />}
+                  placement="top"
+                >
+                  <DetailsTitle fontSize="14px" color="textSubtle">
+                    {fee.label}
+                  </DetailsTitle>
+                </QuestionHelperV2>
+                <Text fontSize="14px" textAlign="right">
+                  {`${
+                    // if key of groupedFees is OrderType.PCS_CLASSIC, then it's a dynamic fee
+                    type === OrderType.PCS_CLASSIC ? '~' : ''
+                  }${formatDollarAmount(fee.amount.toNumber(), 3)}`}
+                </Text>
+              </RowBetween>
+            )
+          })}
+        </LightGreyCard>
+      }
+    />
+  )
+}
+
 export const TradeSummary = memo(function TradeSummary({
   inputAmount,
   outputAmount,
   tradeType,
   slippageAdjustedAmounts,
-  priceImpactWithoutFee,
-  realizedLPFee,
   isX = false,
   loading = false,
   hasDynamicHook,
+  priceBreakdown,
+  expectedFillTimeSec,
 }: {
+  expectedFillTimeSec?: number
+  priceBreakdown: BridgeOrderFee[] | TradePriceBreakdown
   hasStablePair?: boolean
   inputAmount?: CurrencyAmount<Currency>
   outputAmount?: CurrencyAmount<Currency>
   tradeType?: TradeType
   slippageAdjustedAmounts: SlippageAdjustedAmounts
-  priceImpactWithoutFee?: Percent | null
-  realizedLPFee?: CurrencyAmount<Currency> | null
   isX?: boolean
   loading?: boolean
   hasDynamicHook?: boolean
@@ -64,14 +169,23 @@ export const TradeSummary = memo(function TradeSummary({
   const { feeSavedAmount, feeSavedUsdValue } = useFeeSaved(inputAmount, outputAmount)
   const { slippageTolerance: allowedSlippage } = useAutoSlippageWithFallback()
 
+  // if priceBreakdown is an array and priceBreakdown only has one item, hide the slippage button because it's bridge-only case
+  const isBridgeOnlyCase = useMemo(() => {
+    return Array.isArray(priceBreakdown) && priceBreakdown.length === 1
+  }, [priceBreakdown])
+
   return (
     <AutoColumn px="4px">
       <RowBetween>
         <RowFixed>
           <QuestionHelperV2
-            text={t(
-              'Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.',
-            )}
+            text={
+              isExactIn
+                ? t('Amount you are guaranteed to receive.')
+                : t(
+                    'Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.',
+                  )
+            }
             placement="top"
           >
             <DetailsTitle>{isExactIn ? t('Minimum received') : t('Maximum sold')}</DetailsTitle>
@@ -93,7 +207,7 @@ export const TradeSummary = memo(function TradeSummary({
             <QuestionHelperV2
               text={
                 <>
-                  <Text>{t('Fees saved on PancakeSwap compared to major DEXs charging interface fees')}</Text>
+                  <Text>{t('Fees saved on PancakeSwap compared to major DEXs charging interface fees.')}</Text>
                 </>
               }
               placement="top"
@@ -123,26 +237,13 @@ export const TradeSummary = memo(function TradeSummary({
           </SkeletonV2>
         </RowBetween>
       ) : null}
-      {priceImpactWithoutFee && (
+      {priceBreakdown && (
         <RowBetween mt="10px">
           <RowFixed>
             <QuestionHelperV2
               text={
                 <>
-                  <Text>
-                    <Text bold display="inline-block">
-                      {t('AMM')}
-                    </Text>
-                    {`: ${t('The difference between the market price and estimated price due to trade size.')}`}
-                  </Text>
-                  <Text mt="10px">
-                    <Text bold display="inline-block">
-                      {t('X')}
-                    </Text>
-                    {`: ${t(
-                      'The difference between the latest quoted price and the minimum receiving amount set in the trade order.',
-                    )}`}
-                  </Text>
+                  <Text>{t('The change in pool price caused by your swap.')}</Text>
                 </>
               }
               placement="top"
@@ -151,40 +252,41 @@ export const TradeSummary = memo(function TradeSummary({
             </QuestionHelperV2>
           </RowFixed>
           <SkeletonV2 width="50px" height="16px" borderRadius="8px" minHeight="auto" isDataReady={!loading}>
-            {isX ? <Text color="primary">0%</Text> : <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />}
+            {isX ? (
+              <Text color="primary">0%</Text>
+            ) : (
+              <FormattedPriceImpact priceImpact={getBridgeOrderPriceImpact(priceBreakdown)} />
+            )}
           </SkeletonV2>
         </RowBetween>
       )}
-      <RowBetween mt="8px">
-        <RowFixed>
-          <QuestionHelperV2
-            text={
-              <>
-                <Text>
-                  <Text bold display="inline-block">
-                    {t('AMM')}
+      {!isBridgeOnlyCase && (
+        <RowBetween mt="8px">
+          <RowFixed>
+            <QuestionHelperV2
+              text={
+                <>
+                  <Text>
+                    {t(
+                      'Permissible price deviation (%) between quoted and execution price of swap. For cross-chain swaps, this applies separately to both source and destination chains.',
+                    )}
                   </Text>
-                  {`: ${t('The difference between the market price and estimated price due to trade size.')}`}
-                </Text>
-                <Text mt="10px">
-                  <Text bold display="inline-block">
-                    {t('X')}
-                  </Text>
-                  {`: ${t(
-                    'The difference between the latest quoted price and the minimum receiving amount set in the trade order.',
-                  )}`}
-                </Text>
-              </>
-            }
-            placement="top"
-          >
-            <DetailsTitle>{t('Slippage Tolerance')}</DetailsTitle>
-          </QuestionHelperV2>
-        </RowFixed>
-        <SlippageButton slippage={allowedSlippage} />
-      </RowBetween>
+                </>
+              }
+              placement="top"
+            >
+              <DetailsTitle>{t('Slippage Tolerance')}</DetailsTitle>
+            </QuestionHelperV2>
+          </RowFixed>
+          <SlippageButton slippage={allowedSlippage} />
+        </RowBetween>
+      )}
 
-      {(realizedLPFee || isX) && (
+      {Array.isArray(priceBreakdown) ? (
+        <Box mt="10px">
+          <BridgeTradingViewSection priceBreakdown={priceBreakdown} />
+        </Box>
+      ) : priceBreakdown?.lpFeeAmount || isX ? (
         <RowBetween mt="10px">
           <RowFixed>
             <QuestionHelperV2
@@ -229,14 +331,31 @@ export const TradeSummary = memo(function TradeSummary({
             ) : hasDynamicHook ? (
               <QuestionHelperV2 text={t('This route uses a dynamic fee pool; actual fees may vary.')}>
                 <Text fontSize="14px" style={{ textDecoration: 'underline dotted', cursor: 'help' }}>{`~${formatAmount(
-                  realizedLPFee,
+                  priceBreakdown.lpFeeAmount,
                   4,
                 )} ${inputAmount?.currency?.symbol}`}</Text>
               </QuestionHelperV2>
             ) : (
-              <Text fontSize="14px">{`${formatAmount(realizedLPFee, 4)} ${inputAmount?.currency?.symbol}`}</Text>
+              <Text fontSize="14px">{`${formatAmount(priceBreakdown.lpFeeAmount, 4)} ${
+                inputAmount?.currency?.symbol
+              }`}</Text>
             )}
           </SkeletonV2>
+        </RowBetween>
+      ) : null}
+
+      {expectedFillTimeSec && (
+        <RowBetween mt="10px">
+          <RowFixed>
+            <QuestionHelperV2 text={t('Estimated time to complete this transaction.')}>
+              <DetailsTitle fontSize="14px" color="textSubtle">
+                {t('Est. Time')}
+              </DetailsTitle>
+            </QuestionHelperV2>
+          </RowFixed>
+          <Text fontSize="14px" textAlign="right">
+            <EstimatedTime expectedFillTimeSec={expectedFillTimeSec} />
+          </Text>
         </RowBetween>
       )}
     </AutoColumn>
@@ -254,83 +373,3 @@ export interface AdvancedSwapDetailsProps {
   outputAmount?: CurrencyAmount<Currency>
   tradeType?: TradeType
 }
-
-export const AdvancedSwapDetails = memo(function AdvancedSwapDetails({
-  pairs,
-  path,
-  priceImpactWithoutFee,
-  realizedLPFee,
-  slippageAdjustedAmounts,
-  inputAmount,
-  outputAmount,
-  tradeType,
-  hasStablePair,
-}: AdvancedSwapDetailsProps) {
-  const { t } = useTranslation()
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const showRoute = Boolean(path && path.length > 1)
-  return (
-    <AutoColumn gap="0px">
-      {inputAmount && (
-        <>
-          <TradeSummary
-            inputAmount={inputAmount}
-            outputAmount={outputAmount}
-            tradeType={tradeType}
-            slippageAdjustedAmounts={slippageAdjustedAmounts ?? {}}
-            priceImpactWithoutFee={priceImpactWithoutFee}
-            realizedLPFee={realizedLPFee}
-            hasStablePair={hasStablePair}
-          />
-          {showRoute && (
-            <>
-              <RowBetween style={{ padding: '0 24px' }}>
-                <span style={{ display: 'flex', alignItems: 'center' }}>
-                  <Text fontSize="14px" color="textSubtle">
-                    {t('MM Route')}
-                  </Text>
-                  <QuestionHelper
-                    text={t(
-                      'The Market Maker (MM) route is automatically selected for your trade to achieve the best price for your trade.',
-                    )}
-                    ml="4px"
-                    placement="top"
-                  />
-                </span>
-                {path ? <SwapRoute path={path} /> : null}
-                <SearchIcon style={{ cursor: 'pointer' }} onClick={() => setIsModalOpen(true)} />
-                <ModalV2 closeOnOverlayClick isOpen={isModalOpen} onDismiss={() => setIsModalOpen(false)}>
-                  <Modal
-                    title={
-                      <Flex justifyContent="center">
-                        {t('Route')}{' '}
-                        <QuestionHelper
-                          text={t(
-                            'Route is automatically calculated based on your routing preference to achieve the best price for your trade.',
-                          )}
-                          ml="4px"
-                          placement="top"
-                        />
-                      </Flex>
-                    }
-                    onDismiss={() => setIsModalOpen(false)}
-                  >
-                    <RouterViewer
-                      inputCurrency={inputAmount?.currency}
-                      pairs={pairs}
-                      path={path}
-                      outputCurrency={outputAmount?.currency}
-                    />
-                    <Flex mt="3em" width="100%" justifyContent="center">
-                      <RoutingSettingsButton />
-                    </Flex>
-                  </Modal>
-                </ModalV2>
-              </RowBetween>
-            </>
-          )}
-        </>
-      )}
-    </AutoColumn>
-  )
-})

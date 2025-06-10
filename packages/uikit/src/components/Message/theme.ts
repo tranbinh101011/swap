@@ -15,6 +15,10 @@ const variants = {
     background: "rgba(118, 69, 217, 0.1)",
     borderColor: "secondary",
   },
+  secondary: {
+    background: "#FFB23719",
+    borderColor: "warning",
+  },
 };
 
 export default variants;

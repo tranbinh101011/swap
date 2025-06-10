@@ -51,7 +51,7 @@ export const MevToggle: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => 
   const { theme } = useTheme()
   const isSmall = size === 'sm'
   const { tooltip, tooltipVisible, targetRef } = useTooltip(
-    t('PancakeSwap MEV Guard protects you from frontrunning and sandwich attacks when Swapping.'),
+    t('PancakeSwap MEV Guard protects you from frontrunning and sandwich attacks when swapping on BNB Chain.'),
     {
       placement: 'auto',
       trigger: 'hover',
@@ -84,7 +84,7 @@ export const MevToggle: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => 
           </Text>
           {tooltipVisible && tooltip}
         </FlexGap>
-        <Toggle scale={size} checked={isMEVEnabled} onClick={onOpen} />
+        <Toggle scale="md" checked={isMEVEnabled} onClick={onOpen} defaultColor={theme.isDark ? 'disabled' : 'input'} />
       </ToggleWrapper>
       <MevModal isOpen={isOpen} onDismiss={onDismiss} />
     </>

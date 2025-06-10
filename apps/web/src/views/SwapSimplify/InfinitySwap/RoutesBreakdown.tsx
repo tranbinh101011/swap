@@ -61,7 +61,7 @@ export const RoutesBreakdown = memo(function RoutesBreakdown({ routes = [], wrap
               ) : (
                 <RouteComp route={routes[0]} />
               )}
-              <IconButton mt="5px" variant="text" color="primary60" scale="xs">
+              <IconButton variant="text" color="primary60" scale="xs">
                 <InfoIcon width="16px" height="16px" color="primary60" />
               </IconButton>
             </span>
@@ -106,15 +106,15 @@ export const XRoutesBreakdown = memo(function XRoutesBreakdown({ wrapperStyle, l
 })
 
 interface RouteProps {
-  route: Pick<Route, 'path'>
+  route: Pick<Route, 'path' | 'type'>
 }
 
 function RouteComp({ route }: RouteProps) {
-  const { path } = route
+  const { path, type } = route
 
   return (
-    <RowBetween mt="4px">
-      <SwapRoute path={path} />
+    <RowBetween>
+      <SwapRoute path={path} type={type} />
     </RowBetween>
   )
 }

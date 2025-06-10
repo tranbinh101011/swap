@@ -82,6 +82,8 @@ export const TRADING_REWARD_API = 'https://trading-reward.pancakeswap.com/api/v1
 
 export const X_API_ENDPOINT = process.env.NEXT_PUBLIC_QUOTING_API
 
+export const BRIDGE_API_ENDPOINT = process.env.NEXT_PUBLIC_BRIDGE_API
+
 export const QUOTING_API_PREFIX = `${X_API_ENDPOINT}/order-price`
 
 export const QUOTING_API = `${QUOTING_API_PREFIX}/get-price`

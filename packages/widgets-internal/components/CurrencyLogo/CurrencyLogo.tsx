@@ -6,6 +6,7 @@ import { styled } from "styled-components";
 import { SpaceProps, space } from "styled-system";
 
 import { ASSET_CDN } from "../../utils/endpoints";
+import { ChainLogo } from "./ChainLogo";
 import { CurrencyInfo } from "./types";
 import { getCurrencyLogoUrlsByInfo } from "./utils";
 
@@ -16,12 +17,38 @@ const StyledLogo = styled(TokenLogo)<{ size: string }>`
   ${space}
 `;
 
+const LogoContainer = styled.div`
+  position: relative;
+`;
+
+const StyledChainLogo = styled(ChainLogo)`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+
+  & > img {
+    background-color: ${({ theme }) => theme.colors.invertedContrast};
+    border: 0px solid ${({ theme }) => theme.colors.invertedContrast};
+    border-radius: 35%;
+  }
+`;
+
+// the ratio of the chain logo to the token logo.
+// if token logo is 24px, chain logo is 10px, if
+// token logo is 40px, chain logo is 16px
+// 40 * x = 16
+// 24 * x = 10
+// x = 0.4
+const TOKEN_CHAIN_RATIO = 0.4167;
+
 export function CurrencyLogo({
   currency,
   size = "24px",
   style,
   useTrustWalletUrl,
   imageRef,
+  showChainLogo = false,
+  containerStyle,
   ...props
 }: {
   currency?: CurrencyInfo & {
@@ -30,9 +57,12 @@ export function CurrencyLogo({
   size?: string;
   style?: React.CSSProperties;
   useTrustWalletUrl?: boolean;
+  showChainLogo?: boolean;
   imageRef?: React.RefObject<HTMLImageElement>;
+  containerStyle?: React.CSSProperties;
 } & SpaceProps) {
   const uriLocations = useHttpLocations(currency?.logoURI);
+  const sizeInNumber = parseInt(size);
 
   const srcs: string[] = useMemo(() => {
     if (currency?.isNative) return [];
@@ -48,30 +78,45 @@ export function CurrencyLogo({
     return [];
   }, [currency, uriLocations, useTrustWalletUrl]);
 
-  if (currency?.isNative) {
-    if (currency.chainId === ChainId.BSC) {
-      return <BinanceIcon style={style} imageRef={imageRef} width={size} height={size} {...props} />;
+  const renderLogo = () => {
+    if (currency?.isNative) {
+      if (currency.chainId === ChainId.BSC) {
+        return <BinanceIcon style={style} imageRef={imageRef} width={size} height={size} {...props} />;
+      }
+      return (
+        <StyledLogo
+          size={size}
+          srcs={[`${ASSET_CDN}/web/native/${currency.chainId}.png`]}
+          width={size}
+          imageRef={imageRef}
+          style={style}
+          {...props}
+        />
+      );
     }
+
     return (
       <StyledLogo
-        size={size}
-        srcs={[`${ASSET_CDN}/web/native/${currency.chainId}.png`]}
-        width={size}
         imageRef={imageRef}
+        size={size}
+        srcs={srcs}
+        alt={`${currency?.symbol ?? "token"} logo`}
         style={style}
         {...props}
       />
     );
-  }
+  };
 
   return (
-    <StyledLogo
-      imageRef={imageRef}
-      size={size}
-      srcs={srcs}
-      alt={`${currency?.symbol ?? "token"} logo`}
-      style={style}
-      {...props}
-    />
+    <LogoContainer style={containerStyle}>
+      {renderLogo()}
+      {showChainLogo && currency?.chainId && (
+        <StyledChainLogo
+          chainId={currency.chainId}
+          width={sizeInNumber * TOKEN_CHAIN_RATIO}
+          height={sizeInNumber * TOKEN_CHAIN_RATIO}
+        />
+      )}
+    </LogoContainer>
   );
 }

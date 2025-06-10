@@ -564,6 +564,7 @@ const MyV3Positions: React.FC<{
     poolInfo.feeTier,
     v3Data?.filter((position) => position.liquidity !== 0n),
   )
+
   const totalLiquidityUSD = useMemo(() => {
     if (!positionsData) {
       return '0'
@@ -960,6 +961,7 @@ const MyInfinityBinPositions: React.FC<{
       position?.reserveY && pool?.token1 ? CurrencyAmount.fromRawAmount(pool.token1, position.reserveY) : undefined,
     [position?.reserveY, pool?.token1],
   )
+
   const totalTVLUsd = useTotalPriceUSD({
     currency0: pool?.token0,
     currency1: pool?.token1,

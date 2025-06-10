@@ -12,10 +12,14 @@ const BASE_URI = 'https://attestation-api.pancakeswap.com'
 const EXPIRE = 1000 * 24 * 3600
 
 async function getCb1Membership(chain: string, address: string) {
-  const resp = await fetch(`${BASE_URI}/api/attestation/base?userAddress=${address}`)
-  const json = await resp.json()
-  const attested = Boolean(json?.qualified)
-  return attested
+  try {
+    const resp = await fetch(`${BASE_URI}/api/attestation/base?userAddress=${address}`)
+    const json = await resp.json()
+    const attested = Boolean(json?.qualified)
+    return attested
+  } catch (error) {
+    return false
+  }
 }
 
 function updateExpire(address: string) {

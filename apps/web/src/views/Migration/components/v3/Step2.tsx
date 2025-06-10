@@ -59,7 +59,7 @@ export function Step2() {
   const liquidityTokensWithBalances = useMemo(
     () =>
       tokenPairsWithLiquidityTokens.filter(({ liquidityToken }) =>
-        v2PairsBalances[liquidityToken.address]?.greaterThan('0'),
+        v2PairsBalances[`${liquidityToken.chainId}-${liquidityToken.address}`]?.greaterThan('0'),
       ),
     [tokenPairsWithLiquidityTokens, v2PairsBalances],
   )

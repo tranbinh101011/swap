@@ -33,6 +33,37 @@ type Permit2HookCallback = {
 
 type UsePermit2ReturnType = Permit2HookState & Permit2HookCallback
 
+export function useSubmitPermit2({
+  currency,
+  spender,
+  permit2Details,
+}: {
+  currency: Token | undefined
+  spender: Address | undefined
+  permit2Details: Permit2Details | undefined
+}) {
+  const [isPermitting, setIsPermitting] = useState(false)
+  const writePermit = useWritePermit(currency, spender, permit2Details?.nonce, currency?.chainId)
+
+  const permit = useCallback(async () => {
+    setIsPermitting(true)
+
+    const signature = await writePermit()
+
+    setIsPermitting(false)
+
+    return signature
+  }, [writePermit])
+
+  return useMemo(
+    () => ({
+      permit,
+      isPermitting,
+    }),
+    [permit, isPermitting],
+  )
+}
+
 export const usePermit2 = (
   amount: CurrencyAmount<Token> | undefined,
   spender: Address | undefined,

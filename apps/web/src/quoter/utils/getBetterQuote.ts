@@ -40,6 +40,7 @@ interface QuoteTrade {
   outputAmountWithGasAdjusted?: any
 }
 
+// isBetterQuoteTrade is used to compare two quotes with one base currency and one quote currency
 export function isBetterQuoteTrade(tradeA: QuoteTrade, tradeB: QuoteTrade, options?: UseBetterQuoteOptions): boolean {
   const { factorGasCost = false } = options || {}
 

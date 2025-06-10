@@ -105,7 +105,7 @@ export const createListsAtom = (storeName: string, reducer: any, initialState: a
 
     try {
       const tokenList = await getTokenList(url)
-      set(defaultStateAtom, fetchTokenList.fulfilled({ url, tokenList, requestId }))
+      set(defaultStateAtom, fetchTokenList.fulfilled({ url, tokenList: tokenList!, requestId }))
     } catch (error: any) {
       set(defaultStateAtom, fetchTokenList.rejected({ url, requestId, errorMessage: error.message }))
     }

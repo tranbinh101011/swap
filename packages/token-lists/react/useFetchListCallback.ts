@@ -16,6 +16,10 @@ function useFetchListCallback(
       }
       return getTokenList(listUrl)
         .then((tokenList) => {
+          if (!tokenList) {
+            throw new Error('Token list not found')
+          }
+
           if (sendDispatch) {
             dispatch(fetchTokenList.fulfilled({ url: listUrl, tokenList, requestId }))
           }

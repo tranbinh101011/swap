@@ -16,6 +16,11 @@ export const usePrimusHookDiscount = (pools: Route['pools']) => {
   const primusHooks = usePrimusHooks(chainId)
 
   const primusHookPools = useMemo(() => {
+    // TODO: bridge pools won't have pools. Need to handle this case
+    if (!pools?.length) {
+      return []
+    }
+
     return pools.filter((pool) => {
       if (SmartRouter.isInfinityBinPool(pool) || SmartRouter.isInfinityClPool(pool)) {
         if (!pool.hooks) return false

@@ -1,9 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Currency, CurrencyAmount, Trade, TradeType } from '@pancakeswap/sdk'
+import { Currency, CurrencyAmount, Native, Trade, TradeType } from '@pancakeswap/sdk'
 import { CAKE, STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
 import { PairDataTimeWindowEnum } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useQuery } from '@tanstack/react-query'
+import { getChainId } from 'config/chains'
 import { DEFAULT_INPUT_CURRENCY } from 'config/constants/exchange'
 import dayjs from 'dayjs'
 import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
@@ -18,6 +19,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChartPeriod, chainIdToExplorerInfoChainName, explorerApiClient } from 'state/info/api/client'
 import { isAddressEqual, safeGetAddress } from 'utils'
 import { computeSlippageAdjustedAmounts } from 'utils/exchange'
+import { useBridgeAvailableRoutes } from 'views/Swap/Bridge/hooks'
 import { useAccount } from 'wagmi'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, replaceSwapState } from './actions'
@@ -75,6 +77,7 @@ export function useDerivedSwapInfo(
   )
 
   const isExactIn: boolean = independentField === Field.INPUT
+
   const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
 
   const bestTradeExactIn = useTradeExactIn(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined)
@@ -164,10 +167,20 @@ export function queryParametersToSwapState(
   nativeSymbol?: string,
   defaultOutputCurrency?: string,
 ): SwapState {
+  // Parse chains
+  const inputChain = parsedQs.chain
+  const outputChain = parsedQs.chainOut
+
+  const inputChainId = typeof inputChain === 'string' ? getChainId(inputChain) : undefined
+  const outputChainId = typeof outputChain === 'string' ? getChainId(outputChain) : undefined
+
+  const recipient = validatedRecipient(parsedQs.recipient)
+
+  // Parse currencies
   let inputCurrency = safeGetAddress(parsedQs.inputCurrency) || (nativeSymbol ?? DEFAULT_INPUT_CURRENCY)
   let outputCurrency =
     typeof parsedQs.outputCurrency === 'string'
-      ? safeGetAddress(parsedQs.outputCurrency) || nativeSymbol
+      ? safeGetAddress(parsedQs.outputCurrency) || (outputChainId ? Native.onChain(outputChainId).symbol : nativeSymbol)
       : defaultOutputCurrency
   if (inputCurrency === outputCurrency) {
     if (typeof parsedQs.outputCurrency === 'string') {
@@ -177,14 +190,14 @@ export function queryParametersToSwapState(
     }
   }
 
-  const recipient = validatedRecipient(parsedQs.recipient)
-
   return {
     [Field.INPUT]: {
       currencyId: inputCurrency,
+      chainId: inputChainId,
     },
     [Field.OUTPUT]: {
       currencyId: outputCurrency,
+      chainId: outputChainId,
     },
     typedValue: parseTokenAmountURLParameter(parsedQs.exactAmount),
     independentField: parseIndependentFieldURLParameter(parsedQs.exactField),
@@ -203,28 +216,79 @@ export function useDefaultsFromURLSearch():
   const native = useNativeCurrency()
   const { query, isReady } = useRouter()
   const [result, setResult] = useState<
-    { inputCurrencyId: string | undefined; outputCurrencyId: string | undefined } | undefined
+    | {
+        inputCurrencyId: string | undefined
+        outputCurrencyId: string | undefined
+        inputChainId: number | undefined
+        outputChainId: number | undefined
+      }
+    | undefined
   >()
+
+  const {
+    [Field.INPUT]: { currencyId: inputCurrencyId, chainId: inputChainId },
+    [Field.OUTPUT]: { currencyId: outputCurrencyId, chainId: outputChainId },
+  } = useSwapState()
+
+  const { data: supportedBridgeChains } = useBridgeAvailableRoutes()
 
   useEffect(() => {
     if (!chainId || !native || !isReady) return
-    const parsed = queryParametersToSwapState(
-      query,
-      native.symbol,
-      CAKE[chainId]?.address ?? STABLE_COIN[chainId]?.address ?? USDC[chainId]?.address ?? USDT[chainId]?.address,
-    )
+
+    const defaultOutputCurrency =
+      CAKE[chainId]?.address ?? STABLE_COIN[chainId]?.address ?? USDC[chainId]?.address ?? USDT[chainId]?.address
+
+    const parsed = queryParametersToSwapState(query, native.symbol, defaultOutputCurrency)
+
+    let finalInputCurrencyId = inputCurrencyId || parsed[Field.INPUT].currencyId
+    let finalOutputCurrencyId = outputCurrencyId || parsed[Field.OUTPUT].currencyId
+
+    let finalInputChainId = inputChainId || parsed[Field.INPUT].chainId
+    let finalOutputChainId = outputChainId || parsed[Field.OUTPUT].chainId
+
+    // Set input currency to default (native currency) if chain is changed by user
+    // and input currency is on different chain
+    if (finalInputChainId && finalInputChainId !== chainId) {
+      finalInputCurrencyId = native.symbol
+      finalInputChainId = chainId
+
+      const isOutputChainSupported =
+        finalOutputChainId &&
+        supportedBridgeChains?.some(
+          (route) => route.originChainId === finalInputChainId && route.destinationChainId === finalOutputChainId,
+        )
+
+      // If now input and output currencies are the same,
+      // OR if output chain is NOT supported by the bridge,
+      // set output currency to the default value
+      if (
+        !isOutputChainSupported ||
+        (finalOutputCurrencyId === finalInputCurrencyId && finalOutputChainId === finalInputChainId)
+      ) {
+        finalOutputCurrencyId = defaultOutputCurrency
+        finalOutputChainId = chainId
+      }
+    }
 
     dispatch(
       replaceSwapState({
         typedValue: parsed.typedValue,
         field: parsed.independentField,
-        inputCurrencyId: parsed[Field.INPUT].currencyId,
-        outputCurrencyId: parsed[Field.OUTPUT].currencyId,
+        inputCurrencyId: finalInputCurrencyId,
+        outputCurrencyId: finalOutputCurrencyId,
+        inputChainId: finalInputChainId || chainId,
+        outputChainId: finalOutputChainId || chainId,
         recipient: null,
       }),
     )
-    setResult({ inputCurrencyId: parsed[Field.INPUT].currencyId, outputCurrencyId: parsed[Field.OUTPUT].currencyId })
-  }, [dispatch, chainId, query, native, isReady])
+
+    setResult({
+      inputCurrencyId: finalInputCurrencyId,
+      outputCurrencyId: finalOutputCurrencyId,
+      inputChainId: finalInputChainId || chainId,
+      outputChainId: finalOutputChainId || chainId,
+    })
+  }, [dispatch, chainId, query, native, isReady, supportedBridgeChains])
 
   return result
 }

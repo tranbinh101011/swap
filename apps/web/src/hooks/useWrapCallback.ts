@@ -37,7 +37,14 @@ export default function useWrapCallback(
   const addTransaction = useTransactionAdder()
 
   return useMemo(() => {
-    if (!wbnbContract || !chainId || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
+    if (
+      !wbnbContract ||
+      !chainId ||
+      !inputCurrency ||
+      !outputCurrency ||
+      inputCurrency.chainId !== outputCurrency.chainId
+    )
+      return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 

@@ -25,14 +25,17 @@ import { StablePair } from 'views/AddLiquidity/AddStableLiquidity/hooks/useStabl
 
 import { RiskInputPanelDisplay } from 'components/AccessRisk/SwapRevampRiskDisplay'
 import { FiatLogo } from 'components/Logo/CurrencyLogo'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { getFullChainNameById } from 'utils/getFullChainNameById'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { useAccount } from 'wagmi'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import { FONT_SIZE, LOGO_SIZE, useFontSize } from './state'
 
 const CurrencySelectButton = styled(Button).attrs({ variant: 'text', scale: 'sm' })`
-  padding: 24px 4px;
+  padding: 24px 8px 22px;
+  margin-top: 2px;
 
   &:hover {
     background: ${({ theme }) => theme.colors.invertedContrast};
@@ -40,6 +43,7 @@ const CurrencySelectButton = styled(Button).attrs({ variant: 'text', scale: 'sm'
 `
 const SymbolText = styled(Text)`
   font-size: ${FONT_SIZE.LARGE}px;
+  line-height: 1.1;
 `
 
 const formatDollarAmount = (amount: number) => {
@@ -183,6 +187,8 @@ interface CurrencyInputPanelProps {
   title?: React.ReactNode
   hideBalanceComp?: boolean
   isUserInsufficientBalance?: boolean
+  modalTitle?: React.ReactNode
+  showSearchHeader?: boolean
 }
 const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
   defaultValue,
@@ -213,12 +219,16 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
   inputLoading,
   title,
   isUserInsufficientBalance,
+  modalTitle,
+  showSearchHeader,
 }: CurrencyInputPanelProps) {
   const { address: account } = useAccount()
   // const value = useRef<string | undefined>(defaultValue)
   const [value, setValue] = useState<string | undefined>(defaultValue)
+  const { chainId } = useActiveChainId()
 
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+
   const { t } = useTranslation()
 
   const mode = id
@@ -237,6 +247,7 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
 
   const [onPresentCurrencyModal] = useModal(
     <CurrencySearchModal
+      supportCrossChain
       onCurrencySelect={onCurrencySelect}
       selectedCurrency={currency}
       otherSelectedCurrency={otherCurrency}
@@ -245,7 +256,8 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
       showSearchInput={showSearchInput}
       tokensToShow={tokensToShow}
       mode={mode}
-      showCurrencyInHeader
+      modalTitle={modalTitle}
+      showSearchHeader={showSearchHeader}
     />,
   )
 
@@ -359,17 +371,24 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
                     <FiatLogo currency={currency} size={`${LOGO_SIZE.MAX}px`} style={{ marginRight: '8px' }} />
                   ) : (
                     <CurrencyLogo
+                      showChainLogo
                       imageRef={tokenImageRef}
                       currency={currency}
                       size={`${LOGO_SIZE.MAX}px`}
-                      style={{
-                        marginRight: '8px',
-                      }}
+                      containerStyle={{ marginRight: '8px' }}
                     />
                   )
                 ) : currencyLoading ? (
                   <Skeleton width="40px" height="40px" variant="circle" />
-                ) : null}
+                ) : (
+                  <CurrencyLogo
+                    imageRef={tokenImageRef}
+                    currency={{ chainId }}
+                    size={`${LOGO_SIZE.MAX}px`}
+                    containerStyle={{ marginRight: '8px' }}
+                    showChainLogo
+                  />
+                )}
                 {currencyLoading ? null : pair ? (
                   <Text id="pair" bold fontSize="24px">
                     {getTokenSymbolAlias(pair?.token0.wrapped?.address, pair?.token0.chainId, pair?.token0.symbol)}:
@@ -377,11 +396,27 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
                   </Text>
                 ) : (
                   <Flex alignItems="start" flexDirection="column">
-                    <Flex alignItems="center" justifyContent="space-between">
-                      <SymbolText id="pair" bold ref={symbolRef}>
-                        {(currency && currency.symbol && shortedSymbol) || t('Select a currency')}
-                      </SymbolText>
-                      {!currencyLoading && !disableCurrencySelect && <ChevronDownIcon />}
+                    <Flex flexDirection="column" alignItems="flex-start">
+                      <Flex alignItems="center" justifyContent="space-between">
+                        <SymbolText id="pair" bold ref={symbolRef}>
+                          {(currency && currency.symbol && shortedSymbol) || t('Select Token')}
+                        </SymbolText>
+                        {!currencyLoading && !disableCurrencySelect && <ChevronDownIcon />}
+                      </Flex>
+
+                      {currency && currency.symbol && (
+                        <Text
+                          style={{
+                            fontSize: `${Math.max(
+                              Number(symbolRef.current?.style.fontSize.replace('px', '')) - 7,
+                              12,
+                            )}px`,
+                          }}
+                          color="textSubtle"
+                        >
+                          {getFullChainNameById(currency.chainId)}
+                        </Text>
+                      )}
                     </Flex>
                     <RiskInputPanelDisplay token={token ?? undefined} />
                   </Flex>

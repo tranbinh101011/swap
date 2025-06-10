@@ -1,6 +1,7 @@
-import { Currency, CurrencyAmount, Native, Token } from '@pancakeswap/sdk'
+import { ChainId, Currency, CurrencyAmount, Native, Token } from '@pancakeswap/sdk'
 import { useQuery } from '@tanstack/react-query'
 import { multicallABI } from 'config/abi/Multicall'
+import { FAST_INTERVAL } from 'config/constants'
 import { useAllTokens } from 'hooks/Tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
@@ -10,46 +11,21 @@ import { safeGetAddress } from 'utils'
 import { getMulticallAddress } from 'utils/addressHelpers'
 import { publicClient } from 'utils/viem'
 import { Address, erc20Abi, getAddress, isAddress } from 'viem'
-import { useAccount } from 'wagmi'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from '../multicall/hooks'
+import { useAccount, useBalance } from 'wagmi'
+import { useMultipleContractSingleDataWagmi } from '../multicall/hooks'
 
 /**
  * Returns a map of the given addresses to their eventually consistent BNB balances.
  */
-export function useNativeBalances(uncheckedAddresses?: (string | undefined)[]): {
-  [address: string]: CurrencyAmount<Native> | undefined
-} {
-  const native = useNativeCurrency()
+export function useNativeBalances(account?: Address, chainId?: ChainId): CurrencyAmount<Native> {
+  const native = useNativeCurrency(chainId)
 
-  const addresses: Address[] = useMemo(
-    () =>
-      uncheckedAddresses
-        ? orderBy(uncheckedAddresses.map(safeGetAddress).filter((a): a is Address => a !== undefined))
-        : [],
-    [uncheckedAddresses],
-  )
-
-  const results = useSingleContractMultipleData({
-    contract: useMemo(
-      () => ({
-        abi: multicallABI,
-        address: getMulticallAddress(native.chainId),
-      }),
-      [native],
-    ),
-    functionName: 'getEthBalance',
-    args: useMemo(() => addresses.map((address) => [address] as const), [addresses]),
+  const { data: results } = useBalance({
+    address: account,
+    chainId: native?.chainId,
   })
 
-  return useMemo(
-    () =>
-      addresses.reduce<{ [address: string]: CurrencyAmount<Native> }>((memo, address, i) => {
-        const value = results?.[i]?.result
-        if (typeof value !== 'undefined') memo[address] = CurrencyAmount.fromRawAmount(native, BigInt(value.toString()))
-        return memo
-      }, {}),
-    [addresses, results, native],
-  )
+  return useMemo(() => CurrencyAmount.fromRawAmount(native, results?.value ?? BigInt(0)), [results, native])
 }
 
 /**
@@ -64,54 +40,49 @@ export function useTokenBalancesWithLoadingIndicator(
     [tokens],
   )
 
-  const validatedTokenAddresses = useMemo(() => validatedTokens.map((vt) => vt.address), [validatedTokens])
+  const addresses = useMemo(() => validatedTokens.map((token) => token.wrapped.address), [validatedTokens])
+  const chainIds = useMemo(() => validatedTokens.map((token) => token.chainId), [validatedTokens])
+  const args = useMemo(() => [address as Address] as const, [address])
 
-  const balances = useMultipleContractSingleData({
+  const { data: balances, isLoading } = useMultipleContractSingleDataWagmi({
     abi: erc20Abi,
-    addresses: validatedTokenAddresses,
+    addresses,
+    chainId: chainIds,
     functionName: 'balanceOf',
-    args: useMemo(() => [address as Address] as const, [address]),
+    args,
     options: {
-      enabled: Boolean(address && validatedTokenAddresses.length > 0),
+      enabled: Boolean(address && addresses.length > 0),
+      watch: true,
+      refetchInterval: FAST_INTERVAL,
     },
   })
 
-  const anyLoading: boolean = useMemo(() => balances.some((callState) => callState.loading), [balances])
+  const aggregatedBalances = useMemo(
+    () =>
+      address && validatedTokens.length > 0
+        ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
+            const value = balances?.[i]?.result as bigint | undefined
+            const amount = typeof value !== 'undefined' ? BigInt(value.toString()) : undefined
+            if (typeof amount !== 'undefined') {
+              memo[`${token.chainId}-${token.address}`] = CurrencyAmount.fromRawAmount(token, amount)
+            }
+            return memo
+          }, {})
+        : {},
+    [address, validatedTokens, balances],
+  )
 
-  return [
-    useMemo(
-      () =>
-        address && validatedTokens.length > 0
-          ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
-              const value = balances?.[i]?.result
-              const amount = typeof value !== 'undefined' ? BigInt(value.toString()) : undefined
-              if (typeof amount !== 'undefined') {
-                memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)
-              }
-              return memo
-            }, {})
-          : {},
-      [address, validatedTokens, balances],
-    ),
-    anyLoading,
-  ]
-}
-
-export function useTokenBalances(
-  address?: string,
-  tokens?: (Token | undefined)[],
-): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
-  return useTokenBalancesWithLoadingIndicator(address, tokens)[0]
+  return useMemo(() => [aggregatedBalances, isLoading], [aggregatedBalances, isLoading])
 }
 
 // get the balance for a single token/account combo
 export function useTokenBalance(account?: string, token?: Token): CurrencyAmount<Token> | undefined {
-  const tokenBalances = useTokenBalances(
+  const [tokenBalances] = useTokenBalancesWithLoadingIndicator(
     account,
     useMemo(() => [token], [token]),
   )
   if (!token) return undefined
-  return tokenBalances[token.address]
+  return tokenBalances[`${token.chainId}-${token.address}`]
 }
 
 export function useCurrencyBalances(
@@ -120,29 +91,30 @@ export function useCurrencyBalances(
 ): (CurrencyAmount<Currency> | undefined)[] {
   const tokens = useMemo(
     () => currencies?.filter((currency): currency is Token => Boolean(currency?.isToken)) ?? [],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [...(currencies ?? [])],
+    [currencies],
   )
 
-  const tokenBalances = useTokenBalances(account, tokens)
-  const containsNative: boolean = useMemo(
-    () => currencies?.some((currency) => currency?.isNative) ?? false,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [...(currencies ?? [])],
+  const [tokenBalances] = useTokenBalancesWithLoadingIndicator(account, tokens)
+
+  const containsNative: Currency | null = useMemo(
+    () => currencies?.find((currency) => currency?.isNative) ?? null,
+    [currencies],
   )
-  const uncheckedAddresses = useMemo(() => (containsNative ? [account] : []), [containsNative, account])
-  const nativeBalance = useNativeBalances(uncheckedAddresses)
+  const uncheckedAddresses = useMemo(
+    () => (containsNative ? (account as Address) : undefined),
+    [containsNative, account],
+  )
+  const nativeBalance = useNativeBalances(uncheckedAddresses, containsNative?.chainId)
 
   return useMemo(
     () =>
       currencies?.map((currency) => {
         if (!account || !currency) return undefined
-        if (currency?.isToken) return tokenBalances[currency.address]
-        if (currency?.isNative) return nativeBalance[account] || nativeBalance[getAddress(account)]
+        if (currency?.isToken) return tokenBalances[`${currency.chainId}-${currency.address}`]
+        if (currency?.isNative) return nativeBalance
         return undefined
       }) ?? [],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [account, ...(currencies ?? []), nativeBalance, tokenBalances],
+    [account, currencies, nativeBalance, tokenBalances],
   )
 }
 
@@ -158,8 +130,16 @@ export function useAllTokenBalances(chainId?: number): { [tokenAddress: string]:
   const { address: account } = useAccount()
   const allTokens = useAllTokens(chainId)
   const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
-  const balances = useTokenBalances(account ?? undefined, allTokensArray)
-  return balances ?? {}
+
+  const [tokenBalances] = useTokenBalancesWithLoadingIndicator(account, allTokensArray)
+
+  return Object.keys(tokenBalances).reduce((acc, key) => {
+    const [_, address] = key.split('-')
+    return {
+      ...acc,
+      [address]: tokenBalances[key],
+    }
+  }, {} as { [tokenAddress: string]: CurrencyAmount<Token> | undefined })
 }
 
 /**
