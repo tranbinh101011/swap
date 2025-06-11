@@ -3800,5 +3800,6 @@
   "Fees saved on PancakeSwap compared to major DEXs charging interface fees.": "Fees saved on PancakeSwap compared to major DEXs charging interface fees.",
   "The change in pool price caused by your swap.": "The change in pool price caused by your swap.",
   "Estimated time to complete this transaction.": "Estimated time to complete this transaction.",
-  "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!": "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!"
+  "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!": "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!",
+  "Developer Doc": "Developer Doc"
 }
