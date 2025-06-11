@@ -32,8 +32,8 @@ import { getFullChainNameById } from 'utils/getFullChainNameById'
 import { OrderResultModalContent } from 'views/Swap/Bridge/CrossChainConfirmSwapModal/OrderStatus/OrderResultModalContent'
 import { bridgeStatusQueryKey } from 'views/Swap/Bridge/hooks/useBridgeStatus'
 import { ActiveBridgeOrderMetadata, BridgeStatus, UserBridgeOrder } from 'views/Swap/Bridge/types'
-import { customBridgeStatus } from 'views/Swap/Bridge/utils'
 import { getBridgeTitle } from 'views/Swap/Bridge/utils/bridgeTitle'
+import { customBridgeStatus } from 'views/Swap/Bridge/utils/customBridgeStatus'
 
 const StyledChainLogo = styled(ChainLogo)`
   > img {

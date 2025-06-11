@@ -27,7 +27,7 @@ import { getFullChainNameById } from 'utils/getFullChainNameById'
 import { shortenAddress } from 'views/V3Info/utils'
 import { useBridgeStatus } from '../../hooks/useBridgeStatus'
 import { ActiveBridgeOrderMetadata, BridgeResponseStatusData, BridgeStatus, Command } from '../../types'
-import { customBridgeStatus } from '../../utils'
+import { customBridgeStatus } from '../../utils/customBridgeStatus'
 import { activeBridgeOrderMetadataAtom } from '../state/orderDataState'
 import { OrderDetailsPanel } from './OrderDetailsPanel'
 

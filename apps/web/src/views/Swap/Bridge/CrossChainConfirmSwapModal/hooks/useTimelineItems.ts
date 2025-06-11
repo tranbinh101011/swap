@@ -12,7 +12,8 @@ import { getFullChainNameById } from 'utils/getFullChainNameById'
 import { publicClient } from 'utils/wagmi'
 import { Address, erc20Abi } from 'viem'
 import { BridgeStatus, BridgeStatusData, Command } from '../../types'
-import { customBridgeStatus } from '../../utils'
+
+import { customBridgeStatus } from '../../utils/customBridgeStatus'
 import { TimelineItemStatus } from '../components/Timeline'
 import { CrossChainAPIErrorCode, useBridgeErrorMessages } from './useBridgeErrorMessages'
 
