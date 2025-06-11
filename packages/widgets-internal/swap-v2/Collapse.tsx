@@ -13,6 +13,7 @@ const TitleWrapper = styled.div`
 `;
 const ContentWrapper = styled.div``;
 const IconWrapper = styled.div`
+  height: 0px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,6 +27,7 @@ const IconWrapper = styled.div`
 `;
 
 const Container = styled.div`
+  height: 0px;
   overflow: hidden;
   display: flex;
   width: 100%;
@@ -58,12 +60,13 @@ export const Collapse: React.FC<CollapseProps> = ({ title, content, isOpen, onTo
     const titleHeight = titleElement.scrollHeight;
     // height auto -> accurate height for transition
     wrapperElement.style.height = `${titleHeight + contentHeight + PADDING * 2}px`;
+
     if (!isOpen) {
       setTimeout(() => {
         wrapperElement.style.height = `${titleHeight + PADDING * 2}px`;
       }, 50);
     }
-  }, [isOpen, titleRef.current?.scrollHeight, contentRef.current?.scrollHeight, recalculateDep]);
+  }, [isOpen, recalculateDep]);
 
   const onTransitionEnd = useCallback(() => {
     if (isOpen && wrapperRef.current) {
