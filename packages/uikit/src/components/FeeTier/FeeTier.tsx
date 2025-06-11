@@ -20,7 +20,7 @@ export const FeeTier = forwardRef<HTMLSpanElement, FeeTierProps>(
         <span style={{ opacity: 0.5 }}>|</span>
         <span>
           {dynamic ? <span style={{ marginRight: "2px" }}>↕️</span> : ""}
-          {Number(percent.toFixed(2))}%
+          {Number(percent.toString())}%
         </span>
       </StyledFeeTier>
     );
