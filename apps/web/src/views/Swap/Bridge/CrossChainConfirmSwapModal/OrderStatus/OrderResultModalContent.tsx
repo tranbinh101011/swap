@@ -40,21 +40,31 @@ const IconContainer = styled(Box)`
 // Since Translation not support interpolation for <element>
 // We need to use this component to display partially bold text
 function Description({
+  showAmounts,
   currencyAmount,
   description,
 }: {
+  showAmounts: boolean
   currencyAmount: CurrencyAmount<Currency>
   description: ReactNode
 }) {
   return (
     <FlexGap alignItems="center">
-      <Text small>
-        <b>
-          {formatAmount(currencyAmount)} {currencyAmount.currency.symbol}
-        </b>
-        {description}
-        <b>{getFullChainNameById(currencyAmount.currency.chainId)}</b>
-      </Text>
+      <p>
+        {showAmounts && (
+          <Text small bold as="span">
+            {formatAmount(currencyAmount)} {currencyAmount.currency.symbol}
+          </Text>
+        )}
+        <Text small as="span">
+          {description}
+        </Text>
+        {showAmounts && (
+          <Text small bold as="span">
+            {getFullChainNameById(currencyAmount.currency.chainId)}
+          </Text>
+        )}
+      </p>
     </FlexGap>
   )
 }
@@ -240,6 +250,7 @@ export const OrderResultModalContent = ({ overrideActiveOrderMetadata, ...props 
               }
             >
               <Description
+                showAmounts={status !== BridgeStatus.FAILED}
                 currencyAmount={resultCurrencyAmount}
                 description={
                   isRefundCase
