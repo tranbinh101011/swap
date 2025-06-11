@@ -484,7 +484,7 @@ export default function V3FormView({
 
   const buttons = (
     <V3SubmitButton
-      highMarketPriceSlippage={disableAddByHighSlippage}
+      highMarketPriceSlippage={disableAddByHighSlippage && activeQuickAction !== 100}
       addIsUnsupported={addIsUnsupported}
       addIsWarning={addIsWarning}
       account={account ?? undefined}
