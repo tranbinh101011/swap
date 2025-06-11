@@ -113,28 +113,35 @@ export function RecentTransactions() {
               )}
             </AutoRow>
             {hasTransactions ? (
-              Object.entries(sortedRecentTransactions).map(([chainId_, transactions]) => {
-                const chainIdNumber = Number(chainId_)
-                const content = (
-                  <UnifiedTransactionList
-                    transactions={Object.values(transactions)}
-                    xOrders={chainIdNumber === chainId ? xOrders : undefined}
-                    crossChainOrders={recentCrossChainOrders}
-                    chainId={chainIdNumber}
-                  />
-                )
+              <>
+                {Object.entries(sortedRecentTransactions).map(([chainId_, transactions]) => {
+                  const chainIdNumber = Number(chainId_)
+                  const content = (
+                    <UnifiedTransactionList
+                      transactions={Object.values(transactions)}
+                      xOrders={chainIdNumber === chainId ? xOrders : undefined}
+                      chainId={chainIdNumber}
+                    />
+                  )
 
-                return (
-                  <div key={`transactions#${chainIdNumber}`}>
-                    <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }}>
-                      <Text fontSize="12px" color="textSubtle" mb="4px">
-                        {chains.find((c) => c.id === chainIdNumber)?.name ?? 'Unknown network'}
-                      </Text>
-                    </AutoRow>
-                    {content}
-                  </div>
-                )
-              })
+                  return (
+                    <div key={`transactions#${chainIdNumber}`}>
+                      <AutoRow my="8px" style={{ justifyContent: 'space-between' }}>
+                        <Text fontSize="12px" color="textSubtle" mb="4px">
+                          {chains.find((c) => c.id === chainIdNumber)?.name ?? 'Unknown network'}
+                        </Text>
+                      </AutoRow>
+                      {content}
+                    </div>
+                  )
+                })}
+
+                {recentCrossChainOrders.length > 0 && (
+                  <Box mt="16px">
+                    <UnifiedTransactionList crossChainOrders={recentCrossChainOrders} />
+                  </Box>
+                )}
+              </>
             ) : (
               <UnifiedTransactionList xOrders={xOrders} crossChainOrders={recentCrossChainOrders} chainId={chainId} />
             )}
@@ -202,7 +209,7 @@ function UnifiedTransactionList({
     [transactions, xOrders, crossChainOrders],
   )
 
-  if (!chainId) {
+  if (!chainId && !crossChainOrders.length) {
     return null
   }
 
@@ -210,7 +217,7 @@ function UnifiedTransactionList({
     <TransactionList>
       {allTransactionItems.map((tx) => {
         if (tx.type === 'tx') {
-          return <Transaction key={tx.item.hash + tx.item.addedTime} tx={tx.item} chainId={chainId} />
+          return chainId ? <Transaction key={tx.item.hash + tx.item.addedTime} tx={tx.item} chainId={chainId} /> : null
         }
         if (tx.type === 'crossChainOrder') {
           return <CrossChainTransaction key={tx.order.orderId} order={tx.order} />
