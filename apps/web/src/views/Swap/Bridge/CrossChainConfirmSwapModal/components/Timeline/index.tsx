@@ -139,9 +139,9 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
       case 'completed':
         return <CheckmarkCircleFillIcon color="success" />
       case 'warning':
-        return <WarningIcon color="binance" />
+        return <WarningIcon color="binance" mr="2px" />
       case 'failed':
-        return <WarningIcon color="binance" />
+        return <WarningIcon color="binance" mr="2px" />
       case 'inProgress':
         return <SwapSpinner width="24px" height="24px" padding="3px" />
       case 'notStarted':

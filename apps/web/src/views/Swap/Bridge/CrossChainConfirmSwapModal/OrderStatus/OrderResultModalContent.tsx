@@ -90,13 +90,15 @@ export const OrderResultModalContent = ({ overrideActiveOrderMetadata, ...props 
     let resultTokenChainId: number | undefined
 
     let lastExecutedCommand: BridgeResponseStatusData | undefined
+    let lastExecutedCommandIndex: number | undefined
 
     if (bridgeStatus && bridgeStatus?.data) {
-      for (const step of bridgeStatus.data.toReversed()) {
+      for (const [index, step] of bridgeStatus.data.toReversed().entries()) {
         if (step.status.code === BridgeStatus.PENDING || step.status.code === BridgeStatus.BRIDGE_PENDING) {
           continue
         }
         lastExecutedCommand = step
+        lastExecutedCommandIndex = bridgeStatus.data.length - index - 1
         break
       }
     }
@@ -106,13 +108,23 @@ export const OrderResultModalContent = ({ overrideActiveOrderMetadata, ...props 
         case Command.SWAP: {
           resultTokenChainId = lastExecutedCommand.metadata.chainId
 
-          // If swap failed or partially succeeded, use input token as result token.
+          // If swap failed or partially succeeded,
+          // 1. If previous step exists and is success, use it's output token
+          // 2. otherwise use input token as result token.
           if (
             lastExecutedCommand.status.code === BridgeStatus.PARTIAL_SUCCESS ||
             lastExecutedCommand.status.code === BridgeStatus.FAILED
           ) {
-            resultTokenAddress = lastExecutedCommand.metadata.inputToken
-            resultAmount = lastExecutedCommand.metadata.inputAmount
+            // If previous step exists and is success, use it's output token
+            const previousStep = lastExecutedCommandIndex && bridgeStatus.data?.[lastExecutedCommandIndex - 1]
+            if (previousStep && previousStep.status.code === BridgeStatus.SUCCESS && previousStep.metadata) {
+              resultTokenAddress = previousStep.metadata.outputToken
+              resultAmount = previousStep.metadata.outputAmount
+            } else {
+              // otherwise use input token as result token.
+              resultTokenAddress = lastExecutedCommand.metadata.inputToken
+              resultAmount = lastExecutedCommand.metadata.inputAmount
+            }
           } else {
             resultTokenAddress = lastExecutedCommand.metadata.outputToken
             resultAmount = lastExecutedCommand.metadata.outputAmount
