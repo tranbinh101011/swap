@@ -144,24 +144,29 @@ export const getMerklApr = async (result: any, chainId: number) => {
 }
 
 export const getAllNetworkMerklApr = async (signal?: AbortSignal) => {
-  const resp = await fetch(
-    `https://api.merkl.xyz/v4/opportunities/?chainId=${supportedChainIdV4.join(
-      ',',
-    )}&test=false&status=LIVE&action=POOL,HOLD`,
-    { signal },
-  )
-  if (resp.ok) {
-    const result = await resp.json()
-    const pancakeResult = result?.filter(
-      (opportunity) =>
-        opportunity?.tokens?.[0]?.symbol?.toLowerCase().startsWith('cake-lp') ||
-        opportunity?.protocol?.id?.toLowerCase().startsWith('pancake-swap') ||
-        opportunity?.protocol?.id?.toLowerCase().startsWith('pancakeswap'),
+  const fetchList = async (page: number) => {
+    const resp = await fetch(
+      `https://api.merkl.xyz/v4/opportunities/?chainId=${supportedChainIdV4.join(
+        ',',
+      )}&test=false&status=LIVE&items=100&action=POOL,HOLD&page=${page}`,
+      { signal },
     )
-    const aprs = await Promise.all(supportedChainIdV4.map((chainId) => getMerklApr(pancakeResult, chainId)))
-    return aprs.reduce((acc, apr) => Object.assign(acc, apr), {})
+    if (resp.ok) {
+      return resp.json()
+    }
+    return []
   }
-  throw resp
+
+  const list = await Promise.all([...Array(5)].map((_, i) => fetchList(i)))
+  const result = list.flat()
+  const pancakeResult = result?.filter(
+    (opportunity) =>
+      opportunity?.tokens?.[0]?.symbol?.toLowerCase().startsWith('cake-lp') ||
+      opportunity?.protocol?.id?.toLowerCase().startsWith('pancake-swap') ||
+      opportunity?.protocol?.id?.toLowerCase().startsWith('pancakeswap'),
+  )
+  const aprs = await Promise.all(supportedChainIdV4.map((chainId) => getMerklApr(pancakeResult, chainId)))
+  return aprs.reduce((acc, apr) => Object.assign(acc, apr), {})
 }
 
 const getV3PoolsCakeAprByChainId = async (pools: V3PoolInfo[], chainId: number, cakePrice: BigNumber) => {
