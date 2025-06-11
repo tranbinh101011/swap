@@ -5,8 +5,6 @@ import isEmpty from 'lodash/isEmpty'
 import { useCallback, useMemo } from 'react'
 import { useAppDispatch } from 'state'
 import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
-import { TransactionDetails } from 'state/transactions/reducer'
-import { chains } from 'utils/wagmi'
 import { useRecentXOrders } from 'views/Swap/x/useRecentXOders'
 
 import { clearAllTransactions } from 'state/transactions/actions'
@@ -18,7 +16,7 @@ import { AutoRow } from '../../Layout/Row'
 import { CrossChainTransaction } from './CrossChainTransaction'
 import Transaction from './Transaction'
 import { XTransaction } from './XTransaction'
-import { CrossChainTransactionItem, TransactionItem, XTransactionItem } from './types'
+import { AmmTransactionItem, CrossChainTransactionItem, TransactionItem, XTransactionItem } from './types'
 
 function getTransactionTimestamp(item: TransactionItem): number {
   switch (item.type) {
@@ -74,6 +72,17 @@ export function RecentTransactions() {
     ) ?? []
 
   const sortedRecentTransactions = useAllSortedRecentTransactions()
+  const ammTransactions: AmmTransactionItem[] = useMemo(
+    () =>
+      Object.entries(sortedRecentTransactions).flatMap(([chainId, transactions]) => {
+        return Object.values(transactions).map((transaction) => ({
+          type: 'tx',
+          item: transaction,
+          chainId: Number(chainId),
+        }))
+      }),
+    [sortedRecentTransactions],
+  )
 
   const xOrders: XTransactionItem[] = useMemo(
     () => recentXOrders?.orders.reverse().map((order) => ({ type: 'xOrder', item: order })) ?? [],
@@ -108,43 +117,17 @@ export function RecentTransactions() {
               {recentTransactionsHeading}
               {hasTransactions && (
                 <Button variant="tertiary" scale="xs" onClick={clearAllTransactionsCallback}>
-                  {t('clear all')}
+                  {t('clear')}
                 </Button>
               )}
             </AutoRow>
-            {hasTransactions ? (
-              <>
-                {Object.entries(sortedRecentTransactions).map(([chainId_, transactions]) => {
-                  const chainIdNumber = Number(chainId_)
-                  const content = (
-                    <UnifiedTransactionList
-                      transactions={Object.values(transactions)}
-                      xOrders={chainIdNumber === chainId ? xOrders : undefined}
-                      chainId={chainIdNumber}
-                    />
-                  )
 
-                  return (
-                    <div key={`transactions#${chainIdNumber}`}>
-                      <AutoRow my="8px" style={{ justifyContent: 'space-between' }}>
-                        <Text fontSize="12px" color="textSubtle" mb="4px">
-                          {chains.find((c) => c.id === chainIdNumber)?.name ?? 'Unknown network'}
-                        </Text>
-                      </AutoRow>
-                      {content}
-                    </div>
-                  )
-                })}
+            <UnifiedTransactionList
+              transactions={ammTransactions}
+              xOrders={xOrders}
+              crossChainOrders={recentCrossChainOrders}
+            />
 
-                {recentCrossChainOrders.length > 0 && (
-                  <Box mt="16px">
-                    <UnifiedTransactionList crossChainOrders={recentCrossChainOrders} />
-                  </Box>
-                )}
-              </>
-            ) : (
-              <UnifiedTransactionList xOrders={xOrders} crossChainOrders={recentCrossChainOrders} chainId={chainId} />
-            )}
             {hasMoreCrossChainOrders && (
               <Button
                 variant="text"
@@ -185,39 +168,22 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
 function UnifiedTransactionList({
   transactions,
   xOrders = [],
-  chainId,
   crossChainOrders = [],
 }: {
-  transactions?: TransactionDetails[]
+  transactions?: TransactionItem[]
   xOrders?: TransactionItem[]
-  chainId?: number
   crossChainOrders?: TransactionItem[]
 }) {
   const allTransactionItems = useMemo(
-    () =>
-      [
-        ...(transactions || []).map(
-          (t) =>
-            ({
-              type: 'tx',
-              item: t,
-            } as TransactionItem),
-        ),
-        ...crossChainOrders,
-        ...xOrders,
-      ].sort(sortByTransactionTime),
+    () => [...(transactions || []), ...crossChainOrders, ...xOrders].sort(sortByTransactionTime),
     [transactions, xOrders, crossChainOrders],
   )
-
-  if (!chainId && !crossChainOrders.length) {
-    return null
-  }
 
   return (
     <TransactionList>
       {allTransactionItems.map((tx) => {
         if (tx.type === 'tx') {
-          return chainId ? <Transaction key={tx.item.hash + tx.item.addedTime} tx={tx.item} chainId={chainId} /> : null
+          return <Transaction key={tx.item.hash + tx.item.addedTime} tx={tx.item} chainId={tx.chainId} />
         }
         if (tx.type === 'crossChainOrder') {
           return <CrossChainTransaction key={tx.order.orderId} order={tx.order} />

@@ -814,7 +814,7 @@
   "Swap": "Swap",
   "Swap Anyway": "Swap Anyway",
   "Recent Transactions": "Recent Transactions",
-  "clear all": "clear all",
+  "clear": "clear",
   "Clear all": "Clear all",
   "No recent transactions": "No recent transactions",
   "Expert mode turns off the 'Confirm' transaction prompt, and allows high slippage trades that often result in bad rates and lost funds.": "Expert mode turns off the 'Confirm' transaction prompt, and allows high slippage trades that often result in bad rates and lost funds.",
