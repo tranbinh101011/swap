@@ -3801,5 +3801,9 @@
   "The change in pool price caused by your swap.": "The change in pool price caused by your swap.",
   "Estimated time to complete this transaction.": "Estimated time to complete this transaction.",
   "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!": "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!",
-  "Developer Doc": "Developer Doc"
+  "Developer Doc": "Developer Doc",
+  "Notice: Temporary Unavailability of CAKE Bridging": "Notice: Temporary Unavailability of CAKE Bridging",
+  "CAKE bridging from Polygon zkEVM will be reverted; bridging to Polygon zkEVM remains available.": "CAKE bridging from Polygon zkEVM will be reverted; bridging to Polygon zkEVM remains available.",
+  "CAKE bridging to/from all chains will be reverted; transactions created before this will be processed as normal.": "CAKE bridging to/from all chains will be reverted; transactions created before this will be processed as normal.",
+  "Stay tuned to our X account for real-time updates.": "Stay tuned to our X account for real-time updates."
 }

@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Flex, useToast } from '@pancakeswap/uikit'
+import { Flex, Message, MessageText, Text, useToast } from '@pancakeswap/uikit'
 import { useCallback, useMemo } from 'react'
 
 import {
@@ -32,7 +32,7 @@ export interface CanonicalBridgeProps {
 export const CanonicalBridge = (props: CanonicalBridgeProps) => {
   const { connectWalletButton, supportedChainIds } = props
 
-  const { currentLanguage } = useTranslation()
+  const { t, currentLanguage } = useTranslation()
   const theme = useTheme()
   const toast = useToast()
   const { connector } = useAccount()
@@ -92,6 +92,29 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
       <GlobalStyle />
       <CanonicalBridgeProvider config={config}>
         <Flex flexDirection="column" justifyContent="center" maxWidth="480px" width="100%">
+          <Message variant="warning" mb="16px">
+            <MessageText>
+              <Text bold>{t('Notice: Temporary Unavailability of CAKE Bridging')}</Text>
+              <br />
+              <Text small bold as="span">
+                From 1:00 PM (GMT+8):
+              </Text>{' '}
+              <br />
+              {t('CAKE bridging from Polygon zkEVM will be reverted; bridging to Polygon zkEVM remains available.')}
+              <br />
+              <br />
+              <Text small bold as="span">
+                From 4:30 PM (GMT+8):
+              </Text>{' '}
+              <br />
+              {t(
+                'CAKE bridging to/from all chains will be reverted; transactions created before this will be processed as normal.',
+              )}
+              <br />
+              <br />
+              {t('Stay tuned to our X account for real-time updates.')}
+            </MessageText>
+          </Message>
           <BridgeTransfer />
           <V1BridgeLink />
         </Flex>
