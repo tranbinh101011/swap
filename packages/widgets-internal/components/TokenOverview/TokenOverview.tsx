@@ -78,7 +78,7 @@ export const TokenOverview: React.FC<ITokenInfoProps> = ({
           <DescWrapper>
             {desc ?? (
               <>
-                <ChainLogo width={16} height={16} chainId={token.chainId} />
+                <ChainLogo width={16} height={16} chainId={token.chainId} imageStyles={{ borderRadius: "50%" }} />
                 {getChainName(token.chainId)?.toUpperCase()}
               </>
             )}

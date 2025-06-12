@@ -63,7 +63,7 @@ export const PoolInfo = () => {
       <Header>
         <Flex alignItems={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'}>
           <Box mr="12px">
-            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={48} innerMargin="-8px" />
+            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={48} />
           </Box>
           <FlexGap gap="4px">
             <Text bold fontSize={40}>
@@ -99,7 +99,7 @@ export const PoolInfo = () => {
               {t('network')}
             </Text>
             <FlexGap gap="4px">
-              <ChainLogo chainId={chainId} />
+              <ChainLogo chainId={chainId} imageStyles={{ borderRadius: '50%' }} />
               <Text fontSize={12} bold color="textSubtle" lineHeight="24px">
                 {multiChainNameConverter(networkName)}
               </Text>
