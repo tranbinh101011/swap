@@ -12,6 +12,7 @@ import {
   IconButton,
   ModalCloseButton,
   ModalTitle,
+  Spinner,
   Text,
   useMatchBreakpoints,
 } from '@pancakeswap/uikit'
@@ -28,6 +29,7 @@ import { safeGetAddress } from 'utils'
 import { UpdaterByChainId } from 'state/lists/updater'
 import { useAllTokenBalances } from 'state/wallet/hooks'
 import { getTokenAddressFromSymbolAlias } from 'utils/getTokenAlias'
+import { useAccount } from 'wagmi'
 import { useAllTokens, useIsUserAddedToken, useToken } from '../../hooks/Tokens'
 import Row from '../Layout/Row'
 import CommonBases, { BaseWrapper } from './CommonBases'
@@ -127,6 +129,7 @@ function CurrencySearch({
   onSettingsClick,
 }: CurrencySearchProps) {
   const { t } = useTranslation()
+  const account = useAccount()
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(getTokenAddressFromSymbolAlias(searchQuery, selectedChainId, searchQuery), 200)
   // refs for fixed size lists
@@ -163,7 +166,7 @@ function CurrencySearch({
 
   const filteredQueryTokens = useSortedTokensByQuery(filteredTokens, debouncedQuery)
 
-  const balances = useAllTokenBalances(selectedChainId)
+  const { balances, isLoading: isLoadingBalances } = useAllTokenBalances(selectedChainId)
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     const tokenComparator = getTokenComparator(balances ?? {})
@@ -335,7 +338,13 @@ function CurrencySearch({
           />
         )}
       </AutoColumn>
-      {getCurrencyListRows()}
+      {account && isLoadingBalances ? (
+        <Flex width="100%" justifyContent="center" alignItems="center" pt="24px">
+          <Spinner />
+        </Flex>
+      ) : (
+        getCurrencyListRows()
+      )}
     </>
   )
 }
