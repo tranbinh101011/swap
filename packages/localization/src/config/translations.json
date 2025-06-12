@@ -3801,5 +3801,9 @@
   "The change in pool price caused by your swap.": "The change in pool price caused by your swap.",
   "Estimated time to complete this transaction.": "Estimated time to complete this transaction.",
   "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!": "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!",
-  "Developer Doc": "Developer Doc"
+  "Developer Doc": "Developer Doc",
+  "Notice: ZKsync CAKE Bridging Maintenance": "Notice: ZKsync CAKE Bridging Maintenance",
+  "Bridging to/from ZKsync is currently unavailable until further notice.": "Bridging to/from ZKsync is currently unavailable until further notice.",
+  "Bridging on all other supported networks continues to function as normal.": "Bridging on all other supported networks continues to function as normal.",
+  "Please refer to our X account for updates.": "Please refer to our X account for updates."
 }

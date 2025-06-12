@@ -1,4 +1,4 @@
-import { Box, Flex, Message, MessageText } from '@pancakeswap/uikit'
+import { Box, Flex, Message, MessageText, Text } from '@pancakeswap/uikit'
 import AptosBridgeFooter from 'components/layerZero/AptosBridgeFooter'
 import { LayerZeroWidget } from 'components/layerZero/LayerZeroWidget'
 import { FEE_COLLECTOR, FEE_TENTH_BPS, LAYER_ZERO_JS, PARTNER_ID } from 'components/layerZero/config'
@@ -61,12 +61,13 @@ const LayerZero = ({ isCake }: { isCake?: boolean }) => {
               // @ts-ignore
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               app!.bridgeStore!.currencies.length = 0
-              app?.bridgeStore?.addCurrencies(currencies?.filter((i: any) => i.symbol.toLowerCase() === 'cake'))
 
-              const srcCake = app?.bridgeStore?.currencies?.find(
-                (i: any) => i.symbol.toUpperCase() === 'CAKE' && i.chainId === 102,
-              )
-              app?.bridgeStore?.setSrcCurrency(srcCake)
+              // Temporarily disable CAKE bridging (commented out lines below)
+              // app?.bridgeStore?.addCurrencies(currencies?.filter((i: any) => i.symbol.toLowerCase() === 'cake'))
+              // const srcCake = app?.bridgeStore?.currencies?.find(
+              //   (i: any) => i.symbol.toUpperCase() === 'CAKE' && i.chainId === 102,
+              // )
+              // app?.bridgeStore?.setSrcCurrency(srcCake)
             }
           } catch (error) {
             console.error('Failed to load lz-bridge', error)
@@ -86,6 +87,17 @@ const LayerZero = ({ isCake }: { isCake?: boolean }) => {
         <Box width={['100%', null, '420px']} m="auto">
           <Message variant="warning" m={['16px', '16px', '16px 0']}>
             <MessageText>
+              <Text mb="8px" small bold>
+                Notice: ZKsync CAKE Bridging Maintenance
+              </Text>
+              Bridging to/from ZKsync is currently unavailable until further notice.
+              <br />
+              Bridging on all other supported networks continues to function as normal.
+              <br />
+              <br />
+              Please refer to our X account for updates.
+              <br />
+              <br />
               Outbound transfers from Polygon zkEVM are subject to a 7 days delay for block confirmations.
             </MessageText>
           </Message>

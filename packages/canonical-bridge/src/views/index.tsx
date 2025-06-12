@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Flex, useToast } from '@pancakeswap/uikit'
+import { Flex, Message, MessageText, Text, useToast } from '@pancakeswap/uikit'
 import { useCallback, useMemo } from 'react'
 
 import {
@@ -92,6 +92,19 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
       <GlobalStyle />
       <CanonicalBridgeProvider config={config}>
         <Flex flexDirection="column" justifyContent="center" maxWidth="480px" width="100%">
+          <Message variant="warning" mb="16px">
+            <MessageText>
+              <Text mb="8px" small bold>
+                {t('Notice: ZKsync CAKE Bridging Maintenance')}
+              </Text>
+              {t('Bridging to/from ZKsync is currently unavailable until further notice.')}
+              <br />
+              {t('Bridging on all other supported networks continues to function as normal.')}
+              <br />
+              <br />
+              {t('Please refer to our X account for updates.')}
+            </MessageText>
+          </Message>
           <BridgeTransfer />
           <V1BridgeLink />
         </Flex>
