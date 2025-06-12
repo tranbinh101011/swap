@@ -122,14 +122,14 @@ export function useTransferConfig(supportedChains: IChainConfig[]) {
             excludedChains: [],
             excludedTokens: {
               56: ['0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'],
-              42161: ['0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'],
-              1101: ['0x0D1E753a25eBda689453309112904807625bEFBe'],
+              42161: ['0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'], // ['USDT', 'USDC.e']
             },
           }),
           deBridge({
             config: deBridgeConfig,
             excludedChains: [],
             excludedTokens: {
+              // We excluded certain tokens because: previously during testing, these token transactions failed. Some due to internal errors from third parties, and others due to lack of liquidity, hence we removed them.
               1: ['cUSDCv3', '0x5e21d1ee5cf0077b314c381720273ae82378d613'],
               56: [
                 '0x67d66e8ec1fd25d98b3ccd3b19b7dc4b4b7fc493',
@@ -145,29 +145,23 @@ export function useTransferConfig(supportedChains: IChainConfig[]) {
                 '2kaRSuDcz1V1kqq1sDmP23Wy98jutHQQgr5fGDWRpump',
                 '2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk',
               ],
-              1101: ['0x0D1E753a25eBda689453309112904807625bEFBe'],
             },
           }),
           stargate({
             config: stargateConfig,
             excludedChains: [],
-            excludedTokens: {
-              1101: ['0x0D1E753a25eBda689453309112904807625bEFBe'],
-            },
+            excludedTokens: {},
           }),
           layerZero({
             config: layerZeroConfig,
             excludedChains: [],
-            excludedTokens: {
-              1101: ['0x0D1E753a25eBda689453309112904807625bEFBe'],
-            },
+            excludedTokens: {},
           }),
           meson({
             config: mesonConfig,
             excludedChains: [],
             excludedTokens: {
               42161: ['SOL'],
-              1101: ['0x0D1E753a25eBda689453309112904807625bEFBe'],
             },
           }),
         ],

@@ -1,4 +1,4 @@
-import { Box, Flex, Message, MessageText, Text } from '@pancakeswap/uikit'
+import { Box, Flex, Message, MessageText } from '@pancakeswap/uikit'
 import AptosBridgeFooter from 'components/layerZero/AptosBridgeFooter'
 import { LayerZeroWidget } from 'components/layerZero/LayerZeroWidget'
 import { FEE_COLLECTOR, FEE_TENTH_BPS, LAYER_ZERO_JS, PARTNER_ID } from 'components/layerZero/config'
@@ -86,31 +86,7 @@ const LayerZero = ({ isCake }: { isCake?: boolean }) => {
         <Box width={['100%', null, '420px']} m="auto">
           <Message variant="warning" m={['16px', '16px', '16px 0']}>
             <MessageText>
-              <p>
-                <Text small bold>
-                  Notice: Temporary Unavailability of CAKE Bridging
-                </Text>
-                <br />
-                <Text small bold as="span">
-                  From 1:00 PM (GMT+8):
-                </Text>{' '}
-                <br />
-                CAKE bridging from Polygon zkEVM will be reverted; bridging to Polygon zkEVM remains available.
-                <br />
-                <br />
-                <Text small bold as="span">
-                  From 4:30 PM (GMT+8):
-                </Text>{' '}
-                <br />
-                CAKE bridging to/from all chains will be reverted; transactions created before this will be processed as
-                normal.
-                <br />
-                <br />
-                Stay tuned to our X account for real-time updates.
-                <br />
-                <br />
-                Outbound transfers from Polygon zkEVM are subject to a 7 days delay for block confirmations.
-              </p>
+              Outbound transfers from Polygon zkEVM are subject to a 7 days delay for block confirmations.
             </MessageText>
           </Message>
           <Flex flexDirection="column" bg="backgroundAlt" borderRadius={[0, null, 24]} alignItems="center">
