@@ -12,6 +12,7 @@ const _fetchPools = async function <T>(
   currencyB: Currency,
   chainId: ChainId,
   protocols: Protocol[],
+  type: 'light' | 'full' = 'full',
   signal?: AbortSignal,
 ): Promise<T> {
   const addressA = getCurrencyAddress(currencyA)
@@ -21,6 +22,7 @@ const _fetchPools = async function <T>(
     addressB,
     chainId,
     protocol: protocols.join(','),
+    type,
   })
 
   const queryApi = async () => {
@@ -53,6 +55,7 @@ const getV2CandidatePools = async (currencyA: Currency, currencyB: Currency, cha
     currencyB,
     chainId,
     ['v2'],
+    'full',
     abort,
   )
   return pools.map((pool) => SmartRouter.Transformer.parsePool(chainId, pool) as V2Pool)
@@ -70,6 +73,7 @@ const getV3CandidatePools = async (
     currencyB,
     chainId,
     ['v3'],
+    'full',
     abortSignal,
   )
   return pools.map((pool) => SmartRouter.Transformer.parsePool(chainId, pool) as V3Pool)
@@ -86,6 +90,7 @@ const getSSCandidatePools = async (
     currencyB,
     chainId,
     ['stable'],
+    'full',
     abortSignal,
   )
   return pools.map((pool) => SmartRouter.Transformer.parsePool(chainId, pool) as StablePool)
@@ -99,7 +104,7 @@ const getInfinityCandidatePools = async (
 ) => {
   const pools = await fetchPools<
     (SmartRouter.Transformer.SerializedInfinityBinPool | SmartRouter.Transformer.SerializedInfinityClPool)[]
-  >(currencyA, currencyB, chainId, ['infinityCl', 'infinityBin'], abortSignal)
+  >(currencyA, currencyB, chainId, ['infinityCl', 'infinityBin'], 'full', abortSignal)
   const filtered = pools.map((pool) => SmartRouter.Transformer.parsePool(chainId, pool))
   return filtered as (InfinityClPool | InfinityBinPool)[]
 }
@@ -107,9 +112,15 @@ const getInfinityCandidatePools = async (
 const fetchPools = cacheByLRU(_fetchPools, {
   ttl: 3_000,
   key: (args) => {
-    const [currencyA, currencyB, chainId, protocol] = args
+    const [currencyA, currencyB, chainId, protocol, type] = args as [
+      Currency,
+      Currency,
+      ChainId,
+      Protocol[],
+      'light' | 'full',
+    ]
     const hashc = PoolHashHelper.hashCurrenciesWithSort(currencyA, currencyB)
-    return `${hashc}-${chainId}-${protocol.join(',')}`
+    return `${hashc}-${chainId}-${protocol.join(',')}-${type}`
   },
   usingStaleValue: false,
 })
@@ -120,6 +131,7 @@ const getAllCandidates = async (
   chainId: ChainId,
   blockNumber: number,
   protocols: string[],
+  type: 'light' | 'full' = 'full',
   abortSignal?: AbortSignal,
 ) => {
   const pools = await fetchPools<SmartRouter.Transformer.SerializedPool[]>(
@@ -127,6 +139,7 @@ const getAllCandidates = async (
     currencyB,
     chainId,
     protocols as Protocol[],
+    type,
     abortSignal,
   )
   return pools.map((pool) => {

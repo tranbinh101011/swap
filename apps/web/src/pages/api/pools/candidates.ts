@@ -15,8 +15,13 @@ export default async function handler(req: NextRequest) {
   }
   const raw = new URL(req.url).search.slice(1)
   try {
-    const { chainId, addressA, addressB, protocols } = parseCandidatesQuery(raw)
-    const pools = await edgeQueries.fetchAllCandidatePools(addressA, addressB, chainId, protocols)
+    const { chainId, addressA, addressB, protocols, type } = parseCandidatesQuery(raw)
+
+    const pools =
+      type === 'light'
+        ? await edgeQueries.fetchAllCandidatePoolsLite(addressA, addressB, chainId, protocols)
+        : await edgeQueries.fetchAllCandidatePools(addressA, addressB, chainId, protocols)
+
     const age = Math.floor((POOLS_SLOW_REVALIDATE[chainId] as number) / 1000)
     const staleAge = age * 2
     return NextResponse.json(

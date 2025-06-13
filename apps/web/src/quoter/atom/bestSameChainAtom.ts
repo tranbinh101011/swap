@@ -32,12 +32,15 @@ export const bestSameChainWithoutPlaceHolderAtom = atomFamily((_option: QuoteQue
       quote: Loadable<InterfaceOrder>
       anyShadowFail?: boolean
       anyTimeout?: boolean
+      key?: string
     } {
       try {
         const quotes = strategies.map((route) => ({
           result: get(route.query({ ...option, ...route.overrides, routeKey: route.key })),
           isShadow: route.isShadow,
+          key: route.key,
         }))
+
         const anyPending = quotes.some((x) => x.result.isPending())
         const anyFail = quotes.some((x) => x.result.isFail())
         const errors = quotes.filter((x) => x.result.isFail()).map((x) => x.result.error)
@@ -59,7 +62,7 @@ export const bestSameChainWithoutPlaceHolderAtom = atomFamily((_option: QuoteQue
             anyTimeout,
           }
         }
-        const [bestQuote] = best
+        const [bestQuote, index] = best
         if (bestQuote) {
           if (!anyPending) {
             // updateStrategy(strategyHash, routes[bestIndex])
@@ -67,6 +70,7 @@ export const bestSameChainWithoutPlaceHolderAtom = atomFamily((_option: QuoteQue
               quote: Loadable.Just<InterfaceOrder>(bestQuote),
               anyShadowFail,
               anyTimeout,
+              key: quotes[index].key,
             }
           }
           return {
@@ -116,7 +120,7 @@ export const bestSameChainWithoutPlaceHolderAtom = atomFamily((_option: QuoteQue
       const tests = [p1, p2]
       for (let i = 0; i < tests.length; i++) {
         const strategy = tests[i]
-        const { quote, anyShadowFail, anyTimeout } = executeRoutes(strategy, option, i)
+        const { quote, anyShadowFail, anyTimeout, key } = executeRoutes(strategy, option, i)
 
         if (quote.isJust()) {
           const order = quote.unwrap()
@@ -134,6 +138,7 @@ export const bestSameChainWithoutPlaceHolderAtom = atomFamily((_option: QuoteQue
             }
           }
           if (!anyShadowFail) {
+            logQuote(key)
             return quote
           }
         }
@@ -161,6 +166,11 @@ export const bestSameChainWithoutPlaceHolderAtom = atomFamily((_option: QuoteQue
   })
 }, isEqualQuoteQuery)
 
+function logQuote(key?: string) {
+  // eslint-disable-next-line no-console
+  console.log(`%c[quote] with ${key}`, 'color: green; font-weight: bold;')
+}
+
 export const bestSameChainAtom = atomFamily((_option: QuoteQuery) => {
   return atom((get) => {
     const result = get(bestSameChainWithoutPlaceHolderAtom(_option))
@@ -176,18 +186,21 @@ export const bestSameChainAtom = atomFamily((_option: QuoteQuery) => {
 }, isEqualQuoteQuery)
 
 function findBestQuote(...args: Loadable<InterfaceOrder>[]): [InterfaceOrder, number] | undefined {
-  const fulfilledValues = args.filter((x) => x.isJust()).map((x) => x.unwrap())
+  const fulfilledValues = args.map((x) => x.unwrapOr(undefined))
 
   let bestOrder: InterfaceOrder | undefined
   let idx = -1
   for (let i = 0; i < fulfilledValues.length; i++) {
     const order = fulfilledValues[i]
+    if (!order) {
+      continue
+    }
+    if (!order?.trade) continue
     if (!bestOrder) {
       bestOrder = order
       idx = i
       continue
     }
-    if (!order?.trade) continue
     if (isBetterQuoteTrade(bestOrder.trade, order.trade)) {
       bestOrder = order
       idx = i

@@ -208,7 +208,15 @@ export const fetchCandidatePools = async (query: PoolQuery, options: PoolQueryOp
 
   const defaultQuery = async () => {
     const protocols = protocolsFromQuery(options)
-    return edgePoolQueryClient.getAllCandidates(currencyA, currencyB, chainId, blockNumber, protocols, options.signal)
+    return edgePoolQueryClient.getAllCandidates(
+      currencyA,
+      currencyB,
+      chainId,
+      blockNumber,
+      protocols,
+      'full',
+      options.signal,
+    )
   }
 
   if (isTestnetChainId(chainId)) {
@@ -241,7 +249,7 @@ export const fetchCandidatePoolsLite = async (query: PoolQuery, options: PoolQue
 
   const defaultQuery = async () => {
     const protocols = protocolsFromQuery(options)
-    return edgePoolQueryClient.getAllCandidates(currencyA, currencyB, chainId, blockNumber, protocols)
+    return edgePoolQueryClient.getAllCandidates(currencyA, currencyB, chainId, blockNumber, protocols, 'light')
   }
 
   const call = createAsyncCallWithFallbacks(defaultQuery, {

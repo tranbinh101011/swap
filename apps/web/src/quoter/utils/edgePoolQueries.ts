@@ -11,6 +11,7 @@ import {
   SmartRouter,
   StablePoolWithTvl,
   V2PoolWithTvl,
+  V3Pool,
   V3PoolWithTvl,
   WithTvl,
 } from '@pancakeswap/smart-router'
@@ -59,6 +60,27 @@ const fetchInfinityPools = async (addressA: Address, addressB: Address, chainId:
   return [...poolWithTicks, ...poolWithBins]
 }
 
+const fetchInfinityPoolsLight = async (addressA: Address, addressB: Address, chainId: ChainId) => {
+  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+  const chain = getChainName(chainId)
+  const tvlMap = await poolTvlMap(['infinityBin', 'infinityCl'], chain as APIChain)
+  const ref: InfinityRouter.InfinityPoolTvlReferenceMap = {}
+  Object.entries(tvlMap).forEach(([id, tvlUSD]) => {
+    ref[id] = {
+      tvlUSD: BigInt(Math.floor(Number(tvlUSD))),
+      tvlRef: id,
+    }
+  })
+
+  const pools = await InfinityRouter.getInfinityCandidatePoolsLite({
+    currencyA,
+    currencyB,
+    clientProvider: getProvider(),
+    tvlRefMap: ref,
+  })
+  return pools
+}
+
 const fetchV2Pools = async (addressA: Address, addressB: Address, chainId: ChainId) => {
   const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
 
@@ -80,13 +102,25 @@ const fetchV3Pools = async (addressA: Address, addressB: Address, chainId: Chain
     currencyA,
     currencyB,
     clientProvider: getProvider(),
-    disableFilterNoTicks: true,
   })
 
-  const chain = getChainName(chainId)
-  const tvlMap = await poolTvlMap(['v3'], chain as APIChain)
-  const poolsWithTvl = fillTvl(tvlMap, pools) as V3PoolWithTvl[]
-  return SmartRouter.v3PoolTvlSelector(currencyA, currencyB, poolsWithTvl)
+  return pools
+}
+
+const fetchV3PoolsWithoutTicks = async (addressA: Address, addressB: Address, chainId: ChainId) => {
+  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+  const client = getProvider()
+  const blockNumber = await client({ chainId })?.getBlockNumber()
+
+  const pools = await SmartRouter.getV3CandidatePools({
+    currencyA,
+    currencyB,
+    subgraphProvider: ({ chainId }) => (chainId ? v3Clients[chainId] : undefined),
+    onChainProvider: getProvider(),
+    blockNumber,
+  })
+
+  return pools as V3Pool[]
 }
 
 const fetchSSPool = async (addressA: Address, addressB: Address, chainId: ChainId) => {
@@ -125,6 +159,26 @@ const querySingleType = async (chainId: ChainId, protocol: Protocol, addressA: A
       throw new Error('invalid pool')
   }
 }
+
+const querySingleTypeLite = async (chainId: ChainId, protocol: Protocol, addressA: Address, addressB: Address) => {
+  switch (protocol) {
+    case 'v2': {
+      return fetchV2Pools(addressA, addressB, chainId)
+    }
+    case 'stable': {
+      return fetchSSPool(addressA, addressB, chainId)
+    }
+    case 'v3': {
+      return fetchV3PoolsWithoutTicks(addressA, addressB, chainId)
+    }
+    case 'infinityBin':
+    case 'infinityCl': {
+      return fetchInfinityPoolsLight(addressA, addressB, chainId)
+    }
+    default:
+      throw new Error('invalid pool')
+  }
+}
 const fetchAllCandidatePools = async (
   addressA: Address,
   addressB: Address,
@@ -137,6 +191,23 @@ const fetchAllCandidatePools = async (
       .map((protocol) => querySingleType(chainId, protocol as Protocol, addressA, addressB)),
   )
   const pools = queries.flat() as (InfinityPoolWithTvl | V2PoolWithTvl | V3PoolWithTvl | StablePoolWithTvl)[]
+  return pools.map((pool) => {
+    return SmartRouter.Transformer.serializePool(pool as Pool)
+  })
+}
+
+const fetchAllCandidatePoolsLite = async (
+  addressA: Address,
+  addressB: Address,
+  chainId: ChainId,
+  protocols: Protocol[],
+) => {
+  const queries = await Promise.all(
+    protocols
+      .filter((x) => x !== 'infinityBin')
+      .map((protocol) => querySingleTypeLite(chainId, protocol as Protocol, addressA, addressB)),
+  )
+  const pools = queries.flat() as (InfinityPoolWithTvl | V2PoolWithTvl | V3Pool | V3PoolWithTvl | StablePoolWithTvl)[]
   return pools.map((pool) => {
     return SmartRouter.Transformer.serializePool(pool as Pool)
   })
@@ -303,11 +374,15 @@ async function fetchAllPools({
 
 export const edgeQueries = {
   fetchAllCandidatePools,
+  fetchAllCandidatePoolsLite,
   fetchAllPools,
   fetchV2Pools,
   fetchV3Pools,
+  fetchV3PoolsWithoutTicks,
   fetchSSPool,
   fetchInfinityPools,
+  fetchInfinityPoolsLight,
   querySingleType,
+  querySingleTypeLite,
   poolTvlMap,
 }

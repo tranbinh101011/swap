@@ -94,6 +94,8 @@ export function parseCandidatesQuery(raw: string) {
   const addressB = checksumAddress(queryParsed.addressB as Address)
   const protocols = ((queryParsed.protocol as string) || '').split(',') as Protocol[]
   const chainId = Number.parseInt(queryParsed.chainId as string)
+  const typeParam = (queryParsed.type as string) || 'full'
+  const type = typeParam === 'light' ? 'light' : 'full'
   const includeInfinity = protocols.includes('infinityBin') || protocols.includes('infinityCl')
   if (!INFINITY_SUPPORTED_CHAINS.includes(chainId) && includeInfinity) {
     throw new Error('Invalid chainId')
@@ -108,6 +110,7 @@ export function parseCandidatesQuery(raw: string) {
     addressB,
     protocols,
     chainId,
+    type,
   }
 }
 
