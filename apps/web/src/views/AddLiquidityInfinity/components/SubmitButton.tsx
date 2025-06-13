@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js'
 import PageLoader from 'components/Loader/PageLoader'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import { useInfinityPoolIdRouteParams } from 'hooks/dynamicRoute/usePoolIdRoute'
+import { useCLPriceIsFullRange } from 'hooks/infinity/useCLPriceIsFullRange'
 import { usePoolCurrentPrice } from 'hooks/infinity/usePoolCurrentPrice'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -58,6 +59,9 @@ export const SubmitButton = () => {
       slippage.gt(25), // 25% slippage
     ]
   }, [marketPriceSlippage])
+  const isClFullRange = useCLPriceIsFullRange({
+    tickSpacing: pool?.poolType === 'CL' ? pool.tickSpacing : undefined,
+  })
   const addIsUnsupported = useIsTransactionUnsupported(currencyA, currencyB)
   const addIsWarning = useIsTransactionWarning(currencyA, currencyB)
 
@@ -209,11 +213,13 @@ export const SubmitButton = () => {
       return [t('Insufficient %symbol% balance', { symbol: currencyB?.symbol ?? 'Unknown' }), undefined]
     }
 
+    const disabledByPriceSlippage = isClFullRange ? false : disableAddByHighSlippage
+
     return [
       t('Add'),
       <AddIcon
         key="add-icon"
-        color={!enabled || disableAddByHighSlippage ? 'textDisabled' : 'invertedContrast'}
+        color={!enabled || disabledByPriceSlippage ? 'textDisabled' : 'invertedContrast'}
         width="24px"
       />,
     ]
@@ -225,6 +231,7 @@ export const SubmitButton = () => {
     depositCurrencyAmount0,
     depositCurrencyAmount1,
     enabled,
+    isClFullRange,
     disableAddByHighSlippage,
     isDeposit0Enabled,
     isDeposit1Enabled,
@@ -254,7 +261,7 @@ export const SubmitButton = () => {
         />
       )}
       <V3SubmitButton
-        highMarketPriceSlippage={disableAddByHighSlippage}
+        highMarketPriceSlippage={isClFullRange ? false : disableAddByHighSlippage}
         addIsUnsupported={addIsUnsupported}
         addIsWarning={addIsWarning}
         account={account ?? undefined}
