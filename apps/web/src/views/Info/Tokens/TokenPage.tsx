@@ -25,9 +25,8 @@ import { CHAIN_QUERY_NAME } from 'config/chains'
 import { ONE_HOUR_SECONDS } from 'config/constants/info'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import { atom, useAtomValue } from 'jotai'
-import { atomFamily } from 'jotai/utils'
-import isEqual from 'lodash/isEqual'
+import { tokenInfoPageDataAtom } from 'edge/tokenInfoPageDataAtom'
+import { useAtomValue } from 'jotai'
 import { ChainLinkSupportChains, checkIsStableSwap, multiChainId, multiChainScan } from 'state/info/constant'
 import {
   useChainIdByQuery,
@@ -41,13 +40,13 @@ import { styled } from 'styled-components'
 import { getBlockExploreLink } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
+import { BasePerf } from 'utils/PerfTracker'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import ChartCard from 'views/Info/components/InfoCharts/ChartCard'
 import PoolTable from 'views/Info/components/InfoTables/PoolsTable'
 import TransactionTable from 'views/Info/components/InfoTables/TransactionsTable'
 import Percent from 'views/Info/components/Percent'
 import useCMCLink from 'views/Info/hooks/useCMCLink'
-import { atomWithAsyncRetry } from 'utils/atomWithAsyncRetry'
 
 dayjs.extend(duration)
 
@@ -86,23 +85,8 @@ interface TokenQueryResponse {
   chartVolume: VolumeChartEntry[] | undefined
   chartTvl: TvlChartEntry[] | undefined
 }
-const tokenInfoAtom = atomFamily((params: TokenInfoParams) => {
-  return atomWithAsyncRetry({
-    asyncFn: async () => {
-      const resp = await fetch(`/api/token/${params.type}/${params.chain}/${params.address}`)
-      if (!resp.ok) throw new Error('Fetch error')
-      const json = await resp.json()
-      return json as TokenQueryResponse
-    },
-    fallbackValue: {
-      token: undefined,
-      pool: undefined,
-      transactions: undefined,
-      chartVolume: undefined,
-      chartTvl: undefined,
-    },
-  })
-}, isEqual)
+
+interface TokenTraceData extends BasePerf {}
 
 const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = ({ routeAddress }) => {
   const { isXs, isSm } = useMatchBreakpoints()
@@ -121,7 +105,7 @@ const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = (
     transactions,
     chartVolume: volumeChartData,
     chartTvl: tvlChartData,
-  } = useAtomValue(tokenInfoAtom({ address, chain: CHAIN_QUERY_NAME[chainId], type }))
+  } = useAtomValue(tokenInfoPageDataAtom({ address, chain: CHAIN_QUERY_NAME[chainId], type }))
 
   // pricing data
   const priceData = useTokenPriceDataQuery(address, ONE_HOUR_SECONDS, DEFAULT_TIME_WINDOW)

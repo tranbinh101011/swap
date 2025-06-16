@@ -29,20 +29,18 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { getBlockExploreLink } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 
+import { chainNames } from '@pancakeswap/chains'
 import isUndefinedOrNull from '@pancakeswap/utils/isUndefinedOrNull'
 import truncateHash from '@pancakeswap/utils/truncateHash'
+import { tokenInfoPageDataAtom } from 'edge/tokenInfoPageDataAtom'
 import { useAtomValue } from 'jotai'
-import { atomFamily } from 'jotai/utils'
-import isEqual from 'lodash/isEqual'
 import { ChainLinkSupportChains, multiChainId, multiChainScan } from 'state/info/constant'
 import { useChainNameByQuery, useMultiChainPath, useStableSwapPath } from 'state/info/hooks'
-import { PoolDataForView, TokenChartEntry, TokenDataForView, Transaction } from 'state/info/types'
+import { PoolDataForView } from 'state/info/types'
 import { styled } from 'styled-components'
 import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import useCMCLink from 'views/Info/hooks/useCMCLink'
-import { chainNames } from '@pancakeswap/chains'
-import { atomWithAsyncRetry } from 'utils/atomWithAsyncRetry'
 import BarChart from '../components/BarChart/alt'
 import { LocalLoader } from '../components/Loader'
 import Percent from '../components/Percent'
@@ -80,30 +78,6 @@ enum ChartView {
   PRICE,
 }
 
-interface TokenPageParams {
-  address: string
-  chain?: string
-}
-
-interface TokenQueryResponse {
-  token: TokenDataForView | undefined
-  pool: PoolDataForView[] | undefined
-  transactions: Transaction[] | undefined
-  charts: TokenChartEntry[] | undefined
-}
-
-const tokenPageDataAtom = atomFamily((params: TokenPageParams) => {
-  return atomWithAsyncRetry({
-    asyncFn: async () => {
-      const resp = await fetch(`/api/token/v3/${params.chain || 'bsc'}/${params.address}`)
-      if (!resp.ok) throw new Error('Fetch error')
-      const json = await resp.json()
-      return json as TokenQueryResponse
-    },
-    fallbackValue: { token: undefined, pool: undefined, transactions: undefined, charts: undefined },
-  })
-}, isEqual)
-
 const TokenPage: React.FC<{ address: string; chain?: string }> = ({ address, chain: _chain }) => {
   const { isXs, isSm } = useMatchBreakpoints()
   const { chainId } = useActiveChainId()
@@ -124,14 +98,15 @@ const TokenPage: React.FC<{ address: string; chain?: string }> = ({ address, cha
     transactions,
     charts: chartData,
   } = useAtomValue(
-    tokenPageDataAtom({
+    tokenInfoPageDataAtom({
       address,
       chain,
+      type: 'v3',
     }),
   )
 
   const formatPoolData = useMemo(() => {
-    return poolDatas?.filter((pool) => !isUndefinedOrNull(pool)) ?? []
+    return (poolDatas?.filter((pool) => !isUndefinedOrNull(pool)) ?? []) as any as PoolDataForView[]
   }, [poolDatas])
 
   const formattedTvlData = useMemo(() => {

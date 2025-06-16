@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { ApiTransaction, Transaction, TransactionType } from 'state/info/types'
-import { safeGetAddress } from 'utils'
+import { safeGetAddress } from 'utils/safeGetAddress'
 
 export function shortenAddress(address: string, chars = 4): string {
   const parsed = safeGetAddress(address)

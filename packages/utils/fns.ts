@@ -49,3 +49,22 @@ export function set(obj: Record<string, any>, path: string | Array<string | numb
 
   return obj
 }
+
+/**
+ * mapValues – applies `fn` to each own enumerable property value of `obj`
+ * and returns a new object with the same keys, but mapped values.
+ */
+export function mapValues<T extends Record<string, any>, R>(
+  obj: T,
+  fn: (value: T[keyof T], key: keyof T, object: T) => R,
+): { [K in keyof T]: R } {
+  const result = {} as { [K in keyof T]: R }
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      // key is string, but we know it's in keyof T
+      const k = key as keyof T
+      result[k] = fn(obj[k], k, obj)
+    }
+  }
+  return result
+}
