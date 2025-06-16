@@ -3,15 +3,16 @@ import { useTradingCompetitionAds } from 'components/AdPanel/Ads/AdTradingCompet
 import { AdsIds, useAdsConfigs } from 'components/AdPanel/hooks/useAdsConfig'
 import { useMemo } from 'react'
 import { AdCommon } from './Ads/AdCommon'
+import { AdCrossChain } from './Ads/AdCrossChain'
 import { AdIfo } from './Ads/AdIfo'
 import { AdPCSX } from './Ads/AdPCSX'
+import { AdSolana } from './Ads/AdSolana'
 import { AdSpringboard } from './Ads/AdSpringboard'
 import { commonLayoutWhitelistedPages } from './constants'
 import { ExpandableAd } from './Expandable/ExpandableAd'
 import { shouldRenderOnPages } from './renderConditions'
 import { AdSlide } from './types'
 import { useShouldRenderAdIfo } from './useShouldRenderAdIfo'
-import { AdSolana } from './Ads/AdSolana'
 
 enum Priority {
   FIRST_AD = 6,
@@ -45,6 +46,10 @@ export const useAdConfig = () => {
 
   const adList: Array<AdSlide> = useMemo(
     () => [
+      {
+        id: 'ad-cross-chain',
+        component: <AdCrossChain />,
+      },
       {
         id: 'expandable-ad',
         component: <ExpandableAd />,
