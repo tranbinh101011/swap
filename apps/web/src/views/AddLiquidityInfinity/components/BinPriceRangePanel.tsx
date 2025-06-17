@@ -11,11 +11,11 @@ import { useCurrencyByPoolId } from 'hooks/infinity/useCurrencyByPoolId'
 import isUndefined from 'lodash/isUndefined'
 import { useCallback, useMemo, useState } from 'react'
 import { useBinRangeQueryState, useInverted } from 'state/infinity/shared'
+import { FieldLiquidityShape } from 'components/Liquidity/Form/FieldLiquidityShape'
 import { useBinIdRange } from '../hooks/useBinIdRange'
 import { useBinDensityChartData } from '../hooks/useDensityChartData'
 import { usePool } from '../hooks/usePool'
 import { getAxisTicks } from '../utils'
-import { BinLiquidityShapeSelector } from './BinLiquidityShapeSelector'
 import { useTokenRateData } from './useTokenToTokenRateData'
 
 const DEFAULT_ZOOM = {
@@ -191,7 +191,7 @@ export const BinPriceRangePanel: React.FC = () => {
         />
       </Box>
       <Box mb="8px">
-        <BinLiquidityShapeSelector />
+        <FieldLiquidityShape mt="24px" />
       </Box>
     </>
   )

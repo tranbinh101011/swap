@@ -14,11 +14,15 @@ export const FieldLiquidityShape: React.FC<FieldLiquidityShapeProps> = ({ ...box
     <Box {...boxProps}>
       <RowBetween>
         <PreTitle>{t('Choose Liquidity Shape')}</PreTitle>
-        <ScanLink href="https://docs.pancakeswap.finance/trade/pancakeswap-infinity/pool-types" fontSize="12px">
-          {t('LEARN MORE')}
+        <ScanLink
+          href="https://docs.pancakeswap.finance/trade/pancakeswap-infinity/pool-types"
+          fontSize="12px"
+          textTransform="uppercase"
+        >
+          {t('Learn More')}
         </ScanLink>
       </RowBetween>
-      <Liquidity.LiquidityShapePicker mt="8px" value={liquidityShape} onChange={(value) => setLiquidityShape(value)} />
+      <Liquidity.LiquidityShapePicker mt="8px" value={liquidityShape} onChange={setLiquidityShape} />
     </Box>
   )
 }

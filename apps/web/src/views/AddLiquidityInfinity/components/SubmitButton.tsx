@@ -11,7 +11,6 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePermit2 } from 'hooks/usePermit2'
 import { usePoolMarketPriceSlippage } from 'hooks/usePoolMarketPriceSlippage'
-import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { usePoolInfo } from 'state/farmsV4/hooks'
 import { useInverted } from 'state/infinity/shared'
@@ -34,7 +33,6 @@ import { useBinIdRange } from '../hooks/useBinIdRange'
 import { usePool } from '../hooks/usePool'
 
 export const SubmitButton = () => {
-  const router = useRouter()
   const { t } = useTranslation()
   const { isWrongNetwork } = useActiveChainId()
   const { address: account } = useAccount()
