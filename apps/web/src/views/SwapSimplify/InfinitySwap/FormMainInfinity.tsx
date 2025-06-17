@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
-import { Text } from '@pancakeswap/uikit'
+import { Skeleton, Text } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { ReactNode, Suspense, useCallback, useMemo } from 'react'
 
@@ -20,6 +20,8 @@ import currencyId from 'utils/currencyId'
 import { useBridgeAvailableRoutes } from 'views/Swap/Bridge/hooks/useBridgeAvailableRoutes'
 import { getDefaultToken } from 'views/Swap/utils'
 import { useAccount } from 'wagmi'
+import { useRouter } from 'next/router'
+import { ParsedUrlQuery } from 'querystring'
 import useWarningImport from '../../Swap/hooks/useWarningImport'
 import { useIsWrapping } from '../../Swap/V3Swap/hooks'
 import { AssignRecipientButton, FlipButton } from './FlipButton'
@@ -33,6 +35,98 @@ interface Props {
   pricingAndSlippage?: ReactNode
   swapCommitButton?: ReactNode
   isUserInsufficientBalance?: boolean
+}
+
+interface HandleCurrencySelectDeps {
+  onCurrencySelection: (field: Field, currency: any) => void
+  warningSwapHandler: (currency: any) => void
+  canSwitch: boolean
+  switchNetworkAsync: (chainId: number, skipReplace?: boolean) => Promise<unknown>
+  outputChainId: number | undefined
+  supportedBridgeChains: { data?: { originChainId: number; destinationChainId: number }[] }
+  inputChainId: number | undefined
+  inputCurrencyId: string | undefined
+  outputCurrencyId: string | undefined
+  router: {
+    query: ParsedUrlQuery
+    replace: (route: any, as?: any, opts?: { shallow: boolean }) => void
+  }
+  replaceBrowserHistoryMultiple: (updates: Record<string, any>) => void
+  newCurrency: any
+  field: Field
+}
+
+export const handleCurrencySelectFn = async ({
+  onCurrencySelection,
+  warningSwapHandler,
+  canSwitch,
+  switchNetworkAsync,
+  outputChainId,
+  supportedBridgeChains,
+  inputChainId,
+  inputCurrencyId,
+  outputCurrencyId,
+  router,
+  replaceBrowserHistoryMultiple,
+  newCurrency,
+  field,
+}: HandleCurrencySelectDeps): Promise<void> => {
+  const isInput = field === Field.INPUT
+
+  if (isInput && canSwitch) {
+    const result = await switchNetworkAsync(newCurrency.chainId, true)
+    if (result !== 'error') {
+      router.replace(
+        {
+          query: {
+            ...router.query,
+            inputCurrency: currencyId(newCurrency),
+            chain: CHAIN_QUERY_NAME[newCurrency.chainId],
+            ...(outputCurrencyId && { outputCurrency: outputCurrencyId }),
+            ...(outputChainId && { chainOut: CHAIN_QUERY_NAME[outputChainId] }),
+          },
+        },
+        undefined,
+        {
+          shallow: true,
+        },
+      )
+    }
+    return
+  }
+
+  onCurrencySelection(field, newCurrency)
+
+  warningSwapHandler(newCurrency)
+
+  if (isInput && newCurrency.chainId !== outputChainId) {
+    const isOutputChainSupported =
+      outputChainId &&
+      supportedBridgeChains.data?.some(
+        (route) => route.originChainId === newCurrency.chainId && route.destinationChainId === outputChainId,
+      )
+
+    if (!isOutputChainSupported) {
+      // if output chain is not supported, reset output currency
+      onCurrencySelection(Field.OUTPUT, {
+        address: getDefaultToken(newCurrency.chainId) as `0x${string}`,
+        chainId: newCurrency.chainId,
+      } as Currency)
+    }
+  }
+
+  const newCurrencyId = currencyId(newCurrency)
+
+  // Output chain name (undefined if no need to apply)
+  const chainOut = !isInput && inputChainId !== newCurrency.chainId && CHAIN_QUERY_NAME[newCurrency.chainId]
+
+  const isSameCurrency = !chainOut && newCurrencyId === inputCurrencyId && newCurrencyId === outputCurrencyId
+
+  replaceBrowserHistoryMultiple({
+    [isInput ? 'inputCurrency' : 'outputCurrency']: newCurrencyId,
+    ...(isSameCurrency && { [isInput ? 'outputCurrency' : 'inputCurrency']: undefined }),
+    chainOut: chainOut || null, // null to remove from URL if no need to apply
+  })
 }
 
 export function FormMain({ inputAmount, outputAmount, tradeLoading, isUserInsufficientBalance }: Props) {
@@ -76,77 +170,50 @@ export function FormMain({ inputAmount, outputAmount, tradeLoading, isUserInsuff
     }
   }, [maxAmountInput, onUserInput])
 
-  const { canSwitch, switchNetwork } = useSwitchNetwork()
+  const { canSwitch, switchNetworkAsync } = useSwitchNetwork()
 
   const supportedBridgeChains = useBridgeAvailableRoutes()
 
+  const router = useRouter()
+
   const handleCurrencySelect = useCallback(
-    (
-      newCurrency: Currency,
-      field: Field,
-      _currentInputCurrencyId: string | undefined,
-      _currentOutputCurrencyId: string | undefined,
-    ) => {
-      onCurrencySelection(field, newCurrency)
-
-      warningSwapHandler(newCurrency)
-
-      const isInput = field === Field.INPUT
-
-      if (isInput && canSwitch) {
-        switchNetwork(newCurrency.chainId)
-      }
-
-      if (isInput && newCurrency.chainId !== outputChainId) {
-        const isOutputChainSupported =
-          outputChainId &&
-          supportedBridgeChains.data?.some(
-            (route) => route.originChainId === newCurrency.chainId && route.destinationChainId === outputChainId,
-          )
-
-        if (!isOutputChainSupported) {
-          // if output chain is not supported, reset output currency
-          onCurrencySelection(Field.OUTPUT, {
-            address: getDefaultToken(newCurrency.chainId) as `0x${string}`,
-            chainId: newCurrency.chainId,
-          } as Currency)
-        }
-      }
-
-      const newCurrencyId = currencyId(newCurrency)
-
-      // Output chain name (undefined if no need to apply)
-      const chainOut = !isInput && inputChainId !== newCurrency.chainId && CHAIN_QUERY_NAME[newCurrency.chainId]
-
-      const isSameCurrency = !chainOut && newCurrencyId === inputCurrencyId && newCurrencyId === outputCurrencyId
-
-      replaceBrowserHistoryMultiple({
-        [isInput ? 'inputCurrency' : 'outputCurrency']: newCurrencyId,
-        ...(isSameCurrency && { [isInput ? 'outputCurrency' : 'inputCurrency']: undefined }),
-        chainOut: chainOut || null, // null to remove from URL if no need to apply
+    async (newCurrency: Currency, field: Field) => {
+      return handleCurrencySelectFn({
+        onCurrencySelection,
+        warningSwapHandler,
+        canSwitch,
+        switchNetworkAsync,
+        outputChainId,
+        supportedBridgeChains,
+        inputChainId,
+        inputCurrencyId,
+        outputCurrencyId,
+        router,
+        replaceBrowserHistoryMultiple,
+        newCurrency,
+        field,
       })
     },
     [
       onCurrencySelection,
       warningSwapHandler,
       canSwitch,
-      switchNetwork,
+      switchNetworkAsync,
       outputChainId,
       supportedBridgeChains,
       inputChainId,
       inputCurrencyId,
       outputCurrencyId,
+      router,
     ],
   )
   const handleInputSelect = useCallback(
-    (newCurrency: Currency) =>
-      handleCurrencySelect(newCurrency, Field.INPUT, inputCurrencyId || '', outputCurrencyId || ''),
-    [handleCurrencySelect, inputCurrencyId, outputCurrencyId],
+    (newCurrency: Currency) => handleCurrencySelect(newCurrency, Field.INPUT),
+    [handleCurrencySelect],
   )
   const handleOutputSelect = useCallback(
-    (newCurrency: Currency) =>
-      handleCurrencySelect(newCurrency, Field.OUTPUT, inputCurrencyId || '', outputCurrencyId || ''),
-    [handleCurrencySelect, inputCurrencyId, outputCurrencyId],
+    (newCurrency: Currency) => handleCurrencySelect(newCurrency, Field.OUTPUT),
+    [handleCurrencySelect],
   )
 
   const isTypingInput = independentField === Field.INPUT
@@ -165,7 +232,7 @@ export function FormMain({ inputAmount, outputAmount, tradeLoading, isUserInsuff
 
   return (
     <FormContainer>
-      <Suspense>
+      <Suspense fallback={<Skeleton animation="pulse" variant="round" width="100%" height="80px" />}>
         <CurrencyInputPanelSimplify
           id="swap-currency-input"
           showUSDPrice
@@ -195,7 +262,7 @@ export function FormMain({ inputAmount, outputAmount, tradeLoading, isUserInsuff
         />
       </Suspense>
       <FlipButton />
-      <Suspense>
+      <Suspense fallback={<Skeleton animation="pulse" variant="round" width="100%" height="80px" />}>
         <CurrencyInputPanelSimplify
           disabled={isBridge}
           id="swap-currency-output"

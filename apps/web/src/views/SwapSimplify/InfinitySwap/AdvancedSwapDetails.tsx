@@ -63,7 +63,7 @@ const BridgeTradingViewSection = ({ priceBreakdown }: { priceBreakdown: BridgeOr
     return priceBreakdown
       .filter((p) => p.lpFeeAmount)
       .reduce((acc, curr, index) => {
-        const type = curr.type
+        const { type } = curr
         const existingFee = acc[type] || {
           label: curr.type === OrderType.PCS_BRIDGE ? t('Bridge Fee') : t('Trading Fee'),
           amount: new BigNumber(0),

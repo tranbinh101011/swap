@@ -87,11 +87,11 @@ export function FormMainForHomePage({ inputAmount, outputAmount, tradeLoading }:
   )
   const handleInputSelect = useCallback(
     (newCurrency: Currency) => handleCurrencySelect(newCurrency, Field.INPUT),
-    [handleCurrencySelect, inputCurrencyId, outputCurrencyId],
+    [handleCurrencySelect],
   )
   const handleOutputSelect = useCallback(
     (newCurrency: Currency) => handleCurrencySelect(newCurrency, Field.OUTPUT),
-    [handleCurrencySelect, inputCurrencyId, outputCurrencyId],
+    [handleCurrencySelect],
   )
 
   const isTypingInput = independentField === Field.INPUT

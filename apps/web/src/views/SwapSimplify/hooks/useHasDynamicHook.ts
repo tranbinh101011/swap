@@ -31,5 +31,5 @@ export const useHasDynamicHook = (order?: PriceOrder): boolean => {
     if (order?.type !== OrderType.PCS_CLASSIC) return false
 
     return detectHasDynamicHook(order?.trade)
-  }, [order?.trade])
+  }, [order?.trade, order?.type])
 }

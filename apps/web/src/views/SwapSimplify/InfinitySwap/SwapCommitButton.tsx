@@ -414,6 +414,11 @@ const TimeoutButton = () => {
   const [seconds, setSeconds] = useState(3)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
+  const resume = useCallback(() => {
+    resumeQuoting()
+    refreshTrade()
+  }, [resumeQuoting, refreshTrade])
+
   useEffect(() => {
     pauseQuoting()
     timerRef.current = setInterval(() => {
@@ -430,17 +435,12 @@ const TimeoutButton = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [])
+  }, [resume, pauseQuoting])
 
-  const resume = () => {
-    resumeQuoting()
-    refreshTrade()
-  }
-
-  const manualRetry = () => {
+  const manualRetry = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current)
     resume()
-  }
+  }, [resume])
 
   return (
     <AutoColumn gap="12px">

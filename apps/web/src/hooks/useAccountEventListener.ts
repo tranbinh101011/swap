@@ -1,30 +1,48 @@
 import { watchAccount } from '@wagmi/core'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useAppDispatch } from 'state'
 import { clearUserStates } from 'utils/clearUserStates'
 import { useAccount, useAccountEffect, useConfig } from 'wagmi'
 import { useSwitchNetworkLocal } from './useSwitchNetwork'
 
 export const useChainIdListener = () => {
+  const switchedNetworkRef = useRef<number>()
   const switchNetworkCallback = useSwitchNetworkLocal()
   const { chainId: oldChainId } = useAccount()
   const onChainChanged = useCallback(
     ({ chainId }: { chainId?: number }) => {
       if (chainId === undefined) return
       if (oldChainId === chainId) return
+      if (chainId === switchedNetworkRef.current) return
+      switchedNetworkRef.current = undefined
       switchNetworkCallback(chainId)
     },
     [switchNetworkCallback, oldChainId],
   )
+
+  const handleSwitchNetwork = useCallback((e: Event) => {
+    const switchNetworkEvent = e as CustomEvent<{
+      newChainId: number
+    }>
+    // Mark network switched via useSwitchNetwork to skip switchNetworkCallback
+    switchedNetworkRef.current = switchNetworkEvent.detail.newChainId
+  }, [])
+
   const { connector } = useAccount()
 
   useEffect(() => {
     connector?.emitter?.on('change', onChainChanged)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('switchNetwork#pcs', handleSwitchNetwork)
+    }
 
     return () => {
       connector?.emitter?.off('change', onChainChanged)
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('switchNetwork#pcs', handleSwitchNetwork)
+      }
     }
-  }, [connector, onChainChanged, oldChainId])
+  }, [connector, onChainChanged, oldChainId, handleSwitchNetwork])
 }
 
 const useAddressListener = () => {

@@ -48,16 +48,14 @@ export function useSwitchNetworkLocal() {
   }, [])
 
   return useCallback(
-    (newChainId: number) => {
+    (newChainId: number, skipReplace = false) => {
       const { chain: queryChainName, chainId: queryChainId, persistChain } = router.query
-      if (persistChain) return
+      if (persistChain || skipReplace) return
       const newChainQueryName = CHAIN_QUERY_NAME[newChainId]
       const chainQueryName = queryChainName || CHAIN_QUERY_NAME[queryChainId as string]
       const removeQueriesFromPath =
         newChainQueryName !== chainQueryName &&
         EXCHANGE_PAGE_PATHS.some((item) => {
-          // Swap page (and root page) should not remove queries as they support cross-chain swap
-          if (item === '/swap' || item === '/') return false
           return router.pathname.startsWith(item)
         })
 
@@ -67,7 +65,6 @@ export function useSwitchNetworkLocal() {
 
       router.replace(
         {
-          pathname: router.pathname,
           query: {
             ...(!removeQueriesFromPath && omittedQuery),
             chain: newChainQueryName,
@@ -115,13 +112,20 @@ export function useSwitchNetwork() {
   const isLoading = _isLoading || loading
 
   const switchNetworkAsync = useCallback(
-    async (chainId: number) => {
+    async (chainId: number, skipReplace = false) => {
       if (isConnected && connector && typeof _switchNetworkAsync === 'function') {
         if (isLoading) return undefined
         setLoading(true)
+        window.dispatchEvent(
+          new CustomEvent('switchNetwork#pcs', {
+            detail: {
+              newChainId: chainId,
+            },
+          }),
+        )
         return _switchNetworkAsync({ chainId })
           .then(async (c) => {
-            switchNetworkLocal(chainId)
+            switchNetworkLocal(chainId, skipReplace)
             if (await checkSwitchReloadNeeded(connector, chainId, address)) {
               await logout()
             }
@@ -130,11 +134,12 @@ export function useSwitchNetwork() {
           .catch(() => {
             // TODO: review the error
             toastError(t('Error connecting, please retry and confirm in wallet!'))
+            return 'error'
           })
           .finally(() => setLoading(false))
       }
       return new Promise((resolve) => {
-        resolve(switchNetworkLocal(chainId))
+        resolve(switchNetworkLocal(chainId, skipReplace))
       })
     },
     [

@@ -8,6 +8,9 @@ export function useBridgeAvailableRoutes(params?: GetAvailableRoutesParams) {
   return useQuery({
     queryKey: ['bridge-available-routes', originChainId, destinationChainId, originToken, destinationToken],
     queryFn: () => getBridgeAvailableRoutes({ originChainId, destinationChainId, originToken, destinationToken }),
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
   })
 }
 

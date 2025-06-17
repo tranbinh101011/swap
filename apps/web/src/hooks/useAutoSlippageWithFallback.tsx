@@ -3,7 +3,7 @@ import { useUserSlippage } from '@pancakeswap/utils/user'
 import { atom, useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { useAllTypeBestTrade } from 'quoter/hook/useAllTypeBestTrade'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef } from 'react'
 import { isBridgeOrder } from 'views/Swap/utils'
 import useClassicAutoSlippageTolerance, {
   MIN_DEFAULT_SLIPPAGE_NUMERATOR,
@@ -74,7 +74,9 @@ export const AutoSlippageProvider = ({ children }: { children?: React.ReactNode 
   return (
     <>
       {children}
-      <Sync />
+      <Suspense fallback={null}>
+        <Sync />
+      </Suspense>
     </>
   )
 }
@@ -82,7 +84,7 @@ export const Sync = () => {
   const result = useAllTypeBestTrade()
   const tradeRef = useRef(result?.bestOrder?.trade)
   const isSameOrder = useMemo(() => {
-    // TODO: Temporary add this to avvoid error from 'Cannot read properties of undefined (reading 'isToken')'
+    // TODO: Temporary add this to avoid error from 'Cannot read properties of undefined (reading 'isToken')'
     if (isBridgeOrder(result?.bestOrder)) {
       return false
     }
