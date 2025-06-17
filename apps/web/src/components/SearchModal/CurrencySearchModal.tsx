@@ -15,7 +15,6 @@ import {
   ModalHeader,
   ModalTitle,
   Text,
-  useMatchBreakpoints,
 } from '@pancakeswap/uikit'
 import { CurrencyLogo, ImportList } from '@pancakeswap/widgets-internal'
 import AddToWalletButton from 'components/AddToWallet/AddToWalletButton'
@@ -47,9 +46,9 @@ const StyledModalHeader = styled(ModalHeader)`
 
 const StyledModalBody = styled(ModalBody)`
   padding: 4px 24px 24px;
-  max-height: calc(90vh - 50px);
+  max-height: calc(90vh);
 
-  overflow-y: auto;
+  overflow-y: hidden;
   -ms-overflow-style: none;
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -142,7 +141,6 @@ export default function CurrencySearchModal({
     },
     [CurrencyModalView.importList]: { title: t('Import List'), onBack: () => setModalView(CurrencyModalView.search) },
   }
-  const { isMobile } = useMatchBreakpoints()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState<number | undefined>(undefined)
 
@@ -154,7 +152,6 @@ export default function CurrencySearchModal({
 
   return (
     <StyledModalContainer
-      drag={isMobile ? 'y' : false}
       dragConstraints={{ top: 0, bottom: 600 }}
       dragElastic={{ top: 0 }}
       dragSnapToOrigin

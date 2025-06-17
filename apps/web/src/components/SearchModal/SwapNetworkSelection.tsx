@@ -14,7 +14,7 @@ import { ChainLogo } from '@pancakeswap/widgets-internal'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import drop from 'lodash/drop'
 import take from 'lodash/take'
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { styled } from 'styled-components'
 import { chainNameConverter } from 'utils/chainNameConverter'
 import { chains as evmChains } from 'utils/wagmi'
@@ -35,7 +35,7 @@ const NetworkMenuColumn = styled(Flex)`
 // Constants for width calculations
 const CONTAINER_MAX_WIDTH = 370
 const CHAIN_BUTTON_WIDTH = 42
-const CHAIN_BUTTON_MARGIN = 4
+const CHAIN_BUTTON_MARGIN = 5
 const HIDDEN_CHAINS_BUTTON_WIDTH = CHAIN_BUTTON_WIDTH
 const CHAIN_LOGO_WIDTH = 24
 const CHAIN_BUTTON_HEIGHT = 40
@@ -47,15 +47,6 @@ const ChainOption = styled(Flex)`
     background-color: ${({ theme }) => theme.colors.background};
   }
   transition: background-color 0.15s;
-`
-
-// Wrap BaseWrapper with a div that can handle the transition
-const AnimatedWrapperDiv = styled.div<{ $width?: number }>`
-  transition: width 0.3s ease;
-  width: ${({ $width }) => ($width ? `${$width}px` : 'auto')};
-  overflow: hidden;
-  display: flex;
-  align-items: center;
 `
 
 export default function SwapNetworkSelection({
@@ -96,21 +87,9 @@ export default function SwapNetworkSelection({
     [usedChainId, supportedChains],
   )
 
-  const selectedChainRef = useRef<HTMLDivElement>(null)
-  const selectedTextRef = useRef<HTMLDivElement>(null)
-  const [selectedChainWidth, setSelectedChainWidth] = useState(0)
-  const [wrapperWidth, setWrapperWidth] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  // Measure the width of the selected chain button dynamically based on text content
-  useLayoutEffect(() => {
-    if (selectedChainRef.current && selectedTextRef.current) {
-      const textWidth = selectedTextRef.current.getBoundingClientRect().width
-      // Add 4px to make logo size 24px consistent with other logos
-      const totalWidth = CHAIN_LOGO_WIDTH + textWidth + 4
-      setSelectedChainWidth(totalWidth + CHAIN_BUTTON_MARGIN)
-      setWrapperWidth(totalWidth)
-    }
-  })
+  const containerWidth = containerRef.current?.getBoundingClientRect()?.width || CONTAINER_MAX_WIDTH
 
   const [_, shownChains, hiddenChains] = useMemo(() => {
     const filtered = supportedChains.filter((chain) => {
@@ -119,7 +98,7 @@ export default function SwapNetworkSelection({
     })
 
     // Calculate available width and how many chains can fit
-    const availableWidth = CONTAINER_MAX_WIDTH - selectedChainWidth - HIDDEN_CHAINS_BUTTON_WIDTH - CHAIN_BUTTON_MARGIN
+    const availableWidth = containerWidth - HIDDEN_CHAINS_BUTTON_WIDTH - CHAIN_BUTTON_MARGIN
     const chainsToShow = Math.max(1, Math.floor(availableWidth / (CHAIN_BUTTON_WIDTH + CHAIN_BUTTON_MARGIN)))
 
     // Prioritize BSC, BASE, and ARB chains
@@ -142,40 +121,33 @@ export default function SwapNetworkSelection({
     })
 
     return [filtered, take(sortedFiltered, chainsToShow), drop(sortedFiltered, chainsToShow)]
-  }, [supportedChains, usedChainId, selectedChainWidth])
+  }, [supportedChains, usedChainId, containerWidth])
 
   return (
-    <AutoColumn gap="sm" style={{ maxWidth: `${CONTAINER_MAX_WIDTH}px` }}>
+    <AutoColumn gap="sm">
       <AutoRow>
         <Text color="textSubtle" fontSize="14px">
           {t('Network')}
+          {selectedChain ? `: ${chainNameConverter(selectedChain.name)}` : ''}
         </Text>
       </AutoRow>
-      <RowWrapper>
+      <RowWrapper ref={containerRef}>
         <SkeletonText
           loading={supportedBridgeChainsLoading}
           initialWidth={CONTAINER_MAX_WIDTH}
           initialHeight={CHAIN_BUTTON_HEIGHT}
         >
           {selectedChain ? (
-            <ButtonWrapper style={{ marginRight: `${CHAIN_BUTTON_MARGIN}px` }} ref={selectedChainRef}>
+            <ButtonWrapper style={{ marginRight: `${CHAIN_BUTTON_MARGIN}px` }}>
               <BaseWrapper style={{ height: `${CHAIN_BUTTON_HEIGHT}px` }} id="selected-chain-wrapper" disable>
-                <AnimatedWrapperDiv $width={wrapperWidth}>
-                  <ChainLogo
-                    chainId={selectedChain.id}
-                    imageStyles={{
-                      borderRadius: '35%',
-                    }}
-                    style={{
-                      position: 'relative',
-                      top: '4px',
-                    }}
-                    pl="4px"
-                  />
-                  <Text color="inherit" px="6px" ref={selectedTextRef} bold>
-                    {chainNameConverter(selectedChain.name)}
-                  </Text>
-                </AnimatedWrapperDiv>
+                <ChainLogo
+                  imageStyles={{
+                    borderRadius: '35%',
+                  }}
+                  chainId={selectedChain.id}
+                  px="4px"
+                  pt="5px"
+                />
               </BaseWrapper>
             </ButtonWrapper>
           ) : null}
