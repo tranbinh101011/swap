@@ -151,7 +151,12 @@ export const OrderResultModalContent = ({ overrideActiveOrderMetadata, ...props 
             resultAmount = lastExecutedCommand.metadata.inputAmount
           } else {
             resultTokenChainId = lastExecutedCommand.metadata.destinationChainId
-            resultTokenAddress = lastExecutedCommand.metadata.outputToken
+
+            // If last command is bridge, safely using bridgeStatus.outputToken
+            // instead of lastExecutedCommand.metadata.outputToken
+            // because in native bridge case, lastExecutedCommand.metadata.outputToken will be WETH
+            // while bridgeStatus.outputToken will be the native token
+            resultTokenAddress = bridgeStatus.outputToken
             resultAmount = lastExecutedCommand.metadata.outputAmount
           }
 
