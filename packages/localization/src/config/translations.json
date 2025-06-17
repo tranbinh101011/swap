@@ -3801,5 +3801,13 @@
   "The change in pool price caused by your swap.": "The change in pool price caused by your swap.",
   "Estimated time to complete this transaction.": "Estimated time to complete this transaction.",
   "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!": "Requested amount exceeds the available bridge liquidity. Please try again with a lower amount!",
-  "Developer Doc": "Developer Doc"
+  "Developer Doc": "Developer Doc",
+  "Position Managers Sunsetting — 21 June 2025, 08:00 UTC": "Position Managers Sunsetting — 21 June 2025, 08:00 UTC",
+  "Action required: Withdraw all positions before this time.": "Action required: Withdraw all positions before this time.",
+  "Note: After the deadline, positions will no longer be actively managed and may fall out of range, which could lead to impermanent loss.": "Note: After the deadline, positions will no longer be actively managed and may fall out of range, which could lead to impermanent loss.",
+  "Reminder: Users are responsible for managing and withdrawing their positions. PancakeSwap will not be able to recover or prevent any losses from positions left unmanaged.": "Reminder: Users are responsible for managing and withdrawing their positions. PancakeSwap will not be able to recover or prevent any losses from positions left unmanaged.",
+  "For more details, read the": "For more details, read the",
+  "official blog post": "official blog post",
+  "or view the": "or view the",
+  "announcement on X": "announcement on X"
 }

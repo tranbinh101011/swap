@@ -21,6 +21,9 @@ import { useUserPancakePicks } from 'state/user/hooks/useUserPancakePicks'
 import styled from 'styled-components'
 import { FarmFlexWrapper, FarmH1, FarmH2 } from 'views/Farms/styled'
 
+const StyledPageHeader = styled(PageHeader)`
+  background: ${({ theme }) => (theme.isDark ? undefined : theme.colors.gradientBubblegum)};
+`
 export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -38,7 +41,7 @@ export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }
   }, [])
 
   return (
-    <PageHeader
+    <StyledPageHeader
       style={isMobile ? { padding: '16px 0' } : undefined}
       innerProps={isMobile ? { style: { padding: '0 16px' } } : undefined}
     >
@@ -133,6 +136,6 @@ export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }
           </Box>
         </FarmFlexWrapper>
       </Column>
-    </PageHeader>
+    </StyledPageHeader>
   )
 }
