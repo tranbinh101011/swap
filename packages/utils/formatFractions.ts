@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { Currency, CurrencyAmount, Fraction, Percent, Price, Rounding } from '@pancakeswap/swap-sdk-core'
 
 export function formatPercent(percent?: Percent, precision?: number) {
@@ -48,4 +49,32 @@ export function parseNumberToFraction(num: number, precision = 6) {
   }
 
   return new Fraction(BigInt(Math.floor(scaledNum)), BigInt(scalar))
+}
+
+export function smartRoundNumber(value: string, decimals: number): string {
+  if (value.startsWith('.')) value = `0${value}`
+  if (value.endsWith('.')) value = `${value}0`
+
+  const num = parseFloat(value)
+  const prts = value.split('.')
+  const intPart = prts[0]
+  let decPart = prts[1] || ''
+
+  if (!decPart || Number(decPart) === 0) return intPart
+
+  decPart = decPart.replace(/0+$/, '')
+
+  if (decPart.length <= decimals) {
+    const roundRegex = new RegExp(`9{${Math.min(2, decimals)},}$`)
+    if (roundRegex.test(decPart)) {
+      const roundedNum = (num + parseFloat(`1e-${decPart.length}`)).toFixed(decPart.length)
+      return parseFloat(roundedNum).toString()
+    }
+    return `${intPart}.${decPart}`
+  }
+
+  return num
+    .toFixed(decimals)
+    .replace(/\.0+$/, '')
+    .replace(/(\.\d*[1-9])0+$/, '$1')
 }

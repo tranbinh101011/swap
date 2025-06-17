@@ -1,3 +1,4 @@
+import { smartRoundNumber } from "@pancakeswap/utils/formatFractions";
 import BigNumber from "bignumber.js";
 import { forwardRef, useMemo } from "react";
 import styled from "styled-components";
@@ -12,7 +13,9 @@ export type FeeTierProps = {
 export const FeeTier = forwardRef<HTMLSpanElement, FeeTierProps>(
   ({ type, fee, denominator = 10_000, dynamic }, ref) => {
     const percent = useMemo(() => {
-      return new BigNumber(fee).div(denominator).times(100).toNumber();
+      const value = new BigNumber(fee).div(denominator).times(100).toNumber().toString();
+      const formatted = smartRoundNumber(value, 6);
+      return formatted;
     }, [fee, denominator]);
     return (
       <StyledFeeTier ref={ref}>
@@ -20,7 +23,7 @@ export const FeeTier = forwardRef<HTMLSpanElement, FeeTierProps>(
         <span style={{ opacity: 0.5 }}>|</span>
         <span>
           {dynamic ? <span style={{ marginRight: "2px" }}>↕️</span> : ""}
-          {Number(percent.toString())}%
+          {percent}%
         </span>
       </StyledFeeTier>
     );

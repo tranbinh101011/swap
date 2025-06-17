@@ -22,9 +22,8 @@ import { FarmQuery } from 'state/farmsV4/search/edgeFarmQueries'
 import { FarmInfo, farmToPoolInfo, getFarmKey, SerializedFarmInfo } from 'state/farmsV4/search/farm.util'
 import { farmFilters } from 'state/farmsV4/search/filters'
 import { PoolInfo } from 'state/farmsV4/state/type'
-import { listsAtom, tokenBySymbolAtom } from 'state/lists/lists'
+import { listsAtom } from 'state/lists/lists'
 import { userShowTestnetAtom } from 'state/user/hooks/useUserShowTestnet'
-import { Address } from 'viem/accounts'
 
 async function fetchFarmList({
   extend = false,
@@ -84,32 +83,6 @@ export const farmsSearchPagingAtom = atomFamily((_: FarmQuery) => {
 
 const IS_ADDRESS_REG = /^0x[a-fA-F0-9]{40,64}$/
 
-const getTokenBySymbolAtom = atomFamily((params: { chainId: ChainId; symbol: string }) => {
-  return atomWithLoadable<Address>(async (get) => {
-    const { chainId, symbol } = params
-    let attempt = 0
-
-    while (attempt < 5) {
-      const isNative = Native.onChain(chainId).symbol.toLowerCase() === symbol.toLowerCase()
-      if (isNative) {
-        return Loadable.Just(ZERO_ADDRESS)
-      }
-      const token: TokenInfo | undefined = get(
-        tokenBySymbolAtom({
-          symbol,
-          chainId,
-        }),
-      )
-
-      if (token !== undefined) return Loadable.Just(token.address)
-      attempt += 1
-      // eslint-disable-next-line no-await-in-loop
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-    }
-    return Loadable.Nothing()
-  })
-}, isEqual)
-
 const searchAtom = atomFamily((query: FarmQuery) => {
   return atom((get) => {
     const { protocols, chains: _chains, sortBy, activeChainId, keywords } = query
@@ -137,6 +110,17 @@ const searchAtom = atomFamily((query: FarmQuery) => {
         if (relatedTokens) {
           for (const token of relatedTokens) {
             if (supportedChainIdV4.includes(token.chainId)) {
+              if (token.address === ZERO_ADDRESS) {
+                const wrapped = Native.onChain(token.chainId).wrapped
+                const extendToken = get(
+                  extendListAtom({
+                    protocols,
+                    chains: [token.chainId],
+                    address: wrapped.address,
+                  }),
+                )
+                lists.push(extendToken)
+              }
               const extendToken = get(
                 extendListAtom({
                   protocols,
@@ -287,6 +271,18 @@ const filterTokens = (tokensMap: Record<string, TokenInfo>) => {
     if (!token0 || !token1) return false
     const key0 = `${token0.chainId}:${getCurrencyAddress(token0)}`.toLowerCase()
     const key1 = `${token0.chainId}:${getCurrencyAddress(token1)}`.toLowerCase()
+    if (token0.isNative) {
+      const keyWrapped = `${token0.chainId}:${token0.wrapped.address}`.toLowerCase()
+      if (tokensMap[keyWrapped]) {
+        return true
+      }
+    }
+    if (token1.isNative) {
+      const keyWrapped = `${token1.chainId}:${token1.wrapped.address}`.toLowerCase()
+      if (tokensMap[keyWrapped]) {
+        return true
+      }
+    }
 
     if (!tokensMap[key0] || !tokensMap[key1]) {
       return false
@@ -298,23 +294,47 @@ const filterTokens = (tokensMap: Record<string, TokenInfo>) => {
 const tokensMapAtom = atom((get) => {
   const state = get(listsAtom)
 
+  const nativeTokens = supportedChainIdV4
+    .map((x) => Native.onChain(x))
+    .map((native) => {
+      return {
+        chainId: native.chainId,
+        address: ZERO_ADDRESS,
+        symbol: native.symbol,
+        name: native.name,
+        decimals: native.decimals,
+      } as TokenInfo
+    })
+
   const records: Record<string, TokenInfo> = {}
   const symbols: Record<string, TokenInfo[]> = {}
+
+  function addToSymbolsMap(token: TokenInfo, key?: string) {
+    const symbolKey = key || token.symbol.toLowerCase()
+    if (!symbols[symbolKey]) {
+      symbols[symbolKey] = []
+    }
+    if (!symbols[symbolKey].find((x) => x.chainId === token.chainId && x.address === token.address)) {
+      symbols[symbolKey].push(token)
+    }
+  }
+
   Object.keys(state.byUrl).forEach((url) => {
     const list = state.byUrl[url]
     if (list.current) {
       list.current.tokens.forEach((token) => {
         records[`${token.chainId}:${token.address}`.toLowerCase()] = token
-        if (!symbols[token.symbol.toLowerCase()]) {
-          symbols[token.symbol.toLowerCase()] = []
-        }
-        const tokens = symbols[token.symbol.toLowerCase()]
-        if (!tokens.find((x) => x.chainId === token.chainId && x.address === token.address)) {
-          tokens.push(token)
-        }
+        addToSymbolsMap(token)
       })
     }
   })
+
+  for (const native of nativeTokens) {
+    records[`${native.chainId}:${ZERO_ADDRESS}`.toLowerCase()] = native
+    const wrapped = Native.onChain(native.chainId).wrapped
+    addToSymbolsMap(native)
+    addToSymbolsMap(native, wrapped.symbol.toLowerCase())
+  }
   return {
     tokensMap: records,
     symbolsMap: symbols,

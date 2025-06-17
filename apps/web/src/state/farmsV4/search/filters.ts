@@ -2,7 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { Protocol } from '@pancakeswap/farms'
 import { Native } from '@pancakeswap/sdk'
 import { PoolType, SmartRouter } from '@pancakeswap/smart-router'
-import { getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
+import { Currency, getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
 import latinise from '@pancakeswap/utils/latinise'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import { getCurrencySymbol } from 'utils/getTokenAlias'
@@ -88,23 +88,8 @@ const searchFilter = (_search: string) => {
 
     const { pool } = farm
 
-    // Token0 handling
-    const symbol0List: string[] = []
-    symbol0List.push(getCurrencySymbol(token0).toLowerCase())
-    if (token0.isNative && token0.wrapped?.symbol) {
-      symbol0List.push(getCurrencySymbol(token0.wrapped).toLowerCase())
-    } else if (Native.onChain(farm.chainId).wrapped.equals(token0)) {
-      symbol0List.push(getCurrencySymbol(Native.onChain(farm.chainId)).toLowerCase())
-    }
-
-    // Token1 handling
-    const symbol1List: string[] = []
-    symbol1List.push(getCurrencySymbol(token1).toLowerCase())
-    if (token1.isNative) {
-      symbol1List.push(getCurrencySymbol(token1.wrapped).toLowerCase())
-    } else if (Native.onChain(farm.chainId).wrapped.equals(token1)) {
-      symbol1List.push(getCurrencyAddress(Native.onChain(farm.chainId)).toLowerCase())
-    }
+    const symbol0List = tokenSearchTags(token0)
+    const symbol1List = tokenSearchTags(token1)
     const pairs = getAllPairs(symbol0List, symbol1List)
 
     const clamm = pool.type === PoolType.InfinityCL ? 'clamm' : ''
@@ -150,6 +135,27 @@ const searchFilter = (_search: string) => {
       farm,
     }
   }
+}
+
+function tokenSearchTags(token: Currency) {
+  const chainId = token.chainId
+  const tags: string[] = []
+
+  tags.push(getCurrencySymbol(token).toLowerCase())
+  // If native token
+  if (token.isNative && token.wrapped?.symbol) {
+    tags.push(getCurrencySymbol(token.wrapped).toLowerCase())
+  } else if (Native.onChain(chainId).wrapped.equals(token)) {
+    tags.push(getCurrencySymbol(Native.onChain(chainId)).toLowerCase())
+  }
+
+  // If native wrapped token
+  const native = Native.onChain(chainId)
+  if (native.wrapped.equals(token)) {
+    // add native
+    tags.push(getCurrencySymbol(native).toLowerCase())
+  }
+  return tags
 }
 
 function createSigmoid(k: number = 0.1) {
