@@ -473,18 +473,14 @@ export default function V3FormView({
     return new Price(pool.token0, pool.token1, 2n ** 192n, pool.sqrtRatioX96 * pool.sqrtRatioX96)
   }, [pool])
   const [marketPrice, marketPriceSlippage] = usePoolMarketPriceSlippage(pool?.token0, pool?.token1, poolCurrentPrice)
-  const [displayMarketPriceSlippageWarning, disableAddByHighSlippage] = useMemo(() => {
-    if (marketPriceSlippage === undefined) return [false, false]
+  const displayMarketPriceSlippageWarning = useMemo(() => {
+    if (marketPriceSlippage === undefined) return false
     const slippage = new BigNumber(marketPriceSlippage.toFixed(0)).abs()
-    return [
-      slippage.gt(5), // 5% slippage
-      slippage.gt(25), // 25% slippage
-    ]
+    return slippage.gt(5) // 5% slippage
   }, [marketPriceSlippage])
 
   const buttons = (
     <V3SubmitButton
-      highMarketPriceSlippage={disableAddByHighSlippage && activeQuickAction !== 100}
       addIsUnsupported={addIsUnsupported}
       addIsWarning={addIsWarning}
       account={account ?? undefined}
