@@ -6,12 +6,13 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAddressBalance from 'hooks/useAddressBalance'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import orderBy from 'lodash/orderBy'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { safeGetAddress } from 'utils'
 import { getMulticallAddress } from 'utils/addressHelpers'
 import { publicClient } from 'utils/viem'
 import { Address, erc20Abi, getAddress, isAddress } from 'viem'
 import { useAccount, useBalance } from 'wagmi'
+import { useCurrentBlock } from 'state/block/hooks'
 import { useMultipleContractSingleDataWagmi } from '../multicall/hooks'
 
 /**
@@ -19,11 +20,21 @@ import { useMultipleContractSingleDataWagmi } from '../multicall/hooks'
  */
 export function useNativeBalances(account?: Address, chainId?: ChainId): CurrencyAmount<Native> {
   const native = useNativeCurrency(chainId)
+  const latestBlockNumber = useCurrentBlock(native?.chainId)
 
-  const { data: results } = useBalance({
+  const { data: results, refetch } = useBalance({
     address: account,
     chainId: native?.chainId,
+    query: {
+      enabled: Boolean(account && native?.chainId),
+    },
   })
+
+  useEffect(() => {
+    if (account && native?.chainId) {
+      refetch({ cancelRefetch: false })
+    }
+  }, [latestBlockNumber, account, native?.chainId, refetch])
 
   return useMemo(() => CurrencyAmount.fromRawAmount(native, results?.value ?? BigInt(0)), [results, native])
 }
