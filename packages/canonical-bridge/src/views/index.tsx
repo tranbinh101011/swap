@@ -7,11 +7,10 @@ import {
   BridgeTransfer,
   CanonicalBridgeProvider,
   CanonicalBridgeProviderProps,
-  EventData,
-  EventName,
+  // EventData,
+  // EventName,
   IChainConfig,
   ICustomizedBridgeConfig,
-  createGTMEventListener,
 } from '@bnb-chain/canonical-bridge-widget'
 import { useTheme } from 'styled-components'
 import { useAccount } from 'wagmi'
@@ -58,7 +57,7 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
     [toast],
   )
 
-  const gtmListener = createGTMEventListener()
+  // const gtmListener = createGTMEventListener()
 
   const config = useMemo<ICustomizedBridgeConfig>(
     () => ({
@@ -80,7 +79,7 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
       http: {
         apiTimeOut: 30 * 1000,
         serverEndpoint: env.SERVER_ENDPOINT,
-        deBridgeReferralCode: '31958',
+        // deBridgeReferralCode: '31958',
       },
       transfer: transferConfig,
       components: {
@@ -88,12 +87,12 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
         refreshingIcon: <RefreshingIcon />,
       },
 
-      analytics: {
-        enabled: true,
-        onEvent: (eventName: EventName, eventData: EventData<EventName>) => {
-          gtmListener(eventName, eventData)
-        },
-      },
+      // analytics: {
+      //   enabled: true,
+      //   onEvent: (eventName: EventName, eventData: EventData<EventName>) => {
+      //     gtmListener(eventName, eventData)
+      //   },
+      // },
 
       chains: supportedChains,
       onError: handleError,
