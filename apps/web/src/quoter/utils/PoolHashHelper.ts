@@ -48,8 +48,21 @@ export class PoolHashHelper {
   }
 
   static hashQuoteQuery = (query: QuoteQuery) => {
-    const { amount, currency, blockNumber, gasLimit, provider, createTime, hash, placeholderHash, routeKey, ...rest } =
-      query
+    const {
+      // exclude these fields from hash
+      slippage,
+      blockNumber,
+      gasLimit,
+      provider,
+      createTime,
+      hash,
+      placeholderHash,
+      routeKey,
+      // end exclude these fields from hash
+      amount,
+      currency,
+      ...rest
+    } = query
     const chainId = query.baseCurrency?.chainId
     // NOTE: Support for cross-chain quotes
     const destinationChainId = query.currency?.chainId
@@ -61,16 +74,16 @@ export class PoolHashHelper {
 
   static hashPlaceHolderQuoteQuery = (query: QuoteQuery) => {
     const {
+      // slippage,
+      // blockNumber,
+      // gasLimit,
+      // provider,
+      // createTime,
+      // hash,
+      // placeholderHash,
+      // routeKey,
       amount,
       currency,
-      slippage,
-      blockNumber,
-      gasLimit,
-      provider,
-      createTime,
-      hash,
-      placeholderHash,
-      routeKey,
       nonce,
       infinitySwap,
       v2Swap,
@@ -80,7 +93,7 @@ export class PoolHashHelper {
     const chainId = query.baseCurrency?.chainId
     // NOTE: Support for cross-chain quotes
     const destinationChainId = query.currency?.chainId
-    const rest = { slippage, nonce, infinitySwap, v2Swap, v3Swap, stableSwap }
+    const rest = { nonce, infinitySwap, v2Swap, v3Swap, stableSwap }
     const restHash = keccak256(`0x${stringify(rest)}:${chainId}:${destinationChainId}`)
     const hashCurrencies = PoolHashHelper.hashCurrencies(amount?.currency, currency || undefined)
     const prts = [amount?.toExact(), hashCurrencies, restHash]

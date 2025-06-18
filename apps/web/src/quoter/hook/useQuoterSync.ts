@@ -1,5 +1,4 @@
 import { useDebounce } from '@orbs-network/twap-ui/dist/hooks'
-import { INFINITY_SUPPORTED_CHAINS } from '@pancakeswap/infinity-sdk'
 import { TradeType } from '@pancakeswap/swap-sdk-core'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useCurrency } from 'hooks/Tokens'
@@ -60,9 +59,6 @@ export const useQuoterSync = () => {
   const [nonce, setNonce] = useAtom(quoteNonceAtom)
   const gasLimit = useAtomValue(multicallGasLimitAtom(chainId))
   const gasLimitDestinationChain = useAtomValue(multicallGasLimitAtom(outputCurrencyChainId))
-
-  // NOTE: move support infinity check here so we could extends to cross chain swap
-  const infinitySupportByChain = INFINITY_SUPPORTED_CHAINS.includes(chainId)
 
   const quoteQueryInit = {
     amount,
