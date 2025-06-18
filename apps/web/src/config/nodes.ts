@@ -156,6 +156,8 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
     process.env.NEXT_PUBLIC_NODIES_BASE || '',
     // getGroveUrl(ChainId.BASE, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
     // process.env.NEXT_PUBLIC_NODE_REAL_BASE_PRODUCTION,
+    'https://base.llamarpc.com',
+    'https://base.meowrpc.com',
     ...base.rpcUrls.default.http,
   ].filter(Boolean),
   [ChainId.BASE_TESTNET]: baseGoerli.rpcUrls.default.http,
