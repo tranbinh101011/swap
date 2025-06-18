@@ -122,7 +122,7 @@ export function useTransferConfig(supportedChains: IChainConfig[]) {
             excludedChains: [],
             excludedTokens: {
               56: ['0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'],
-              324: ['0x3A287a06c66f9E95a56327185cA2BDF5f031cEcD'], // CAKE
+
               42161: ['0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'], // ['USDT', 'USDC.e']
             },
           }),
@@ -137,7 +137,7 @@ export function useTransferConfig(supportedChains: IChainConfig[]) {
                 '0x0000000000000000000000000000000000000000',
                 '0x9c7beba8f6ef6643abd725e45a4e8387ef260649',
               ],
-              324: ['0x3A287a06c66f9E95a56327185cA2BDF5f031cEcD'], // CAKE
+
               137: ['cUSDCv3'],
               42161: ['cUSDCv3'],
               43114: ['BNB'],
@@ -152,22 +152,17 @@ export function useTransferConfig(supportedChains: IChainConfig[]) {
           stargate({
             config: stargateConfig,
             excludedChains: [],
-            excludedTokens: {
-              324: ['0x3A287a06c66f9E95a56327185cA2BDF5f031cEcD'], // CAKE
-            },
+            excludedTokens: {},
           }),
           layerZero({
             config: layerZeroConfig,
             excludedChains: [],
-            excludedTokens: {
-              324: ['0x3A287a06c66f9E95a56327185cA2BDF5f031cEcD'], // CAKE
-            },
+            excludedTokens: {},
           }),
           meson({
             config: mesonConfig,
             excludedChains: [],
             excludedTokens: {
-              324: ['0x3A287a06c66f9E95a56327185cA2BDF5f031cEcD'], // CAKE
               42161: ['SOL'],
             },
           }),
