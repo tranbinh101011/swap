@@ -21,11 +21,12 @@ import {
   RemotePoolBIN,
   RemotePoolCL,
 } from '@pancakeswap/smart-router/dist/evm/infinity-router/queries/remotePool.type'
+import { createAsyncCallWithFallbacks } from '@pancakeswap/utils/withFallback'
 import { v2Clients, v3Clients } from 'utils/graphql'
 import { Address } from 'viem/accounts'
 import { APIChain, getProvider, mockCurrency, Protocol } from './edgeQueries.util'
 
-async function fetchInfinityPoolsFromApi(addressA: Address, addressB: Address, chainId: ChainId) {
+async function getInfinityPoolsFromApi(addressA: Address, addressB: Address, chainId: ChainId) {
   const chain = getChainName(chainId)
   const url = `${process.env.NEXT_PUBLIC_EXPLORE_API_ENDPOINT}/cached/pools/candidates/infinity/${chain}/${addressA}/${addressB}`
   const response = await fetch(url)
@@ -33,19 +34,19 @@ async function fetchInfinityPoolsFromApi(addressA: Address, addressB: Address, c
     throw new Error(`Error fetching infinity pools: ${response.statusText}`)
   }
   const data = (await response.json()) as (RemotePoolCL | RemotePoolBIN)[]
-  return data
-}
-const fetchInfinityPools = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const pools = await fetchInfinityPoolsFromApi(addressA, addressB, chainId)
-  const localPools = pools
-    .map((pool) => {
-      return InfinityRouter.toLocalInfinityPool(pool, chainId as keyof typeof hooksList)
-    })
+  const localPools = data
+    .map((pool) => InfinityRouter.toLocalInfinityPool(pool, chainId as keyof typeof hooksList))
     .filter((x) => x) as InfinityPoolWithTvl[]
+
   const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+
   const filtered = SmartRouter.infinityPoolTvlSelector(currencyA, currencyB, localPools)
-  const clPools = filtered.filter((pool) => pool.type === PoolType.InfinityCL) as InfinityClPool[]
-  const binPools = filtered.filter((pool) => pool.type === PoolType.InfinityBIN) as InfinityBinPool[]
+  return filtered
+}
+
+async function fillTicksAndBins(pools: (InfinityClPool | InfinityBinPool)[]) {
+  const clPools = pools.filter((pool) => pool.type === PoolType.InfinityCL) as InfinityClPool[]
+  const binPools = pools.filter((pool) => pool.type === PoolType.InfinityBIN) as InfinityBinPool[]
 
   const [poolWithTicks, poolWithBins] = await Promise.all([
     InfinityRouter.fillClPoolsWithTicks({
@@ -61,6 +62,18 @@ const fetchInfinityPools = async (addressA: Address, addressB: Address, chainId:
 }
 
 const fetchInfinityPoolsLight = async (addressA: Address, addressB: Address, chainId: ChainId) => {
+  const call = createAsyncCallWithFallbacks(getInfinityPoolsFromApi, {
+    fallbacks: [getInfinityPoolsOnChain],
+    fallbackTimeout: 3_000,
+  })
+  return call(addressA, addressB, chainId)
+}
+const fetchInfinityPools = async (addressA: Address, addressB: Address, chainId: ChainId) => {
+  const pools = await fetchInfinityPoolsLight(addressA, addressB, chainId)
+  return fillTicksAndBins(pools as (InfinityClPool | InfinityBinPool)[])
+}
+
+const getInfinityPoolsOnChain = async (addressA: Address, addressB: Address, chainId: ChainId) => {
   const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
   const chain = getChainName(chainId)
   const tvlMap = await poolTvlMap(['infinityBin', 'infinityCl'], chain as APIChain)
@@ -134,10 +147,7 @@ const fetchSSPool = async (addressA: Address, addressB: Address, chainId: ChainI
     onChainProvider: getProvider(),
     blockNumber,
   })
-
-  const chain = getChainName(chainId)
-  const tvlMap = await poolTvlMap(['stable'], chain as APIChain)
-  return fillTvl(tvlMap, pools) as StablePoolWithTvl[]
+  return pools
 }
 
 const querySingleType = async (chainId: ChainId, protocol: Protocol, addressA: Address, addressB: Address) => {
@@ -236,8 +246,8 @@ export const poolTvlMap = async (protocols: Protocol[], chain: APIChain) => {
     })
     const tvlMap: Record<`0x${string}`, string> = {}
     for (const pool of remotePools) {
-      const tvlUSD = pool.tvlUSD
-      const id = pool.id
+      const { tvlUSD } = pool
+      const { id } = pool
       tvlMap[id] = tvlUSD
     }
     return tvlMap
@@ -382,6 +392,9 @@ export const edgeQueries = {
   fetchSSPool,
   fetchInfinityPools,
   fetchInfinityPoolsLight,
+  getInfinityPoolsOnChain,
+  getInfinityPoolsFromApi,
+  fillTicksAndBins,
   querySingleType,
   querySingleTypeLite,
   poolTvlMap,
