@@ -1,6 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { Currency, getCurrencyAddress, Price } from '@pancakeswap/sdk'
-import { CAKE, STABLE_COIN } from '@pancakeswap/tokens'
+import { STABLE_COIN } from '@pancakeswap/tokens'
 import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
 import { atom, useAtomValue } from 'jotai'
 import { atomFamily } from 'jotai/utils'
@@ -40,19 +40,21 @@ const queryStablecoinPrice = async (currency: Currency, overrideChainId?: number
 interface StableCoinPriceParams {
   currency?: Currency
   chainId?: number
+  enabled?: boolean
 }
 const stableCoinPriceAtom = atomFamily(
   (params: StableCoinPriceParams) => {
     return atom(async () => {
-      if (!params.currency) {
+      const enabled = params.enabled ?? true
+      if (!params.currency || !enabled) {
         return undefined
       }
       return queryStablecoinPrice(params.currency, params.chainId)
     })
   },
   (a, b) => {
-    const hashA = `${a.currency ? getCurrencyAddress(a.currency) : ''}:${a.chainId}`
-    const hashB = `${b.currency ? getCurrencyAddress(b.currency) : ''}:${b.chainId}`
+    const hashA = `${a.currency ? getCurrencyAddress(a.currency) : ''}:${a.chainId}:${a.enabled}`
+    const hashB = `${b.currency ? getCurrencyAddress(b.currency) : ''}:${b.chainId}:${b.enabled}`
     return hashA === hashB
   },
 )
@@ -68,27 +70,20 @@ export function useStablecoinPrice(
   const chainId = currency?.chainId || activeChainId
   const { enabled, hideIfPriceImpactTooHigh } = { ...DEFAULT_CONFIG, ...config }
 
-  const isCake = Boolean(chainId && currency && CAKE[chainId] && currency.wrapped.equals(CAKE[chainId]))
   const stableCoin = chainId && chainId in ChainId ? STABLE_COIN[chainId as ChainId] : undefined
 
-  const isStableCoin = currency && stableCoin && currency.wrapped.equals(stableCoin)
-
-  const shouldEnabled = Boolean(
-    currency && stableCoin && enabled && currentChainId === chainId && !isCake && !isStableCoin,
-  )
+  const shouldEnabled = Boolean(currency && enabled && currentChainId === chainId)
 
   const priceUSD = useAtomValue(
     stableCoinPriceAtom({
       currency: currency || undefined,
       chainId,
+      enabled,
     }),
   )
 
   const price = useMemo(() => {
-    if (!priceUSD) {
-      return undefined
-    }
-    if (!currency || !stableCoin || !shouldEnabled) {
+    if (!priceUSD || !currency || !stableCoin || !shouldEnabled) {
       return undefined
     }
 
