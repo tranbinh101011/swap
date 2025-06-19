@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
-import { NextPageWithLayout } from 'utils/page.types'
 import { useEffect } from 'react'
+import { NextPageWithLayout } from 'utils/page.types'
 import { CHAIN_IDS } from 'utils/wagmi'
 import { LiquidityView } from 'views/Liquidity/LiquidityView'
 import { PageWithoutFAQ } from 'views/Page'
@@ -17,6 +17,9 @@ const PoolPage = () => {
       router.replace('/add')
     }
   }, [tokenId, router])
+  if (!tokenId) {
+    return null
+  }
 
   return <LiquidityView />
 }

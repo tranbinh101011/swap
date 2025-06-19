@@ -1,8 +1,10 @@
 import { CAKE, USDC } from '@pancakeswap/tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { GetStaticPaths, GetStaticProps } from 'next'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import { NextPageWithLayout } from 'utils/page.types'
 import { CHAIN_IDS } from 'utils/wagmi'
 import AddLiquidityV2FormProvider from 'views/AddLiquidity/AddLiquidityV2FormProvider'
 import { AddLiquidityV3Layout, UniversalAddLiquidity } from 'views/AddLiquidityV3'
@@ -20,6 +22,23 @@ const AddLiquidityPage = () => {
     chainId ? CAKE[chainId]?.address ?? USDC[chainId]?.address : '',
   ]
 
+  useEffect(() => {
+    if (!router.isReady) return
+
+    const currency = (router.query.currency as string[]) || []
+    const [curA, curB] = currency
+    const match = curA?.match(OLD_PATH_STRUCTURE)
+
+    if (match?.length) {
+      router.replace(`/add/${match[1]}/${match[2]}`)
+      return
+    }
+
+    if (curA && curB && curA.toLowerCase() === curB.toLowerCase()) {
+      router.replace(`/add/${curA}`)
+    }
+  }, [router])
+
   return (
     <AddLiquidityV2FormProvider>
       <AddLiquidityV3Layout>
@@ -33,45 +52,12 @@ const AddLiquidityPage = () => {
   )
 }
 
-AddLiquidityPage.chains = CHAIN_IDS
-AddLiquidityPage.screen = true
-AddLiquidityPage.Layout = PageWithoutFAQ
-
-export default AddLiquidityPage
-
 const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|BNB)-(0x[a-fA-F0-9]{40}|BNB)$/
 
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [{ params: { currency: [] } }],
-    fallback: true,
-  }
-}
+const Page = dynamic(() => Promise.resolve(AddLiquidityPage), { ssr: false }) as NextPageWithLayout
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const currency = params?.currency || []
-  const [currencyIdA, currencyIdB] = currency
-  const match = currencyIdA?.match(OLD_PATH_STRUCTURE)
+Page.chains = CHAIN_IDS
+Page.screen = true
+Page.Layout = PageWithoutFAQ
 
-  if (match?.length) {
-    return {
-      redirect: {
-        statusCode: 301,
-        destination: `/add/${match[1]}/${match[2]}`,
-      },
-    }
-  }
-
-  if (currencyIdA && currencyIdB && currencyIdA.toLowerCase() === currencyIdB.toLowerCase()) {
-    return {
-      redirect: {
-        statusCode: 307,
-        destination: `/add/${currencyIdA}`,
-      },
-    }
-  }
-
-  return {
-    props: {},
-  }
-}
+export default Page
