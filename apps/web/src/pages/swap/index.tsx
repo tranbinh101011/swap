@@ -1,8 +1,10 @@
 import { Box, Skeleton, useMatchBreakpoints } from '@pancakeswap/uikit'
 import dynamic from 'next/dynamic'
 import styled from 'styled-components'
+import { NextPageWithLayout } from 'utils/page.types'
 import { CHAIN_IDS } from 'utils/wagmi'
 import SwapLayout from 'views/Swap/SwapLayout'
+import SwapSimplify from 'views/SwapSimplify'
 
 const StyledSkeleton = styled(Skeleton)`
   background: ${({ theme }) => theme.colors.backgroundBubblegum};
@@ -37,22 +39,23 @@ const SwapFallback = () => {
     </BgBox>
   )
 }
-const Swap = dynamic(() => import('views/SwapSimplify'), {
-  ssr: false,
-  loading: () => <SwapFallback />,
-})
 
-const SwapPage = () => {
+const View = () => {
   const { isMobile } = useMatchBreakpoints()
 
   return (
     <SwapLayout>
       <Container isMobile={isMobile}>
-        <Swap />
+        <SwapSimplify />
       </Container>
     </SwapLayout>
   )
 }
+
+const SwapPage = dynamic(() => Promise.resolve(View), {
+  ssr: false,
+  loading: () => <SwapFallback />,
+}) as NextPageWithLayout
 
 SwapPage.chains = CHAIN_IDS
 SwapPage.screen = true
