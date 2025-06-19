@@ -1,6 +1,6 @@
 import { styled } from 'styled-components'
 import { Flex, Text, Button, Box, PageSection, Link } from '@pancakeswap/uikit'
-import { SlideSvgDark, SlideSvgLight } from 'views/Home/components/SlideSvg'
+import { SlideSvgDark, SlideSvgLight } from 'components/SlideSvg'
 import { useTranslation } from '@pancakeswap/localization'
 import Image from 'next/image'
 import { floatingStarsLeft, floatingStarsRight } from 'views/Lottery/components/Hero'

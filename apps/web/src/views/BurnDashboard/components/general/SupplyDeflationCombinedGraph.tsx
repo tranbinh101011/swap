@@ -38,7 +38,7 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
           <FlexGap justifyContent="space-between" gap="16px">
             <FlexGap alignItems="center" gap="6px">
               <DotIcon color="#7645D9" width="8px" mt="1px" />
-              <Text small>{t('Total Supply')}</Text>
+              <Text small>{t('Total supply')}</Text>
             </FlexGap>
             <Text small bold>
               {formatAmount(entry.totalSupply, { precision: getBurnInfoPrecision(entry.totalSupply) })}
@@ -165,7 +165,7 @@ export const SupplyDeflationCombinedGraph = (props: CardProps) => {
           <FlexGap alignItems="center" gap="4px">
             <DotIcon color="#7645D9" width="12px" />
             <Text color="textSubtle" small>
-              {t('Total Supply')}
+              {t('Total supply')}
             </Text>
           </FlexGap>
           <FlexGap alignItems="center" gap="4px">

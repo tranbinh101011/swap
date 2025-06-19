@@ -75,7 +75,7 @@ export const SupplyPieChart = (props: CardProps) => {
       </FlexGap>
       <ChartWrapper mt="24px">
         <TextContainer>
-          <Text small>{t('Total Supply')}</Text>
+          <Text small>{t('Total supply')}</Text>
           <Text fontSize="24px" bold>
             {totalSupplyFormatted} CAKE
           </Text>

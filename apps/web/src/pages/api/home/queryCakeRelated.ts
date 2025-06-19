@@ -7,6 +7,7 @@ import { revenueSharingPoolProxyABI } from 'config/abi/revenueSharingPoolProxy'
 import { veCakeABI } from 'config/abi/veCake'
 import { WEEK } from 'config/constants/veCake'
 import {
+  getCakeVaultAddress,
   getCalcGaugesVotingAddress,
   getRevenueSharingCakePoolAddress,
   getRevenueSharingVeCakeAddress,
@@ -15,11 +16,61 @@ import {
 import { getViemClients } from 'utils/viem.server'
 import { formatEther } from 'viem/utils'
 import { BRIBE_APR, fetchCakePoolEmission } from 'views/CakeStaking/hooks/useAPR'
-import { fetchCakeStats } from 'views/Home/components/CakeDataRow'
-import { getHomeCacheSettings } from './queries/settings'
+import { PublicClient } from 'viem/_types/clients/createPublicClient'
+import { erc20Abi } from 'viem'
+import { bscTokens } from '@pancakeswap/tokens'
+import { cakeVaultV2ABI } from '@pancakeswap/pools'
+import addresses from 'config/constants/contracts'
+import { formatBigInt } from '@pancakeswap/utils/formatBalance'
 import { CakeRelatedFigures } from './types'
+import { getHomeCacheSettings } from './queries/settings'
 
-export const queryCakeRelated = cacheByLRU(async function () {
+/**
+ * User (Planet Finance) built a contract on top of our original manual CAKE pool,
+ * but the contract was written in such a way that when we performed the migration from Masterchef v1 to v2, the tokens were stuck.
+ * These stuck tokens are forever gone (see their medium post) and can be considered out of circulation.
+ * https://planetfinanceio.medium.com/pancakeswap-works-with-planet-to-help-cake-holders-f0d253b435af
+ * https://twitter.com/PancakeSwap/status/1523913527626702849
+ * https://bscscan.com/tx/0xd5ffea4d9925d2f79249a4ce05efd4459ed179152ea5072a2df73cd4b9e88ba7
+ */
+const planetFinanceBurnedTokensWei = 637407922445268000000000n
+const cakeVaultAddress = getCakeVaultAddress()
+
+export async function fetchCakeStats(client: PublicClient) {
+  const [totalSupply, burned, totalVaultLockedAmount, totalVeLockedAmount] = await client.multicall({
+    contracts: [
+      { abi: erc20Abi, address: bscTokens.cake.address, functionName: 'totalSupply' },
+      {
+        abi: erc20Abi,
+        address: bscTokens.cake.address,
+        functionName: 'balanceOf',
+        args: ['0x000000000000000000000000000000000000dEaD'],
+      },
+      {
+        abi: cakeVaultV2ABI,
+        address: cakeVaultAddress,
+        functionName: 'totalLockedAmount',
+      },
+      {
+        abi: erc20Abi,
+        address: bscTokens.cake.address,
+        functionName: 'balanceOf',
+        args: [addresses.veCake[ChainId.BSC]],
+      },
+    ],
+    allowFailure: false,
+  })
+  const totalBurned = planetFinanceBurnedTokensWei + burned
+  const circulating = totalSupply - (totalBurned + totalVaultLockedAmount + totalVeLockedAmount)
+
+  return {
+    cakeSupply: totalSupply && burned ? +formatBigInt(totalSupply - totalBurned) : 0,
+    burnedBalance: burned ? +formatBigInt(totalBurned) : 0,
+    circulatingSupply: circulating ? +formatBigInt(circulating) : 0,
+  }
+}
+
+export const queryCakeRelated = cacheByLRU(async () => {
   const veCakeTotalSupply = await getVeCakeTotalSupply()
 
   const [revShareApr, cakePoolEmission, totalCakeDistributed, cakeStats, gaugeTotalWeight] = await Promise.all([

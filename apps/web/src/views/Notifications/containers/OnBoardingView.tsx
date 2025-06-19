@@ -11,8 +11,8 @@ import 'swiper/css/navigation'
 import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import type { Swiper as SwiperClass } from 'swiper/types'
-import webNotificationBunny from '../../Home/components/Banners/images/web3-notification-bunny.png'
-import webNotificationCheck from '../../Home/components/Banners/images/web3-notification-check.png'
+import webNotificationBunny from '../../../../public/images/web3-notification-bunny.png'
+import webNotificationCheck from '../../../../public/images/web3-notification-check.png'
 
 const OnBoardingSteps = [
   {

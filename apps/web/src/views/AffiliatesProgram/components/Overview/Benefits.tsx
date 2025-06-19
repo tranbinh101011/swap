@@ -1,6 +1,6 @@
 import { Flex, Text, Heading, PageSection } from '@pancakeswap/uikit'
 import { useTranslation, Trans } from '@pancakeswap/localization'
-import GradientLogo from 'views/Home/components/GradientLogoSvg'
+import GradientLogo from 'components/GradientLogoSvg'
 import { styled } from 'styled-components'
 import Image from 'next/image'
 
