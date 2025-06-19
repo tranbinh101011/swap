@@ -4,7 +4,7 @@ import { CAKE, STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
 import { PairDataTimeWindowEnum } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useQuery } from '@tanstack/react-query'
-import { getChainId } from 'config/chains'
+import { CHAIN_QUERY_NAME, getChainId } from 'config/chains'
 import dayjs from 'dayjs'
 import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -21,6 +21,7 @@ import { computeSlippageAdjustedAmounts } from 'utils/exchange'
 import { useBridgeAvailableRoutes } from 'views/Swap/Bridge/hooks'
 import { useAccount } from 'wagmi'
 import { DEFAULT_INPUT_CURRENCY } from 'config/constants/exchange'
+import replaceBrowserHistoryMultiple from '@pancakeswap/utils/replaceBrowserHistoryMultiple'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, replaceSwapState } from './actions'
 import { SwapState, swapReducerAtom } from './reducer'
@@ -184,7 +185,7 @@ export function queryParametersToSwapState(
     typeof parsedQs.outputCurrency === 'string'
       ? safeGetAddress(parsedQs.outputCurrency) || (outputChainId ? Native.onChain(outputChainId).symbol : nativeSymbol)
       : defaultOutputCurrency
-  if (inputCurrency === outputCurrency) {
+  if (inputCurrency === outputCurrency && inputChainId === outputChainId) {
     if (typeof parsedQs.outputCurrency === 'string') {
       inputCurrency = ''
     } else {
@@ -227,7 +228,7 @@ export function useDefaultsFromURLSearch():
     | undefined
   >()
 
-  const { data: supportedBridgeChains } = useBridgeAvailableRoutes()
+  const { data: supportedBridgeChains, isPending: isSupportedBridgePending } = useBridgeAvailableRoutes()
 
   useEffect(() => {
     if (!chainId || !native || !isReady) return
@@ -243,7 +244,13 @@ export function useDefaultsFromURLSearch():
     let finalInputChainId = parsed[Field.INPUT].chainId
     let finalOutputChainId = parsed[Field.OUTPUT].chainId
 
+    if (isSupportedBridgePending && finalInputChainId !== finalOutputChainId) {
+      return
+    }
+
     const isNotTwapOrLimitPath = !['twap', 'limit'].some((p) => pathname.includes(p))
+
+    let switchedToFallback = false
 
     // Set input currency to default (native currency) if chain is changed by user
     // and input currency is on different chain
@@ -268,6 +275,7 @@ export function useDefaultsFromURLSearch():
         finalOutputCurrencyId = defaultOutputCurrency
         finalOutputChainId = chainId
       }
+      switchedToFallback = true
     }
 
     if (finalOutputChainId && finalOutputChainId !== chainId) {
@@ -282,6 +290,7 @@ export function useDefaultsFromURLSearch():
         finalOutputCurrencyId = defaultOutputCurrency
         finalOutputChainId = chainId
       }
+      switchedToFallback = true
     }
 
     // If input and output currencies are the same, set output currency to native currency (other default currency)
@@ -291,6 +300,7 @@ export function useDefaultsFromURLSearch():
       } else {
         finalOutputCurrencyId = defaultOutputCurrency
       }
+      switchedToFallback = true
     }
 
     dispatch(
@@ -305,13 +315,22 @@ export function useDefaultsFromURLSearch():
       }),
     )
 
+    if (switchedToFallback) {
+      replaceBrowserHistoryMultiple({
+        inputCurrency: finalInputCurrencyId,
+        outputCurrency: finalOutputCurrencyId,
+        chain: CHAIN_QUERY_NAME[finalInputChainId || chainId],
+        chainOut: CHAIN_QUERY_NAME[finalOutputChainId || chainId],
+      })
+    }
+
     setResult({
       inputCurrencyId: finalInputCurrencyId,
       outputCurrencyId: finalOutputCurrencyId,
       inputChainId: finalInputChainId || chainId,
       outputChainId: finalOutputChainId || chainId,
     })
-  }, [dispatch, chainId, query, native, isReady, pathname, supportedBridgeChains])
+  }, [dispatch, chainId, query, native, isReady, pathname, supportedBridgeChains, isSupportedBridgePending])
 
   return result
 }

@@ -73,25 +73,33 @@ export const handleCurrencySelectFn = async ({
 }: HandleCurrencySelectDeps): Promise<void> => {
   const isInput = field === Field.INPUT
 
-  if (isInput && canSwitch) {
+  if (isInput && canSwitch && newCurrency.chainId !== inputChainId) {
     const result = await switchNetworkAsync(newCurrency.chainId, true)
-    if (result !== 'error') {
-      router.replace(
-        {
-          query: {
-            ...router.query,
-            inputCurrency: currencyId(newCurrency),
-            chain: CHAIN_QUERY_NAME[newCurrency.chainId],
-            ...(outputCurrencyId && { outputCurrency: outputCurrencyId }),
-            ...(outputChainId && { chainOut: CHAIN_QUERY_NAME[outputChainId] }),
-          },
+    if (result === 'error') return
+
+    const isSameAsOutput = currencyId(newCurrency) === outputCurrencyId && newCurrency.chainId === outputChainId
+
+    router.replace(
+      {
+        query: {
+          ...router.query,
+          inputCurrency: currencyId(newCurrency),
+          chain: CHAIN_QUERY_NAME[newCurrency.chainId],
+          ...(isSameAsOutput
+            ? {
+                ...(inputCurrencyId && { outputCurrency: inputCurrencyId }),
+                ...(inputChainId && { chainOut: CHAIN_QUERY_NAME[inputChainId] }),
+              }
+            : {
+                ...(outputCurrencyId && { outputCurrency: outputCurrencyId }),
+                ...(outputChainId && { chainOut: CHAIN_QUERY_NAME[outputChainId] }),
+              }),
         },
-        undefined,
-        {
-          shallow: true,
-        },
-      )
-    }
+      },
+      undefined,
+      { shallow: true },
+    )
+
     return
   }
 
