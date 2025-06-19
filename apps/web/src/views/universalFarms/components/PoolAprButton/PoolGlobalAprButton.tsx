@@ -21,7 +21,7 @@ type PoolGlobalAprButtonProps = {
 export const PoolGlobalAprButton: React.FC<PoolGlobalAprButtonProps> = ({ pool, detailMode, aprInfo }) => {
   const key = useMemo(() => `${pool.chainId}:${pool.lpAddress}` as const, [pool.chainId, pool.lpAddress])
 
-  const hookAprInfo = usePoolApr(key, pool, !aprInfo)
+  const hookAprInfo = usePoolApr(key, pool, !pool.stableSwapAddress && !aprInfo, !aprInfo)
   const { lpApr, merklApr, cakeApr } = aprInfo ?? hookAprInfo
 
   const numerator = useMemo(() => {

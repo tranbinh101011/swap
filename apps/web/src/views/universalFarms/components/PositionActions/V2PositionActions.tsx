@@ -22,6 +22,7 @@ import { useV2CakeEarning } from 'views/universalFarms/hooks/useCakeEarning'
 import { useV2FarmActions } from 'views/universalFarms/hooks/useV2FarmActions'
 import { sumApr } from 'views/universalFarms/utils/sumApr'
 import { useAccount } from 'wagmi'
+import { fetchAllUniversalFarmsMap } from '@pancakeswap/farms'
 import { StopPropagation } from '../StopPropagation'
 import { DepositStakeAction, HarvestAction, ModifyStakeActions } from './StakeActions'
 
@@ -79,7 +80,8 @@ const useDepositModal = (props: V2PositionActionsProps) => {
 
   useEffect(() => {
     const fetchBCakeAddress = async () => {
-      const address = await getBCakeWrapperAddress(lpAddress, chainId)
+      const farmsMap = await fetchAllUniversalFarmsMap()
+      const address = await getBCakeWrapperAddress(lpAddress, chainId, farmsMap)
       setBCakeAddress(address)
     }
 

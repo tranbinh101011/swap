@@ -4,6 +4,7 @@ import {
   fetchAllUniversalFarms,
   fetchAllUniversalFarmsMap,
   getFarmConfigKey,
+  UniversalFarmConfig,
 } from '@pancakeswap/farms'
 import { CurrencyAmount, ERC20Token, Pair, Token, pancakePairV2ABI } from '@pancakeswap/sdk'
 import { LegacyStableSwapPair } from '@pancakeswap/smart-router/legacy-router'
@@ -122,10 +123,12 @@ export const getTrackedV2LpTokens = memoize(
     `${chainId}:${Object.keys(presetTokens).length}:${Object.values(userSavedPairs).length}`,
 )
 
-export const getBCakeWrapperAddress = async (lpAddress: Address, chainId: number) => {
-  const fetchUniversalFarmsMap = await fetchAllUniversalFarmsMap()
-
-  const f = fetchUniversalFarmsMap[getFarmConfigKey({ lpAddress, chainId })] as V2PoolInfo | StablePoolInfo | undefined
+export const getBCakeWrapperAddress = async (
+  lpAddress: Address,
+  chainId: number,
+  farmsMap: Record<string, UniversalFarmConfig>,
+) => {
+  const f = farmsMap[getFarmConfigKey({ lpAddress, chainId })] as V2PoolInfo | StablePoolInfo | undefined
 
   return f?.bCakeWrapperAddress ?? '0x'
 }
@@ -144,9 +147,11 @@ export const getAccountV2LpDetails = async (
 
   const validLpTokens = lpTokens.filter((token) => token.chainId === chainId)
 
+  const farmsMap = await fetchAllUniversalFarmsMap()
+
   const bCakeWrapperAddresses = await Promise.all(
     validLpTokens.map(async (tokens) => {
-      const bCakeWrapperAddress = await getBCakeWrapperAddress(tokens.address, chainId)
+      const bCakeWrapperAddress = await getBCakeWrapperAddress(tokens.address, chainId, farmsMap)
       return bCakeWrapperAddress
     }),
   )
@@ -291,9 +296,11 @@ export const getStablePairDetails = async (
 
   if (!account || !client || !validStablePairs.length) return []
 
+  const farmsMap = await fetchAllUniversalFarmsMap()
+
   const bCakeWrapperAddresses = await Promise.all(
     validStablePairs.reduce((acc, pair) => {
-      return [...acc, getBCakeWrapperAddress(pair.lpAddress, chainId)]
+      return [...acc, getBCakeWrapperAddress(pair.lpAddress, chainId, farmsMap)]
     }, [] as Array<Promise<Address>>),
   )
 
