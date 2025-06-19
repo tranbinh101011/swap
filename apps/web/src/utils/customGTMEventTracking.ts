@@ -159,12 +159,21 @@ export const logGTMClickSwapConfirmEvent = () => {
   })
 }
 
-export const logGTMSwapTxSentEvent = () => {
+export const logGTMSwapTxSentEvent = (options?: {
+  walletType?: string
+  txType?: 'batch' | 'normal' | 'fallback'
+  chainId?: number
+  symbol?: string
+}) => {
   console.info('---SwapTxSent---')
   window?.dataLayer?.push({
     event: GTMEvent.SwapTxSent,
     action: GTMAction.SwapTransactionSent,
     category: GTMCategory.Swap,
+    walletType: options?.walletType,
+    txType: options?.txType,
+    chainId: options?.chainId,
+    symbol: options?.symbol,
   })
 }
 

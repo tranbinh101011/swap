@@ -1,5 +1,5 @@
-import { useTranslation } from '@pancakeswap/localization'
 import { INFINITY_SUPPORTED_CHAINS } from '@pancakeswap/infinity-sdk'
+import { useTranslation } from '@pancakeswap/localization'
 import { SubMenuItems } from '@pancakeswap/uikit'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
@@ -8,7 +8,7 @@ import { useChainIdByQuery, useChainNameByQuery, useMultiChainPath } from 'state
 import { v3InfoPath } from '../../constants'
 import InfoNav from './InfoNav'
 
-export const InfoPageLayout = ({ children }) => {
+export const InfoPageLayout = ({ children }: { children?: React.ReactNode }) => {
   const router = useRouter()
   const chainName = useChainNameByQuery()
   const chainPath = useMultiChainPath()

@@ -1,12 +1,14 @@
-import { GetStaticPaths, GetStaticProps } from 'next'
-import { getTokenStaticPaths, getTokenStaticProps, invalidAddressCheck } from 'utils/pageUtils'
+import { Flex, Spinner } from '@pancakeswap/uikit'
+import dynamic from 'next/dynamic'
+import { NextPageWithLayout } from 'utils/page.types'
+import { Suspense } from 'react'
+import { invalidAddressCheck, useTokenParams } from 'utils/pageUtils'
 import { InfoPageLayout } from 'views/Info'
 import Token from 'views/Info/Tokens/TokenPage'
-import { Suspense } from 'react'
-import { Flex, Spinner } from '@pancakeswap/uikit'
 
-const TokenPage = ({ address }: { address: string }) => {
-  if (invalidAddressCheck(String(address))) {
+const TokenPage = () => {
+  const { address } = useTokenParams()
+  if (!address || invalidAddressCheck(String(address))) {
     return null
   }
 
@@ -23,11 +25,11 @@ const TokenPage = ({ address }: { address: string }) => {
   )
 }
 
-TokenPage.Layout = InfoPageLayout
-TokenPage.chains = [] // set all
+const Page = dynamic(() => Promise.resolve(TokenPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default TokenPage
+Page.Layout = InfoPageLayout
+Page.chains = [] // set all
 
-export const getStaticPaths: GetStaticPaths = getTokenStaticPaths()
-
-export const getStaticProps: GetStaticProps = getTokenStaticProps()
+export default Page

@@ -1,5 +1,7 @@
 import { Flex, Spinner } from '@pancakeswap/uikit'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import { NextPageWithLayout } from 'utils/page.types'
 import { Suspense } from 'react'
 import { invalidAddressCheck } from 'utils/pageUtils'
 import { InfoPageLayout } from 'views/Info'
@@ -26,7 +28,11 @@ const TokenPage = () => {
   )
 }
 
-TokenPage.Layout = InfoPageLayout
-TokenPage.chains = []
+const Page = dynamic(() => Promise.resolve(TokenPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default TokenPage
+Page.Layout = InfoPageLayout
+Page.chains = []
+
+export default Page

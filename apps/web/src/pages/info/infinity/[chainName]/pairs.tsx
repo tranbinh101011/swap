@@ -1,4 +1,6 @@
 import { INFINITY_SUPPORTED_CHAINS } from '@pancakeswap/infinity-sdk'
+import dynamic from 'next/dynamic'
+import { NextPageWithLayout } from 'utils/page.types'
 import { InfoPageLayout } from 'views/InfinityInfo/components/Layout'
 import Pools from 'views/InfinityInfo/components/Pools'
 
@@ -6,7 +8,11 @@ const InfoPage = () => {
   return <Pools />
 }
 
-InfoPage.Layout = InfoPageLayout
-InfoPage.chains = INFINITY_SUPPORTED_CHAINS
+const Page = dynamic(() => Promise.resolve(InfoPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default InfoPage
+Page.Layout = InfoPageLayout
+Page.chains = [...INFINITY_SUPPORTED_CHAINS]
+
+export default Page

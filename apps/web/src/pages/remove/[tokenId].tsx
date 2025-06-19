@@ -1,14 +1,15 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
+import dynamic from 'next/dynamic'
 import { CHAIN_IDS } from 'utils/wagmi'
-import RemoveLiquidityFormProvider from 'views/RemoveLiquidity/form/RemoveLiquidityFormProvider'
-import RemoveLiquidity from 'views/RemoveLiquidity/RemoveLiquidityV3'
 
+const RemoveLiquidityView = dynamic(
+  () => import('views/Liquidity/RemoveLiquidityView').then((mod) => mod.RemoveLiquidityView),
+  {
+    ssr: false,
+  },
+)
 const RemoveLiquidityPage = () => {
-  return (
-    <RemoveLiquidityFormProvider>
-      <RemoveLiquidity />
-    </RemoveLiquidityFormProvider>
-  )
+  return <RemoveLiquidityView />
 }
 
 RemoveLiquidityPage.chains = CHAIN_IDS

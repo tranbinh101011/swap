@@ -1,9 +1,9 @@
-import { getPermit2Address } from '@pancakeswap/permit2-sdk'
-import { Currency, CurrencyAmount, Token } from '@pancakeswap/swap-sdk-core'
+import { generatePermitTypedData, getPermit2Address, Permit2ABI } from '@pancakeswap/permit2-sdk'
+import { Currency, CurrencyAmount, MaxUint256, Token } from '@pancakeswap/swap-sdk-core'
 import { Permit2Signature } from '@pancakeswap/universal-router-sdk'
 import { QueryObserverResult } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
-import { Address, Hash } from 'viem'
+import { Address, encodeFunctionData, Hash, erc20Abi, Hex } from 'viem'
 import useAccountActiveChain from './useAccountActiveChain'
 import { useApproveCallback } from './useApproveCallback'
 import { Permit2Details, usePermit2Details } from './usePermit2Details'
@@ -23,12 +23,21 @@ type Permit2HookState = {
   requireRevoke: boolean
 }
 
+export interface Calldata {
+  address: Address
+  calldata: Hex
+  value?: Hex
+}
+
 type Permit2HookCallback = {
   permit: () => Promise<Permit2Signature & { tx?: Hash }>
   approve: () => Promise<{ hash: Address } | undefined>
   revoke: () => Promise<{ hash: Address } | undefined>
 
   refetch: () => Promise<QueryObserverResult<bigint>>
+
+  getPermitCalldata: () => Calldata | null
+  getApproveCalldata: () => Calldata | null
 }
 
 type UsePermit2ReturnType = Permit2HookState & Permit2HookCallback
@@ -129,6 +138,41 @@ export const usePermit2 = (
     }
   }, [revokeNoCheck])
 
+  const getPermitCalldata = useCallback(() => {
+    if (!amount?.currency || !permit2Details || !spender) return null
+
+    const permit2Address = getPermit2Address(chainId)
+    if (!permit2Address) return null
+
+    const permit = generatePermitTypedData(amount.currency, permit2Details.nonce, spender)
+    const { amount: permitAmount, token, expiration } = permit.details
+
+    return {
+      address: permit2Address,
+      calldata: encodeFunctionData({
+        abi: Permit2ABI,
+        functionName: 'approve',
+        args: [token as Address, permit.spender as Address, BigInt(permitAmount), Number(expiration)],
+      }),
+    }
+  }, [chainId, permit2Details, amount?.currency, spender])
+
+  const getApproveCalldata = useCallback(() => {
+    const permit2Address = getPermit2Address(chainId)
+    if (!permit2Address || !amount?.currency.address) {
+      return null
+    }
+
+    return {
+      address: amount?.currency.address,
+      calldata: encodeFunctionData({
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [permit2Address, MaxUint256],
+      }),
+    }
+  }, [amount?.currency.address, chainId])
+
   return {
     permit2Allowance,
     permit2Details,
@@ -146,5 +190,8 @@ export const usePermit2 = (
     approve,
     revoke,
     permit,
+
+    getPermitCalldata,
+    getApproveCalldata,
   }
 }

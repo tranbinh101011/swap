@@ -11,7 +11,7 @@ import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useAutoSlippageWithFallback } from 'hooks/useAutoSlippageWithFallback'
 import { Address } from 'viem'
 import useSendSwapTransaction from './useSendSwapTransaction'
-import { useSwapCallArguments } from './useSwapCallArguments'
+import { useSwapCallArguments, SwapCall } from './useSwapCallArguments'
 import type { TWallchainMasterInput, WallchainStatus } from './useWallchain'
 
 export enum SwapCallbackState {
@@ -24,6 +24,7 @@ export enum SwapCallbackState {
 interface UseSwapCallbackReturns {
   state: SwapCallbackState
   callback?: () => Promise<{ hash: Address }>
+  swapCalls?: SwapCall[]
   error?: string
   reason?: string
 }
@@ -77,6 +78,7 @@ export function useSwapCallback({
     return {
       state: SwapCallbackState.VALID,
       callback,
+      swapCalls,
     }
-  }, [trade, account, chainId, callback, recipient, recipientAddress, t])
+  }, [swapCalls, trade, account, chainId, callback, recipient, recipientAddress, t])
 }

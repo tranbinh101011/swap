@@ -5,7 +5,7 @@ import { multiChainQueryStableClient } from 'state/info/constant'
 import { useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
 import InfoNav from './InfoNav'
 
-export const InfoPageLayout = ({ children }) => {
+export const InfoPageLayout = ({ children }: { children?: React.ReactNode }) => {
   const chainName = useChainNameByQuery()
   const chainPath = useMultiChainPath()
   const { t } = useTranslation()

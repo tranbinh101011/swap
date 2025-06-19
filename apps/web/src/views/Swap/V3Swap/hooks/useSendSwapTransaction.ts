@@ -292,3 +292,7 @@ export const userRejectedError = (error: unknown): boolean => {
     (typeof error !== 'string' && isUserRejected(error))
   )
 }
+
+export const eip5792UserRejectUpgradeError = (error: unknown) => {
+  return error instanceof TransactionExecutionError && error.message.includes('user rejected the upgrade')
+}

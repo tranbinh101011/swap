@@ -26,6 +26,8 @@ import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import useV2PairsByAccount from 'hooks/useV2Pairs'
 import { useV3Positions } from 'hooks/v3/useV3Positions'
 import { useAtom } from 'jotai'
+import dynamic from 'next/dynamic'
+import { NextPageWithLayout } from 'utils/page.types'
 import NextLink from 'next/link'
 import { useRouter } from 'next/router'
 import React, { ReactNode, useCallback, useMemo, useState } from 'react'
@@ -75,7 +77,7 @@ function useHideClosePosition() {
   return useAtom(hideClosePositionAtom)
 }
 
-export default function PoolListPage() {
+function PoolListPage() {
   const { t } = useTranslation()
   const router = useRouter()
   const { account, chainId } = useAccountActiveChain()
@@ -366,4 +368,10 @@ export default function PoolListPage() {
   )
 }
 
-PoolListPage.chains = CHAIN_IDS
+const LiquidityPage = dynamic(() => Promise.resolve(PoolListPage), {
+  ssr: false,
+}) as NextPageWithLayout
+
+LiquidityPage.chains = CHAIN_IDS
+
+export default LiquidityPage

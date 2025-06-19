@@ -15,7 +15,7 @@ import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { safeGetAddress } from 'utils'
 import { Address, Hex } from 'viem'
 
-interface SwapCall {
+export interface SwapCall {
   address: Address
   calldata: Hex
   value: Hex

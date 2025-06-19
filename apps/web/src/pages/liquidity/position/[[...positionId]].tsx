@@ -3,7 +3,8 @@ import { Box } from '@pancakeswap/uikit'
 import PageLoader from 'components/Loader/PageLoader'
 import { PositionIdRoute } from 'dynamicRoute'
 import { usePositionIdRoute } from 'hooks/dynamicRoute/usePositionIdRoute'
-import { GetStaticPaths, GetStaticProps } from 'next'
+import dynamic from 'next/dynamic'
+import { NextPageWithLayout } from 'utils/page.types'
 import NotFoundPage from 'pages/404'
 import { CHAIN_IDS } from 'utils/wagmi'
 import { IncreaseLiquidity } from 'views/IncreaseLiquidity'
@@ -50,19 +51,10 @@ const LiquidityPage = () => {
   return <InfinityBinPosition />
 }
 
-LiquidityPage.chains = CHAIN_IDS
+const Page = dynamic(() => Promise.resolve(LiquidityPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default LiquidityPage
+Page.chains = CHAIN_IDS
 
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [],
-    fallback: true,
-  }
-}
-
-export const getStaticProps: GetStaticProps = async () => {
-  return {
-    props: {},
-  }
-}
+export default Page

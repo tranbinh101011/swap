@@ -1,9 +1,11 @@
-import type { GetStaticPaths, GetStaticProps } from 'next'
-import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import dynamic from 'next/dynamic'
+import { NextPageWithLayout } from 'utils/page.types'
+import { useTokenParams } from 'utils/pageUtils'
 import { InfoPageLayout } from 'views/InfinityInfo/components/Layout'
 import TokenInfo from 'views/InfinityInfo/components/Tokens/TokenInfo'
 
-const TokenPage = ({ address }: { address: string }) => {
+const TokenPage = () => {
+  const { address } = useTokenParams()
   if (!address) {
     return null
   }
@@ -11,11 +13,11 @@ const TokenPage = ({ address }: { address: string }) => {
   return <TokenInfo address={address.toLowerCase()} />
 }
 
-TokenPage.Layout = InfoPageLayout
-TokenPage.chains = [] // set all
+const Page = dynamic(() => Promise.resolve(TokenPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default TokenPage
+Page.Layout = InfoPageLayout as React.FC<React.PropsWithChildren<unknown>>
+Page.chains = [] // set all
 
-export const getStaticPaths: GetStaticPaths = getTokenStaticPaths()
-
-export const getStaticProps: GetStaticProps = getTokenStaticProps()
+export default Page

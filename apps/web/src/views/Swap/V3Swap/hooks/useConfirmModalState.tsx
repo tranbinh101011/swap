@@ -10,13 +10,14 @@ import { ToastDescriptionWithTx } from 'components/Toast'
 import { BLOCK_CONFIRMATION } from 'config/confirmation'
 import { ALLOWED_PRICE_IMPACT_HIGH, PRICE_IMPACT_WITHOUT_FEE_CONFIRM_MIN } from 'config/constants/exchange'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useEIP5792Status } from 'hooks/useIsEIP5792Supported'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useNativeWrap } from 'hooks/useNativeWrap'
-import { usePermit2 } from 'hooks/usePermit2'
+import { Calldata, usePermit2 } from 'hooks/usePermit2'
 import { usePermit2Requires } from 'hooks/usePermit2Requires'
 import { useSafeTxHashTransformer } from 'hooks/useSafeTxHashTransformer'
 import { useTransactionDeadline } from 'hooks/useTransactionDeadline'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RetryableError, retry } from 'state/multicall/retry'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { logGTMSwapTxSentEvent } from 'utils/customGTMEventTracking'
@@ -29,11 +30,17 @@ import {
   TransactionNotFoundError,
   TransactionReceipt,
   TransactionReceiptNotFoundError,
+  createWalletClient,
+  custom,
   erc20Abi,
 } from 'viem'
+import { eip5792Actions } from 'viem/experimental'
+import { useWalletType } from 'views/Mev/hooks'
+import { WalletType } from 'views/Mev/types'
 import { BridgeOrderWithCommands, isBridgeOrder, isClassicOrder, isXOrder } from 'views/Swap/utils'
 import { waitForXOrderReceipt } from 'views/Swap/x/api'
 import { useSendXOrder } from 'views/Swap/x/useSendXOrder'
+import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
 
 import { useSetAtom } from 'jotai'
 import { calculateGasMargin } from 'utils'
@@ -46,15 +53,16 @@ import { useSwapState } from 'state/swap/hooks'
 import { activeBridgeOrderMetadataAtom } from 'views/Swap/Bridge/CrossChainConfirmSwapModal/state/orderDataState'
 import { Permit2Schema } from 'views/Swap/Bridge/types'
 import { computeBridgeOrderFee, getBridgeOrderPriceImpact } from 'views/Swap/Bridge/utils'
-import { useAccount, useSendTransaction } from 'wagmi'
 import { computeTradePriceBreakdown } from '../utils/exchange'
-import { userRejectedError } from './useSendSwapTransaction'
+import { BatchCall, getBatchedTransaction as getBatchedTransactionHelper } from './batchHelper'
+import { eip5792UserRejectUpgradeError, userRejectedError } from './useSendSwapTransaction'
 import { useSwapCallback } from './useSwapCallback'
 
-export type ConfirmAction = {
+export interface ConfirmAction {
   step: ConfirmModalState
   action: (nextStep?: ConfirmModalState) => Promise<void>
   showIndicator: boolean
+  getCalldata?: <T = Calldata>() => T
 }
 
 const getTokenAllowance = ({
@@ -137,7 +145,7 @@ const useConfirmActions = (
   const { chainId } = useActiveChainId()
   const [deadline] = useTransactionDeadline()
   const safeTxHashTransformer = useSafeTxHashTransformer()
-  const { revoke, permit, approve } = usePermit2(amountToApprove, spender, {
+  const { revoke, permit, approve, getPermitCalldata, getApproveCalldata } = usePermit2(amountToApprove, spender, {
     enablePaymaster: true,
   })
   const nativeWrap = useNativeWrap()
@@ -152,18 +160,22 @@ const useConfirmActions = (
     }
   }, [chainId, amountToApprove?.currency.address, account])
   const [permit2Signature, setPermit2Signature] = useState<Permit2Signature | undefined>(undefined)
-  const { callback: swap, error: swapError } = useSwapCallback({
+  const {
+    callback: swap,
+    error: swapError,
+    swapCalls,
+  } = useSwapCallback({
     trade: isClassicOrder(order) ? order.trade : undefined,
     deadline,
     permitSignature: permit2Signature,
   })
-
   const nativeCurrency = useNativeCurrency(order?.trade?.inputAmount.currency.chainId)
   const wrappedBalance = useCurrencyBalance(account ?? undefined, nativeCurrency.wrapped)
 
   const { mutateAsync: sendXOrder } = useSendXOrder()
 
   const { sendTransactionAsync } = useSendTransaction()
+  const { walletType } = useWalletType()
 
   const [confirmState, setConfirmState] = useState<ConfirmModalState>(ConfirmModalState.REVIEWING)
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined)
@@ -190,9 +202,7 @@ const useConfirmActions = (
   const retryWaitForTransaction = useCallback(
     async ({ hash, confirmations }: { hash?: Hex; confirmations?: number }) => {
       if (hash && chainId) {
-        let retryTimes = 0
         const getReceipt = async () => {
-          console.info('retryWaitForTransaction', hash, retryTimes++)
           try {
             return await publicClient({ chainId }).waitForTransactionReceipt({
               hash,
@@ -314,8 +324,18 @@ const useConfirmActions = (
         }
       },
       showIndicator: true,
+      getCalldata: getPermitCalldata,
     }
-  }, [permit, retryWaitForTransaction, safeTxHashTransformer, showError, signPermit2, setPermit2Signature, order])
+  }, [
+    permit,
+    retryWaitForTransaction,
+    safeTxHashTransformer,
+    showError,
+    signPermit2,
+    setPermit2Signature,
+    order,
+    getPermitCalldata,
+  ])
 
   const wrapStep = useMemo(() => {
     return {
@@ -398,8 +418,10 @@ const useConfirmActions = (
         }
       },
       showIndicator: true,
+      getCalldata: getApproveCalldata,
     }
   }, [
+    getApproveCalldata,
     amountToApprove,
     approve,
     chainId,
@@ -526,7 +548,6 @@ const useConfirmActions = (
             if (result) {
               const hash = await safeTxHashTransformer(result)
               setTxHash(hash)
-              logGTMSwapTxSentEvent()
 
               setConfirmState(ConfirmModalState.ORDER_SUBMITTED)
 
@@ -576,7 +597,6 @@ const useConfirmActions = (
     t,
     toastSuccess,
     recipient,
-    signPermit2,
     chainId,
     setActiveBridgeOrderMetadata,
     permit2Signature,
@@ -604,7 +624,7 @@ const useConfirmActions = (
           const result = await swap()
           if (result?.hash) {
             const hash = await safeTxHashTransformer(result.hash)
-            logGTMSwapTxSentEvent()
+
             setTxHash(hash)
 
             await retryWaitForTransaction({ hash })
@@ -620,8 +640,9 @@ const useConfirmActions = (
         }
       },
       showIndicator: false,
+      getCalldata: () => swapCalls,
     }
-  }, [resetState, retryWaitForTransaction, safeTxHashTransformer, showError, swap, swapError])
+  }, [swapCalls, resetState, retryWaitForTransaction, safeTxHashTransformer, showError, swap, swapError])
 
   const xSwapStep = useMemo(() => {
     return {
@@ -759,8 +780,11 @@ const useConfirmActions = (
     actions,
 
     confirmState,
+    setConfirmState,
+    setTxHash,
     resetState,
     errorMessage,
+    showError,
   }
 }
 
@@ -769,11 +793,8 @@ export const useConfirmModalState = (
   amountToApprove: CurrencyAmount<Token> | undefined,
   spender: Address | undefined,
 ) => {
-  const { actions, confirmState, txHash, orderHash, errorMessage, resetState } = useConfirmActions(
-    order,
-    amountToApprove,
-    spender,
-  )
+  const { actions, confirmState, txHash, orderHash, errorMessage, resetState, setConfirmState, setTxHash, showError } =
+    useConfirmActions(order, amountToApprove, spender)
   const preConfirmState = usePreviousValue(confirmState)
   const [confirmSteps, setConfirmSteps] = useState<ConfirmModalState[]>()
   const tradePriceBreakdown = useMemo(
@@ -782,6 +803,71 @@ export const useConfirmModalState = (
         ? computeBridgeOrderFee(order)
         : computeTradePriceBreakdown(isXOrder(order) ? undefined : order?.trade),
     [order],
+  )
+  const { walletType } = useWalletType()
+  const { chainId } = useActiveChainId()
+  const { data: walletClient } = useWalletClient({ chainId })
+  const { connector } = useAccount()
+  const eip5792Status = useEIP5792Status()
+  const { toastError } = useToast()
+  const { t } = useTranslation()
+  const performEip5792Lock = useRef(false)
+
+  const getBatchedTransaction = useCallback(
+    (steps: ConfirmModalState[]) =>
+      getBatchedTransactionHelper(steps, actions, chainId, amountToApprove, spender, order),
+    [
+      actions,
+      amountToApprove?.currency.address,
+      amountToApprove?.currency.isToken,
+      amountToApprove?.quotient,
+      chainId,
+      order,
+      spender,
+    ],
+  )
+
+  const sendBatchedTransaction = useCallback(
+    async (calls: BatchCall[]) => {
+      if (!walletClient?.transport || !spender) {
+        console.error('Missing required parameters')
+        return null
+      }
+
+      const provider = await connector?.getProvider()
+      if (!provider) return null
+
+      const client = createWalletClient({
+        transport: custom(provider as any),
+        account: walletClient.account,
+        chain: walletClient.chain,
+      }).extend(eip5792Actions())
+
+      try {
+        const result = await client.sendCalls({
+          calls,
+          forceAtomic: true,
+        })
+
+        if (!result.id) {
+          console.error('No transaction ID returned')
+          return null
+        }
+
+        return { id: result.id, client } as const
+      } catch (error) {
+        console.warn('Error sending batched transaction:', error)
+        if (userRejectedError(error)) {
+          showError('Transaction rejected')
+        } else if (!eip5792UserRejectUpgradeError(error)) {
+          const errorMsg = typeof error === 'string' ? error : (error as any)?.message
+          showError(errorMsg)
+          toastError(t('Failed'), errorMsg)
+        }
+        throw error
+      }
+    },
+    [connector, walletClient, spender, t, toastError, showError],
   )
 
   const confirmPriceImpactWithoutFee = useAsyncConfirmPriceImpactWithoutFee(
@@ -822,42 +908,142 @@ export const useConfirmModalState = (
       }
 
       const step = stepActions.find((s) => s.step === state) ?? stepActions[0]
-
       await step.action(nextStep)
     },
     [],
   )
 
-  const callToAction = useCallback(async () => {
-    const steps = await createSteps()
+  const canCallActionBatched = useCallback(
+    (steps: ConfirmModalState[]) => {
+      if (!walletClient?.transport || !spender) {
+        return false
+      }
+      if (eip5792Status === 'unsupported' || steps.length <= 1) {
+        return false
+      }
+      const calls = getBatchedTransaction(steps)
+      if (!calls || calls.length < steps.length) {
+        return false
+      }
+      return true
+    },
+    [eip5792Status, getBatchedTransaction, walletClient?.transport, spender],
+  )
 
-    setConfirmSteps(steps)
-    const stepActions = steps.map((step) => actions[step])
-    const nextStep = steps[1] ?? undefined
+  const callActionBatched = useCallback(
+    async (steps: ConfirmModalState[]) => {
+      setTxHash(undefined)
+      setConfirmState(ConfirmModalState.PENDING_CONFIRMATION)
+      const calls = getBatchedTransaction(steps)
+      if (!calls) {
+        resetState()
+        return
+      }
+      try {
+        const result = await sendBatchedTransaction(calls)
+        if (!result?.id || !result.client) {
+          return
+        }
+        // Monitor transaction status using viem's EIP-5792 implementation
+        const { promise: statusPromise } = retry(
+          async () => {
+            const status = await result.client.getCallsStatus({ id: result.id })
+            if (status.status === 'failure') {
+              throw new Error('Transaction failed')
+            }
+            if (status.status !== 'success') {
+              throw new RetryableError()
+            }
+            return status
+          },
+          {
+            n: 3,
+            minWait: 2000,
+            maxWait: 3500,
+          },
+        )
 
-    if (!(await swapPreflightCheck())) {
-      return
-    }
+        const status = await statusPromise
+        if (status.status === 'success') {
+          setTxHash(status.receipts?.[0]?.transactionHash)
+          setConfirmState(ConfirmModalState.COMPLETED)
+        }
+      } catch (error) {
+        console.warn('[5792] Failed to call batched action:', error)
+        if (userRejectedError(error) || eip5792UserRejectUpgradeError(error)) {
+          throw error
+        }
+      }
+    },
+    [setConfirmState, resetState, setTxHash, getBatchedTransaction, sendBatchedTransaction, walletType],
+  )
 
-    performStep({
-      nextStep,
-      stepActions,
-      state: steps[0],
-    })
-  }, [actions, createSteps, performStep, swapPreflightCheck])
+  const callToAction = useCallback(
+    async (skipBatch: boolean = false) => {
+      const steps = await createSteps()
+
+      setConfirmSteps(steps)
+
+      if (!(await swapPreflightCheck())) {
+        return
+      }
+
+      if (!skipBatch) {
+        const canCallBatch = canCallActionBatched(steps)
+        if (canCallBatch) {
+          try {
+            logGTMSwapTxSentEvent({
+              walletType: WalletType[walletType],
+              txType: 'batch',
+              chainId,
+              symbol: amountToApprove?.currency.symbol,
+            })
+            performEip5792Lock.current = true
+            await callActionBatched(steps)
+            return
+          } catch (error) {
+            if (eip5792UserRejectUpgradeError(error)) {
+              setTimeout(() => {
+                callToAction(true)
+              })
+            }
+          } finally {
+            performEip5792Lock.current = false
+          }
+          return
+        }
+      }
+      logGTMSwapTxSentEvent({
+        walletType: WalletType[walletType],
+        txType: 'normal',
+        chainId,
+        symbol: amountToApprove?.currency.symbol,
+      })
+      // Use existing sequential execution
+      const stepActions = steps.map((step) => actions[step])
+      const nextStep = steps[1] ?? undefined
+      performStep({
+        nextStep,
+        stepActions,
+        state: steps[0],
+      })
+    },
+    [canCallActionBatched, callActionBatched, actions, createSteps, performStep, swapPreflightCheck],
+  )
 
   // auto perform the next step
   useEffect(() => {
     if (
       preConfirmState !== confirmState &&
       preConfirmState !== ConfirmModalState.REVIEWING &&
-      confirmActions?.some((step) => step.step === confirmState)
+      confirmActions?.some((step) => step.step === confirmState) &&
+      !performEip5792Lock.current
     ) {
       const nextStep = confirmActions.findIndex((step) => step.step === confirmState)
       const nextStepState = confirmActions[nextStep + 1]?.step ?? ConfirmModalState.PENDING_CONFIRMATION
       performStep({ nextStep: nextStepState, stepActions: confirmActions, state: confirmState })
     }
-  }, [confirmActions, confirmState, performStep, preConfirmState])
+  }, [performEip5792Lock, confirmActions, confirmState, performStep, preConfirmState])
 
   return {
     callToAction,

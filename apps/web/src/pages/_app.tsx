@@ -16,7 +16,6 @@ import useLockedEndNotification from 'hooks/useLockedEndNotification'
 import useSentryUser from 'hooks/useSentryUser'
 import useThemeCookie from 'hooks/useThemeCookie'
 import useUserAgent from 'hooks/useUserAgent'
-import { NextPage } from 'next'
 import { DefaultSeo } from 'next-seo'
 import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
@@ -46,6 +45,7 @@ import { SEO } from '../../next-seo.config'
 import Providers from '../Providers'
 import Menu, { SharedComponentWithOutMenu } from '../components/Menu'
 import GlobalStyle from '../style/Global'
+import { NextPageWithLayout } from '../utils/page.types'
 
 const EasterEgg = dynamic(() => import('components/EasterEgg'), { ssr: false })
 
@@ -134,25 +134,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       />
     </>
   )
-}
-
-type NextPageWithLayout = NextPage & {
-  Layout?: React.FC<React.PropsWithChildren<unknown>>
-  /** render component without all layouts */
-  pure?: true
-  /** is mini program */
-  mp?: boolean
-  /**
-   * allow chain per page, empty array bypass chain block modal
-   * @default [ChainId.BSC]
-   * */
-  chains?: number[]
-  isShowScrollToTopButton?: true
-  screen?: true
-  /**
-   * Meta component for page, hacky solution for static build page to avoid `PersistGate` which blocks the page from rendering
-   */
-  Meta?: React.FC<React.PropsWithChildren<unknown>>
 }
 
 type AppPropsWithLayout = AppProps & {

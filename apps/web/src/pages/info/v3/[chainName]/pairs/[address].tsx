@@ -1,4 +1,6 @@
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import { NextPageWithLayout } from 'utils/page.types'
 import { InfoPageLayout } from 'views/V3Info/components/Layout'
 import Pool from 'views/V3Info/views/PoolPage'
 
@@ -7,7 +9,11 @@ const PoolPage = () => {
   return <Pool address={String(router.query.address).toLowerCase()} />
 }
 
-PoolPage.Layout = InfoPageLayout
-PoolPage.chains = [] // set all
+const Page = dynamic(() => Promise.resolve(PoolPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default PoolPage
+Page.Layout = InfoPageLayout
+Page.chains = [] // set all
+
+export default Page

@@ -2,14 +2,18 @@ import { CAKE, USDC } from '@pancakeswap/tokens'
 import { useCurrency } from 'hooks/Tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { GetStaticPaths, GetStaticProps } from 'next'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import { NextPageWithLayout } from 'utils/page.types'
 import { CHAIN_IDS } from 'utils/wagmi'
 import AddLiquidityV2FormProvider from 'views/AddLiquidity/AddLiquidityV2FormProvider'
 import { AddLiquidityV3Layout, UniversalAddLiquidity } from 'views/AddLiquidityV3'
 import { SELECTOR_TYPE } from 'views/AddLiquidityV3/types'
 import { PageWithoutFAQ } from 'views/Page'
 import useStableConfig from 'views/Swap/hooks/useStableConfig'
+
+const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|BNB)-(0x[a-fA-F0-9]{40}|BNB)$/
 
 const AddStableLiquidityPage = () => {
   const router = useRouter()
@@ -21,6 +25,25 @@ const AddStableLiquidityPage = () => {
     native.symbol,
     chainId ? CAKE[chainId]?.address ?? USDC[chainId]?.address : '',
   ]
+
+  useEffect(() => {
+    const match = typeof currencyIdA === 'string' ? currencyIdA.match(OLD_PATH_STRUCTURE) : null
+
+    if (match?.length) {
+      router.replace(`/add/${match[1]}/${match[2]}`)
+      return
+    }
+
+    if (
+      currencyIdA &&
+      currencyIdB &&
+      typeof currencyIdA === 'string' &&
+      typeof currencyIdB === 'string' &&
+      currencyIdA.toLowerCase() === currencyIdB.toLowerCase()
+    ) {
+      router.replace(`/add/${currencyIdA}`)
+    }
+  }, [currencyIdA, currencyIdB, router])
 
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
 
@@ -44,44 +67,11 @@ const AddStableLiquidityPage = () => {
   )
 }
 
-AddStableLiquidityPage.chains = CHAIN_IDS
-AddStableLiquidityPage.Layout = PageWithoutFAQ
+const Page = dynamic(() => Promise.resolve(AddStableLiquidityPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default AddStableLiquidityPage
+Page.chains = CHAIN_IDS
+Page.Layout = PageWithoutFAQ
 
-const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|BNB)-(0x[a-fA-F0-9]{40}|BNB)$/
-
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [{ params: { currency: [] } }],
-    fallback: true,
-  }
-}
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const currency = params?.currency || []
-  const [currencyIdA, currencyIdB] = currency
-  const match = currencyIdA?.match(OLD_PATH_STRUCTURE)
-
-  if (match?.length) {
-    return {
-      redirect: {
-        statusCode: 301,
-        destination: `/add/${match[1]}/${match[2]}`,
-      },
-    }
-  }
-
-  if (currencyIdA && currencyIdB && currencyIdA.toLowerCase() === currencyIdB.toLowerCase()) {
-    return {
-      redirect: {
-        statusCode: 307,
-        destination: `/add/${currencyIdA}`,
-      },
-    }
-  }
-
-  return {
-    props: {},
-  }
-}
+export default Page

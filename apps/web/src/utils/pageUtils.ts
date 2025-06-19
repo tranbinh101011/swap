@@ -1,5 +1,7 @@
 import unsupportedTokens from 'config/constants/tokenLists/pancake-unsupported.tokenlist.json'
 import { GetStaticPaths, GetStaticProps } from 'next'
+import { useRouter } from 'next/router'
+import { useMemo } from 'react'
 import { isAddress } from 'viem'
 
 export const getTokenStaticPaths = (): GetStaticPaths => {
@@ -47,4 +49,15 @@ export const getTokenStaticProps = (): GetStaticProps => {
       },
     }
   }
+}
+
+export const useTokenParams = () => {
+  const router = useRouter()
+  const { address, chainName: chain } = router.query
+
+  const parsedAddress = useMemo(() => (typeof address === 'string' ? address.toLowerCase() : undefined), [address])
+
+  const parsedChain = useMemo(() => (typeof chain === 'string' ? chain : undefined), [chain])
+
+  return { address: parsedAddress, chain: parsedChain }
 }

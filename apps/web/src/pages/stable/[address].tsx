@@ -12,7 +12,9 @@ import {
 } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { AppHeader } from 'components/App'
+import dynamic from 'next/dynamic'
 import { useMemo } from 'react'
+import { NextPageWithLayout } from 'utils/page.types'
 
 import { useRouter } from 'next/router'
 import { useStableSwapPairs } from 'state/swap/useStableSwapPairs'
@@ -47,7 +49,7 @@ export const BodyWrapper = styled(Card)`
   z-index: 1;
 `
 
-export default function StablePoolPage() {
+function StablePoolPage() {
   const {
     t,
     currentLanguage: { locale },
@@ -303,4 +305,10 @@ export default function StablePoolPage() {
   )
 }
 
-StablePoolPage.chains = CHAIN_IDS
+const StablePage = dynamic(() => Promise.resolve(StablePoolPage), {
+  ssr: false,
+}) as NextPageWithLayout
+
+StablePage.chains = CHAIN_IDS
+
+export default Page

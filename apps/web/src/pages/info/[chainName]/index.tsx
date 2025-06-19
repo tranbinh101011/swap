@@ -1,3 +1,5 @@
+import dynamic from 'next/dynamic'
+import { NextPageWithLayout } from 'utils/page.types'
 import { InfoPageLayout } from 'views/Info'
 import Overview from 'views/Info/Overview'
 
@@ -5,7 +7,11 @@ const MultiChainPage = () => {
   return <Overview />
 }
 
-MultiChainPage.Layout = InfoPageLayout
-MultiChainPage.chains = []
+const Page = dynamic(() => Promise.resolve(MultiChainPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default MultiChainPage
+Page.Layout = InfoPageLayout
+Page.chains = []
+
+export default Page

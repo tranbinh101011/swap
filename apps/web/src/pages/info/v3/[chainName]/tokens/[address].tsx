@@ -1,17 +1,16 @@
 import { Flex, Spinner } from '@pancakeswap/uikit'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/router'
+import { NextPageWithLayout } from 'utils/page.types'
 import { Suspense } from 'react'
-import { invalidAddressCheck } from 'utils/pageUtils'
+import { invalidAddressCheck, useTokenParams } from 'utils/pageUtils'
 import { InfoPageLayout } from 'views/V3Info/components/Layout'
 
 const Token = dynamic(() => import('views/V3Info/views/TokenPage'), { ssr: false })
 
 const TokenPage = () => {
-  const router = useRouter()
-  const { address, chainName } = router.query
+  const { address, chain } = useTokenParams()
 
-  if (invalidAddressCheck(String(address))) {
+  if (!address || invalidAddressCheck(String(address))) {
     return null
   }
 
@@ -23,12 +22,16 @@ const TokenPage = () => {
         </Flex>
       }
     >
-      <Token address={String(address).toLowerCase()} chain={String(chainName)} />
+      <Token address={String(address).toLowerCase()} chain={String(chain)} />
     </Suspense>
   )
 }
 
-TokenPage.Layout = InfoPageLayout
-TokenPage.chains = [] // set all
+const Page = dynamic(() => Promise.resolve(TokenPage), {
+  ssr: false,
+}) as NextPageWithLayout
 
-export default TokenPage
+Page.Layout = InfoPageLayout
+Page.chains = [] // set all
+
+export default Page

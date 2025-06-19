@@ -8,7 +8,7 @@ import { useChainIdByQuery, useChainNameByQuery, useMultiChainPath } from 'state
 
 import InfoNav from './components/InfoNav'
 
-export const InfoPageLayout = ({ children }) => {
+export const InfoPageLayout = ({ children }: { children?: React.ReactNode }) => {
   const router = useRouter()
   const chainName = useChainNameByQuery()
   const chainPath = useMultiChainPath()
