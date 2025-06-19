@@ -1,11 +1,12 @@
 import { ChainId } from '@pancakeswap/chains'
 import { getDefaultGasLimit, getGasLimitOnChain } from '@pancakeswap/multicall'
+import { OnChainProvider } from '@pancakeswap/smart-router'
 import { useQuery } from '@tanstack/react-query'
 import { atomFamily } from 'jotai/utils'
 import { useMemo } from 'react'
 
-import { getViemClients } from 'utils/viem'
 import { atomWithAsyncRetry } from 'utils/atomWithAsyncRetry'
+import { getViemClients } from 'utils/viem'
 
 const CHAINS_TO_USE_DEFAULT = [ChainId.BASE]
 
@@ -38,15 +39,19 @@ export function useMulticallGasLimit(chainId?: ChainId) {
 export const multicallGasLimitAtom = atomFamily((chainId?: ChainId) => {
   return atomWithAsyncRetry({
     asyncFn: async () => {
-      const shouldUseDefault = chainId ? CHAINS_TO_USE_DEFAULT.includes(chainId) : true
-
-      if (shouldUseDefault || !chainId) {
-        return getDefaultGasLimit(chainId)
-      }
-
-      const client = getViemClients({ chainId })
-      return getGasLimitOnChain({ chainId, client })
+      return getMulticallGasLimit(getViemClients, chainId)
     },
     fallbackValue: getDefaultGasLimit(chainId),
   })
 })
+
+export const getMulticallGasLimit = (provider: OnChainProvider = getViemClients, chainId?: ChainId) => {
+  const shouldUseDefault = chainId ? CHAINS_TO_USE_DEFAULT.includes(chainId) : true
+
+  if (shouldUseDefault || !chainId) {
+    return getDefaultGasLimit(chainId)
+  }
+
+  const client = provider({ chainId })
+  return getGasLimitOnChain({ chainId, client })
+}

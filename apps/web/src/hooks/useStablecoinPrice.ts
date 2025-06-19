@@ -1,20 +1,12 @@
 import { ChainId } from '@pancakeswap/chains'
-import { Currency, CurrencyAmount, Price, TradeType } from '@pancakeswap/sdk'
-import { SmartRouterTrade } from '@pancakeswap/smart-router'
+import { Currency, getCurrencyAddress, Price } from '@pancakeswap/sdk'
 import { CAKE, STABLE_COIN } from '@pancakeswap/tokens'
 import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
-import { useCakePrice } from 'hooks/useCakePrice'
-import { useAtomValue } from 'jotai'
-import { bestAMMTradeFromQuoterWorkerAtom } from 'quoter/atom/bestAMMTradeFromQuoterWorkerAtom'
-import { multicallGasLimitAtom } from 'quoter/hook/useMulticallGasLimit'
-import { createQuoteQuery } from 'quoter/utils/createQuoteQuery'
+import { atom, useAtomValue } from 'jotai'
+import { atomFamily } from 'jotai/utils'
 import { useMemo } from 'react'
-import { useCurrentBlock } from 'state/block/hooks'
-import { warningSeverity } from 'utils/exchange'
 import { multiplyPriceByAmount } from 'utils/prices'
-import { computeTradePriceBreakdown } from 'views/Swap/V3Swap/utils/exchange'
 import { useActiveChainId } from './useActiveChainId'
-import { useCurrencyUsdPrice } from './useCurrencyUsdPrice'
 
 type UseStablecoinPriceConfig = {
   enabled?: boolean
@@ -24,6 +16,46 @@ const DEFAULT_CONFIG: UseStablecoinPriceConfig = {
   enabled: true,
   hideIfPriceImpactTooHigh: false,
 }
+
+const queryStablecoinPrice = async (currency: Currency, overrideChainId?: number) => {
+  if (!currency) throw new Error('No currency')
+  const chainId = currency.chainId || overrideChainId
+  if (!chainId) throw new Error('No chainId provided')
+  const stableCoin = chainId in ChainId ? STABLE_COIN[chainId as ChainId] : undefined
+  if (!stableCoin) throw new Error('No stable coin')
+  const params = new URLSearchParams({ chainId: String(chainId) })
+  if (currency.isNative) {
+    params.set('native', 'true')
+  } else {
+    params.set('address', currency.wrapped.address)
+  }
+  const res = await fetch(`/api/token/price?${params.toString()}`)
+  if (!res.ok) {
+    throw new Error('request failed')
+  }
+  const json = await res.json()
+  return json.priceUSD as number | undefined
+}
+
+interface StableCoinPriceParams {
+  currency?: Currency
+  chainId?: number
+}
+const stableCoinPriceAtom = atomFamily(
+  (params: StableCoinPriceParams) => {
+    return atom(async () => {
+      if (!params.currency) {
+        return undefined
+      }
+      return queryStablecoinPrice(params.currency, params.chainId)
+    })
+  },
+  (a, b) => {
+    const hashA = `${a.currency ? getCurrencyAddress(a.currency) : ''}:${a.chainId}`
+    const hashB = `${b.currency ? getCurrencyAddress(b.currency) : ''}:${b.chainId}`
+    return hashA === hashB
+  },
+)
 
 export function useStablecoinPrice(
   currency?: Currency | null,
@@ -37,7 +69,6 @@ export function useStablecoinPrice(
   const { enabled, hideIfPriceImpactTooHigh } = { ...DEFAULT_CONFIG, ...config }
 
   const isCake = Boolean(chainId && currency && CAKE[chainId] && currency.wrapped.equals(CAKE[chainId]))
-  const cakePrice = useCakePrice({ enabled: Boolean(isCake && enabled) })
   const stableCoin = chainId && chainId in ChainId ? STABLE_COIN[chainId as ChainId] : undefined
 
   const isStableCoin = currency && stableCoin && currency.wrapped.equals(stableCoin)
@@ -46,80 +77,28 @@ export function useStablecoinPrice(
     currency && stableCoin && enabled && currentChainId === chainId && !isCake && !isStableCoin,
   )
 
-  const { data: priceFromApi } = useCurrencyUsdPrice(currency, {
-    enabled: shouldEnabled,
-  })
-
-  const amountOut = useMemo(
-    () => (stableCoin ? CurrencyAmount.fromRawAmount(stableCoin, 5 * 10 ** stableCoin.decimals) : undefined),
-    [stableCoin],
+  const priceUSD = useAtomValue(
+    stableCoinPriceAtom({
+      currency: currency || undefined,
+      chainId,
+    }),
   )
 
-  const blockNumber = useCurrentBlock()
-  const gasLimit = useAtomValue(multicallGasLimitAtom(activeChainId))
-  const priceQuoter = createQuoteQuery({
-    amount: amountOut,
-    currency: currency ?? undefined,
-    baseCurrency: stableCoin,
-    tradeType: TradeType.EXACT_OUTPUT,
-    maxSplits: 0,
-    v2Swap: true,
-    v3Swap: true,
-    xEnabled: false,
-    infinitySwap: false,
-    speedQuoteEnabled: true,
-    routeKey: 'stable-coin-price',
-    blockNumber,
-    gasLimit,
-  })
-  const quoteResult = useAtomValue(bestAMMTradeFromQuoterWorkerAtom(priceQuoter))
-  const trade = quoteResult.map((x) => x.trade).unwrapOr(undefined)
-
   const price = useMemo(() => {
-    if (!currency || !stableCoin || !enabled) {
+    if (!priceUSD) {
+      return undefined
+    }
+    if (!currency || !stableCoin || !shouldEnabled) {
       return undefined
     }
 
-    if (isCake && cakePrice) {
-      return new Price(
-        currency,
-        stableCoin,
-        1 * 10 ** currency.decimals,
-        getFullDecimalMultiplier(stableCoin.decimals).times(cakePrice.toFixed(stableCoin.decimals)).toString(),
-      )
-    }
-
-    // handle stable coin
-    if (isStableCoin) {
-      return new Price(stableCoin, stableCoin, '1', '1')
-    }
-
-    if (priceFromApi) {
-      return new Price(
-        currency,
-        stableCoin,
-        1 * 10 ** currency.decimals,
-        getFullDecimalMultiplier(stableCoin.decimals).times(priceFromApi.toFixed(stableCoin.decimals)).toString(),
-      )
-    }
-
-    if (trade) {
-      const { inputAmount, outputAmount } = trade
-
-      // if price impact is too high, don't show price
-      if (hideIfPriceImpactTooHigh) {
-        const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade as unknown as SmartRouterTrade<TradeType>)
-
-        if (!priceImpactWithoutFee || warningSeverity(priceImpactWithoutFee) > 2) {
-          return undefined
-        }
-      }
-
-      return new Price(currency, stableCoin, inputAmount.quotient, outputAmount.quotient)
-    }
-
-    return undefined
-  }, [currency, stableCoin, enabled, isCake, cakePrice, isStableCoin, priceFromApi, hideIfPriceImpactTooHigh, trade])
+    return new Price(
+      currency,
+      stableCoin,
+      1 * 10 ** currency.decimals,
+      getFullDecimalMultiplier(stableCoin.decimals).times(priceUSD.toFixed(stableCoin.decimals)).toString(),
+    )
+  }, [currency, stableCoin, shouldEnabled, priceUSD])
 
   if (price?.denominator === 0n) {
     return undefined
