@@ -2,10 +2,13 @@ import { ChainId } from '@pancakeswap/chains'
 import { Currency, getCurrencyAddress, Price } from '@pancakeswap/sdk'
 import { STABLE_COIN } from '@pancakeswap/tokens'
 import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
-import { atom, useAtomValue } from 'jotai'
+import { useAtom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { useMemo } from 'react'
 import { multiplyPriceByAmount } from 'utils/prices'
+import { atomWithAsyncRetry } from 'utils/atomWithAsyncRetry'
+import { useQuery } from '@tanstack/react-query'
+import { SLOW_INTERVAL } from 'config/constants'
 import { useActiveChainId } from './useActiveChainId'
 
 type UseStablecoinPriceConfig = {
@@ -31,11 +34,7 @@ const queryStablecoinPrice = async (currency: Currency, overrideChainId?: number
   }
   const res = await fetch(`/api/token/price?${params.toString()}`)
   if (!res.ok) {
-    // NOTE: comment this out to avoid prod crash for now.
-    // Fix root cause later.
-    // throw new Error('request failed')
-
-    return undefined
+    throw new Error('request failed')
   }
   const json = await res.json()
   return json.priceUSD as number | undefined
@@ -48,12 +47,14 @@ interface StableCoinPriceParams {
 }
 const stableCoinPriceAtom = atomFamily(
   (params: StableCoinPriceParams) => {
-    return atom(async () => {
-      const enabled = params.enabled ?? true
-      if (!params.currency || !enabled) {
-        return undefined
-      }
-      return queryStablecoinPrice(params.currency, params.chainId)
+    return atomWithAsyncRetry({
+      asyncFn: async () => {
+        const enabled = params.enabled ?? true
+        if (!params.currency || !enabled) {
+          return undefined
+        }
+        return queryStablecoinPrice(params.currency, params.chainId)
+      },
     })
   },
   (a, b) => {
@@ -72,19 +73,31 @@ export function useStablecoinPrice(
   const currentChainId = overrideChainId || activeChainId
 
   const chainId = currency?.chainId || activeChainId
-  const { enabled, hideIfPriceImpactTooHigh } = { ...DEFAULT_CONFIG, ...config }
+  const { enabled } = { ...DEFAULT_CONFIG, ...config }
 
   const stableCoin = chainId && chainId in ChainId ? STABLE_COIN[chainId as ChainId] : undefined
 
   const shouldEnabled = Boolean(currency && enabled && currentChainId === chainId)
 
-  const priceUSD = useAtomValue(
+  const [priceUSD, refreshPrice] = useAtom(
     stableCoinPriceAtom({
       currency: currency || undefined,
       chainId,
       enabled,
     }),
   )
+
+  useQuery({
+    queryKey: ['stableCoinRefresh', currency?.chainId, currency?.wrapped?.address],
+    queryFn: async () => {
+      return refreshPrice()
+    },
+    enabled: Boolean(currency),
+    refetchInterval: SLOW_INTERVAL,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    gcTime: 0,
+  })
 
   const price = useMemo(() => {
     if (!priceUSD || !currency || !stableCoin || !shouldEnabled) {
