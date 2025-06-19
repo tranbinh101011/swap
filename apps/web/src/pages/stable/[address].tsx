@@ -311,4 +311,4 @@ const StablePage = dynamic(() => Promise.resolve(StablePoolPage), {
 
 StablePage.chains = CHAIN_IDS
 
-export default Page
+export default StablePage
