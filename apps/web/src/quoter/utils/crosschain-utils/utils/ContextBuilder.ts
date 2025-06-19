@@ -85,9 +85,7 @@ export class ContextBuilder {
             hash: '',
             placeholderHash: '',
             infinitySwap,
-            // Disable stable swap for cross chain swap
-            // Due to stable swap and v3 swap are not compatiable in terms of amountIn and balanceOf
-            stableSwap: false,
+            // Disable xSwap is not supported for cross chain swap
             xEnabled: false,
             ...swapOption,
           }
