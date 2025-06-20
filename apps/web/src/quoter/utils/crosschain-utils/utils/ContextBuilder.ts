@@ -87,6 +87,8 @@ export class ContextBuilder {
             infinitySwap,
             // Disable xSwap is not supported for cross chain swap
             xEnabled: false,
+            // disable stable swap, wait for BE to support it
+            stableSwap: false,
             ...swapOption,
           }
 
