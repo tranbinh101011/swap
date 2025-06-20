@@ -3,11 +3,12 @@ import { chainlinkOracleCAKE } from '@pancakeswap/prediction'
 import { CurrencyParams, getCurrencyUsdPrice } from '@pancakeswap/price-api-sdk'
 import { Native } from '@pancakeswap/sdk'
 import { OnChainProvider, PoolType, SmartRouter, SmartRouterTrade } from '@pancakeswap/smart-router'
-import { Currency, CurrencyAmount, getCurrencyAddress, Token, TradeType } from '@pancakeswap/swap-sdk-core'
-import { CAKE, getTokenByAddress, STABLE_COIN } from '@pancakeswap/tokens'
+import { Currency, CurrencyAmount, getCurrencyAddress, TradeType } from '@pancakeswap/swap-sdk-core'
+import { CAKE, STABLE_COIN } from '@pancakeswap/tokens'
 import { chainlinkOracleABI } from 'config/abi/chainlinkOracle'
 import { getMulticallGasLimit } from 'quoter/hook/useMulticallGasLimit'
 import { edgeQueries } from 'quoter/utils/edgePoolQueries'
+import { mockCurrency } from 'quoter/utils/edgeQueries.util'
 import { computeTradePriceBreakdown, warningSeverity } from 'utils/compuateTradePriceBreakdown'
 import { getViemClients } from 'utils/viem.server'
 import { Address } from 'viem/accounts'
@@ -36,6 +37,10 @@ export async function queryTokenPrice(params: {
 }) {
   const { chainId, address, isNative, hideIfPriceImpactTooHigh } = params
   const currencyParams = parseQueryParams(params)
+
+  if (!isNative && !address) {
+    throw new Error('address is required for non-native tokens')
+  }
 
   if (!currencyParams) {
     throw new Error('invalid params')
@@ -78,9 +83,7 @@ export async function queryTokenPrice(params: {
   }
 
   try {
-    const token: Currency = isNative
-      ? Native.onChain(chainId)
-      : getTokenByAddress(chainId, address as Address) || new Token(chainId, address as Address, 18, '')
+    const token: Currency = isNative ? Native.onChain(chainId) : await mockCurrency(address!, chainId)
 
     const amountOut = CurrencyAmount.fromRawAmount(stableCoin, 5n * 10n ** BigInt(stableCoin.decimals))
 
@@ -97,20 +100,12 @@ export async function queryTokenPrice(params: {
     const pools = candidatePools.map((pool) => {
       return SmartRouter.Transformer.parsePool(chainId, pool)
     })
-    console.log('pools', pools.length)
-    for (const pool of pools) {
-      console.log(`${PoolType[pool.type]} `)
-      if (pool.type === PoolType.V2) {
-        console.log(`- ${pool.reserve0.currency.symbol} - ${pool.reserve1.currency.symbol}`)
-      }
-      if (pool.type === PoolType.V3) {
-        console.log(`- ${pool.token0.symbol} - ${pool.token1.symbol}`)
-      }
-    }
+
     const quoteProvider = SmartRouter.createQuoteProvider({
       onChainProvider: getViemClients as OnChainProvider,
       gasLimit: gasLimit * 1000n,
     })
+
     const trade = await SmartRouter.getBestTrade(amountOut, token, TradeType.EXACT_OUTPUT, {
       gasPriceWei: gasPrice,
       poolProvider: SmartRouter.createStaticPoolProvider(pools),
@@ -121,7 +116,6 @@ export async function queryTokenPrice(params: {
       allowedPoolTypes: [PoolType.V2, PoolType.V3],
       quoterOptimization: false,
     })
-
     if (!trade) {
       return undefined
     }
