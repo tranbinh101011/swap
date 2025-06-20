@@ -1,12 +1,13 @@
 import { PoolIds } from '@pancakeswap/ifos'
 import { BetPosition } from '@pancakeswap/prediction'
-import { Currency, TradeType } from '@pancakeswap/swap-sdk-core'
+import { BridgeStatus } from 'views/Swap/Bridge/types'
 import { getChainFullName } from 'views/universalFarms/utils'
 
 export enum GTMEvent {
   EventTracking = 'eventTracking',
   Swap = 'swap',
   SwapTxSent = 'swapTxSent',
+  SwapTxSuccess = 'swapTxSuccess',
   SwapConfirmed = 'swapConfirmed',
   AddLiquidity = 'addLiquidity',
   AddLiquidityConfirmed = 'addLiquidityConfirmed',
@@ -37,8 +38,14 @@ export enum GTMEvent {
   IdoConnectWallet = 'idoConnectWallet',
 
   // Quote
-  QUOTE_QRY = 'QUOTE_QRY',
-  BRIDGE_QUOTE_QRY = 'BRIDGE_QUOTE_QRY',
+  SWAP_QUOTE_START = 'swapQuoteStart',
+  SWAP_QUOTE_RECEIVED = 'swapQuoteReceived',
+  SWAP_QUOTE_FAILED = 'swapQuoteFailed',
+
+  // Cross Chain
+  ORDER_STATUS_START = 'orderStatusStart',
+  ORDER_STATUS_SUCCESS = 'orderStatusSuccess',
+  ORDER_STATUS_FAILED = 'orderStatusFailed',
 
   // wallet
   ConnectWallet = 'connectWallet',
@@ -71,6 +78,7 @@ export enum GTMAction {
   ClickSwapButton = 'Click Swap Button',
   ClickSwapConfirmButton = 'Click Swap Confirm Button',
   SwapTransactionSent = 'Swap Transaction Sent',
+  SwapTransactionSuccess = 'Swap Transaction Success',
   ClickAddLiquidityConfirmButton = 'Click Add Liquidity Confirm Button',
   AddLiquidityTransactionSent = 'Add Liquidity Transaction Sent',
   ClickAddLiquidityButton = 'Click Add Liquidity Button',
@@ -106,7 +114,9 @@ export enum GTMAction {
 
   // Quote
   QuoterQuery = 'Query price from Quoter',
-  BridgeQuoterQuery = 'Query price from Bridge Quoter',
+
+  // Cross Chain
+  UpdateOrderStatus = 'Update Order Status',
 
   // Wallet
   ClickWalletConnectButton = 'Click Wallet Connect and Connected', // deprecated
@@ -141,21 +151,61 @@ export const logGTMClickTokenHighLightTradeEvent = (label?: string) => {
   })
 }
 
-export const logGTMClickSwapEvent = () => {
+interface LogGTMClickSwapEventOptions {
+  fromChain?: number
+  toChain?: number
+  fromToken?: string
+  toToken?: string
+  amount?: string
+  amountOut?: string
+  priceImpact?: number
+}
+
+export const logGTMClickSwapEvent = ({
+  fromChain,
+  toChain,
+  fromToken,
+  toToken,
+  amount,
+  amountOut,
+  priceImpact,
+}: LogGTMClickSwapEventOptions) => {
   console.info('---Swap---')
   window?.dataLayer?.push({
     event: GTMEvent.Swap,
     action: GTMAction.ClickSwapButton,
     category: GTMCategory.Swap,
+    fromChain,
+    toChain,
+    fromToken,
+    toToken,
+    amount,
+    amountOut,
+    priceImpact,
   })
 }
 
-export const logGTMClickSwapConfirmEvent = () => {
+export const logGTMClickSwapConfirmEvent = ({
+  fromChain,
+  toChain,
+  fromToken,
+  toToken,
+  amount,
+  amountOut,
+  priceImpact,
+}: LogGTMClickSwapEventOptions) => {
   console.info('---SwapClickConfirm---')
   window?.dataLayer?.push({
     event: GTMEvent.SwapConfirmed,
     action: GTMAction.ClickSwapConfirmButton,
     category: GTMCategory.Swap,
+    fromChain,
+    toChain,
+    fromToken,
+    toToken,
+    amount,
+    amountOut,
+    priceImpact,
   })
 }
 
@@ -165,6 +215,9 @@ export const logGTMSwapTxSentEvent = (options?: {
   chainId?: number
   symbol?: string
 }) => {
+  // NOTE: SwapTxSent is called when the confirm wallet is clicked, not when the tx is sent
+  // There is no txHash in this event.
+  // SwapTxSuccess is called when the txHash is confirmed.
   console.info('---SwapTxSent---')
   window?.dataLayer?.push({
     event: GTMEvent.SwapTxSent,
@@ -174,6 +227,18 @@ export const logGTMSwapTxSentEvent = (options?: {
     txType: options?.txType,
     chainId: options?.chainId,
     symbol: options?.symbol,
+  })
+}
+
+export const logGTMSwapTxSuccessEvent = ({ txHash }: LogGTMClickSwapEventOptions & { txHash: string }) => {
+  console.info('---SwapTxSuccess---', {
+    txHash,
+  })
+  window?.dataLayer?.push({
+    event: GTMEvent.SwapTxSuccess,
+    action: GTMAction.SwapTransactionSuccess,
+    category: GTMCategory.Swap,
+    txHash,
   })
 }
 
@@ -450,53 +515,47 @@ export const logGTMIdoConnectWalletEvent = (preTGE: boolean) => {
   })
 }
 
-export const logGTMQuoteQueryEvent = (
-  type: 'start' | 'succ' | 'fail',
-  options: {
-    type: TradeType
-    chain?: number
-    currencyA?: Currency
-    currencyB?: Currency
-    time?: number
-  },
-) => {
-  const { chain, currencyA, currencyB, time } = options
+export const logGTMOrderStatusEvent = (status: BridgeStatus) => {
+  console.info('---OrderStatus---', status)
+  const event = status === BridgeStatus.SUCCESS ? GTMEvent.ORDER_STATUS_SUCCESS : GTMEvent.ORDER_STATUS_FAILED
 
   window?.dataLayer?.push({
-    event: GTMEvent.QUOTE_QRY,
-    action: GTMAction.QuoterQuery,
-    category: GTMCategory.Swap,
-    chain,
-    currencyA: currencyA?.symbol || '',
-    currencyB: currencyB?.symbol || '',
-    type,
-    time,
+    event: GTMEvent.ORDER_STATUS_START,
+    action: GTMAction.UpdateOrderStatus,
   })
 }
 
-export const logGTMBridgeQuoteQueryEvent = (
+export const logGTMQuoteQueryEvent = (
   type: 'start' | 'succ' | 'fail',
-  options: {
-    originChainId?: number
-    destinationChainId?: number
-    originToken?: string
-    destinationToken?: string
-    amount?: string
-    time?: number
-  },
+  options: LogGTMClickSwapEventOptions & { errorMessage?: string },
 ) => {
-  const { originChainId, destinationChainId, originToken, destinationToken, amount, time } = options
+  const { fromChain, toChain, fromToken, toToken, amount, amountOut } = options
+
+  const event =
+    type === 'succ'
+      ? GTMEvent.SWAP_QUOTE_RECEIVED
+      : type === 'start'
+      ? GTMEvent.SWAP_QUOTE_START
+      : GTMEvent.SWAP_QUOTE_FAILED
+
+  if (type === 'start') {
+    console.info('---QuoteStart---', options)
+  } else if (type === 'succ') {
+    console.info('---QuoteSuccess---', options, amountOut)
+  } else {
+    console.info('---QuoteFailed---', options)
+  }
 
   window?.dataLayer?.push({
-    event: GTMEvent.BRIDGE_QUOTE_QRY,
-    action: GTMAction.BridgeQuoterQuery,
+    event,
+    action: GTMAction.QuoterQuery,
     category: GTMCategory.Swap,
-    originChainId,
-    destinationChainId,
-    originToken,
-    destinationToken,
+    fromChain,
+    toChain,
+    fromToken,
+    toToken,
     amount,
-    time,
+    amountOut,
     type,
   })
 }

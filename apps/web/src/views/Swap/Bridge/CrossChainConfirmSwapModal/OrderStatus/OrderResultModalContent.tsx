@@ -28,6 +28,7 @@ import { shortenAddress } from 'views/V3Info/utils'
 import { useBridgeStatus } from '../../hooks/useBridgeStatus'
 import { ActiveBridgeOrderMetadata, BridgeResponseStatusData, BridgeStatus, Command } from '../../types'
 import { customBridgeStatus } from '../../utils/customBridgeStatus'
+import { useOrderStatusTrackingStateMachine } from '../hooks/useOrderStatusTrackingStateMachine'
 import { activeBridgeOrderMetadataAtom } from '../state/orderDataState'
 import { OrderDetailsPanel } from './OrderDetailsPanel'
 
@@ -199,6 +200,9 @@ export const OrderResultModalContent = ({ overrideActiveOrderMetadata, ...props 
   }, [bridgeStatus, order?.trade.outputAmount])
 
   const status = customBridgeStatus(bridgeStatus)
+
+  // overrideActiveOrderMetadata is false, mean it's on the confirm modal
+  useOrderStatusTrackingStateMachine(!overrideActiveOrderMetadata ? status : undefined)
 
   const middleIcon = useMemo(() => {
     switch (status) {

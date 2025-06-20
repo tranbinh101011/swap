@@ -30,7 +30,11 @@ import { useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 import { useRoutingSettingChanged } from 'state/user/smartRouter'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { logGTMClickSwapConfirmEvent, logGTMClickSwapEvent } from 'utils/customGTMEventTracking'
+import {
+  logGTMClickSwapConfirmEvent,
+  logGTMClickSwapEvent,
+  logGTMSwapTxSuccessEvent,
+} from 'utils/customGTMEventTracking'
 import { warningSeverity } from 'utils/exchange'
 import { useBridgeCheckApproval } from 'views/Swap/Bridge/hooks/useBridgeCheckApproval'
 import { computeBridgeOrderFee, getBridgeOrderPriceImpact } from 'views/Swap/Bridge/utils'
@@ -45,6 +49,7 @@ import { useSwapCurrency } from '../../Swap/V3Swap/hooks/useSwapCurrency'
 import { CommitButtonProps } from '../../Swap/V3Swap/types'
 import { computeTradePriceBreakdown } from '../../Swap/V3Swap/utils/exchange'
 import { useIsRecipientError } from '../hooks/useIsRecipientError'
+import { useQuoteTrackingStateMachine } from '../hooks/useQuoteTrackingStateMachine'
 
 const SettingsModalWithCustomDismiss = withCustomOnDismiss(SettingsModalV2)
 
@@ -149,7 +154,7 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   const { t } = useTranslation()
   const chainId = useChainId()
   // form data
-  const { independentField } = useSwapState()
+  const { independentField, typedValue } = useSwapState()
   const [inputCurrency, outputCurrency] = useSwapCurrency()
   const { isExpertMode } = useSwapConfig()
   const { isRecipientEmpty, isRecipientError } = useIsRecipientError()
@@ -262,9 +267,17 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
 
   const onConfirm = useCallback(() => {
     beforeCommit?.()
-    logGTMClickSwapConfirmEvent()
+    logGTMClickSwapConfirmEvent({
+      fromChain: order?.trade?.inputAmount?.currency?.chainId,
+      toChain: order?.trade?.outputAmount?.currency?.chainId,
+      fromToken: order?.trade?.inputAmount?.currency?.symbol,
+      toToken: order?.trade?.outputAmount?.currency?.symbol,
+      amount: order?.trade?.inputAmount?.toExact(),
+      amountOut: order?.trade?.outputAmount?.toExact(),
+      priceImpact: priceImpactSeverity,
+    })
     callToAction()
-  }, [beforeCommit, callToAction])
+  }, [beforeCommit, callToAction, priceImpactSeverity, order])
 
   // modals
   const onSettingModalDismiss = useCallback(() => {
@@ -319,8 +332,17 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
     }
 
     openConfirmSwapModal()
-    logGTMClickSwapEvent()
-  }, [isExpertMode, onConfirm, openConfirmSwapModal, resetState, order])
+
+    logGTMClickSwapEvent({
+      fromChain: order?.trade?.inputAmount?.currency?.chainId,
+      toChain: order?.trade?.outputAmount?.currency?.chainId,
+      fromToken: order?.trade?.inputAmount?.currency?.symbol,
+      toToken: order?.trade?.outputAmount?.currency?.symbol,
+      amount: order?.trade?.inputAmount?.toExact(),
+      amountOut: order?.trade?.outputAmount?.toExact(),
+      priceImpact: priceImpactSeverity,
+    })
+  }, [isExpertMode, onConfirm, openConfirmSwapModal, resetState, order, priceImpactSeverity])
 
   useEffect(() => {
     if (indirectlyOpenConfirmModalState) {
@@ -335,7 +357,16 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   // Watch for completed transactions and refresh balances
   useEffect(() => {
     // Only refresh when transaction is completed, txHash exists, and hasn't been processed yet
-    if (confirmState === ConfirmModalState.COMPLETED && txHash && !processedTxHashesRef.current.includes(txHash)) {
+    if (
+      [ConfirmModalState.COMPLETED, ConfirmModalState.ORDER_SUBMITTED].includes(confirmState) &&
+      txHash &&
+      !processedTxHashesRef.current.includes(txHash)
+    ) {
+      // track success txn
+      logGTMSwapTxSuccessEvent({
+        txHash: txHash ?? '',
+      })
+
       // Add this txHash to the processed list
       processedTxHashesRef.current.push(txHash)
 
@@ -348,6 +379,21 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
       }
     }
   }, [confirmState, txHash, refreshBalances])
+
+  // Use quote tracking state machine hook to ensure proper order: start -> success/fail
+  // if any quote logic is changed, please update the hook
+  useQuoteTrackingStateMachine({
+    typedValue,
+    tradeLoading,
+    tradeError,
+    inputCurrency,
+    outputCurrency,
+    swapInputError,
+    parsedAmounts,
+    disabled,
+    isValid,
+    order,
+  })
 
   const buttonText = useMemo(() => {
     // NOTE: use if statement for readability
@@ -363,6 +409,7 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
     if (swapInputError) return swapInputError
 
     if (tradeLoading) return <Dots>{t('Searching For The Best Price')}</Dots>
+
     if (isBridgeCheckApprovalLoading) return <Dots>{t('Checking for approval')}</Dots>
 
     if (priceImpactSeverity > 3 && !isExpertMode) return t('Price Impact Too High')

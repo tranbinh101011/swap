@@ -4,7 +4,6 @@ import { atomFamily } from 'jotai/utils'
 import { quoteTraceAtom } from 'quoter/perf/quoteTracker'
 import { BridgeTradeError, type QuoteQuery } from 'quoter/quoter.types'
 import { isEqualQuoteQuery } from 'quoter/utils/PoolHashHelper'
-import { logGTMBridgeQuoteQueryEvent } from 'utils/customGTMEventTracking'
 import { type InterfaceOrder } from 'views/Swap/utils'
 import { bestSameChainAtom } from './bestSameChainAtom'
 import { placeholderAtom } from './placeholderAtom'
@@ -43,16 +42,6 @@ export const bestCrossChainQuoteWithoutPlaceHolderAtom = atomFamily((option: Quo
 
         return strategy.executeQuote()
       } catch (error: unknown) {
-        console.error('Failed to get cross chain quote:', error)
-
-        logGTMBridgeQuoteQueryEvent('fail', {
-          originChainId: option.baseCurrency?.chainId,
-          destinationChainId: option.currency?.chainId,
-          originToken: option.baseCurrency?.symbol,
-          destinationToken: option.currency?.symbol,
-          amount: option.amount?.toString(),
-        })
-
         return Loadable.Fail<InterfaceOrder>(error as BridgeTradeError)
       }
     }
