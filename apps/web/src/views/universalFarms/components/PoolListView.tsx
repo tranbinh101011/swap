@@ -1,6 +1,7 @@
 import { BottomDrawer, Button, ChevronRightIcon, Column, MoreIcon } from '@pancakeswap/uikit'
 import { useRouter } from 'next/router'
 import { memo, ReactNode, useCallback, useState } from 'react'
+import { getFarmAprInfo } from 'state/farmsV4/search/farm.util'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import styled from 'styled-components'
 import { PoolGlobalAprButton } from './PoolAprButton'
@@ -58,7 +59,7 @@ export const ListView = <T extends PoolInfo>({ data, getItemKey, onRowClick }: I
         <ListItemContainer key={getListItemKey(item)} onClick={() => onRowClick?.(item)}>
           <Column gap="12px" onClick={() => handleItemClick(item)}>
             <PoolTokenOverview data={item} />
-            <PoolGlobalAprButton pool={item} />
+            <PoolGlobalAprButton pool={item} aprInfo={getFarmAprInfo(item.farm)} />
           </Column>
 
           <Column>
