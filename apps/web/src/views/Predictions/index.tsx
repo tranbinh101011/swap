@@ -11,6 +11,7 @@ import ChartDisclaimer from './components/ChartDisclaimer'
 import CollectWinningsPopup from './components/CollectWinningsPopup'
 import Container from './components/Container'
 import RiskDisclaimer from './components/RiskDisclaimer'
+import SmartWalletWarning from './components/SmartWalletWarning'
 import { useConfig } from './context/ConfigProvider'
 import SwiperProvider from './context/SwiperProvider'
 import usePollPredictions from './hooks/usePollPredictions'
@@ -66,8 +67,10 @@ const Predictions = () => {
 
   return (
     <SwiperProvider>
+      <SmartWalletWarning />
       <Container>
         <Warnings />
+
         <RiskDisclaimer />
         {isDesktop ? <Desktop /> : <Mobile />}
         <CollectWinningsPopup />
