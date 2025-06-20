@@ -117,22 +117,23 @@ export function useIsMEVEnabled() {
   const { account, chainId } = useAccountActiveChain()
   const { walletType } = useWalletType()
 
+  const isMEVProtectAvailable =
+    Boolean(account) && chainId === ChainId.BSC && Boolean(walletClient) && walletType !== WalletType.mevNotSupported
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['isMEVEnabled', walletClient, account, chainId, walletType],
     queryFn: () => fetchMEVStatus(walletClient!),
-    enabled: Boolean(account) && walletClient && chainId === ChainId.BSC,
+    enabled: isMEVProtectAvailable,
     staleTime: 60000,
   })
 
-  // console.log('isMEVEnabled', data?.mevEnabled, walletType, chainId, walletClient)
+  const isMEVEnabledAfterValidation = data?.mevEnabled || walletType === WalletType.mevDefaultOnBSC
+
   return {
-    isMEVEnabled:
-      (walletType !== WalletType.mevNotSupported &&
-        (data?.mevEnabled || (walletType === WalletType.mevDefaultOnBSC && chainId === ChainId.BSC))) ??
-      false,
+    isMEVEnabled: isMEVProtectAvailable && isMEVEnabledAfterValidation,
     isLoading,
     refetch,
-    isMEVProtectAvailable: chainId === ChainId.BSC,
+    isMEVProtectAvailable,
   }
 }
 
@@ -141,6 +142,7 @@ export const useShouldShowMEVToggle = () => {
   const { address: account } = useAccount()
   const { isMEVEnabled, isLoading, isMEVProtectAvailable } = useIsMEVEnabled()
   const { walletType, isLoading: isWalletTypeLoading } = useWalletType()
+
   return (
     !isLoading &&
     !isWalletTypeLoading &&
