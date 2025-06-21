@@ -131,20 +131,16 @@ export const socials = [
         href: "https://t.me/pancakeswapFR",
       },
       {
-        label: "Deutsch",
-        href: "https://t.me/pancakeswap_DE",
-      },
-      {
         label: "Filipino",
         href: "https://t.me/pancakeswap_PH",
       },
       {
-        label: "ქართული ენა",
-        href: "https://t.me/pancakeswapGeorgia",
-      },
-      {
         label: "हिन्दी",
         href: "https://t.me/pancakeswap_INDIA",
+      },
+      {
+        label: "한국어",
+        href: "https://t.me/PancakeSwapSouthKorea",
       },
       {
         label: "Announcements",
