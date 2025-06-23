@@ -6,15 +6,11 @@ import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import { getChainId } from 'config/chains'
 import { ASSET_CDN } from 'config/constants/endpoints'
-import { atom } from 'jotai'
-import { atomFamily } from 'jotai/utils'
 import { useEffect, useMemo } from 'react'
 import { usePoolApr, usePoolInfo } from 'state/farmsV4/hooks'
-import type { PoolInfo } from 'state/farmsV4/state/type'
 import { ChainIdAddressKey } from 'state/farmsV4/state/type'
 import styled from 'styled-components'
 import { useMyPositions } from 'views/PoolDetail/components/MyPositionsContext'
-import { getPoolDetailPageLink } from 'views/universalFarms/components'
 import { sumApr } from 'views/universalFarms/utils/sumApr'
 import { AdTag } from '../AdTag'
 import { BodyText } from '../BodyText'
@@ -65,18 +61,6 @@ const usePicksData = (poolId: `0x{string}`, chain: string) => {
     pool,
   }
 }
-
-const poolLinkAtom = atomFamily(
-  (pool?: PoolInfo) => {
-    return atom(async () => {
-      if (!pool) {
-        return ''
-      }
-      return getPoolDetailPageLink(pool)
-    })
-  },
-  (a, b) => (a && b ? a.lpAddress === b.lpAddress && a.chainId === b.chainId : a === b),
-)
 
 export const AdPicks = ({ config, index }: { config: PickConfig; index: number }) => {
   const { poolId, chain, token0, token1 } = config

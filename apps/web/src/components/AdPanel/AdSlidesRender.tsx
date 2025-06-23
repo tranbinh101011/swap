@@ -51,7 +51,7 @@ export const AdSlidesRender = ({
     }
   }, [isAnySlideExpanded, pauseAni, resumeAni])
 
-  const handleSlideChange = useCallback((event: any) => {
+  const handleSlideChange = useCallback(() => {
     if (swiperRef.current) {
       const activeIndex = swiperRef.current.swiper.realIndex
       const { bullets } = swiperRef.current.swiper.pagination

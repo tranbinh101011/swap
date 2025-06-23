@@ -49,7 +49,7 @@ export enum AdsConfigTypes {
 export interface AdsCampaignConfig {
   id: string
   ad: AdsConfig
-  infoStripe: InfoStripeConfig
+  infoStripe?: InfoStripeConfig
 }
 
 type Token = {
