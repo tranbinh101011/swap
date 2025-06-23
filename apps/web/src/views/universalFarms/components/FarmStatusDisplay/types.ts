@@ -1,3 +1,4 @@
 export enum RewardProvider {
-  Ethena,
+  Ethena = 1,
+  Falcon = 2,
 }

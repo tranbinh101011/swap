@@ -4,6 +4,8 @@ import { Box, Flex, FlexGap, Link, RewardIcon, Text, useMatchBreakpoints, useToo
 import React from 'react'
 import styled from 'styled-components'
 
+import { RewardProvider } from './types'
+
 const IconWrapper = styled(Box)`
   cursor: pointer;
   display: flex;
@@ -22,28 +24,53 @@ const StyledRewardIcon = styled(RewardIcon)`
   height: 18px;
 `
 
-export const RewardStatusDisplay: React.FC = () => {
+interface RewardStatusDisplayProps {
+  provider?: RewardProvider
+}
+
+export const RewardStatusDisplay: React.FC<RewardStatusDisplayProps> = ({ provider }) => {
   const { t } = useTranslation()
   const { isMobile } = useMatchBreakpoints()
-  const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    <Box>
+
+  const content =
+    provider === RewardProvider.Ethena ? (
       <Box>
-        <Text bold as="span">
-          {t('Earn 30x Ethena Points!')}
-        </Text>
+        <Box>
+          <Text bold as="span">
+            {t('Earn 30x Ethena Points!')}
+          </Text>
+        </Box>
+        <Text as="span">{t('Add liquidity to this pool and earn 30x Ethena points!')}</Text>
+        <FlexGap gap="4px" justifyContent="flex-start" display="inline-flex" alignItems="center" flexWrap="wrap">
+          <Link mt="8px" external href="https://app.ethena.fi/join">
+            {t('Claim your rewards & learn more')}
+          </Link>
+          <Text as="span">{t(`on Ethena's official site.`)}</Text>
+        </FlexGap>
       </Box>
-      <Text as="span">{t('Add liquidity to this pool and earn 30x Ethena points!')}</Text>
-      <FlexGap gap="4px" justifyContent="flex-start" display="inline-flex" alignItems="center" flexWrap="wrap">
-        <Link mt="8px" external href="https://app.ethena.fi/join">
-          {t('Claim your rewards & learn more')}
-        </Link>
-        <Text as="span">{t(`on Ethena's official site.`)}</Text>
-      </FlexGap>
-    </Box>,
-    {
-      placement: isMobile ? 'auto' : 'right',
-    },
-  )
+    ) : (
+      <Box>
+        <Box>
+          <Text bold as="span">
+            {t('Earn Falcon Miles!')}
+          </Text>
+        </Box>
+        <Text as="span">
+          {t(
+            "LPs earns 40x Falcon's Miles based on total TVL contributed to the pool. Miles only accrue to positions within 0.95 to 1.05 range.",
+          )}
+        </Text>
+        <FlexGap gap="4px" justifyContent="flex-start" display="inline-flex" alignItems="center" flexWrap="wrap">
+          <Link mt="8px" external href="https://app.falcon.finance/miles">
+            {t('Learn more')}
+          </Link>
+        </FlexGap>
+      </Box>
+    )
+  const { targetRef, tooltip, tooltipVisible } = useTooltip(content, { placement: isMobile ? 'auto' : 'right' })
+  if (!provider) {
+    return null
+  }
 
   return (
     <Flex alignItems="center">

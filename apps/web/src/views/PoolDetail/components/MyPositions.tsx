@@ -70,7 +70,7 @@ import {
   V2PositionItem,
   V3PositionItem,
 } from 'views/universalFarms/components'
-import { checkHasReward } from 'views/universalFarms/components/FarmStatusDisplay/hooks'
+import { getRewardProvider } from 'views/universalFarms/components/FarmStatusDisplay/hooks'
 import { InfinityPositionActions } from 'views/universalFarms/components/PositionActions/InfinityPositionActions'
 import { RewardInfoCard } from 'views/universalFarms/components/RewardInfoCard'
 import { useCheckShouldSwitchNetwork } from 'views/universalFarms/hooks'
@@ -170,7 +170,8 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const chainId = useChainIdByQuery()
-  const hasPoolReward = checkHasReward(poolInfo.chainId, poolInfo.lpAddress)
+  const provider = getRewardProvider(poolInfo.chainId, poolInfo.lpAddress)
+  const hasPoolReward = !!provider
 
   // Fetch data at the parent level
   const { data: v3Data, isLoading: isV3Loading } = useAccountPositionDetailByPool<Protocol.V3>(
@@ -379,7 +380,7 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
   if ((count === 0 && !isInfinityProtocol(protocol)) || !account) {
     return (
       <Grid gridGap="24px" gridTemplateColumns={['1fr', '1fr', '1fr', hasPoolReward ? '1fr 2fr' : '1fr']}>
-        {hasPoolReward && <RewardInfoCard />}
+        {hasPoolReward && <RewardInfoCard provider={provider} />}
         <Box>
           <Text as="h3" fontWeight={600} fontSize={24}>
             {t('My Positions')}
@@ -453,7 +454,7 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
               </Button>
             </AutoColumn>
           </OverviewCard>
-          {hasPoolReward && <RewardInfoCard />}
+          {hasPoolReward && <RewardInfoCard provider={provider} />}
         </Box>
         <PositionsCard>
           <PositionCardHeader variant="pale">
