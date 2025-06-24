@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { ChainId } from '@pancakeswap/chains'
-import { BinPoolManagerAbi, CLPoolManagerAbi } from '@pancakeswap/infinity-sdk'
+import { BinPoolManagerAbi, CLPoolManagerAbi, DYNAMIC_FEE_FLAG, findHook } from '@pancakeswap/infinity-sdk'
 import { InfinityBinPool, InfinityClPool } from '@pancakeswap/smart-router'
 import { fetchStableSwapData } from '@pancakeswap/stable-swap-sdk'
 import { memoizeAsync } from '@pancakeswap/utils/memoize'
@@ -12,11 +12,11 @@ import groupBy from 'lodash/groupBy'
 import { CakeAprValue } from 'state/farmsV4/atom'
 import { getAllNetworkMerklApr, getCakeApr, getLpApr } from 'state/farmsV4/state/poolApr/fetcher'
 import { PoolInfo } from 'state/farmsV4/state/type'
+import { safeGetAddress } from 'utils'
 import { getPoolManagerAddress } from 'utils/addressHelpers'
 import { isInfinityProtocol } from 'utils/protocols'
 import { ContractFunctionReturnType } from 'viem'
 import { Address } from 'viem/accounts'
-import { safeGetAddress } from 'utils'
 import { createBatchProcessor, multicallBatcher } from './batchProcessor'
 import { FarmInfo, getFarmKey, isValidPoolKeyResult, parsePoolKeyResult, parseSlot0 } from './farm.util'
 
@@ -205,8 +205,11 @@ export const fillClPoolData = memoizeAsync(
     const [poolKey, slot0, liquidity] = results as CLPoolCallsResult
     const pool = farm.pool as InfinityClPool
     const parsedPoolKey = parsePoolKeyResult('CL', poolKey)
+    const hookData = findHook(parsedPoolKey.hooks as string, chainId)
     const slot0Info = parseSlot0('CL', slot0)
-    pool.fee = parsedPoolKey.fee
+    const isDynamic = parsedPoolKey.fee === DYNAMIC_FEE_FLAG
+    const fee = isDynamic && hookData?.defaultFee ? hookData?.defaultFee : pool.fee
+    pool.fee = fee
     pool.protocolFee = slot0Info.protocolFee
     pool.liquidity = liquidity
     pool.hooks = parsedPoolKey.hooks
@@ -259,8 +262,12 @@ export const fillBinPoolData = memoizeAsync(
 
     const parsedPoolKey = parsePoolKeyResult('Bin', poolKey)
     const slot0Info = parseSlot0('Bin', slot0)
+    const isDynamic = parsedPoolKey.fee === DYNAMIC_FEE_FLAG
+    const hookData = findHook(parsedPoolKey.hooks as string, chainId)
+    const fee = isDynamic && hookData?.defaultFee ? hookData?.defaultFee : pool.fee
+    pool.fee = fee
 
-    pool.fee = parsedPoolKey.fee
+    pool.fee = fee
     pool.hooks = parsedPoolKey.hooks
     newFarm.feeTier = pool.fee
     pool.protocolFee = slot0Info.protocolFee

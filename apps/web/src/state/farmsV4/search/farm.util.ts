@@ -1,4 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
+import { supportedChainIdV4 } from '@pancakeswap/farms'
 import {
   BinPoolManagerAbi,
   CLPoolManagerAbi,
@@ -15,7 +16,6 @@ import { Currency } from '@pancakeswap/swap-sdk-core'
 import { InfinityFeeTierPoolParams } from 'hooks/infinity/useInfinityFeeTier'
 import qs from 'qs'
 import { ALLOWED_PROTOCOLS } from 'quoter/utils/edgeQueries.util'
-import { supportedChainIdV4 } from '@pancakeswap/farms'
 import { CakeAprValue } from 'state/farmsV4/atom'
 import { AprInfo } from 'state/farmsV4/hooks'
 import { BasePoolInfo, PoolInfo } from 'state/farmsV4/state/type'
@@ -131,7 +131,7 @@ export const getPoolInfoForInfiFee = (farm: FarmInfo) => {
   const isDynamic = pool.fee === DYNAMIC_FEE_FLAG
   return {
     protocolFee: pool.protocolFee!,
-    fee: isDynamic ? hookData?.defaultFee ?? pool.fee! : pool.fee,
+    fee: pool.fee,
     poolType: pool.type === PoolType.InfinityCL ? 'CL' : 'Bin',
     dynamic: isDynamic,
     hookData,
