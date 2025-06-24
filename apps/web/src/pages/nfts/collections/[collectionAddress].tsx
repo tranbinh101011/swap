@@ -1,53 +1,24 @@
-import { GetStaticPaths, GetStaticProps } from 'next'
-// eslint-disable-next-line camelcase
-import { getCollection } from 'state/nftMarket/helpers'
+import { Flex, Spinner } from '@pancakeswap/uikit'
+import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
+import { Suspense } from 'react'
 import CollectionPageRouter from 'views/Nft/market/Collection/CollectionPageRouter'
-import { dehydrate, QueryClient } from '@tanstack/react-query'
 
 const CollectionPage = () => {
-  return <CollectionPageRouter />
-}
+  const { collectionAddress } = useRouter().query
+  if (!collectionAddress) return null
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    fallback: true,
-    paths: [],
-  }
-}
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const queryClient = new QueryClient()
-  const collectionAddress = params?.collectionAddress
-  if (typeof collectionAddress !== 'string') {
-    return {
-      notFound: true,
-    }
-  }
-
-  try {
-    const collectionData = await queryClient.fetchQuery({
-      queryKey: ['nftMarket', 'collections', collectionAddress.toLowerCase()],
-      queryFn: () => getCollection(collectionAddress),
-    })
-
-    if (collectionData) {
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-        },
-        revalidate: 60 * 60 * 6, // 6 hours
+  return (
+    <Suspense
+      fallback={
+        <Flex mt="80px" justifyContent="center">
+          <Spinner />
+        </Flex>
       }
-    }
-    return {
-      notFound: true,
-      revalidate: 60,
-    }
-  } catch (error) {
-    return {
-      notFound: true,
-      revalidate: 60,
-    }
-  }
+    >
+      <CollectionPageRouter />
+    </Suspense>
+  )
 }
 
-export default CollectionPage
+export default dynamic(() => Promise.resolve(CollectionPage), { ssr: false })
