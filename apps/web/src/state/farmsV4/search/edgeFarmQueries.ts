@@ -118,7 +118,9 @@ async function fetchFarms(query: {
   const protocols = _protocols.length > 0 ? _protocols : DEFAULT_PROTOCOLS
   const chainIds = chains.length > 0 ? chains : supportedChainIdV4
   if (!extend) {
-    return fetchExplorerFarmPools(protocols, Array.from(chainIds))
+    const farmPools = await fetchExplorerFarmPools(protocols, Array.from(chainIds))
+    const explorerPools = await fetchAllExplorerPools(protocols, Array.from(chainIds))
+    return [...farmPools, ...explorerPools]
   }
   if (address) {
     return fetchAllExplorerPoolsByAddress(Array.from(chainIds), address)
@@ -190,6 +192,7 @@ async function fetchAllExplorerPools(protocols: Protocol[], chains: FarmV4Suppor
     protocols: [protocol],
     chains: chains.map((chain) => getEdgeChainName(chain)),
     maxPages: 1, // Max check 3 pages for random extending
+    orderBy: 'volumeUSD24h' as const,
   }))
   const poolQueries = queries.map((query) => edgeQueries.fetchAllPools(query))
   const pools = await Promise.allSettled(poolQueries)
