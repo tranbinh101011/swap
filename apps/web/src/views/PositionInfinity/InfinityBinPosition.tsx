@@ -54,9 +54,6 @@ export const InfinityBinPosition = () => {
     return [binPool.token0, binPool.token1]
   }, [binPool])
 
-  const price0 = useStablecoinPrice(currency0, { enabled: !!currency0 })
-  const price1 = useStablecoinPrice(currency1, { enabled: !!currency1 })
-
   const { data: position } = useInfinityBinPosition(poolId, chainId, account)
   const reserve0 = useMemo(
     () => (currency0 ? CurrencyAmount.fromRawAmount(currency0, position?.reserveX ?? 0n) : undefined),
@@ -66,6 +63,9 @@ export const InfinityBinPosition = () => {
     () => (currency1 ? CurrencyAmount.fromRawAmount(currency1, position?.reserveY ?? 0n) : undefined),
     [currency1, position],
   )
+
+  const price0 = useStablecoinPrice(currency0, { enabled: reserve0?.greaterThan(0) })
+  const price1 = useStablecoinPrice(currency1, { enabled: reserve1?.greaterThan(0) })
 
   const fiatValueOfLiquidity = useMemo(() => {
     if (!price0 || !price1 || !reserve0 || !reserve1) return undefined

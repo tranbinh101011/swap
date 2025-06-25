@@ -110,10 +110,6 @@ export const InfinityCLPosition = () => {
   })
   const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
 
-  // usdc prices always in terms of tokens
-  const price0 = useStablecoinPrice(currency0, { enabled: !!feeAmount0 })
-  const price1 = useStablecoinPrice(currency1, { enabled: !!feeAmount1 })
-
   const { amount0: positionAmount0, amount1: positionAmount1 } = usePositionAmount({
     token0: currency0,
     token1: currency1,
@@ -123,6 +119,19 @@ export const InfinityCLPosition = () => {
     sqrtRatioX96: pool?.sqrtRatioX96,
     liquidity,
   })
+
+  const enablePrice0 = useMemo(
+    () => positionAmount0?.greaterThan(0) || feeAmount0?.greaterThan(0),
+    [positionAmount0, feeAmount0],
+  )
+  const enablePrice1 = useMemo(
+    () => positionAmount1?.greaterThan(0) || feeAmount1?.greaterThan(0),
+    [positionAmount1, feeAmount1],
+  )
+
+  // usdc prices always in terms of tokens
+  const price0 = useStablecoinPrice(currency0, { enabled: enablePrice0 })
+  const price1 = useStablecoinPrice(currency1, { enabled: enablePrice1 })
 
   const fiatValueOfLiquidity: CurrencyAmount<Currency> | null = useMemo(() => {
     if (!price0 || !price1 || !positionAmount0 || !positionAmount1) return null

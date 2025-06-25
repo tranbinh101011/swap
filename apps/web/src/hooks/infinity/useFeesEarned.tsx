@@ -87,8 +87,8 @@ export const useFeesEarnedUSD = (params: LPFeesParam) => {
   const { currency0, currency1 } = params
   const [feeAmount0, feeAmount1] = useFeesEarned(params)
 
-  const price0 = useStablecoinPrice(currency0, { enabled: !!feeAmount0 })
-  const price1 = useStablecoinPrice(currency1, { enabled: !!feeAmount1 })
+  const price0 = useStablecoinPrice(currency0, { enabled: feeAmount0?.greaterThan(0) })
+  const price1 = useStablecoinPrice(currency1, { enabled: feeAmount1?.greaterThan(0) })
 
   const { totalFiatValue, fiatValue0, fiatValue1 } = useMemo(() => {
     const fiatValue0_ = price0 && feeAmount0 ? price0.quote(feeAmount0) : undefined

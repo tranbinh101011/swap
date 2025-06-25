@@ -76,9 +76,6 @@ export const RemoveClPosition = () => {
   const [, pool] = usePoolById<'CL'>(poolId, chainId)
   const isFarming = usePositionIsFarming({ chainId, poolId })
 
-  const price0 = useStablecoinPrice(currency0)
-  const price1 = useStablecoinPrice(currency1)
-
   const nativeCurrency = useNativeCurrency(chainId)
 
   const [percent, setPercent] = useState(50)
@@ -107,6 +104,12 @@ export const RemoveClPosition = () => {
     tickLower,
     tickUpper,
   })
+
+  const enablePrice0 = useMemo(() => amount0?.greaterThan(0) || feeValue0?.greaterThan(0), [amount0, feeValue0])
+  const enablePrice1 = useMemo(() => amount1?.greaterThan(0) || feeValue1?.greaterThan(0), [amount1, feeValue1])
+
+  const price0 = useStablecoinPrice(currency0, { enabled: enablePrice0 })
+  const price1 = useStablecoinPrice(currency1, { enabled: enablePrice1 })
 
   const wrapAddress = useMemo(() => {
     if (!collectAsWrappedNative) return zeroAddress

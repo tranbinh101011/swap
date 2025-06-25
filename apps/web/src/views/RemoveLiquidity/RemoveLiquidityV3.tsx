@@ -240,8 +240,17 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
   const removed = position?.liquidity === 0n
 
-  const price0 = useStablecoinPrice(liquidityValue0?.currency?.wrapped ?? undefined, { enabled: !!feeValue0 })
-  const price1 = useStablecoinPrice(liquidityValue1?.currency?.wrapped ?? undefined, { enabled: !!feeValue1 })
+  const enablePrice0 = useMemo(
+    () => liquidityValue0?.greaterThan(0) || feeValue0?.greaterThan(0),
+    [liquidityValue0, feeValue0],
+  )
+  const enablePrice1 = useMemo(
+    () => liquidityValue1?.greaterThan(0) || feeValue1?.greaterThan(0),
+    [liquidityValue1, feeValue1],
+  )
+
+  const price0 = useStablecoinPrice(liquidityValue0?.currency?.wrapped ?? undefined, { enabled: enablePrice0 })
+  const price1 = useStablecoinPrice(liquidityValue1?.currency?.wrapped ?? undefined, { enabled: enablePrice1 })
 
   const modalHeader = useCallback(() => {
     return (

@@ -291,9 +291,18 @@ export const LiquidityView = () => {
 
   const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
 
+  const enablePrice0 = useMemo(
+    () => position?.amount0?.greaterThan(0) || feeValue0?.greaterThan(0),
+    [position, feeValue0],
+  )
+  const enablePrice1 = useMemo(
+    () => position?.amount1?.greaterThan(0) || feeValue1?.greaterThan(0),
+    [position, feeValue1],
+  )
+
   // usdc prices always in terms of tokens
-  const price0 = useStablecoinPrice(token0 ?? undefined, { enabled: !!feeValue0 })
-  const price1 = useStablecoinPrice(token1 ?? undefined, { enabled: !!feeValue1 })
+  const price0 = useStablecoinPrice(token0 ?? undefined, { enabled: enablePrice0 })
+  const price1 = useStablecoinPrice(token1 ?? undefined, { enabled: enablePrice1 })
 
   const fiatValueOfFees: CurrencyAmount<Currency> | null = useMemo(() => {
     if (!price0 || !price1 || !feeValue0 || !feeValue1) return null
