@@ -8,8 +8,9 @@ import { CAKE, STABLE_COIN } from '@pancakeswap/tokens'
 import { chainlinkOracleABI } from 'config/abi/chainlinkOracle'
 import { getMulticallGasLimit } from 'quoter/hook/useMulticallGasLimit'
 import { edgeQueries } from 'quoter/utils/edgePoolQueries'
-import { mockCurrency } from 'quoter/utils/edgeQueries.util'
+import { getProvider } from 'quoter/utils/edgeQueries.util'
 import { computeTradePriceBreakdown, warningSeverity } from 'utils/compuateTradePriceBreakdown'
+import { mockCurrency } from 'utils/mockCurrency'
 import { getViemClients } from 'utils/viem.server'
 import { Address } from 'viem/accounts'
 import { formatUnits } from 'viem/utils'
@@ -83,7 +84,7 @@ export async function queryTokenPrice(params: {
   }
 
   try {
-    const token: Currency = isNative ? Native.onChain(chainId) : await mockCurrency(address!, chainId)
+    const token: Currency = isNative ? Native.onChain(chainId) : await mockCurrency(address!, chainId, getProvider())
 
     const amountOut = CurrencyAmount.fromRawAmount(stableCoin, 5n * 10n ** BigInt(stableCoin.decimals))
 

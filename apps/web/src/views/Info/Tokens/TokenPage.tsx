@@ -10,13 +10,13 @@ import {
   Heading,
   Image,
   ScanLink,
-  Spinner,
   Text,
   Link as UIKitLink,
   useMatchBreakpoints,
 } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 
+import TextWithSkeleton from 'components/TextWithSkeleton'
 import { NextSeo } from 'next-seo'
 
 import truncateHash from '@pancakeswap/utils/truncateHash'
@@ -25,7 +25,7 @@ import { CHAIN_QUERY_NAME } from 'config/chains'
 import { ONE_HOUR_SECONDS } from 'config/constants/info'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import { tokenInfoPageDataAtom } from 'edge/tokenInfoPageDataAtom'
+import { tokenInfoV2PageDataAtom } from 'edge/tokenInfoPageDataAtom'
 import { useAtomValue } from 'jotai'
 import { ChainLinkSupportChains, checkIsStableSwap, multiChainId, multiChainScan } from 'state/info/constant'
 import {
@@ -105,7 +105,8 @@ const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = (
     transactions,
     chartVolume: volumeChartData,
     chartTvl: tvlChartData,
-  } = useAtomValue(tokenInfoPageDataAtom({ address, chain: CHAIN_QUERY_NAME[chainId], type }))
+    loading,
+  } = useAtomValue(tokenInfoV2PageDataAtom({ address, chain: CHAIN_QUERY_NAME[chainId], type }))
 
   // pricing data
   const priceData = useTokenPriceDataQuery(address, ONE_HOUR_SECONDS, DEFAULT_TIME_WINDOW)
@@ -119,160 +120,136 @@ const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = (
   return (
     <Page>
       <NextSeo title={tokenData?.symbol} />
-      {tokenData ? (
-        !tokenData.exists ? (
-          <Card>
-            <Box p="16px">
-              <Text>
-                {t('No pair has been created with this token yet. Create one')}
-                <NextLinkFromReactRouter style={{ display: 'inline', marginLeft: '6px' }} to={`/add/${address}`}>
-                  {t('here.')}
-                </NextLinkFromReactRouter>
-              </Text>
-            </Box>
-          </Card>
-        ) : (
-          <>
-            {/* Stuff on top */}
-            <Flex justifyContent="space-between" mb="24px" flexDirection={['column', 'column', 'row']}>
-              <Breadcrumbs mb="32px">
-                <NextLinkFromReactRouter to={`/info${chainPath}${infoTypeParam}`}>
-                  <Text color="primary">{t('Info')}</Text>
-                </NextLinkFromReactRouter>
-                <NextLinkFromReactRouter to={`/info${chainPath}/tokens${infoTypeParam}`}>
-                  <Text color="primary">{t('Tokens')}</Text>
-                </NextLinkFromReactRouter>
-                <Flex>
-                  <Text mr="8px">{tokenSymbol}</Text>
-                  <Text>{`(${truncateHash(address)})`}</Text>
-                </Flex>
-              </Breadcrumbs>
-              <Flex justifyContent={[null, null, 'flex-end']} mt={['8px', '8px', 0]} alignItems="center">
-                <ScanLink
-                  mr="8px"
-                  color="primary"
-                  useBscCoinFallback={ChainLinkSupportChains.includes(multiChainId[chainName])}
-                  href={getBlockExploreLink(address, 'address', multiChainId[chainName])}
-                >
-                  {t('View on %site%', { site: multiChainScan[chainName] })}
-                </ScanLink>
-                {cmcLink && (
-                  <StyledCMCLink
-                    href={cmcLink}
-                    rel="noopener noreferrer nofollow"
-                    target="_blank"
-                    title="CoinMarketCap"
-                  >
-                    <Image src="/images/CMC-logo.svg" height={22} width={22} alt={t('View token on CoinMarketCap')} />
-                  </StyledCMCLink>
-                )}
-                {/* <SaveIcon
+      <>
+        {/* Stuff on top */}
+        <Flex justifyContent="space-between" mb="24px" flexDirection={['column', 'column', 'row']}>
+          <Breadcrumbs mb="32px">
+            <NextLinkFromReactRouter to={`/info${chainPath}${infoTypeParam}`}>
+              <Text color="primary">{t('Info')}</Text>
+            </NextLinkFromReactRouter>
+            <NextLinkFromReactRouter to={`/info${chainPath}/tokens${infoTypeParam}`}>
+              <Text color="primary">{t('Tokens')}</Text>
+            </NextLinkFromReactRouter>
+            <Flex>
+              <Text mr="8px">{tokenSymbol}</Text>
+              <Text>{`(${truncateHash(address)})`}</Text>
+            </Flex>
+          </Breadcrumbs>
+          <Flex justifyContent={[null, null, 'flex-end']} mt={['8px', '8px', 0]} alignItems="center">
+            <ScanLink
+              mr="8px"
+              color="primary"
+              useBscCoinFallback={ChainLinkSupportChains.includes(multiChainId[chainName])}
+              href={getBlockExploreLink(address, 'address', multiChainId[chainName])}
+            >
+              {t('View on %site%', { site: multiChainScan[chainName] })}
+            </ScanLink>
+            {cmcLink && (
+              <StyledCMCLink href={cmcLink} rel="noopener noreferrer nofollow" target="_blank" title="CoinMarketCap">
+                <Image src="/images/CMC-logo.svg" height={22} width={22} alt={t('View token on CoinMarketCap')} />
+              </StyledCMCLink>
+            )}
+            {/* <SaveIcon
                   fill={savedTokens.includes(address)}
                   onClick={() => (savedTokens.includes(address) ? removeToken(address) : addToken(address))}
                 /> */}
-                <CopyButton ml="4px" text={address} tooltipMessage={t('Token address copied')} />
-              </Flex>
-            </Flex>
-            <Flex justifyContent="space-between" flexDirection={['column', 'column', 'column', 'row']}>
-              <Flex flexDirection="column" mb={['8px', null]}>
-                <Flex alignItems="center">
-                  <CurrencyLogo size="32px" address={address} chainName={chainName} />
-                  <Text
-                    ml="12px"
-                    bold
-                    lineHeight="0.7"
-                    fontSize={isXs || isSm ? '24px' : '40px'}
-                    id="info-token-name-title"
-                  >
-                    {tokenName}
-                  </Text>
-                  <Text ml="12px" lineHeight="1" color="textSubtle" fontSize={isXs || isSm ? '14px' : '20px'}>
-                    ({tokenSymbol})
-                  </Text>
-                </Flex>
-                <Flex mt="8px" ml="46px" alignItems="center">
-                  <Text mr="16px" bold fontSize="24px">
-                    ${formatAmount(tokenData.priceUSD, { notation: 'standard' })}
-                  </Text>
-                  <Percent value={tokenData.priceUSDChange} fontWeight={600} />
-                </Flex>
-              </Flex>
-              <Flex>
-                <NextLinkFromReactRouter to={`/add/${address}?chain=${CHAIN_QUERY_NAME[chainId]}`}>
-                  <Button mr="8px" variant="secondary">
-                    {t('Add Liquidity')}
-                  </Button>
-                </NextLinkFromReactRouter>
-                <NextLinkFromReactRouter to={`/swap?outputCurrency=${address}&chainId=${multiChainId[chainName]}`}>
-                  <Button>{t('Trade')}</Button>
-                </NextLinkFromReactRouter>
-              </Flex>
-            </Flex>
-
-            {/* data on the right side of chart */}
-            <ContentLayout>
-              <Card>
-                <Box p="24px">
-                  <Text bold small color="secondary" fontSize="12px" textTransform="uppercase">
-                    {t('Liquidity')}
-                  </Text>
-                  <Text bold fontSize="24px">
-                    ${formatAmount(tokenData.liquidityUSD)}
-                  </Text>
-                  <Percent value={tokenData.liquidityUSDChange} />
-
-                  <Text mt="24px" bold color="secondary" fontSize="12px" textTransform="uppercase">
-                    {t('Volume 24H')}
-                  </Text>
-                  <Text bold fontSize="24px" textTransform="uppercase">
-                    ${formatAmount(tokenData.volumeUSD)}
-                  </Text>
-                  <Percent value={tokenData.volumeUSDChange} />
-
-                  <Text mt="24px" bold color="secondary" fontSize="12px" textTransform="uppercase">
-                    {t('Volume 7D')}
-                  </Text>
-                  <Text bold fontSize="24px">
-                    ${formatAmount(tokenData.volumeUSDWeek)}
-                  </Text>
-
-                  <Text mt="24px" bold color="secondary" fontSize="12px" textTransform="uppercase">
-                    {t('Transactions 24H')}
-                  </Text>
-                  <Text bold fontSize="24px">
-                    {formatAmount(tokenData.txCount, { isInteger: true })}
-                  </Text>
-                </Box>
-              </Card>
-              {/* charts card */}
-              <ChartCard
-                variant="token"
-                volumeChartData={volumeChartData}
-                tvlChartData={tvlChartData}
-                tokenData={tokenData}
-                tokenPriceData={priceData}
-              />
-            </ContentLayout>
-
-            {/* pools and transaction tables */}
-            <Heading scale="lg" mb="16px" mt="40px">
-              {t('Pairs')}
-            </Heading>
-
-            <PoolTable poolDatas={poolDatas} />
-
-            <Heading scale="lg" mb="16px" mt="40px">
-              {t('Transactions')}
-            </Heading>
-
-            <TransactionTable transactions={transactions} />
-          </>
-        )
-      ) : (
-        <Flex mt="80px" justifyContent="center">
-          <Spinner />
+            <CopyButton ml="4px" text={address} tooltipMessage={t('Token address copied')} />
+          </Flex>
         </Flex>
-      )}
+        <Flex justifyContent="space-between" flexDirection={['column', 'column', 'column', 'row']}>
+          <Flex flexDirection="column" mb={['8px', null]}>
+            <Flex alignItems="center">
+              <CurrencyLogo size="32px" address={address} chainName={chainName} />
+              <Text
+                ml="12px"
+                bold
+                lineHeight="0.7"
+                fontSize={isXs || isSm ? '24px' : '40px'}
+                id="info-token-name-title"
+              >
+                {tokenName}
+              </Text>
+              <Text ml="12px" lineHeight="1" color="textSubtle" fontSize={isXs || isSm ? '14px' : '20px'}>
+                ({tokenSymbol})
+              </Text>
+            </Flex>
+            <Flex mt="8px" ml="46px" alignItems="center">
+              <TextWithSkeleton mr="16px" bold fontSize="24px" loading={loading} width={80}>
+                {tokenData ? `$${formatAmount(tokenData.priceUSD, { notation: 'standard' })}` : ''}
+              </TextWithSkeleton>
+              {!loading ? <Percent value={tokenData?.priceUSDChange} fontWeight={600} /> : null}
+            </Flex>
+          </Flex>
+          <Flex>
+            <NextLinkFromReactRouter to={`/add/${address}?chain=${CHAIN_QUERY_NAME[chainId]}`}>
+              <Button mr="8px" variant="secondary">
+                {t('Add Liquidity')}
+              </Button>
+            </NextLinkFromReactRouter>
+            <NextLinkFromReactRouter to={`/swap?outputCurrency=${address}&chainId=${multiChainId[chainName]}`}>
+              <Button>{t('Trade')}</Button>
+            </NextLinkFromReactRouter>
+          </Flex>
+        </Flex>
+
+        {/* data on the right side of chart */}
+        <ContentLayout>
+          <Card>
+            <Box p="24px">
+              <Text bold small color="secondary" fontSize="12px" textTransform="uppercase">
+                {t('Liquidity')}
+              </Text>
+              <TextWithSkeleton bold fontSize="24px" width={80} loading={loading}>
+                {tokenData ? `$${formatAmount(tokenData.liquidityUSD)}` : ''}
+              </TextWithSkeleton>
+              {!loading ? <Percent value={tokenData?.liquidityUSDChange} /> : null}
+
+              <Text mt="24px" bold color="secondary" fontSize="12px" textTransform="uppercase">
+                {t('Volume 24H')}
+              </Text>
+              <TextWithSkeleton bold fontSize="24px" textTransform="uppercase" width={80} loading={loading}>
+                {!loading ? `$${formatAmount(tokenData?.volumeUSD)}` : ''}
+              </TextWithSkeleton>
+              {!loading ? <Percent value={tokenData?.volumeUSDChange} /> : null}
+
+              <Text mt="24px" bold color="secondary" fontSize="12px" textTransform="uppercase">
+                {t('Volume 7D')}
+              </Text>
+              <TextWithSkeleton bold fontSize="24px" width={80} loading={loading}>
+                {tokenData ? `$${formatAmount(tokenData.volumeUSDWeek)}` : ''}
+              </TextWithSkeleton>
+
+              <Text mt="24px" bold color="secondary" fontSize="12px" textTransform="uppercase">
+                {t('Transactions 24H')}
+              </Text>
+              <TextWithSkeleton bold fontSize="24px" width={80} loading={loading}>
+                {tokenData ? formatAmount(tokenData.txCount, { isInteger: true }) : ''}
+              </TextWithSkeleton>
+            </Box>
+          </Card>
+          {/* charts card */}
+          <ChartCard
+            variant="token"
+            volumeChartData={volumeChartData}
+            tvlChartData={tvlChartData}
+            tokenData={tokenData}
+            tokenPriceData={priceData}
+          />
+        </ContentLayout>
+
+        {/* pools and transaction tables */}
+        <Heading scale="lg" mb="16px" mt="40px">
+          {t('Pairs')}
+        </Heading>
+
+        <PoolTable poolDatas={poolDatas} />
+
+        <Heading scale="lg" mb="16px" mt="40px">
+          {t('Transactions')}
+        </Heading>
+
+        <TransactionTable transactions={transactions} />
+      </>
     </Page>
   )
 }

@@ -1,67 +1,15 @@
 import { ChainId } from '@pancakeswap/chains'
 import { INFINITY_SUPPORTED_CHAINS } from '@pancakeswap/infinity-sdk'
-import { OnChainProvider, SmartRouter } from '@pancakeswap/smart-router'
-import { Currency } from '@pancakeswap/swap-sdk-core'
-import { getTokenByAddress } from '@pancakeswap/tokens'
-import { memoizeAsync } from '@pancakeswap/utils/memoize'
+import { OnChainProvider } from '@pancakeswap/smart-router'
 import { NextResponse } from 'next/server'
 import qs from 'qs'
 import { checksumAddress } from 'utils/checksumAddress'
 import { getViemClients } from 'utils/viem.server'
-import { type Address, erc20Abi } from 'viem'
+import { type Address } from 'viem'
 
 export type Protocol = 'v2' | 'stable' | 'v3' | 'infinityCl' | 'infinityBin'
 
 export const ALLOWED_PROTOCOLS = ['v2', 'stable', 'v3', 'infinityCl', 'infinityBin']
-
-// This is only for get pools, because get pools dont require symbol and decimals
-export const mockCurrency = memoizeAsync(
-  async (address: Address, chainId: ChainId) => {
-    const token = getTokenByAddress(chainId, address)
-    if (token) {
-      return SmartRouter.Transformer.parseCurrency(chainId, {
-        address,
-        decimals: token.decimals,
-        symbol: token.symbol,
-      })
-    }
-    const onChainToken = await getToken(address, chainId)
-    if (onChainToken) {
-      return onChainToken
-    }
-
-    return SmartRouter.Transformer.parseCurrency(chainId, {
-      address,
-      decimals: 18,
-      symbol: '',
-    })
-  },
-  {
-    resolver: (address, chainId) => {
-      return `${address.toLowerCase()}-${chainId}`
-    },
-  },
-)
-
-export async function getToken(address: Address, chainId: ChainId): Promise<Currency | undefined> {
-  const client = getViemClients({ chainId })
-  const checksumAddress = safeGetAddress(address)
-  if (!checksumAddress) {
-    return undefined
-  }
-  const result = await client.multicall({
-    contracts: [
-      { address: checksumAddress, abi: erc20Abi, functionName: 'decimals' },
-      { address: checksumAddress, abi: erc20Abi, functionName: 'symbol' },
-    ],
-  })
-  const [decimals, symbol] = result.map((x) => x.result) as [number, string, string]
-  return SmartRouter.Transformer.parseCurrency(chainId, {
-    address: checksumAddress,
-    decimals,
-    symbol,
-  })
-}
 
 export const getProvider = () => {
   return getViemClients as OnChainProvider

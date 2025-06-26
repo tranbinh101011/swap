@@ -23,8 +23,9 @@ import {
 } from '@pancakeswap/smart-router/dist/evm/infinity-router/queries/remotePool.type'
 import { createAsyncCallWithFallbacks } from '@pancakeswap/utils/withFallback'
 import { v2Clients, v3Clients } from 'utils/graphql'
+import { mockCurrency } from 'utils/mockCurrency'
 import { Address } from 'viem/accounts'
-import { APIChain, getProvider, mockCurrency, Protocol } from './edgeQueries.util'
+import { APIChain, getProvider, Protocol } from './edgeQueries.util'
 
 async function getInfinityPoolsFromApi(addressA: Address, addressB: Address, chainId: ChainId) {
   const chain = getChainName(chainId)
@@ -38,7 +39,10 @@ async function getInfinityPoolsFromApi(addressA: Address, addressB: Address, cha
     .map((pool) => InfinityRouter.toLocalInfinityPool(pool, chainId as keyof typeof hooksList))
     .filter((x) => x) as InfinityPoolWithTvl[]
 
-  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+  const [currencyA, currencyB] = await Promise.all([
+    mockCurrency(addressA, chainId, getProvider()),
+    mockCurrency(addressB, chainId, getProvider()),
+  ])
 
   const filtered = SmartRouter.infinityPoolTvlSelector(currencyA, currencyB, localPools)
   return filtered
@@ -74,7 +78,10 @@ const fetchInfinityPools = async (addressA: Address, addressB: Address, chainId:
 }
 
 const getInfinityPoolsOnChain = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+  const [currencyA, currencyB] = await Promise.all([
+    mockCurrency(addressA, chainId, getProvider()),
+    mockCurrency(addressB, chainId, getProvider()),
+  ])
   const chain = getChainName(chainId)
   const tvlMap = await poolTvlMap(['infinityBin', 'infinityCl'], chain as APIChain)
   const ref: InfinityRouter.InfinityPoolTvlReferenceMap = {}
@@ -95,7 +102,10 @@ const getInfinityPoolsOnChain = async (addressA: Address, addressB: Address, cha
 }
 
 const fetchV2Pools = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+  const [currencyA, currencyB] = await Promise.all([
+    mockCurrency(addressA, chainId, getProvider()),
+    mockCurrency(addressB, chainId, getProvider()),
+  ])
 
   const pools = await SmartRouter.getV2CandidatePools({
     currencyA,
@@ -109,7 +119,10 @@ const fetchV2Pools = async (addressA: Address, addressB: Address, chainId: Chain
 }
 
 const fetchV3Pools = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+  const [currencyA, currencyB] = await Promise.all([
+    mockCurrency(addressA, chainId, getProvider()),
+    mockCurrency(addressB, chainId, getProvider()),
+  ])
 
   const pools = await InfinityRouter.getV3CandidatePools({
     currencyA,
@@ -121,7 +134,10 @@ const fetchV3Pools = async (addressA: Address, addressB: Address, chainId: Chain
 }
 
 const fetchV3PoolsWithoutTicks = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+  const [currencyA, currencyB] = await Promise.all([
+    mockCurrency(addressA, chainId, getProvider()),
+    mockCurrency(addressB, chainId, getProvider()),
+  ])
   const client = getProvider()
   const blockNumber = await client({ chainId })?.getBlockNumber()
 
@@ -137,7 +153,10 @@ const fetchV3PoolsWithoutTicks = async (addressA: Address, addressB: Address, ch
 }
 
 const fetchSSPool = async (addressA: Address, addressB: Address, chainId: ChainId) => {
-  const [currencyA, currencyB] = await Promise.all([mockCurrency(addressA, chainId), mockCurrency(addressB, chainId)])
+  const [currencyA, currencyB] = await Promise.all([
+    mockCurrency(addressA, chainId, getProvider()),
+    mockCurrency(addressB, chainId, getProvider()),
+  ])
   const client = getProvider()
   const blockNumber = await client({ chainId })?.getBlockNumber()
 
