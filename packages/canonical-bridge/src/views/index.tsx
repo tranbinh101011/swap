@@ -79,7 +79,7 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
       http: {
         apiTimeOut: 30 * 1000,
         serverEndpoint: env.SERVER_ENDPOINT,
-        // deBridgeReferralCode: '31958',
+        deBridgeReferralCode: '31958',
       },
       transfer: transferConfig,
       components: {
