@@ -63,7 +63,7 @@ export function RecentTransactions() {
   const recentCrossChainOrders: CrossChainTransactionItem[] =
     crossChainOrdersResponse?.pages.flatMap(
       (page) =>
-        page?.rows.map(
+        page?.rows?.map(
           (order): CrossChainTransactionItem => ({
             type: 'crossChainOrder',
             order,

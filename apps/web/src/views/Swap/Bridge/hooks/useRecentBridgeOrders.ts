@@ -30,7 +30,7 @@ export const useRecentBridgeOrders = ({ address }: UseRecentBridgeOrdersParamete
     refetchOnMount: true,
     refetchInterval: (query) =>
       query.state.data?.pages
-        .flatMap((page) => page.rows.map((row) => row.status))
+        .flatMap((page) => (Array.isArray(page.rows) ? page.rows.map((row) => row.status) : []))
         .find((status) => status === BridgeStatus.PENDING || status === BridgeStatus.BRIDGE_PENDING)
         ? 20_000
         : 60_000,
