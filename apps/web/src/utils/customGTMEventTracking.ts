@@ -442,22 +442,24 @@ export const logGTMFiatOnRampModalEvent = (provider: string | undefined) => {
   })
 }
 
-export const logGTMPredictionBetEvent = (position: BetPosition) => {
-  console.info(`---PredictionBet${position}---`)
+export const logGTMPredictionBetEvent = (position: BetPosition, address?: string) => {
+  console.info(`---PredictionBet${position}---`, address)
   window?.dataLayer?.push({
     event: GTMEvent.PredictionBet,
     action: position === BetPosition.BULL ? GTMAction.ClickBetUpButton : GTMAction.ClickBetDownButton,
     category: GTMCategory.Prediction,
+    desc: address,
   })
 }
 
-export const logGTMPredictionBetPlacedEvent = (position: string) => {
-  console.info('---PredictionBetPlaced---')
+export const logGTMPredictionBetPlacedEvent = (position: string, address?: string) => {
+  console.info('---PredictionBetPlaced---', address)
   window?.dataLayer?.push({
     event: GTMEvent.PredictionBetPlaced,
     action: GTMAction.PredictionBetPlaced,
     category: GTMCategory.Prediction,
     label: `Position: ${position}`,
+    desc: address,
   })
 }
 

@@ -124,15 +124,18 @@ const OpenRoundCard: React.FC<React.PropsWithChildren<OpenRoundCardProps>> = ({
     }))
   }, [])
 
-  const handleSetPosition = useCallback((newPosition: BetPosition) => {
-    logGTMPredictionBetEvent(newPosition)
+  const handleSetPosition = useCallback(
+    (newPosition: BetPosition) => {
+      logGTMPredictionBetEvent(newPosition, account)
 
-    setState((prevState) => ({
-      ...prevState,
-      isSettingPosition: true,
-      position: newPosition,
-    }))
-  }, [])
+      setState((prevState) => ({
+        ...prevState,
+        isSettingPosition: true,
+        position: newPosition,
+      }))
+    },
+    [account],
+  )
 
   const togglePosition = useCallback(() => {
     setState((prevState) => ({
@@ -146,7 +149,7 @@ const OpenRoundCard: React.FC<React.PropsWithChildren<OpenRoundCardProps>> = ({
       if (account && chainId) {
         await dispatch(fetchLedgerData({ account, chainId, epochs: [round.epoch] }))
 
-        logGTMPredictionBetPlacedEvent(positionDisplay)
+        logGTMPredictionBetPlacedEvent(positionDisplay, account)
 
         handleBack()
 
