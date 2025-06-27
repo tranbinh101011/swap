@@ -50,7 +50,7 @@ const TokenInfo: React.FC<React.PropsWithChildren<TokenInfoProps>> = ({
     return getBalanceNumber(totalReleaseAmount, token.decimals)
   }, [token, vestingComputeReleasableAmount, basicReleaseAmount])
 
-  const price = useStablecoinPrice(token)
+  const price = useStablecoinPrice(token, { enabled: Boolean(amountAvailable) })
   const dollarValueOfToken = multiplyPriceByAmount(price, amountAvailable, token.decimals)
 
   return (

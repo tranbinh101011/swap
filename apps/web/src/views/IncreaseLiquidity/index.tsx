@@ -137,8 +137,8 @@ export const IncreaseLiquidity = () => {
     liquidity,
   })
 
-  const price0 = useStablecoinPrice(currency0)
-  const price1 = useStablecoinPrice(currency1)
+  const price0 = useStablecoinPrice(currency0, { enabled: Boolean(amount0?.greaterThan(0)) })
+  const price1 = useStablecoinPrice(currency1, { enabled: Boolean(amount1?.greaterThan(0)) })
 
   const inverted = currency1 && base ? base.equals(currency1) : undefined
   const currencyQuote = inverted ? currency0 : currency1

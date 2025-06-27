@@ -105,8 +105,14 @@ export const RemoveClPosition = () => {
     tickUpper,
   })
 
-  const enablePrice0 = useMemo(() => amount0?.greaterThan(0) || feeValue0?.greaterThan(0), [amount0, feeValue0])
-  const enablePrice1 = useMemo(() => amount1?.greaterThan(0) || feeValue1?.greaterThan(0), [amount1, feeValue1])
+  const enablePrice0 = useMemo(
+    () => Boolean(amount0?.greaterThan(0) || feeValue0?.greaterThan(0)),
+    [amount0, feeValue0],
+  )
+  const enablePrice1 = useMemo(
+    () => Boolean(amount1?.greaterThan(0) || feeValue1?.greaterThan(0)),
+    [amount1, feeValue1],
+  )
 
   const price0 = useStablecoinPrice(currency0, { enabled: enablePrice0 })
   const price1 = useStablecoinPrice(currency1, { enabled: enablePrice1 })

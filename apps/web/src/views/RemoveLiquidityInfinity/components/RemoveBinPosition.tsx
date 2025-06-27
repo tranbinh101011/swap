@@ -104,8 +104,8 @@ export const RemoveBinPosition = () => {
     return CurrencyAmount.fromRawAmount(currency1, reserveY ?? 0n)
   }, [binPosition, currency1, selectedBinNums])
 
-  const enablePrice0 = useMemo(() => amount0?.greaterThan(0), [amount0])
-  const enablePrice1 = useMemo(() => amount1?.greaterThan(0), [amount1])
+  const enablePrice0 = useMemo(() => Boolean(amount0?.greaterThan(0)), [amount0])
+  const enablePrice1 = useMemo(() => Boolean(amount1?.greaterThan(0)), [amount1])
 
   const price0 = useStablecoinPrice(currency0, { enabled: enablePrice0 })
   const price1 = useStablecoinPrice(currency1, { enabled: enablePrice1 })

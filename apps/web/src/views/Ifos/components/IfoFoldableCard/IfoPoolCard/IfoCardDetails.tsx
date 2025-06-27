@@ -109,7 +109,7 @@ const MaxTokenEntry = ({
 
   const { targetRef, tooltip, tooltipVisible } = useTooltip(tooltipContent, { placement: 'bottom-start' })
   const label = isCurrencyCake ? t('Max. CAKE entry') : t('Max. token entry')
-  const price = useStablecoinPrice(ifo.currency)
+  const price = useStablecoinPrice(ifo.currency, { enabled: Boolean(maxToken) })
 
   const dollarValueOfToken = multiplyPriceByAmount(price, maxToken, ifo.currency.decimals)
 

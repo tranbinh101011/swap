@@ -241,11 +241,11 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
   const removed = position?.liquidity === 0n
 
   const enablePrice0 = useMemo(
-    () => liquidityValue0?.greaterThan(0) || feeValue0?.greaterThan(0),
+    () => Boolean(liquidityValue0?.greaterThan(0) || feeValue0?.greaterThan(0)),
     [liquidityValue0, feeValue0],
   )
   const enablePrice1 = useMemo(
-    () => liquidityValue1?.greaterThan(0) || feeValue1?.greaterThan(0),
+    () => Boolean(liquidityValue1?.greaterThan(0) || feeValue1?.greaterThan(0)),
     [liquidityValue1, feeValue1],
   )
 

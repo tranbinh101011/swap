@@ -56,8 +56,10 @@ const stableCoinPriceAtom = atomFamily(
     })
   },
   (a, b) => {
-    const hashA = `${a.currency ? getCurrencyAddress(a.currency) : ''}:${a.chainId}:${a.enabled}:${a.version}`
-    const hashB = `${b.currency ? getCurrencyAddress(b.currency) : ''}:${b.chainId}:${b.enabled}:${b.version}`
+    const enabledA = a.enabled ?? true
+    const enabledB = b.enabled ?? true
+    const hashA = `${a.currency ? getCurrencyAddress(a.currency) : ''}:${a.chainId}:${enabledA}:${a.version}`
+    const hashB = `${b.currency ? getCurrencyAddress(b.currency) : ''}:${b.chainId}:${enabledB}:${b.version}`
     return hashA === hashB
   },
 )

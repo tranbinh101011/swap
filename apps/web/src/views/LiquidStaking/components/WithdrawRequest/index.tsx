@@ -76,8 +76,8 @@ export const WithdrawRequest = ({ selectedList }: { selectedList: OptionProps })
   const stakedAmountToken =
     currency1 && stakedTokenBalance ? CurrencyAmount.fromRawAmount(currency1, stakedTokenBalance.toString()) : undefined
 
-  const token1USDPrice = useStablecoinPrice(currency1)
-  const token0USDPrice = useStablecoinPrice(currency0)
+  const token1USDPrice = useStablecoinPrice(currency1, { enabled: Boolean(stakedAmountToken?.greaterThan(0)) })
+  const token0USDPrice = useStablecoinPrice(currency0, { enabled: Boolean(withdrawRequestAmountToken?.greaterThan(0)) })
 
   const lastRequest = first(userWithdrawRequest?.claimableIndexes)
 

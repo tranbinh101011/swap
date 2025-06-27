@@ -65,7 +65,7 @@ export const CurrencySelectV2 = ({
 
   const price = useStablecoinPrice(
     selectedCurrencyBalance && selectedCurrency ? selectedCurrency : undefined,
-    undefined,
+    { enabled: Boolean(selectedCurrencyBalance?.greaterThan(0)) },
     chainId,
   )
   const quoted = selectedCurrencyBalance && price?.quote(selectedCurrencyBalance)

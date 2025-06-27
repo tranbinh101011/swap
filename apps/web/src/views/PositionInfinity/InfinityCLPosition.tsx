@@ -121,11 +121,11 @@ export const InfinityCLPosition = () => {
   })
 
   const enablePrice0 = useMemo(
-    () => positionAmount0?.greaterThan(0) || feeAmount0?.greaterThan(0),
+    () => Boolean(positionAmount0?.greaterThan(0) || feeAmount0?.greaterThan(0)),
     [positionAmount0, feeAmount0],
   )
   const enablePrice1 = useMemo(
-    () => positionAmount1?.greaterThan(0) || feeAmount1?.greaterThan(0),
+    () => Boolean(positionAmount1?.greaterThan(0) || feeAmount1?.greaterThan(0)),
     [positionAmount1, feeAmount1],
   )
 

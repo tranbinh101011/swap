@@ -292,11 +292,11 @@ export const LiquidityView = () => {
   const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
 
   const enablePrice0 = useMemo(
-    () => position?.amount0?.greaterThan(0) || feeValue0?.greaterThan(0),
+    () => Boolean(position?.amount0?.greaterThan(0) || feeValue0?.greaterThan(0)),
     [position, feeValue0],
   )
   const enablePrice1 = useMemo(
-    () => position?.amount1?.greaterThan(0) || feeValue1?.greaterThan(0),
+    () => Boolean(position?.amount1?.greaterThan(0) || feeValue1?.greaterThan(0)),
     [position, feeValue1],
   )
 
