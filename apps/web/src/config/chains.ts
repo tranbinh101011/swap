@@ -44,11 +44,11 @@ const bsc = {
     ...bsc_.rpcUrls,
     public: {
       ...bsc_.rpcUrls,
-      http: ['https://bsc-dataseed.binance.org/'],
+      http: ['https://bsc-dataseed.bnbchain.org/'],
     },
     default: {
       ...bsc_.rpcUrls.default,
-      http: ['https://bsc-dataseed.binance.org/'],
+      http: ['https://bsc-dataseed.bnbchain.org/'],
     },
   },
 } satisfies Chain

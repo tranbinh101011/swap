@@ -14,7 +14,7 @@ const PUBLIC_NODES: Record<string, string[]> = {
     'https://bsc.publicnode.com',
     'https://binance.llamarpc.com',
     'https://bsc-dataseed1.defibit.io',
-    'https://bsc-dataseed1.binance.org',
+    'https://bsc-dataseed1.bnbchain.org',
   ],
   [ChainId.ARBITRUM_ONE]: [
     CHAINS.arbitrum.rpcUrls.default.http[0],

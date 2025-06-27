@@ -30,7 +30,7 @@ import { createPublicClient, http } from 'viem'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: http('https://bsc-dataseed1.binance.org'),
+  transport: http('https://bsc-dataseed1.bnbchain.org'),
   batch: {
     multicall: {
       batchSize: 1024 * 200,
@@ -91,7 +91,7 @@ import { SmartRouter } from '@pancakeswap/smart-router'
 
 const publicClient = createPublicClient({
   chain: mainnet,
-  transport: http('https://bsc-dataseed1.binance.org'),
+  transport: http('https://bsc-dataseed1.bnbchain.org'),
   batch: {
     multicall: {
       batchSize: 1024 * 200,

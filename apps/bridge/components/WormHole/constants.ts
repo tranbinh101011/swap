@@ -52,7 +52,7 @@ export const NETWORK_CONFIG: { [network in NETWORKS]: Network } = {
     mainnetRpc:
       getGroveUrl(WormholeChainIds.BSC, process.env.NEXT_PUBLIC_GROVE_API_KEY) ||
       getNodeRealUrl(WormholeChainIds.BSC, process.env.NEXT_PUBLIC_NODE_REAL_API_KEY) ||
-      'https://bsc-dataseed1.binance.org',
+      'https://bsc-dataseed1.bnbchain.org',
     testnetRpc: bscTestnet.rpcUrls.default.http[0],
   },
   [NETWORKS.ARBITRUM_ONE]: {
