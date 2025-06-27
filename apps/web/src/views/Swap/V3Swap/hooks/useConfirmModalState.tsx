@@ -44,10 +44,11 @@ import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
 
 import { useSetAtom } from 'jotai'
 import { calculateGasMargin } from 'utils'
-import { getViemClients } from 'utils/viem'
+import { viemClients } from 'utils/viem'
 import { getBridgeCalldata } from 'views/Swap/Bridge/api'
 import { useBridgeCheckApproval } from 'views/Swap/Bridge/hooks'
 
+import { ChainId } from '@pancakeswap/chains'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import { useSwapState } from 'state/swap/hooks'
 import { activeBridgeOrderMetadataAtom } from 'views/Swap/Bridge/CrossChainConfirmSwapModal/state/orderDataState'
@@ -175,7 +176,6 @@ const useConfirmActions = (
   const { mutateAsync: sendXOrder } = useSendXOrder()
 
   const { sendTransactionAsync } = useSendTransaction()
-  const { walletType } = useWalletType()
 
   const [confirmState, setConfirmState] = useState<ConfirmModalState>(ConfirmModalState.REVIEWING)
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined)
@@ -525,7 +525,9 @@ const useConfirmActions = (
           })
 
           if (bridgeCalldataResponse?.transactionData?.calldata) {
-            const result = await getViemClients({ chainId })
+            const publicClient = viemClients[chainId as ChainId]
+
+            const result = await publicClient
               ?.estimateGas({
                 account,
                 to: bridgeCalldataResponse.transactionData.router,

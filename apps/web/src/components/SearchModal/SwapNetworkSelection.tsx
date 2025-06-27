@@ -14,6 +14,7 @@ import { ChainLogo } from '@pancakeswap/widgets-internal'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import drop from 'lodash/drop'
 import take from 'lodash/take'
+import { CROSSCHAIN_SUPPORTED_CHAINS } from 'quoter/utils/crosschain-utils/config'
 import { useMemo, useRef } from 'react'
 import { styled } from 'styled-components'
 import { chainNameConverter } from 'utils/chainNameConverter'
@@ -37,7 +38,6 @@ const CONTAINER_MAX_WIDTH = 370
 const CHAIN_BUTTON_WIDTH = 42
 const CHAIN_BUTTON_MARGIN = 5
 const HIDDEN_CHAINS_BUTTON_WIDTH = CHAIN_BUTTON_WIDTH
-const CHAIN_LOGO_WIDTH = 24
 const CHAIN_BUTTON_HEIGHT = 40
 
 const ChainOption = styled(Flex)`
@@ -101,20 +101,17 @@ export default function SwapNetworkSelection({
     const availableWidth = containerWidth - HIDDEN_CHAINS_BUTTON_WIDTH - CHAIN_BUTTON_MARGIN
     const chainsToShow = Math.max(1, Math.floor(availableWidth / (CHAIN_BUTTON_WIDTH + CHAIN_BUTTON_MARGIN)))
 
-    // Prioritize BSC, BASE, and ARB chains
-    const prioritizedChains = [ChainId.BSC, ChainId.BASE, ChainId.ARBITRUM_ONE]
-
     // Sort the filtered chains to have priority chains first
     const sortedFiltered = [...filtered].sort((a, b) => {
-      const aIsPriority = prioritizedChains.includes(a.id)
-      const bIsPriority = prioritizedChains.includes(b.id)
+      const aIsPriority = CROSSCHAIN_SUPPORTED_CHAINS.includes(a.id)
+      const bIsPriority = CROSSCHAIN_SUPPORTED_CHAINS.includes(b.id)
 
       if (aIsPriority && !bIsPriority) return -1
       if (!aIsPriority && bIsPriority) return 1
 
       // If both are priority chains, sort by the order in prioritizedChains array
       if (aIsPriority && bIsPriority) {
-        return prioritizedChains.indexOf(a.id) - prioritizedChains.indexOf(b.id)
+        return CROSSCHAIN_SUPPORTED_CHAINS.indexOf(a.id) - CROSSCHAIN_SUPPORTED_CHAINS.indexOf(b.id)
       }
 
       return 0

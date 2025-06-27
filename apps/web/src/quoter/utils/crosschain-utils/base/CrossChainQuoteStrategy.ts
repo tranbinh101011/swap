@@ -8,7 +8,8 @@ import last from 'lodash/last'
 import { BridgeTradeError } from 'quoter/quoter.types'
 import { basisPointsToPercent } from 'utils/exchange'
 import { isXOrder, type BridgeOrderWithCommands, type InterfaceOrder } from 'views/Swap/utils'
-import { WHITELIST_TOKEN_MAP, type QuoteContext } from '../types'
+import { WHITELIST_TOKEN_MAP } from '../config'
+import { type QuoteContext } from '../types'
 
 type SwapOrderWithSlippage = InterfaceOrder & { trade: InterfaceOrder['trade'] & { routes: Route[] } }
 

@@ -43,6 +43,10 @@ export class BridgeToSwapStrategy extends CrossChainQuoteStrategy {
       return Loadable.Pending<InterfaceOrder>()
     }
 
+    if (finalBridgeQuoteLoadable.isFail()) {
+      return Loadable.Fail<InterfaceOrder>(finalBridgeQuoteLoadable.error)
+    }
+
     const finalBridgeQuote = CrossChainQuoteStrategy.validateQuoteResult(
       finalBridgeQuoteLoadable,
       'No final bridge quote found',

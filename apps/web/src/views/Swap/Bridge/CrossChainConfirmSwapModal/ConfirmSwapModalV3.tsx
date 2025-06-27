@@ -255,8 +255,8 @@ export const ConfirmSwapModalV3: React.FC<ConfirmSwapModalV3Props> = ({
             currencyB={order?.trade.outputAmount.currency}
             amountA={formatAmount(order?.trade.inputAmount)}
             amountB={formatAmount(order?.trade.outputAmount)}
-            chainNameA={getFullChainNameById(currencyA?.chainId)}
-            chainNameB={getFullChainNameById(currencyB?.chainId)}
+            chainNameA={getFullChainNameById(order?.trade?.inputAmount?.currency?.chainId)}
+            chainNameB={getFullChainNameById(order?.trade?.outputAmount?.currency?.chainId)}
           >
             {showAddToWalletButton && (txHash || orderHash) ? (
               <AddToWalletButton

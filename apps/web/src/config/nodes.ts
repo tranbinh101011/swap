@@ -41,7 +41,8 @@ export const SERVER_NODES = {
     getNodeRealUrl(ChainId.ETHEREUM, process.env.SERVER_NODE_REAL_API_ETH) || '',
     'https://ethereum.publicnode.com',
     'https://eth.llamarpc.com',
-    'https://cloudflare-eth.com',
+    // Remove cloudflare-eth.com, seems it returns wrong gas_estimation for some reason
+    // 'https://cloudflare-eth.com',
   ],
   [ChainId.GOERLI]: [
     getNodeRealUrl(ChainId.GOERLI, process.env.SERVER_NODE_REAL_API_GOERLI) || '',
@@ -111,7 +112,9 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
     // getGroveUrl(ChainId.ETHEREUM, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
     'https://ethereum.publicnode.com',
     'https://eth.llamarpc.com',
-    'https://cloudflare-eth.com',
+    // Remove cloudflare-eth.com
+    // for cross-chain swap, it will use the wrong gas_estimation for some reason
+    // 'https://cloudflare-eth.com',
   ].filter(Boolean),
   [ChainId.GOERLI]: [
     getNodeRealUrl(ChainId.GOERLI, process.env.NEXT_PUBLIC_NODE_REAL_API_GOERLI) || '',
