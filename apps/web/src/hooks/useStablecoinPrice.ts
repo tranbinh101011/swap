@@ -3,11 +3,12 @@ import { Currency, getCurrencyAddress, Price } from '@pancakeswap/sdk'
 import { STABLE_COIN } from '@pancakeswap/tokens'
 import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
 import { SLOW_INTERVAL } from 'config/constants'
-import { useAtomValue } from 'jotai'
+import { atom, useAtom, useAtomValue } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { atomWithLoadable } from 'quoter/atom/atomWithLoadable'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { multiplyPriceByAmount } from 'utils/prices'
+import isUndefinedOrNull from '@pancakeswap/utils/isUndefinedOrNull'
 import { useActiveChainId } from './useActiveChainId'
 
 type UseStablecoinPriceConfig = {
@@ -18,6 +19,8 @@ const DEFAULT_CONFIG: UseStablecoinPriceConfig = {
   enabled: true,
   hideIfPriceImpactTooHigh: false,
 }
+
+const versionAtom = atomFamily((_: string) => atom(Math.floor(Date.now() / SLOW_INTERVAL)))
 
 const queryStablecoinPrice = async (currency: Currency, overrideChainId?: number) => {
   if (!currency) throw new Error('No currency')
@@ -43,23 +46,30 @@ interface StableCoinPriceParams {
   currency?: Currency
   chainId?: number
   enabled?: boolean
-  version: number
 }
+
+const getKey = (params: { currency?: Currency; chainId?: number; enabled?: boolean }) =>
+  `${params.currency ? getCurrencyAddress(params.currency) : ''}:${params.chainId}:${params.enabled ?? true}`
+
 const stableCoinPriceAtom = atomFamily(
   (params: StableCoinPriceParams) => {
-    return atomWithLoadable(async () => {
-      const enabled = params.enabled ?? true
-      if (!params.currency || !enabled) {
-        return undefined
-      }
-      return queryStablecoinPrice(params.currency, params.chainId)
-    })
+    return atomWithLoadable(
+      async (get) => {
+        const enabled = params.enabled ?? true
+        if (!params.currency || !enabled) {
+          return undefined
+        }
+        get(versionAtom(getKey(params)))
+        return queryStablecoinPrice(params.currency, params.chainId)
+      },
+      {
+        placeHolderBehavior: 'stale',
+      },
+    )
   },
   (a, b) => {
-    const enabledA = a.enabled ?? true
-    const enabledB = b.enabled ?? true
-    const hashA = `${a.currency ? getCurrencyAddress(a.currency) : ''}:${a.chainId}:${enabledA}:${a.version}`
-    const hashB = `${b.currency ? getCurrencyAddress(b.currency) : ''}:${b.chainId}:${enabledB}:${b.version}`
+    const hashA = getKey(a)
+    const hashB = getKey(b)
     return hashA === hashB
   },
 )
@@ -79,26 +89,47 @@ export function useStablecoinPrice(
 
   const shouldEnabled = Boolean(currency && enabled && currentChainId === chainId)
 
-  const coinPrice = useAtomValue(
-    stableCoinPriceAtom({
+  const version = Math.floor(Date.now() / SLOW_INTERVAL)
+
+  const atomParams = useMemo(
+    () => ({
       currency: currency || undefined,
       chainId,
       enabled,
-      version: Math.floor(Date.now() / SLOW_INTERVAL),
     }),
+    [currency, chainId, enabled],
   )
 
+  const atomKey = useMemo(() => getKey(atomParams), [atomParams])
+
+  const [, setVersion] = useAtom(versionAtom(atomKey))
+
+  const coinPrice = useAtomValue(stableCoinPriceAtom(atomParams))
+
+  useEffect(() => {
+    setVersion(version)
+  }, [version, setVersion])
+
   const price = useMemo(() => {
-    if (!coinPrice.isJust() || !currency || !stableCoin || !shouldEnabled) {
+    if (!coinPrice || !currency || !stableCoin || !shouldEnabled) {
       return undefined
     }
-    const priceUSD = coinPrice.unwrap()
+
+    const isValidLoadable = coinPrice.isJust() || coinPrice.isPending()
+
+    if (!isValidLoadable) {
+      return undefined
+    }
+
+    const priceUSD = coinPrice.isJust() ? coinPrice.unwrap() : coinPrice.value
+
+    if (isUndefinedOrNull(priceUSD)) return undefined
 
     return new Price(
       currency,
       stableCoin,
       1 * 10 ** currency.decimals,
-      getFullDecimalMultiplier(stableCoin.decimals).times(priceUSD.toFixed(stableCoin.decimals)).toString(),
+      getFullDecimalMultiplier(stableCoin.decimals).times(priceUSD!.toFixed(stableCoin.decimals)).toString(),
     )
   }, [coinPrice, currency, stableCoin, shouldEnabled])
 
