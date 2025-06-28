@@ -57,7 +57,11 @@ export const useTotalUSDValue = ({ currency0, currency1, token0Deposited, token1
     token1Deposited ? parseFloat(token1Deposited.toSignificant(6)) : undefined,
   )
 
-  return token0USDValue && token1USDValue ? token0USDValue + token1USDValue : null
+  if (token0USDValue && token1USDValue) return token0USDValue + token1USDValue
+  if (token0USDValue) return token0USDValue
+  if (token1USDValue) return token1USDValue
+
+  return null
 }
 
 export const usePoolTokenPercentage = ({ userPoolBalance, totalPoolTokens }) => {

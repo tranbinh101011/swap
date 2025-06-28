@@ -305,25 +305,30 @@ export const LiquidityView = () => {
   const price1 = useStablecoinPrice(token1 ?? undefined, { enabled: enablePrice1 })
 
   const fiatValueOfFees: CurrencyAmount<Currency> | null = useMemo(() => {
-    if (!price0 || !price1 || !feeValue0 || !feeValue1) return null
-
-    // we wrap because it doesn't matter, the quote returns a USDC amount
     const feeValue0Wrapped = feeValue0?.wrapped
     const feeValue1Wrapped = feeValue1?.wrapped
 
-    if (!feeValue0Wrapped || !feeValue1Wrapped) return null
+    const amount0 = price0 && feeValue0Wrapped ? price0.quote(feeValue0Wrapped) : undefined
+    const amount1 = price1 && feeValue1Wrapped ? price1.quote(feeValue1Wrapped) : undefined
 
-    const amount0 = price0.quote(feeValue0Wrapped)
-    const amount1 = price1.quote(feeValue1Wrapped)
-    return amount0.add(amount1)
+    if (amount0 && amount1) return amount0.add(amount1)
+    if (amount0) return amount0
+    if (amount1) return amount1
+
+    return null
   }, [price0, price1, feeValue0, feeValue1])
 
   const fiatValueOfLiquidity: CurrencyAmount<Currency> | null = useMemo(() => {
-    if (!price0 || !price1 || !position) return null
-    const amount0 = price0.quote(position.amount0)
-    const amount1 = price1.quote(position.amount1)
+    if (!position) return null
 
-    return amount0.add(amount1)
+    const amount0 = price0 ? price0.quote(position.amount0) : undefined
+    const amount1 = price1 ? price1.quote(position.amount1) : undefined
+
+    if (amount0 && amount1) return amount0.add(amount1)
+    if (amount0) return amount0
+    if (amount1) return amount1
+
+    return null
   }, [price0, price1, position])
 
   const addTransaction = useTransactionAdder()

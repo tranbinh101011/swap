@@ -68,10 +68,16 @@ export const InfinityBinPosition = () => {
   const price1 = useStablecoinPrice(currency1, { enabled: Boolean(reserve1?.greaterThan(0)) })
 
   const fiatValueOfLiquidity = useMemo(() => {
-    if (!price0 || !price1 || !reserve0 || !reserve1) return undefined
-    const amount0 = price0.quote(reserve0)
-    const amount1 = price1.quote(reserve1)
-    return amount0.add(amount1)
+    if (!reserve0 && !reserve1) return undefined
+
+    const amount0 = price0 && reserve0 ? price0.quote(reserve0) : undefined
+    const amount1 = price1 && reserve1 ? price1.quote(reserve1) : undefined
+
+    if (amount0 && amount1) return amount0.add(amount1)
+    if (amount0) return amount0
+    if (amount1) return amount1
+
+    return undefined
   }, [price0, price1, reserve0, reserve1])
 
   const isRemoved = useMemo(() => {

@@ -134,11 +134,16 @@ export const InfinityCLPosition = () => {
   const price1 = useStablecoinPrice(currency1, { enabled: enablePrice1 })
 
   const fiatValueOfLiquidity: CurrencyAmount<Currency> | null = useMemo(() => {
-    if (!price0 || !price1 || !positionAmount0 || !positionAmount1) return null
-    const amount0 = price0.quote(positionAmount0)
-    const amount1 = price1.quote(positionAmount1)
+    if ((!price0 && !price1) || (!positionAmount0 && !positionAmount1)) return null
 
-    return amount0.add(amount1)
+    const amount0 = price0 && positionAmount0 ? price0.quote(positionAmount0) : undefined
+    const amount1 = price1 && positionAmount1 ? price1.quote(positionAmount1) : undefined
+
+    if (amount0 && amount1) return amount0.add(amount1)
+    if (amount0) return amount0
+    if (amount1) return amount1
+
+    return null
   }, [price0, price1, positionAmount0, positionAmount1])
 
   const handleDismissConfirmation = useCallback(() => {

@@ -311,23 +311,21 @@ export const SubmitCreateButton: React.FC<SubmitCreateButtonProps> = ({ ...boxPr
   const currency0UsdValue = useStablecoinPriceAmount(
     currency0,
     depositCurrencyAmount0 ? Number(depositCurrencyAmount0.toExact()) : undefined,
-    {
-      enabled: Boolean(depositCurrencyAmount0),
-    },
+    undefined,
     chainId,
   )
   const currency1UsdValue = useStablecoinPriceAmount(
     currency1,
     depositCurrencyAmount1 ? Number(depositCurrencyAmount1.toExact()) : undefined,
-    {
-      enabled: Boolean(depositCurrencyAmount1),
-    },
+    undefined,
     chainId,
   )
   const lowLiquidity = useMemo(() => {
     if (depositCurrencyAmount0?.equalTo(0) || depositCurrencyAmount1?.equalTo(0)) return false
-    if (!currency0UsdValue || !currency1UsdValue) return false
-    return currency0UsdValue + currency1UsdValue < 1000
+    const value0 = currency0UsdValue ?? 0
+    const value1 = currency1UsdValue ?? 0
+    if (value0 === 0 && value1 === 0) return false
+    return value0 + value1 < 1000
   }, [currency0UsdValue, currency1UsdValue, depositCurrencyAmount0, depositCurrencyAmount1])
 
   return (
