@@ -21,14 +21,14 @@ const MenuIconWrapper = styled.div.withConfig({
   position: absolute;
   top: 0;
   width: 32px;
-  z-index: 102;
+  z-index: 20;
 `;
 
 const ProfileIcon = styled(Image)`
   left: 0;
   position: absolute;
   top: 0;
-  z-index: 102;
+  z-index: 20;
 
   & > img {
     border-radius: 50%;

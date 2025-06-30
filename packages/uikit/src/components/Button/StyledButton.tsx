@@ -1,5 +1,5 @@
 import { styled, DefaultTheme, css } from "styled-components";
-import { space, layout, variant } from "styled-system";
+import { space, layout, variant, border } from "styled-system";
 import { scaleVariants, styleVariants } from "./theme";
 import { BaseButtonProps } from "./types";
 
@@ -90,6 +90,7 @@ const StyledButton = styled("button").withConfig({
   })}
   ${layout}
   ${space}
+  ${border}
   ${({ decorator, theme }) =>
     decorator &&
     css`

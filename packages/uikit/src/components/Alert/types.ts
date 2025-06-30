@@ -15,7 +15,7 @@ export type Variants = (typeof variants)[keyof typeof variants];
 
 export interface AlertProps {
   variant?: Variants;
-  title: string;
+  title: string | ReactNode;
   children?: ReactNode;
   onClick?: (evt: MouseEvent<HTMLButtonElement>) => void;
 }

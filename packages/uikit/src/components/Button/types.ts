@@ -1,5 +1,5 @@
 import { ElementType, ReactNode } from "react";
-import { LayoutProps, ResponsiveValue, SpaceProps } from "styled-system";
+import { BorderProps, LayoutProps, ResponsiveValue, SpaceProps } from "styled-system";
 import type { PolymorphicComponentProps } from "../../util/polymorphic";
 
 export const scales = {
@@ -10,6 +10,7 @@ export const scales = {
 
 export const variants = {
   PRIMARY: "primary",
+  PRIMARY60: "primary60",
   SECONDARY: "secondary",
   TERTIARY: "tertiary",
   TEXT: "text",
@@ -24,7 +25,7 @@ export const variants = {
 export type Scale = (typeof scales)[keyof typeof scales];
 export type Variant = (typeof variants)[keyof typeof variants];
 
-export interface BaseButtonProps extends LayoutProps, SpaceProps {
+export interface BaseButtonProps extends LayoutProps, SpaceProps, BorderProps {
   as?: "a" | "button" | ElementType;
   external?: boolean;
   isLoading?: boolean;

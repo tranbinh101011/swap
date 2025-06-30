@@ -1,13 +1,13 @@
 import React from "react";
-import { styled, DefaultTheme } from "styled-components";
-import CheckmarkCircleIcon from "../Svg/Icons/CheckmarkCircle";
-import ErrorIcon from "../Svg/Icons/Error";
-import BlockIcon from "../Svg/Icons/Block";
-import InfoIcon from "../Svg/Icons/Info";
-import { Text } from "../Text";
+import { DefaultTheme, styled } from "styled-components";
+import Flex from "../Box/Flex";
 import { IconButton } from "../Button";
 import { CloseIcon } from "../Svg";
-import Flex from "../Box/Flex";
+import BlockIcon from "../Svg/Icons/Block";
+import CheckmarkCircleIcon from "../Svg/Icons/CheckmarkCircle";
+import ErrorIcon from "../Svg/Icons/Error";
+import InfoIcon from "../Svg/Icons/Info";
+import { Text } from "../Text";
 import { AlertProps, variants } from "./types";
 
 interface ThemedIconLabel {
@@ -82,7 +82,7 @@ const Alert: React.FC<React.PropsWithChildren<AlertProps>> = ({ title, children,
         <Icon color="currentColor" width="24px" />
       </IconLabel>
       <Details $hasHandler={!!onClick}>
-        <Text bold>{title}</Text>
+        {typeof title === "string" ? <Text bold>{title}</Text> : title}
         {typeof children === "string" ? (
           <Text style={{ wordBreak: "break-word" }} as="p">
             {children}

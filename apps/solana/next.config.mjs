@@ -1,92 +1,67 @@
-import bundleAnalyzer from '@next/bundle-analyzer'
-
+import { withSentryConfig } from '@sentry/nextjs'
 import { createVanillaExtractPlugin } from '@vanilla-extract/next-plugin'
-import { RetryChunkLoadPlugin } from 'webpack-retry-chunk-load-plugin'
+import path from 'path'
 
 const withVanillaExtract = createVanillaExtractPlugin()
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})
 
-/** @type {import('next').NextConfig} */
+/**
+ * @type {import('next').NextConfig}
+ */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
-  compiler: {
-    styledComponents: true,
-  },
-  transpilePackages: [
-    '@pancakeswap/localization',
-    '@pancakeswap/hooks',
-    '@pancakeswap/utils',
-    '@pancakeswap/tokens',
-    '@pancakeswap/farms',
-    '@pancakeswap/widgets-internal',
-    // https://github.com/TanStack/query/issues/6560#issuecomment-1975771676
-    '@tanstack/query-core',
-  ],
   experimental: {
-    optimizePackageImports: ['@pancakeswap/widgets-internal', '@pancakeswap/uikit'],
+    scrollRestoration: true,
+    fallbackNodePolyfills: false,
+    optimizePackageImports: ['@pancakeswap/widgets-internal', '@pancakeswap/uikit']
+  },
+  compiler: {
+    styledComponents: true
+  },
+  trailingSlash: true,
+  transpilePackages: [
+    '@pancakeswap/widgets-internal',
+    '@pancakeswap/uikit',
+    // https://github.com/TanStack/query/issues/6560#issuecomment-1975771676
+    '@tanstack/query-core'
+  ],
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve('./src')
+    }
+    config.optimization.minimize = true
+
+    return config
   },
   async redirects() {
     return [
       {
         source: '/',
-        destination: '/swap',
-        permanent: false,
-      },
+        destination: '/jupiter-swap/',
+        permanent: false
+      }
     ]
-  },
-  webpack: (webpackConfig) => {
-    webpackConfig.plugins.push(
-      new RetryChunkLoadPlugin({
-        cacheBust: `function() {
-          return 'cache-bust=' + Date.now();
-        }`,
-        retryDelay: `function(retryAttempt) {
-          return 2 ** (retryAttempt - 1) * 500;
-        }`,
-        maxRetries: 5,
-      }),
-    )
-    return webpackConfig
-  },
+  }
 }
 
-// Create a custom headers wrapper
-const withCustomHeaders = (config) => ({
-  ...config,
-  async headers() {
-    const defaultHeaders = await (config.headers?.() ?? [])
-    return [
-      ...defaultHeaders,
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin-allow-popups', // allow wallet popups
-          },
-          {
-            key: 'Content-Security-Policy',
-            value: "frame-ancestors 'self' https://*.solflare.com",
-          },
-        ],
-      },
-    ]
-  },
-})
+const sentryWebpackPluginOptions =
+  process.env.VERCEL_ENV === 'production'
+    ? {
+        // Additional config options for the Sentry Webpack plugin. Keep in mind that
+        // the following options are set automatically, and overriding them is not
+        // recommended:
+        //   release, url, org, project, authToken, configFile, stripPrefix,
+        //   urlPrefix, include, ignore
+        silent: true, // Logging when deploying to check if there is any problem
+        validate: true,
+        hideSourceMaps: false,
+        tryRun: true,
+        disable: true
+        // https://github.com/getsentry/sentry-webpack-plugin#options.
+      }
+    : {
+        hideSourceMaps: false,
+        silent: true, // Suppresses all logs
+        dryRun: !process.env.SENTRY_AUTH_TOKEN
+      }
 
-export default withBundleAnalyzer(withVanillaExtract(withCustomHeaders(nextConfig)))
+export default withVanillaExtract(withSentryConfig(nextConfig, sentryWebpackPluginOptions))

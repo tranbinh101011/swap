@@ -111,6 +111,9 @@ const ResetCSS = createGlobalStyle`
     border-color: transparent;
     color: transparent;
   }  
+  #chakra-toast-manager-top-right {
+    top: calc(env(safe-area-inset-top, 0) + 65px) !important;
+  }
 `;
 
 export default ResetCSS;
