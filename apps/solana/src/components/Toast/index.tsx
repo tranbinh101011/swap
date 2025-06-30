@@ -1,9 +1,10 @@
-import { ToastId, ToastPosition, UseToastOptions } from '@chakra-ui/react'
+import { Box, ToastId, ToastPosition, UseToastOptions } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { Alert, mediaQueries } from '@pancakeswap/uikit'
+import { Alert, mediaQueries, Text } from '@pancakeswap/uikit'
 import { Variants } from '@pancakeswap/uikit/components/Alert/types'
 import styled from 'styled-components'
 import { ToastStatus } from '@/types/tx'
+import { colors } from '@/theme/cssVariables'
 
 const toastDefaultConfig: { duration: number; position: ToastPosition } = {
   duration: 5000,
@@ -68,7 +69,14 @@ export function Toast({ state, onClose }: ToasterProps) {
   return (
     <StyledToast>
       <Alert variant={alertTypeMap[state.status] ?? 'info'} title={state.title as string} onClick={onClose}>
-        {state.description as string}
+        <Text style={{ wordBreak: 'break-word' }} as="p">
+          {state.description}
+        </Text>
+        {!state.fullWidth && Boolean(state.detail) && (
+          <Box fontSize={12} fontWeight={500} color={state.status === 'info' ? colors.secondary : colors.primary60}>
+            {state.detail}
+          </Box>
+        )}
       </Alert>
     </StyledToast>
   )

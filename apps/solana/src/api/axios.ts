@@ -94,7 +94,7 @@ axiosInstance.interceptors.response.use(
     if (!config.skipError)
       toastSubject.next({
         title: 'API request error',
-        description: `axios request error: ${url}, status:${status || error.code}, msg:${response.message || error.message}`,
+        description: status || error.message,
         status: 'error'
       })
 

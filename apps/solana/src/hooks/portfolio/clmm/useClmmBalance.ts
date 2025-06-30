@@ -194,7 +194,6 @@ export default function useClmmBalance({
           }
         ])
     })
-    logMessage('positionMap', positionMap)
     return [positionMap, lockInfo]
   }, [data, allPositionKey, lockPositionInfo])
 

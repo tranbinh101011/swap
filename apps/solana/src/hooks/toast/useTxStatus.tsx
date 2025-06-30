@@ -109,10 +109,10 @@ function useTxStatus() {
                 alignItems="center"
                 onClick={() => window.open(`${explorerUrl}/tx/${txId}`)}
                 cursor="pointer"
-                opacity={status ? 1 : 0.5}
+                opacity={status ? 1 : 0.8}
               >
                 {t('View transaction details')}
-                <ExternalLink cursor="pointer" />
+                <ExternalLink cursor="pointer" color={status ? colors.primary60 : colors.secondary} />
               </Flex>
             )
           }
@@ -352,7 +352,7 @@ function useTxStatus() {
                     {isMultisigWallet ? null : (
                       <Flex gap="1" alignItems="center" opacity="0.5">
                         {t('View transaction details')}
-                        <ExternalLink cursor="pointer" />
+                        <ExternalLink cursor="pointer" color={colors.primary60} />
                       </Flex>
                     )}
                   </Box>
