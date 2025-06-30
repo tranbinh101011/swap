@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, GridItem, HStack, Link, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, Flex, Grid, GridItem, HStack, Text, useDisclosure } from '@chakra-ui/react'
 import { ApiClmmConfigInfo, ApiV3Token, solToWSol } from '@pancakeswap/solana-core-sdk'
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
@@ -19,6 +19,12 @@ import { debounce, exhaustCall } from '@/utils/functionMethods'
 import { routeBack } from '@/utils/routeTools'
 import { solToWSolToken } from '@/utils/token'
 import useBirdeyeTokenPrice from '@/hooks/token/useBirdeyeTokenPrice'
+import {
+  logGTMCreatelpCmfDepEvent,
+  logGTMCreatelpSuccessEvent,
+  logGTMSolErrorLogEvent,
+  logGTMV3lpStepEvent
+} from '@/utils/report/curstomGTMEventTracking'
 
 import SelectPoolTokenAndFee from './components/SelectPoolTokenAndFee'
 import SetPriceAndRange from './components/SetPriceAndRange'
@@ -29,6 +35,7 @@ import CreateSuccessWithLockModal from './components/CreateSuccessWithLockModal'
 
 export default function CreateClmmPool() {
   const isMobile = useAppStore((s) => s.isMobile)
+  const wallet = useAppStore((s) => s.wallet)
   const { t } = useTranslation()
   const [createClmmPool, openPositionAct] = useClmmStore((s) => [s.createClmmPool, s.openPositionAct], shallow)
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -71,6 +78,7 @@ export default function CreateClmmPool() {
 
   const handleStep1Confirm = useCallback(
     ({ token1, token2, ammConfig }: { token1: ApiV3Token; token2: ApiV3Token; ammConfig: ApiClmmConfigInfo }) => {
+      logGTMV3lpStepEvent('1')
       onLoading()
       currentCreateInfo.current.token1 = solToWSolToken(token1)
       currentCreateInfo.current.token2 = solToWSolToken(token2)
@@ -108,6 +116,7 @@ export default function CreateClmmPool() {
 
   const handleStep2Confirm = useEvent(
     (props: { price: string; tickLower: number; tickUpper: number; priceLower: string; priceUpper: string; isFullRange?: boolean }) => {
+      logGTMV3lpStepEvent('2')
       stepsRef.current?.goToNext()
       currentCreateInfo.current = {
         ...currentCreateInfo.current,
@@ -118,6 +127,7 @@ export default function CreateClmmPool() {
 
   const handleStep3Confirm = useCallback(
     ({ inputA, liquidity, amount1, amount2 }: { inputA: boolean; liquidity: BN; amount1: string; amount2: string }) => {
+      logGTMV3lpStepEvent('3')
       currentCreateInfo.current.inputA = inputA
       currentCreateInfo.current.liquidity = liquidity
       currentCreateInfo.current.amount1 = amount1
@@ -143,6 +153,7 @@ export default function CreateClmmPool() {
 
   const handleCreateAndOpen = useEvent(
     exhaustCall(async () => {
+      logGTMCreatelpCmfDepEvent('V3', true)
       setIsTxSending(true)
       const { token1, token2, config, price } = currentCreateInfo.current
       const { buildData } = await createClmmPool({
@@ -170,10 +181,35 @@ export default function CreateClmmPool() {
         baseAmount: currentCreateInfo.current.inputA ? mintAAmount : mintBAmount,
         otherAmountMax: currentCreateInfo.current.inputA ? mintBAmount : mintAAmount,
         createPoolBuildData: buildData,
+        onSent: () => {
+          logGTMCreatelpSuccessEvent({
+            walletAddress: wallet?.adapter.publicKey?.toString() ?? '',
+            version: 'V3',
+            isCreate: true,
+            token0: token1?.address ?? '',
+            token1: token2?.address ?? '',
+            token0Amt: mintAAmount,
+            token1Amt: mintBAmount,
+            feeTier: `${(config?.tradeFeeRate ?? 0) / 1000}%`
+          })
+        },
         onConfirmed: () => {
           onOpenSuccessModal()
         },
-        onFinally: () => setIsTxSending(false)
+        onFinally: () => setIsTxSending(false),
+        onError(e) {
+          let errorMsg = ''
+          try {
+            errorMsg = typeof e === 'string' ? e : 'msg' in e ? e.msg : e.toString()
+          } catch (e) {
+            //
+          }
+          logGTMSolErrorLogEvent({
+            action: 'Create Liquidity Pool Fail',
+            errorMsg,
+            errorCode: '0'
+          })
+        }
       })
     })
   )

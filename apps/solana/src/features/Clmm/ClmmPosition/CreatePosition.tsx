@@ -33,6 +33,11 @@ import useBirdeyeTokenPrice from '@/hooks/token/useBirdeyeTokenPrice'
 import useFetchRpcClmmInfo from '@/hooks/pool/clmm/useFetchRpcClmmInfo'
 import { panelCard } from '@/theme/cssBlocks'
 import { Side } from '@/features/Create/ClmmPool/components/SetPriceAndRange'
+import {
+  logGTMCreatelpCmfDepEvent,
+  logGTMCreatelpSuccessEvent,
+  logGTMDepositCreatePositionEvent
+} from '@/utils/report/curstomGTMEventTracking'
 
 import { calRatio } from '../utils/math'
 import EstimatedAprInfo from '../components/AprInfo'
@@ -58,6 +63,7 @@ export default function CreatePosition() {
     pool_id?: string
   }>()
   const featureDisabled = useAppStore((s) => s.featureDisabled.createConcentratedPosition)
+  const wallet = useAppStore((s) => s.wallet)
 
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isNFTOpen, onOpen: onNFTOpen, onClose: onNFTClose } = useDisclosure()
@@ -391,6 +397,7 @@ export default function CreatePosition() {
   })
 
   const createPosition = () => {
+    logGTMCreatelpCmfDepEvent('V3', false)
     setIsSending(true)
     const [mintAAmount, mintBAmount] = [
       new Decimal(tokenAmountRef.current[baseIn ? 0 : 1]).mul(10 ** (currentPool?.mintA.decimals ?? 0)).toFixed(0),
@@ -405,6 +412,16 @@ export default function CreatePosition() {
       tickLower: tickPriceRef.current.tickLower!,
       tickUpper: tickPriceRef.current.tickUpper!,
       onConfirmed: () => {
+        logGTMCreatelpSuccessEvent({
+          version: 'V3',
+          isCreate: false,
+          token0: currentPool?.mintA.address ?? '',
+          token1: currentPool?.mintB.address ?? '',
+          token0Amt: mintAAmount,
+          token1Amt: mintBAmount,
+          feeTier: toPercentString((currentPool?.feeRate ?? 0) * 100),
+          walletAddress: wallet?.adapter.publicKey?.toString() ?? ''
+        })
         onClose()
         onNFTOpen()
         setIsSending(false)
@@ -724,6 +741,7 @@ export default function CreatePosition() {
             my="1rem"
             disabled={featureDisabled || isIdPoolLoading || !!error}
             onClick={() => {
+              logGTMDepositCreatePositionEvent()
               tokenAmountRef.current = [...tokenAmount]
               onOpen()
             }}

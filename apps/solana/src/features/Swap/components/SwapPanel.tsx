@@ -24,6 +24,7 @@ import { debounce } from '@/utils/functionMethods'
 import { formatCurrency, formatToRawLocaleStr } from '@/utils/numberish/formatter'
 import ToPublicKey, { isValidPublicKey } from '@/utils/publicKey'
 import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
+import { logGTMSolErrorLogEvent, logGTMSwapClickEvent } from '@/utils/report/curstomGTMEventTracking'
 import { getMintPriority, getMintSymbol, isSolWSol, mintToUrl, urlToMint } from '@/utils/token'
 import { ApiSuccessResponse, QuoteResponseData, SwapType } from '../type'
 import useSwap from '../useSwap'
@@ -70,6 +71,7 @@ export function SwapPanel({
 
   const { t } = useTranslation()
   const { swap: swapDisabled } = useAppStore().featureDisabled
+  const wallet = useAppStore((s) => s.wallet)
   const swapTokenAct = useSwapStore((s) => s.swapTokenAct)
   const unWrapSolAct = useSwapStore((s) => s.unWrapSolAct)
   const tokenMap = useTokenStore((s) => s.tokenMap)
@@ -272,6 +274,14 @@ export function SwapPanel({
 
   const handleClickSwap = () => {
     if (!response) return
+    logGTMSwapClickEvent({
+      fromAddress: wallet?.adapter.publicKey?.toString() ?? '',
+      fromToken: tokenInput?.address ?? '',
+      fromAmt: response.data.inputAmount,
+      toAddress: '',
+      toToken: tokenOutput?.address ?? '',
+      toAmt: response.data.outputAmount
+    })
     sendingResult.current = response
     onSending()
     swapTokenAct({
@@ -285,7 +295,18 @@ export function SwapPanel({
         // setNeedPriceUpdatedAlert(false)
         offSending()
       },
-      onError: () => {
+      onError: (e) => {
+        let errorMsg = ''
+        try {
+          errorMsg = typeof e === 'string' ? e : 'msg' in e ? e.msg : e.toString()
+        } catch (e) {
+          //
+        }
+        logGTMSolErrorLogEvent({
+          action: 'Swap Fail',
+          errorMsg,
+          errorCode: '0'
+        })
         offSending()
         mutate()
       }

@@ -26,6 +26,11 @@ import { SlippageAdjuster } from '@/components/SlippageAdjuster'
 import { SlippageSettingField } from '@/components/SlippageAdjuster/SlippageSettingField'
 import { useDisclosure } from '@/hooks/useDelayDisclosure'
 import { panelCard } from '@/theme/cssBlocks'
+import {
+  logGTMPoolLiquidityAddCmfEvent,
+  logGTMPoolLiquidityAddSuccessEvent,
+  logGTMSolErrorLogEvent
+} from '@/utils/report/curstomGTMEventTracking'
 import { calRatio } from '../utils/math'
 import CLMMTokenInputGroup, { InputSide } from '../components/TokenInputGroup'
 import { liquidityValidateSchema } from './validateSchema'
@@ -50,6 +55,7 @@ export default function AddLiquidityModal({
   const { t } = useTranslation()
   const { isMobile } = useMatchBreakpoints()
   const featureDisabled = useAppStore((s) => s.featureDisabled.addConcentratedPosition)
+  const wallet = useAppStore((s) => s.wallet)
   const getTokenBalanceUiAmount = useTokenAccountStore((s) => s.getTokenBalanceUiAmount)
   const { getPriceAndAmount } = useClmmBalance({})
   const { priceLower, priceUpper, amountA, amountB } = getPriceAndAmount({ poolInfo, position })
@@ -319,6 +325,7 @@ export default function AddLiquidityModal({
             loadingText={`${t('Add Liquidity')}...`}
             isDisabled={!!error || featureDisabled}
             onClick={() => {
+              logGTMPoolLiquidityAddCmfEvent()
               setIsSending(true)
               increaseLiquidityAct({
                 poolInfo,
@@ -328,10 +335,29 @@ export default function AddLiquidityModal({
                 amountMaxB: new Decimal(tokenAmount[1]!).mul(10 ** poolInfo.mintB.decimals).toFixed(0),
                 onCloseToast: () => setIsSending(false),
                 onConfirmed: () => {
+                  logGTMPoolLiquidityAddSuccessEvent({
+                    walletAddress: wallet?.adapter.publicKey?.toString() ?? '',
+                    token0: poolInfo.mintA.address.toString(),
+                    token1: poolInfo.mintB.address.toString(),
+                    token0Amt: tokenAmount[0],
+                    token1Amt: tokenAmount[1],
+                    feeTier: toPercentString(poolInfo.feeRate * 100)
+                  })
                   setIsSending(false)
                   handleCloseModal()
                 },
-                onError: () => {
+                onError: (e: any) => {
+                  let errorMsg = ''
+                  try {
+                    errorMsg = typeof e === 'string' ? e : 'msg' in e ? e.msg : e.toString()
+                  } catch (e) {
+                    //
+                  }
+                  logGTMSolErrorLogEvent({
+                    action: 'Add Liquidity Fail',
+                    errorMsg,
+                    errorCode: '0'
+                  })
                   handleClick()
                   setIsSending(false)
                 }

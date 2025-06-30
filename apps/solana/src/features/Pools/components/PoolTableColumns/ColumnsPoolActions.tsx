@@ -9,6 +9,7 @@ import SwapPoolItemIcon from '@/icons/misc/SwapPoolItemIcon'
 import { colors } from '@/theme/cssVariables'
 import { wSolToSol } from '@/utils/token'
 import { pageRoutePathnames } from '@/utils/config/routers'
+import { logGTMDepositLiquidityEvent } from '@/utils/report/curstomGTMEventTracking'
 
 export const ColumnsPoolActions: React.FC<{
   data: FormattedPoolInfoItem
@@ -23,6 +24,7 @@ export const ColumnsPoolActions: React.FC<{
   const router = useRouter()
 
   const onClickSwap = useCallback(() => {
+    logGTMDepositLiquidityEvent()
     const getMint = (address: string) => {
       return pageRoutePathnames.swap.includes('jupiter') ? address : wSolToSol(address)
     }

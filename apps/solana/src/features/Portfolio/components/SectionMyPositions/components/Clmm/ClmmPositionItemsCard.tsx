@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import { SwapHorizIcon } from '@pancakeswap/uikit'
 import { useCallback, useState, useEffect, useMemo } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
@@ -14,7 +15,6 @@ import { colors } from '@/theme/cssVariables'
 import { PositionWithUpdateFn } from '@/hooks/portfolio/useAllPositionInfo'
 import { FormattedPoolInfoConcentratedItem } from '@/hooks/pool/type'
 import useSubscribeClmmInfo, { RpcPoolData } from '@/hooks/pool/clmm/useSubscribeClmmInfo'
-import SwapHorizontalIcon from '@/icons/misc/SwapHorizontalIcon'
 import ChevronDoubleDownIcon from '@/icons/misc/ChevronDoubleDownIcon'
 import { panelCard } from '@/theme/cssBlocks'
 import { useAppStore } from '@/store'
@@ -22,6 +22,7 @@ import toPercentString from '@/utils/numberish/toPercentString'
 import { formatCurrency, formatToRawLocaleStr } from '@/utils/numberish/formatter'
 import { QuestionToolTip } from '@/components/QuestionToolTip'
 import { ClmmLockInfo } from '@/hooks/portfolio/clmm/useClmmBalance'
+import { logGTMCreateNewPositionEvent } from '@/utils/report/curstomGTMEventTracking'
 import ClmmPositionAccountItem from './ClmmPositionAccountItem'
 
 const LIST_THRESHOLD = 10
@@ -53,6 +54,15 @@ export function ClmmPositionItemsCard({
   const pageTotal = Math.ceil(totalPositions.length / LIST_THRESHOLD)
 
   const rpcData = initRpcPoolData || data
+  const router = useRouter()
+
+  const handleCreatePositionBtnClick = useCallback(() => {
+    logGTMCreateNewPositionEvent()
+    if (!poolInfo) {
+      return
+    }
+    router.push(`/clmm/create-position?pool_id=${poolInfo.id}`)
+  }, [poolInfo, router])
 
   useEffect(() => {
     const currentIndex = pageCurrent * LIST_THRESHOLD
@@ -191,11 +201,9 @@ export function ClmmPositionItemsCard({
 
       <GridItem area="action" justifySelf={['center', 'right']}>
         {isMobile ? null : (
-          <Link href={`/clmm/create-position?pool_id=${poolInfo.id}`}>
-            <Button size="sm" variant="outline">
-              {t('Create New Position')}
-            </Button>
-          </Link>
+          <Button size="sm" variant="outline" onClick={handleCreatePositionBtnClick}>
+            {t('Create New Position')}
+          </Button>
         )}
       </GridItem>
 

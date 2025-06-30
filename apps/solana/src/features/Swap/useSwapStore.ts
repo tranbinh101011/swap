@@ -273,7 +273,7 @@ export const useSwapStore = createStore<SwapStore>(
         }
         checkSendTx()
       } catch (e: any) {
-        txProps.onError?.()
+        txProps.onError?.(e)
         if (e.message !== 'tx failed')
           toastSubject.next({ txError: typeof e === 'string' ? new Error(e) : e, title: 'Swap', description: 'Send transaction failed' })
       } finally {

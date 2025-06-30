@@ -15,6 +15,7 @@ import { useAppStore } from '@/store'
 import { useClmmStore } from '@/store/useClmmStore'
 import { RpcPoolData } from '@/hooks/pool/clmm/useSubscribeClmmInfo'
 import { ClmmLockInfo } from '@/hooks/portfolio/clmm/useClmmBalance'
+import { logGTMAddPoolLiquidityEvent, logGTMSubPoolLiquidityEvent } from '@/utils/report/curstomGTMEventTracking'
 import ClmmPositionAccountItemDetail from './ClmmPositionAccountItemDetail'
 import ClmmPositionAccountItemDetailMobileDrawer from './ClmmPositionAccountItemDetailMobileDrawer'
 import ClmmPositionAccountItemFace from './ClmmPositionAccountItemFace'
@@ -124,11 +125,13 @@ export default function ClmmPositionAccountItem({
   })
 
   const handleRemoveOpen = useEvent(() => {
+    logGTMSubPoolLiquidityEvent()
     onRemoveOpen()
     onSubscribe()
     setRefreshTag(Date.now())
   })
   const handleAddOpen = useEvent(() => {
+    logGTMAddPoolLiquidityEvent()
     onAddOpen()
     onSubscribe()
     setRefreshTag(Date.now())

@@ -1,16 +1,50 @@
 export enum GTMEvent {
   SwapTXSuccess = 'swapTXSuccess',
-  WalletConnected = 'walletConnected'
+  WalletConnected = 'walletConnected',
+  CreateLiquidityPool = 'createLiquidityPool',
+  PoolFarmVersion = 'poolFarmVersion',
+  V3lpStep1 = 'V3lpStep1',
+  V3lpStep2 = 'V3lpStep2',
+  V3lpStep3 = 'V3lpStep3',
+  CreatelpCmfDep = 'createlpCmfDep',
+  CreatelpSuccess = 'createlpSuccess',
+  DepositLiquidity = 'depositLiquidity',
+  DepositCreatePosition = 'depositcreatePosition',
+  CreateNewPosition = 'createNewPosition',
+  AddPoolLiquidity = 'addPoolLiquidity',
+  PoolLiquidityAddCmf = 'PoolLiquidityAddCmf',
+  PoolLiquidityAddSuccess = 'PoolLiquidityAddSuccess',
+  SubPoolLiquidity = 'subPoolLiquidity',
+  PoolLiquiditySubCmf = 'PoolLiquiditySubCmf',
+  PoolLiquiditySubSuccess = 'PoolLiquiditySubSuccess',
+  SolErrorLog = 'SolErrorLog',
+  SwapClick = 'SwapClick'
 }
 
 export enum GTMCategory {
   Wallet = 'Wallet',
-  Swap = 'swap'
+  Swap = 'swap',
+  Liquidity = 'liquidity'
 }
 
 export enum GTMAction {
   SwapTransactionSent = 'swap_transaction_sent',
-  WalletConnected = 'Wallet Connected'
+  WalletConnected = 'Wallet Connected',
+  ClickCreateBtn = 'Click Create Button on SOL LP Page',
+  ClickContinueButton = 'Click on continue Button',
+  ClickPreviewPoolButton = 'Click Preview Pool Button',
+  ClickConfirmDepositButton = 'Click Confirm Deposit Button',
+  CreateLPSuccess = 'Create LP Success',
+  ClickDepositButton = 'Click Deposit Button',
+  ClickCreatePositionButton = 'Click Create Position Button',
+  ClickCreateNewPositionButton = 'Click Create New Position Button',
+  ClickPlusButton = 'Click Plus Button',
+  ClickAddPoolLiquidityConfirmButton = 'Click Add Pool liquidity Confirm Button',
+  DepositSuccess = 'Deposit Success',
+  ClickMinusButton = 'Click Minus Button',
+  ClickSubPoolLiquidityConfirmButton = 'Click Sub Pool liquidity Confirm Button',
+  WithdrawSuccess = 'Withdraw Success',
+  ClickSwapButton = 'click swap Button'
 }
 
 interface CustomGTMDataLayer {
@@ -22,6 +56,15 @@ interface CustomGTMDataLayer {
   chain?: string
   from_address?: string
   to_address?: string
+}
+
+export interface PoolLiquiditySuccessParams {
+  walletAddress: string
+  token0: string
+  token1: string
+  token0Amt: string
+  token1Amt: string
+  feeTier: string
 }
 
 type WindowWithDataLayer = Window & {
@@ -45,10 +88,10 @@ export const logGTMSwapTXSuccessEvent = ({ txId, chain, from, to = '' }: SwapTXS
     event: GTMEvent.SwapTXSuccess,
     action: GTMAction.SwapTransactionSent,
     category: GTMCategory.Swap,
-    tx_id: txId,
+    txId,
     chain,
-    from_address: from,
-    to_address: to
+    fromAddress: from,
+    toAddress: to
   })
 }
 
@@ -59,5 +102,224 @@ export const logGTMWalletConnectedEvent = (name: string) => {
     action: GTMAction.WalletConnected,
     category: GTMCategory.Wallet,
     label: name
+  })
+}
+
+export const logGTMCreateLiquidityPoolEvent = () => {
+  console.info('---CreateLiquidityPool---')
+  window?.dataLayer?.push({
+    event: GTMEvent.CreateLiquidityPool,
+    action: GTMAction.ClickCreateBtn,
+    category: GTMCategory.Liquidity,
+    chain: 'Solana'
+  })
+}
+
+export const logGTMPoolFarmVersionEvent = (product: 'Farm' | 'LP', version: 'V2' | 'V3') => {
+  console.info('---PoolFarmVersion---')
+  window?.dataLayer?.push({
+    event: GTMEvent.PoolFarmVersion,
+    action: GTMAction.ClickContinueButton,
+    category: GTMCategory.Liquidity,
+    label: product,
+    desc: version
+  })
+}
+
+export const logGTMV3lpStepEvent = (step: '1' | '2' | '3') => {
+  console.info(`---V3lpStep${step}---`)
+  window?.dataLayer?.push({
+    event: step === '1' ? GTMEvent.V3lpStep1 : step === '2' ? GTMEvent.V3lpStep2 : GTMEvent.V3lpStep3,
+    action: step === '3' ? GTMAction.ClickPreviewPoolButton : GTMAction.ClickContinueButton,
+    category: GTMCategory.Liquidity,
+    chain: 'Solana'
+  })
+}
+
+export const logGTMCreatelpCmfDepEvent = (version: 'V2' | 'V3', isCreate: boolean) => {
+  console.info(`---createlpCmfDep---`)
+  window?.dataLayer?.push({
+    event: GTMEvent.CreatelpCmfDep,
+    action: GTMAction.ClickConfirmDepositButton,
+    category: GTMCategory.Liquidity,
+    desc: version,
+    label: isCreate ? 'create_new_lp' : 'deposit_lp',
+    chain: 'Solana'
+  })
+}
+
+export const logGTMCreatelpSuccessEvent = ({
+  version,
+  isCreate,
+  token0,
+  token1,
+  token0Amt,
+  token1Amt,
+  feeTier,
+  walletAddress
+}: { version: 'V2' | 'V3'; isCreate: boolean } & PoolLiquiditySuccessParams) => {
+  console.info(`---createlpSuccess---`)
+  window?.dataLayer?.push({
+    event: GTMEvent.CreatelpCmfDep,
+    action: GTMAction.CreateLPSuccess,
+    category: GTMCategory.Liquidity,
+    token0,
+    token1,
+    token0Amt,
+    token1Amt,
+    feeTier,
+    walletAddress,
+    desc: version,
+    label: isCreate ? 'create_new_lp' : 'deposit_lp'
+  })
+}
+
+export const logGTMDepositLiquidityEvent = () => {
+  console.info('---depositLiquidity---')
+  window?.dataLayer?.push({
+    event: GTMEvent.DepositLiquidity,
+    action: GTMAction.ClickDepositButton,
+    category: GTMCategory.Liquidity
+  })
+}
+
+export const logGTMDepositCreatePositionEvent = () => {
+  console.info('---depositcreatePosition---')
+  window?.dataLayer?.push({
+    event: GTMEvent.DepositCreatePosition,
+    action: GTMAction.ClickCreatePositionButton,
+    category: GTMCategory.Liquidity
+  })
+}
+
+export const logGTMCreateNewPositionEvent = () => {
+  console.info('---createNewPosition---')
+  window?.dataLayer?.push({
+    event: GTMEvent.CreateNewPosition,
+    action: GTMAction.ClickCreateNewPositionButton,
+    category: GTMCategory.Liquidity
+  })
+}
+
+export const logGTMAddPoolLiquidityEvent = () => {
+  console.info('---addPoolLiquidity---')
+  window?.dataLayer?.push({
+    event: GTMEvent.AddPoolLiquidity,
+    action: GTMAction.ClickPlusButton,
+    category: GTMCategory.Liquidity
+  })
+}
+
+export const logGTMPoolLiquidityAddCmfEvent = () => {
+  console.info('---PoolLiquidityAddCmf---')
+  window?.dataLayer?.push({
+    event: GTMEvent.PoolLiquidityAddCmf,
+    action: GTMAction.ClickAddPoolLiquidityConfirmButton,
+    category: GTMCategory.Liquidity
+  })
+}
+
+export const logGTMPoolLiquidityAddSuccessEvent = ({
+  walletAddress,
+  token0,
+  token1,
+  token0Amt,
+  token1Amt,
+  feeTier
+}: PoolLiquiditySuccessParams) => {
+  console.info('---PoolLiquidityAddSuccess---')
+  window?.dataLayer?.push({
+    event: GTMEvent.PoolLiquidityAddSuccess,
+    action: GTMAction.DepositSuccess,
+    category: GTMCategory.Liquidity,
+    walletAddress,
+    token0,
+    token1,
+    token0Amt,
+    token1Amt,
+    feeTier
+  })
+}
+
+export const logGTMSubPoolLiquidityEvent = () => {
+  console.info('---subPoolLiquidity---')
+  window?.dataLayer?.push({
+    event: GTMEvent.SubPoolLiquidity,
+    action: GTMAction.ClickMinusButton,
+    category: GTMCategory.Liquidity
+  })
+}
+
+export const logGTMPoolLiquiditySubCmfEvent = () => {
+  console.info('---PoolLiquiditySubCmf---')
+  window?.dataLayer?.push({
+    event: GTMEvent.PoolLiquiditySubCmf,
+    action: GTMAction.ClickSubPoolLiquidityConfirmButton,
+    category: GTMCategory.Liquidity
+  })
+}
+
+export const logGTMPoolLiquiditySubSuccessEvent = ({
+  walletAddress,
+  token0,
+  token1,
+  token0Amt,
+  token1Amt,
+  feeTier
+}: PoolLiquiditySuccessParams) => {
+  console.info('---PoolLiquiditySubSuccess---')
+  window?.dataLayer?.push({
+    event: GTMEvent.PoolLiquiditySubSuccess,
+    action: GTMAction.WithdrawSuccess,
+    category: GTMCategory.Liquidity,
+    walletAddress,
+    token0,
+    token1,
+    token0Amt,
+    token1Amt,
+    feeTier
+  })
+}
+
+export interface SolErrorLogParams {
+  action: 'Add Liquidity Fail' | 'Remove Liquidity Fail' | 'Create Liquidity Pool Fail' | 'Swap Fail'
+  errorCode: string
+  errorMsg: string
+}
+
+export const logGTMSolErrorLogEvent = ({ action, errorCode, errorMsg }: SolErrorLogParams) => {
+  console.info('---SolErrorLog---')
+  window?.dataLayer?.push({
+    event: GTMEvent.SolErrorLog,
+    action,
+    category: GTMCategory.Liquidity,
+    errorCode,
+    errorMsg
+  })
+}
+
+export interface SwapClickParams {
+  fromAddress: string
+  fromToken: string
+  fromAmt: string
+  toAddress: string
+  toToken: string
+  toAmt: string
+}
+
+export const logGTMSwapClickEvent = ({ fromAddress, fromToken, fromAmt, toAddress, toToken, toAmt }: SwapClickParams) => {
+  console.info('---SwapClick---')
+  window?.dataLayer?.push({
+    event: GTMEvent.SwapClick,
+    action: GTMAction.ClickSwapButton,
+    category: GTMCategory.Swap,
+    name: 'Swap',
+    fromAddress,
+    fromToken,
+    fromAmt,
+    toAddress,
+    toToken,
+    toAmt,
+    chain: 'Solana'
   })
 }

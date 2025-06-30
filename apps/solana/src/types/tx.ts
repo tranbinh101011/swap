@@ -1,6 +1,6 @@
 export interface TxCallbackProps<O = any> {
   onSent?: (props?: O) => void
-  onError?: () => void
+  onError?: (e?: any) => void
   onFinally?: (props?: O) => void
   onConfirmed?: () => void
 }
