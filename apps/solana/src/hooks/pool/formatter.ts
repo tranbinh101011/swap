@@ -144,6 +144,10 @@ export function formatPoolData(pool: ApiV3PoolInfoItem, tokenList?: TokenInfo[])
   const mintAInTokenList = tokenList?.find((t) => t.address === pool.mintA.address)
   const mintBInTokenList = tokenList?.find((t) => t.address === pool.mintB.address)
   const { mintA } = pool
+  // replace mint logoURI
+  if (mintAInTokenList && mintA) {
+    mintA.logoURI = mintAInTokenList.logoURI
+  }
   if (mintA && mintA?.symbol === 'UNKNOWN' && mintAInTokenList) {
     mintA.symbol = mintAInTokenList?.symbol
     mintA.decimals = mintAInTokenList?.decimals
@@ -151,6 +155,9 @@ export function formatPoolData(pool: ApiV3PoolInfoItem, tokenList?: TokenInfo[])
   }
 
   const { mintB } = pool
+  if (mintBInTokenList && mintB) {
+    mintB.logoURI = mintBInTokenList.logoURI
+  }
   if (mintB && mintB?.symbol === 'UNKNOWN' && mintBInTokenList) {
     mintB.symbol = mintBInTokenList?.symbol
     mintB.decimals = mintBInTokenList?.decimals
