@@ -17,6 +17,8 @@ export function QuestionToolTip(props: {
   iconProps?: Omit<SvgIcon, 'ref'>
   textProps?: TextProps
   placement?: PopoverProps['placement']
+
+  children?: ReactNode
 }) {
   return (
     <Tooltip
@@ -28,11 +30,12 @@ export function QuestionToolTip(props: {
       placement={props.placement}
     >
       <Box cursor={props.label ? 'pointer' : undefined}>
-        {props.iconType === 'info' ? (
-          <InfoCircleIcon style={{ display: 'block' }} {...props.iconProps} />
-        ) : (
-          <QuestionCircleIcon style={{ display: 'block' }} {...props.iconProps} />
-        )}
+        {props.children ||
+          (props.iconType === 'info' ? (
+            <InfoCircleIcon style={{ display: 'block' }} {...props.iconProps} />
+          ) : (
+            <QuestionCircleIcon style={{ display: 'block' }} {...props.iconProps} />
+          ))}
       </Box>
     </Tooltip>
   )

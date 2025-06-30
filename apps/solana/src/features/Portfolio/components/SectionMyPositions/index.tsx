@@ -1,19 +1,20 @@
+import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { Box, Flex, Grid, GridItem, HStack, Heading, SimpleGrid, Text } from '@chakra-ui/react'
 import { useTranslation } from '@pancakeswap/localization'
-import { useRouter } from 'next/router'
-import Button from '@/components/Button'
-import { colors } from '@/theme/cssVariables'
-import { useAppStore } from '@/store/useAppStore'
-import { QuestionToolTip } from '@/components/QuestionToolTip'
-import { useStateWithUrl } from '@/hooks/useStateWithUrl'
-import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
 import useAllPositionInfo, { PositionTabValues } from '@/hooks/portfolio/useAllPositionInfo'
-import { panelCard } from '@/theme/cssBlocks'
-import { formatCurrency } from '@/utils/numberish/formatter'
 import { useEvent } from '@/hooks/useEvent'
-import TokenAvatar from '@/components/TokenAvatar'
+import { useStateWithUrl } from '@/hooks/useStateWithUrl'
+import QuestionCircleIcon from '@/icons/misc/QuestionCircleIcon'
+import { useAppStore } from '@/store/useAppStore'
+import { panelCard } from '@/theme/cssBlocks'
+import { colors } from '@/theme/cssVariables'
+import { formatCurrency } from '@/utils/numberish/formatter'
 import { getMintSymbol } from '@/utils/token'
+
+import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
+import { QuestionToolTip } from '@/components/QuestionToolTip'
+import TokenAvatar from '@/components/TokenAvatar'
 import MyPositionTabStaked from './TabStaked'
 import MyPositionTabStandard from './TabStandard'
 import { ClmmMyPositionTabContent } from './TabClmm'
@@ -147,40 +148,20 @@ export default function SectionMyPositions() {
               <HStack justify="space-between" gap={8}>
                 <Flex gap={[0, 2]} direction={['column', 'row']} fontSize={['xs', 'sm']} align={['start', 'center']}>
                   <HStack gap={1}>
-                    <Text whiteSpace="nowrap" color={colors.textSubtle}>
-                      {t('Pending Yield')}
-                    </Text>
-                    {isMobile && currentRewardState.rewardInfo.length > 0 && (
-                      <QuestionToolTip
-                        placement="left"
-                        label={
-                          <>
-                            {currentRewardState.rewardInfo.map((r) => (
-                              <Flex key={r.mint.address} alignItems="center" gap="1" my="2">
-                                <TokenAvatar key={`pool-reward-${r.mint.address}`} size="sm" token={r.mint} />
-                                <Text color={colors.primary}>
-                                  {formatCurrency(r.amount, {
-                                    maximumDecimalTrailingZeroes: 5
-                                  })}
-                                </Text>
-                                <Text>{getMintSymbol({ mint: r.mint, transformSol: true })}</Text>
-                                <Text color={colors.primary}>({formatCurrency(r.amountUSD, { symbol: '$', decimalPlaces: 4 })})</Text>
-                              </Flex>
-                            ))}
-                          </>
-                        }
-                        iconType="info"
-                        iconProps={{ width: 10, height: 10, fill: colors.textSecondary }}
-                      />
+                    {(!currentRewardState.rewardInfo || currentRewardState.rewardInfo.length === 0) && (
+                      <HStack gap={1}>
+                        <Text whiteSpace="nowrap" color={colors.textSubtle}>
+                          {t('Pending Yield')}
+                        </Text>
+                        <Text color={colors.primary} fontWeight={600}>
+                          {formatCurrency(currentRewardState.pendingReward, { symbol: '$', maximumDecimalTrailingZeroes: 4 })}
+                        </Text>
+                      </HStack>
                     )}
-                  </HStack>
-                  <HStack>
-                    <Flex gap="2" alignItems="center" whiteSpace="nowrap">
-                      <Text color={colors.primary} fontWeight={600}>
-                        {formatCurrency(currentRewardState.pendingReward, { symbol: '$', maximumDecimalTrailingZeroes: 4 })}
-                      </Text>
-                      {!isMobile && currentRewardState.rewardInfo.length > 0 ? (
+                    {isMobile && currentRewardState.rewardInfo.length > 0 && (
+                      <>
                         <QuestionToolTip
+                          placement="left"
                           label={
                             <>
                               {currentRewardState.rewardInfo.map((r) => (
@@ -198,10 +179,54 @@ export default function SectionMyPositions() {
                             </>
                           }
                           iconType="info"
-                          iconProps={{ width: 18, height: 18, fill: colors.textSecondary }}
-                        />
-                      ) : null}
-                    </Flex>
+                          iconProps={{ width: 10, height: 10, fill: colors.textSecondary }}
+                        >
+                          <HStack>
+                            <Text whiteSpace="nowrap" color={colors.textSubtle}>
+                              {t('Pending Yield')}
+                            </Text>
+                            <QuestionCircleIcon style={{ display: 'block' }} fill={colors.textSecondary} />
+                          </HStack>
+                          <Text color={colors.primary} fontWeight={600}>
+                            {formatCurrency(currentRewardState.pendingReward, { symbol: '$', maximumDecimalTrailingZeroes: 4 })}
+                          </Text>
+                        </QuestionToolTip>
+                      </>
+                    )}
+                  </HStack>
+                  <HStack>
+                    {!isMobile && currentRewardState.rewardInfo.length > 0 ? (
+                      <>
+                        <Text whiteSpace="nowrap" color={colors.textSubtle}>
+                          {t('Pending Yield')}
+                        </Text>
+                        <Flex gap="2" alignItems="center" whiteSpace="nowrap">
+                          <Text color={colors.primary} fontWeight={600}>
+                            {formatCurrency(currentRewardState.pendingReward, { symbol: '$', maximumDecimalTrailingZeroes: 4 })}
+                          </Text>
+                          <QuestionToolTip
+                            label={
+                              <>
+                                {currentRewardState.rewardInfo.map((r) => (
+                                  <Flex key={r.mint.address} alignItems="center" gap="1" my="2">
+                                    <TokenAvatar key={`pool-reward-${r.mint.address}`} size="sm" token={r.mint} />
+                                    <Text color={colors.primary}>
+                                      {formatCurrency(r.amount, {
+                                        maximumDecimalTrailingZeroes: 5
+                                      })}
+                                    </Text>
+                                    <Text>{getMintSymbol({ mint: r.mint, transformSol: true })}</Text>
+                                    <Text color={colors.primary}>({formatCurrency(r.amountUSD, { symbol: '$', decimalPlaces: 4 })})</Text>
+                                  </Flex>
+                                ))}
+                              </>
+                            }
+                            iconType="info"
+                            iconProps={{ width: 18, height: 18, fill: colors.textSecondary }}
+                          />
+                        </Flex>
+                      </>
+                    ) : null}
                   </HStack>
                 </Flex>
                 {/* <Button

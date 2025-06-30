@@ -101,9 +101,9 @@ const CLMM_TX_MSG = {
   createPool: {
     titleKey: 'Create Pool',
     title: <Trans>Create Pool</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Create CLMM pool</Trans>,
+    desc: (props: localeProps) => <Trans {...props}>Create V3 pool</Trans>,
     txHistoryTitle: <Trans>Create Pool</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Create CLMM pool</Trans>
+    txHistoryDesc: (props: localeProps) => <Trans {...props}>Create V3 pool</Trans>
   },
   createFarm: {
     titleKey: 'Create new farm',
