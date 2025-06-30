@@ -36,7 +36,7 @@ export default class TokenModule extends ModuleBase {
     this._tokenMap = new Map();
     this._blackTokenMap = new Set(blacklist);
     this._mintGroup = { official: new Set(), raydium: new Set(), jup: new Set(), extra: new Set() };
-    this._whiteMap = new Set(whiteList);
+    this._whiteMap = new Set([...PCSList.map((t) => t.address), ...whiteList]);
 
     this._tokenMap.set(SOL_INFO.address, SOL_INFO);
     this._mintGroup.official.add(SOL_INFO.address);
