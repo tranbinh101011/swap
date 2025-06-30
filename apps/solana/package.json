@@ -126,7 +126,8 @@
     "valtio": "^2.1.2",
     "viem": "^2.7.9",
     "yup": "^0.32.11",
-    "zustand": "^4.1.1"
+    "zustand": "^4.1.1",
+    "virtua": "0.41.5"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "13.0.7",

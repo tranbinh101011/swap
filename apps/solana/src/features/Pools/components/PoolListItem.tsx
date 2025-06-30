@@ -327,7 +327,7 @@ export default function PoolListItem({
             <Flex py={4} justify="space-between">
               <Flex flex={3} direction="column">
                 <Text fontSize="xs" color={colors.textTertiary}>
-                  {t('Liquidity')}
+                  {t('TVL')}
                 </Text>
                 <Text fontSize="sm" color={colors.textSubtle}>
                   {formatCurrency(pool.tvl, { symbol: '$', decimalPlaces: 0 })}

@@ -62,7 +62,7 @@ export default function useFetchPoolList<T extends PoolFetchType>(props?: {
   } = props || {}
   const [host, listUrl] = useAppStore((s) => [s.urlConfigs.BASE_HOST, s.urlConfigs.POOL_LIST], shallow)
 
-  const url = `${host + listUrl}?poolType=${showFarms ? `${type}Farm` : type}&poolSortField=${sort}&sortType=${order}&pageSize=${pageSize}`
+  const url = `${host + listUrl}?poolType=${showFarms ? `${type}Farm` : type}&poolSortField=${sort}&order=${order}&pageSize=${pageSize}`
 
   const { data, setSize, error, ...swrProps } = useSWRInfinite(
     (index) => (shouldFetch ? [`${url}&page=${index + 1}`, refreshTag] : null),

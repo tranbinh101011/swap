@@ -1,15 +1,15 @@
-import { Button } from '@pancakeswap/uikit'
+import { Button, useMatchBreakpoints } from '@pancakeswap/uikit'
 import Link from 'next/link'
 import { useTranslation } from '@pancakeswap/localization'
 import { Box, Flex, Text } from '@chakra-ui/react'
 import { ApiV3PoolInfoConcentratedItem } from '@pancakeswap/solana-core-sdk'
 import { useEffect, useMemo, memo } from 'react'
+import { VList } from 'virtua'
 import useFetchPoolById from '@/hooks/pool/useFetchPoolById'
 import useFetchMultipleRpcClmmInfo from '@/hooks/pool/clmm/useFetchMultipleRpcClmmInfo'
 import { ClmmDataWithUpdateFn } from '@/hooks/portfolio/useAllPositionInfo'
 import { ClmmLockInfo } from '@/hooks/portfolio/clmm/useClmmBalance'
 import { panelCard } from '@/theme/cssBlocks'
-
 import { ClmmPositionItemsCard } from './components/Clmm/ClmmPositionItemsCard'
 import { openCache } from './components/Clmm/ClmmPositionAccountItem'
 
@@ -28,6 +28,7 @@ const ClmmMyPositionTabContent = memo(
     setNoRewardClmmPos: (val: string, isDelete?: boolean) => void
   }) => {
     const { t } = useTranslation()
+    const { isMobile } = useMatchBreakpoints()
     const { formattedDataMap } = useFetchPoolById<ApiV3PoolInfoConcentratedItem>({
       idList: Array.from(clmmBalanceInfo.keys()),
       refreshTag,
@@ -78,26 +79,28 @@ const ClmmMyPositionTabContent = memo(
     return (
       <Box display="flex" flexDir="column" gap={4}>
         {allPositions.length ? (
-          allPositions.map((data) => (
-            <ClmmPositionItemsCard
-              key={data[0]}
-              isLoading={isLoading}
-              poolId={data[0]}
-              positions={data[1]}
-              poolInfo={formattedDataMap[data[0]]}
-              lockInfo={lockInfo[data[0]]}
-              initRpcPoolData={
-                dataMap[data[0]]
-                  ? {
-                      poolId: data[0],
-                      currentPrice: dataMap[data[0]].currentPrice.toNumber(),
-                      poolInfo: dataMap[data[0]]
-                    }
-                  : undefined
-              }
-              setNoRewardClmmPos={setNoRewardClmmPos}
-            />
-          ))
+          <VList style={{ height: isMobile ? '70vh' : '80vh' }} count={allPositions.length} itemSize={allPositions.length}>
+            {allPositions.map((data) => (
+              <ClmmPositionItemsCard
+                key={data[0]}
+                isLoading={isLoading}
+                poolId={data[0]}
+                positions={data[1]}
+                poolInfo={formattedDataMap[data[0]]}
+                lockInfo={lockInfo[data[0]]}
+                initRpcPoolData={
+                  dataMap[data[0]]
+                    ? {
+                        poolId: data[0],
+                        currentPrice: dataMap[data[0]].currentPrice.toNumber(),
+                        poolInfo: dataMap[data[0]]
+                      }
+                    : undefined
+                }
+                setNoRewardClmmPos={setNoRewardClmmPos}
+              />
+            ))}
+          </VList>
         ) : (
           <Flex
             {...panelCard}
