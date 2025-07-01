@@ -202,9 +202,12 @@ export default function PoolListItem({
                       <Flex maxW="216px">
                         <Text fontSize="sm">
                           <Highlight query="concentrated" styles={{ fontWeight: '700', color: `${colors.textSecondary}` }}>
-                            {t('This is a %feeRate%% fee tier %type% liquidity pool', {
+                            {t('This is a %type% with a %feeRate%% fee tier', {
                               feeRate: formatToRawLocaleStr(pool.feeRate * 100),
-                              type: t(`liquidity.${pool.type}`)
+                              type:
+                                pool.type === 'Concentrated'
+                                  ? t('V3 concentrated liquidity pool (CLMM)')
+                                  : t('V2 standard liquidity pool (CPMM)')
                             })}
                           </Highlight>
                         </Text>
