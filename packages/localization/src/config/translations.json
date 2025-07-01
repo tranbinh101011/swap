@@ -4281,5 +4281,7 @@
   "Computing": "Computing",
   "Swap %amountA% %symbolA% for %amountB% %symbolB%.": "Swap %amountA% %symbolA% for %amountB% %symbolB%.",
   "No rewards to harvest yet. Check back later — your earnings will grow as users trade in this pool.": "No rewards to harvest yet. Check back later — your earnings will grow as users trade in this pool.",
-  "Your Pool will appear in the Pool List within approximately 5 minutes, and you can also view your added position under the My Position tab. This pool is represented by an NFT—please do not burn or transfer it, as it is required to retain ownership of the position.": "Your Pool will appear in the Pool List within approximately 5 minutes, and you can also view your added position under the My Position tab. This pool is represented by an NFT—please do not burn or transfer it, as it is required to retain ownership of the position."
+  "Your Pool will appear in the Pool List within approximately 5 minutes, and you can also view your added position under the My Position tab. This pool is represented by an NFT—please do not burn or transfer it, as it is required to retain ownership of the position.": "Your Pool will appear in the Pool List within approximately 5 minutes, and you can also view your added position under the My Position tab. This pool is represented by an NFT—please do not burn or transfer it, as it is required to retain ownership of the position.",
+  "Provide Liquidity on Solana PancakeSwap": "Provide Liquidity on Solana PancakeSwap",
+  "Add LP Now": "Add LP Now"
 }

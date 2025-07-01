@@ -4,7 +4,6 @@ import { AdButton } from '../Button'
 import { AdCard } from '../Card'
 import { AdsIds, useAdsConfig } from '../hooks/useAdsConfig'
 import { AdsConfig, AdTextConfig } from '../types'
-import { getImageUrl } from '../utils'
 
 export const AdCommon = (props: { id: AdsIds }) => {
   const config = useAdsConfig(props.id)
@@ -15,14 +14,14 @@ export const AdCommonRender = ({ config }: { config: AdsConfig }) => {
   const { img, texts, btn, options } = config
 
   return (
-    <AdCard imageUrl={getImageUrl(img)} imgPadding={options?.imagePadding}>
+    <AdCard imageUrl={img} imgPadding={options?.imagePadding}>
       <BodyText mb="0">
         {texts.map((textConfig, i) => {
           const key = `${textConfig.text}-${i}`
           return <AdTextRender key={key} config={textConfig} />
         })}
       </BodyText>
-      <AdButton mt="16px" href={btn.link} externalIcon isExternalLink>
+      <AdButton mt={btn.mt || '16px'} href={btn.link} externalIcon isExternalLink>
         {btn.text}
       </AdButton>
     </AdCard>

@@ -11,17 +11,8 @@ import { AdSpringboard } from './Ads/AdSpringboard'
 import { commonLayoutWhitelistedPages } from './constants'
 import { ExpandableAd } from './Expandable/ExpandableAd'
 import { shouldRenderOnPages } from './renderConditions'
-import { AdSlide } from './types'
+import { AdSlide, Priority } from './types'
 import { useShouldRenderAdIfo } from './useShouldRenderAdIfo'
-
-enum Priority {
-  FIRST_AD = 6,
-  VERY_HIGH = 5,
-  HIGH = 4,
-  MEDIUM = 3,
-  LOW = 2,
-  VERY_LOW = 1,
-}
 
 export const useAdConfig = () => {
   const { isDesktop } = useMatchBreakpoints()
@@ -37,24 +28,25 @@ export const useAdConfig = () => {
           return {
             id: value.id,
             component: <AdCommon id={key as AdsIds} />,
+            priority: value.priority || undefined,
           }
         }
         return undefined
       })
-      .filter(Boolean) as { id: string; component: JSX.Element }[]
+      .filter(Boolean) as { id: string; component: JSX.Element; priority?: number }[]
   }, [configs])
 
   const adList: Array<AdSlide> = useMemo(
     () => [
       {
-        id: 'ad-cross-chain',
-        component: <AdCrossChain />,
-      },
-      {
         id: 'expandable-ad',
         component: <ExpandableAd />,
         priority: Priority.FIRST_AD,
         shouldRender: [shouldRenderOnPage],
+      },
+      {
+        id: 'ad-cross-chain',
+        component: <AdCrossChain />,
       },
       ...commonAdConfigs,
       {

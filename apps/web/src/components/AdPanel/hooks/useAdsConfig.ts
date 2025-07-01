@@ -1,10 +1,13 @@
 import { ContextApi, useTranslation } from '@pancakeswap/localization'
-import { useMemo } from 'react'
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
-import { AdsCampaignConfig } from '../types'
+import { ASSET_CDN } from 'config/constants/endpoints'
+import { useMemo } from 'react'
+import { AdsCampaignConfig, Priority } from '../types'
+import { getImageUrl } from '../utils'
 
 export enum AdsIds {
   BINANCE_ALPHA = 'binance-alpha',
+  SOLANA_LIQUIDITY = 'solana-liquidity',
 }
 
 type AdsConfigMap = {
@@ -15,7 +18,7 @@ const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig
     {
       id: AdsIds.BINANCE_ALPHA,
       ad: {
-        img: !isMobile ? 'alpha-comp' : 'alpha-comp-mobile',
+        img: getImageUrl(!isMobile ? 'alpha-comp' : 'alpha-comp-mobile'),
         texts: [
           {
             text: !isMobile ? t('Trade Binance Alpha Tokens to Win $250,000.') : t('Trade Alpha Tokens: Win $250K.'),
@@ -31,6 +34,23 @@ const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig
         },
         options: {
           imagePadding: '20px',
+        },
+      },
+    },
+    {
+      id: AdsIds.SOLANA_LIQUIDITY,
+      priority: Priority.HIGH,
+      ad: {
+        img: `${ASSET_CDN}/solana/promotions/add_liquidity.png`,
+        texts: [
+          {
+            text: t('Provide Liquidity on Solana PancakeSwap'),
+          },
+        ],
+        btn: {
+          text: t('Add LP Now'),
+          link: 'https://solana.pancakeswap.finance/liquidity-pools',
+          mt: '32px',
         },
       },
     },

@@ -1,3 +1,12 @@
+export enum Priority {
+  FIRST_AD = 6,
+  VERY_HIGH = 5,
+  HIGH = 4,
+  MEDIUM = 3,
+  LOW = 2,
+  VERY_LOW = 1,
+}
+
 export interface AdPlayerProps {
   isDismissible?: boolean
 
@@ -25,6 +34,7 @@ export interface AdTextConfig {
 export interface BtnConfig {
   text: string
   link: string
+  mt?: string
 }
 export interface AdsConfig {
   img: string
@@ -50,6 +60,7 @@ export interface AdsCampaignConfig {
   id: string
   ad: AdsConfig
   infoStripe?: InfoStripeConfig
+  priority?: number
 }
 
 type Token = {
