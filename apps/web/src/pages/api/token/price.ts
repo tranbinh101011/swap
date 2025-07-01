@@ -1,7 +1,9 @@
 import { ChainId } from '@pancakeswap/chains'
+import { OnChainProvider } from '@pancakeswap/smart-router'
 import { getCorsHeaders, handleCors } from 'edge/cors'
 import { queryTokenPrice } from 'edge/tokenPrice'
 import { NextRequest, NextResponse } from 'next/server'
+import { getViemClients } from 'utils/viem.server'
 import { Address } from 'viem/accounts'
 
 export const config = {
@@ -17,19 +19,20 @@ export default async function handler(req: NextRequest) {
   const chainId = Number(searchParams.get('chainId'))
   const address = searchParams.get('address')
   const isNative = searchParams.get('native') === 'true'
-  const hideIfPriceImpactTooHigh = Boolean(searchParams.get('hideIfPriceImpactTooHigh'))
 
   if (!chainId || (address == null && !isNative)) {
     return NextResponse.json({ error: 'invalid query' }, { status: 400, headers: getCorsHeaders(req) })
   }
 
   try {
-    const queryResult = await queryTokenPrice({
-      chainId: chainId as ChainId,
-      address: address as Address,
-      isNative,
-      hideIfPriceImpactTooHigh,
-    })
+    const queryResult = await queryTokenPrice(
+      {
+        chainId: chainId as ChainId,
+        address: address as Address,
+        isNative,
+      },
+      getViemClients as OnChainProvider,
+    )
     if (!queryResult) {
       return NextResponse.json({ error: 'price not found' }, { status: 404, headers: getCorsHeaders(req) })
     }

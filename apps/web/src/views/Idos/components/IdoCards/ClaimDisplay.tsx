@@ -27,10 +27,6 @@ export const ClaimDisplay: React.FC<{
   const amountInDollar = useStablecoinPriceAmount(
     offeringCurrency ?? undefined,
     claimableAmount !== undefined && Number.isFinite(+claimableAmount) ? +claimableAmount : undefined,
-    {
-      hideIfPriceImpactTooHigh: true,
-      enabled: Boolean(claimableAmount !== undefined && Number.isFinite(+claimableAmount)),
-    },
   )
   const refundAmount = userStatus?.stakeRefund?.toSignificant(6)
   const hasRefund = userStatus?.stakeRefund?.greaterThan(0)
@@ -38,10 +34,6 @@ export const ClaimDisplay: React.FC<{
   const refundInDollar = useStablecoinPriceAmount(
     stakeCurrency ?? undefined,
     refundAmount !== undefined && Number.isFinite(+refundAmount) ? +refundAmount : undefined,
-    {
-      hideIfPriceImpactTooHigh: true,
-      enabled: Boolean(refundAmount !== undefined && Number.isFinite(+refundAmount)),
-    },
   )
 
   const userHasStaked = userStatus?.stakedAmount?.greaterThan(0)

@@ -138,7 +138,6 @@ export const IdoDepositButton: React.FC<{
     stakeCurrency ?? undefined,
     value !== undefined && Number.isFinite(+value) ? +value : undefined,
     {
-      hideIfPriceImpactTooHigh: true,
       enabled: Boolean(value !== undefined && Number.isFinite(+value)),
     },
   )

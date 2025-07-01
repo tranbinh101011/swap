@@ -1,4 +1,3 @@
-import styled from 'styled-components'
 import { useTranslation } from '@pancakeswap/localization'
 import {
   ArrowDropDownIcon,
@@ -15,6 +14,7 @@ import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import CurrencySearchModalV2, { CurrencySearchModalV2Props } from 'components/SearchModal/CurrencySearchModalV2'
 import { useStablecoinPrice } from 'hooks/useStablecoinPrice'
 import { useCurrencyBalanceWithChain } from 'state/wallet/hooks'
+import styled from 'styled-components'
 import { useAccount } from 'wagmi'
 import { AutoRow, RowBetween } from '../Layout/Row'
 import { CurrencyLogo } from '../Logo'
@@ -63,11 +63,9 @@ export const CurrencySelectV2 = ({
     />,
   )
 
-  const price = useStablecoinPrice(
-    selectedCurrencyBalance && selectedCurrency ? selectedCurrency : undefined,
-    { enabled: Boolean(selectedCurrencyBalance?.greaterThan(0)) },
-    chainId,
-  )
+  const price = useStablecoinPrice(selectedCurrencyBalance && selectedCurrency ? selectedCurrency : undefined, {
+    enabled: Boolean(selectedCurrencyBalance?.greaterThan(0)),
+  })
   const quoted = selectedCurrencyBalance && price?.quote(selectedCurrencyBalance)
 
   return (

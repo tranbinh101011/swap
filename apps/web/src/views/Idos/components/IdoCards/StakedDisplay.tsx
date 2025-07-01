@@ -16,7 +16,6 @@ export const StakedDisplay: React.FC<{ userStatus: IDOUserStatus; pid: number }>
       ? +stakedAmount.toSignificant(6)
       : undefined,
     {
-      hideIfPriceImpactTooHigh: true,
       enabled: Boolean(stakedAmount !== undefined && Number.isFinite(+stakedAmount.toSignificant(6))),
     },
   )

@@ -7,6 +7,7 @@ type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
 interface LoadableOption<T> {
   isValid?: (result: UnwrapPromise<ReturnType<AsyncFN<T>>>) => boolean
   placeHolderBehavior?: 'pending' | 'stale'
+  placeHolderValue?: T
 }
 
 export const atomWithLoadable = <T>(
@@ -34,7 +35,10 @@ export const atomWithLoadable = <T>(
     }
   })
   return unwrap(baseAtom, (prev) => {
-    const { placeHolderBehavior } = options
+    const { placeHolderBehavior, placeHolderValue } = options
+    if (placeHolderValue) {
+      return Loadable.Pending<T>(placeHolderValue)
+    }
     if (placeHolderBehavior === 'stale') {
       if (prev?.isJust()) {
         return Loadable.Pending<T>(prev.unwrap())

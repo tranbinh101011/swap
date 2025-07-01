@@ -35,7 +35,6 @@ export const ClaimedCard: React.FC<{
     offeringCurrency ?? undefined,
     claimableAmount !== undefined && Number.isFinite(+claimableAmount) ? +claimableAmount : undefined,
     {
-      hideIfPriceImpactTooHigh: true,
       enabled: Boolean(claimableAmount !== undefined && Number.isFinite(+claimableAmount)),
     },
   )
