@@ -18,7 +18,7 @@ export enum GTMEvent {
   PoolLiquiditySubCmf = 'PoolLiquiditySubCmf',
   PoolLiquiditySubSuccess = 'PoolLiquiditySubSuccess',
   SolErrorLog = 'SolErrorLog',
-  SwapClick = 'SwapClick'
+  SwapClick = 'SwapStarted'
 }
 
 export enum GTMCategory {
@@ -89,6 +89,7 @@ export const logGTMSwapTXSuccessEvent = ({ txId, chain, from, to = '' }: SwapTXS
     action: GTMAction.SwapTransactionSent,
     category: GTMCategory.Swap,
     txId,
+    tx_id: txId,
     chain,
     fromAddress: from,
     toAddress: to
@@ -160,7 +161,7 @@ export const logGTMCreatelpSuccessEvent = ({
 }: { version: 'V2' | 'V3'; isCreate: boolean } & PoolLiquiditySuccessParams) => {
   console.info(`---createlpSuccess---`)
   window?.dataLayer?.push({
-    event: GTMEvent.CreatelpCmfDep,
+    event: GTMEvent.CreatelpSuccess,
     action: GTMAction.CreateLPSuccess,
     category: GTMCategory.Liquidity,
     token0,
@@ -283,18 +284,33 @@ export const logGTMPoolLiquiditySubSuccessEvent = ({
 
 export interface SolErrorLogParams {
   action: 'Add Liquidity Fail' | 'Remove Liquidity Fail' | 'Create Liquidity Pool Fail' | 'Swap Fail'
-  errorCode: string
-  errorMsg: string
+  e: any
 }
 
-export const logGTMSolErrorLogEvent = ({ action, errorCode, errorMsg }: SolErrorLogParams) => {
+export const logGTMSolErrorLogEvent = ({ action, e }: SolErrorLogParams) => {
   console.info('---SolErrorLog---')
+  let errorMsg = ''
+  try {
+    errorMsg = typeof e === 'string' ? e : 'message' in e ? e.message : e.toString()
+  } catch (e) {
+    //
+  }
   window?.dataLayer?.push({
     event: GTMEvent.SolErrorLog,
     action,
-    category: GTMCategory.Liquidity,
-    errorCode,
-    errorMsg
+    category: action === 'Swap Fail' ? GTMCategory.Swap : GTMCategory.Liquidity,
+    label: 0,
+    desc: errorMsg
+  })
+}
+
+export const logGTMSwapClickEvent = () => {
+  console.info('---SwapClick---')
+  window?.dataLayer?.push({
+    event: GTMEvent.SwapClick,
+    action: GTMAction.ClickSwapButton,
+    category: GTMCategory.Swap,
+    chain: 'Solana'
   })
 }
 
@@ -302,24 +318,22 @@ export interface SwapClickParams {
   fromAddress: string
   fromToken: string
   fromAmt: string
-  toAddress: string
   toToken: string
   toAmt: string
+  txId: string
 }
 
-export const logGTMSwapClickEvent = ({ fromAddress, fromToken, fromAmt, toAddress, toToken, toAmt }: SwapClickParams) => {
-  console.info('---SwapClick---')
+export const logGTMSwapTxSuccEvent = ({ fromToken, fromAmt, toToken, toAmt, txId, fromAddress }: SwapClickParams) => {
+  console.info('---SwapTXSuccess---')
   window?.dataLayer?.push({
-    event: GTMEvent.SwapClick,
-    action: GTMAction.ClickSwapButton,
-    category: GTMCategory.Swap,
-    name: 'Swap',
-    fromAddress,
-    fromToken,
-    fromAmt,
-    toAddress,
-    toToken,
-    toAmt,
+    event: GTMEvent.SwapTXSuccess,
+    action: GTMAction.SwapTransactionSent,
+    from_address: fromAddress,
+    token0: fromToken,
+    token0Amt: fromAmt,
+    token1: toToken,
+    token1Amt: toAmt,
+    tx_id: txId,
     chain: 'Solana'
   })
 }

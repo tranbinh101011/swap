@@ -347,16 +347,9 @@ export default function AddLiquidityModal({
                   handleCloseModal()
                 },
                 onError: (e: any) => {
-                  let errorMsg = ''
-                  try {
-                    errorMsg = typeof e === 'string' ? e : 'msg' in e ? e.msg : e.toString()
-                  } catch (e) {
-                    //
-                  }
                   logGTMSolErrorLogEvent({
                     action: 'Add Liquidity Fail',
-                    errorMsg,
-                    errorCode: '0'
+                    e
                   })
                   handleClick()
                   setIsSending(false)

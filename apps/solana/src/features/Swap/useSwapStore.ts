@@ -133,6 +133,7 @@ export const useSwapStore = createStore<SwapStore>(
             status: 'error'
           })
           onCloseToast && onCloseToast()
+          txProps?.onError?.('Make Transaction Error from swap api')
           return
         }
 

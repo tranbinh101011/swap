@@ -1,8 +1,10 @@
+import { onConfirmed } from '@/hooks/toast/useTxStatus'
+
 export interface TxCallbackProps<O = any> {
   onSent?: (props?: O) => void
   onError?: (e?: any) => void
   onFinally?: (props?: O) => void
-  onConfirmed?: () => void
+  onConfirmed?: onConfirmed
 }
 
 export interface TxCallbackPropsGeneric<O> {

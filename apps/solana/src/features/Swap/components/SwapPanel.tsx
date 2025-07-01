@@ -24,7 +24,7 @@ import { debounce } from '@/utils/functionMethods'
 import { formatCurrency, formatToRawLocaleStr } from '@/utils/numberish/formatter'
 import ToPublicKey, { isValidPublicKey } from '@/utils/publicKey'
 import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
-import { logGTMSolErrorLogEvent, logGTMSwapClickEvent } from '@/utils/report/curstomGTMEventTracking'
+import { logGTMSolErrorLogEvent, logGTMSwapClickEvent, logGTMSwapTxSuccEvent } from '@/utils/report/curstomGTMEventTracking'
 import { getMintPriority, getMintSymbol, isSolWSol, mintToUrl, urlToMint } from '@/utils/token'
 import { ApiSuccessResponse, QuoteResponseData, SwapType } from '../type'
 import useSwap from '../useSwap'
@@ -274,14 +274,7 @@ export function SwapPanel({
 
   const handleClickSwap = () => {
     if (!response) return
-    logGTMSwapClickEvent({
-      fromAddress: wallet?.adapter.publicKey?.toString() ?? '',
-      fromToken: tokenInput?.address ?? '',
-      fromAmt: response.data.inputAmount,
-      toAddress: '',
-      toToken: tokenOutput?.address ?? '',
-      toAmt: response.data.outputAmount
-    })
+    logGTMSwapClickEvent()
     sendingResult.current = response
     onSending()
     swapTokenAct({
@@ -290,22 +283,23 @@ export function SwapPanel({
       wrapSol: tokenInput?.address === PublicKey.default.toString(),
       unwrapSol: tokenOutput?.address === PublicKey.default.toString(),
       onCloseToast: offSending,
-      onConfirmed: () => {
+      onConfirmed: ({ txId }) => {
+        logGTMSwapTxSuccEvent({
+          fromAddress: wallet?.adapter.publicKey?.toString() ?? '',
+          fromToken: tokenInput?.address ?? '',
+          fromAmt: response.data.inputAmount,
+          toToken: tokenOutput?.address ?? '',
+          toAmt: response.data.outputAmount,
+          txId
+        })
         // setAmountIn('')
         // setNeedPriceUpdatedAlert(false)
         offSending()
       },
       onError: (e) => {
-        let errorMsg = ''
-        try {
-          errorMsg = typeof e === 'string' ? e : 'msg' in e ? e.msg : e.toString()
-        } catch (e) {
-          //
-        }
         logGTMSolErrorLogEvent({
           action: 'Swap Fail',
-          errorMsg,
-          errorCode: '0'
+          e
         })
         offSending()
         mutate()
@@ -381,7 +375,7 @@ export function SwapPanel({
     if (swapError) return swapError
     if (isHighRiskTx) return t('Swap Anyway')
     return t('Swap')
-  }, [swapDisabled, swapError, isHighRiskTx, t, swapError])
+  }, [swapDisabled, isHighRiskTx, t, swapError])
 
   return (
     <Wrapper height="100%">

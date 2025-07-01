@@ -27,6 +27,8 @@ export interface TxMeta {
   txValues?: Record<string, any>
 }
 
+export type onConfirmed = (args: { txId: string; signatureResult: SignatureResult; context: Context }) => void
+
 export const txStatusSubject = new Subject<
   TxMeta & {
     txId: string
@@ -39,7 +41,7 @@ export const txStatusSubject = new Subject<
     duration?: number
     isSwap?: boolean
     signedTx?: Transaction | VersionedTransaction
-    onConfirmed?: (signatureResult: SignatureResult, context: Context) => void
+    onConfirmed?: onConfirmed
     onError?: (signatureResult: SignatureResult, context: Context) => void
     onSent?: () => void
     onClose?: () => void
@@ -200,7 +202,11 @@ function useTxStatus() {
                 isMultiSig: isMultisigWallet
               })
             } else {
-              onConfirmed?.(signatureResult, context)
+              onConfirmed?.({
+                txId,
+                signatureResult,
+                context
+              })
               if (hideResultToast) return
               // update toast status to success
               toastSubject.next({

@@ -198,16 +198,9 @@ export default function CreateClmmPool() {
         },
         onFinally: () => setIsTxSending(false),
         onError(e) {
-          let errorMsg = ''
-          try {
-            errorMsg = typeof e === 'string' ? e : 'msg' in e ? e.msg : e.toString()
-          } catch (e) {
-            //
-          }
           logGTMSolErrorLogEvent({
             action: 'Create Liquidity Pool Fail',
-            errorMsg,
-            errorCode: '0'
+            e
           })
         }
       })
