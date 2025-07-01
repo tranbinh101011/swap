@@ -3,19 +3,16 @@ import React, { createRef, memo, useCallback, useEffect, useRef, useState } from
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps, areEqual } from 'react-window'
 import LeftArrowIcon from 'src/icons/LeftArrowIcon'
-import SearchIcon from 'src/icons/SearchIcon'
 
-import { useConnection } from '@jup-ag/wallet-adapter'
-import debounce from 'lodash.debounce'
-import { useTokenContext } from 'src/contexts/TokenContextProvider'
-import { useUSDValueProvider } from 'src/contexts/USDValueProvider'
-import { checkIsUnknownToken } from 'src/misc/tokenTags'
-import FormPairRow from './FormPairRow'
-import { useSortByValue } from './useSortByValue'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import debounce from 'lodash.debounce'
 import { searchService } from 'src/contexts/SearchService'
+import { useTokenContext } from 'src/contexts/TokenContextProvider'
 import { useAccounts } from 'src/contexts/accounts'
 import { cn } from 'src/misc/cn'
+import { useTokenList } from '../queries/useTokenlist'
+import FormPairRow from './FormPairRow'
+import { useSortByValue } from './useSortByValue'
 
 export const PAIR_ROW_HEIGHT = 72
 const SEARCH_BOX_HEIGHT = 56
@@ -24,12 +21,14 @@ const SEARCH_BOX_HEIGHT = 56
 const rowRenderer = memo((props: ListChildComponentProps) => {
   const { data, index, style } = props
   const item = data.searchResult[index]
+  const { tokenList } = useTokenList()
 
   return (
     <FormPairRow
       key={item.address}
       item={item}
       style={style}
+      tokenList={tokenList}
       onSubmit={data.onSubmit}
       usdValue={data.mintToUsdValue.get(item.address)}
       showExplorer={false}

@@ -1,15 +1,15 @@
-import React, { CSSProperties, useEffect, useMemo, useRef } from 'react'
 import { TokenInfo } from '@solana/spl-token-registry'
 import Decimal from 'decimal.js'
+import React, { CSSProperties, useEffect, useMemo, useRef } from 'react'
 import { WRAPPED_SOL_MINT } from 'src/constants'
-import { checkIsStrictOrVerified, checkIsToken2022, checkIsUnknownToken } from 'src/misc/tokenTags'
 import { useAccounts } from 'src/contexts/accounts'
+import { checkIsStrictOrVerified, checkIsToken2022 } from 'src/misc/tokenTags'
 import { formatNumber, hasNumericValue } from 'src/misc/utils'
-import TokenIcon from './TokenIcon'
-import TokenLink from './TokenLink'
+import CheckedBadge from './CheckedBadge'
 import CoinBalance from './Coinbalance'
 import { useLstApyFetcher } from './SuggestionTags/hooks/useLstApy'
-import CheckedBadge from './CheckedBadge'
+import TokenIcon from './TokenIcon'
+import TokenLink from './TokenLink'
 
 export const PAIR_ROW_HEIGHT = 72
 
@@ -20,6 +20,7 @@ export interface IPairRow {
   onSubmit(item: TokenInfo): void
   suppressCloseModal?: boolean
   showExplorer?: boolean
+  tokenList?: TokenInfo[]
   enableUnknownTokenWarning?: boolean
   isLST?: boolean
 }
@@ -122,11 +123,16 @@ const FormPairRow = (props: IPairRow) => {
     item,
     style,
     onSubmit,
+    tokenList,
     suppressCloseModal,
     usdValue,
     showExplorer = true,
     enableUnknownTokenWarning = true,
   } = props
+  const token = useMemo(() => {
+    if (!tokenList) return item
+    return tokenList.find((t) => t.address === item.address) || item
+  }, [item, tokenList])
   const onClick = React.useCallback(() => {
     onSubmit(item)
 
@@ -148,7 +154,12 @@ const FormPairRow = (props: IPairRow) => {
       <div className="flex h-full w-full items-center space-x-4">
         <div className="flex-shrink-0">
           <div className="rounded-full">
-            <TokenIcon info={item} width={36} height={36} enableUnknownTokenWarning={enableUnknownTokenWarning} />
+            <TokenIcon
+              info={token}
+              width={36}
+              height={36}
+              enableUnknownTokenWarning={!!token.programId ? false : enableUnknownTokenWarning}
+            />
           </div>
         </div>
         <div className="flex-1 min-w-0">

@@ -12,21 +12,22 @@ import JupButton from './JupButton'
 import TokenIcon from './TokenIcon'
 
 import { UnifiedWalletButton } from '@jup-ag/wallet-adapter'
+import Decimal from 'decimal.js'
 import { useSwapContext } from 'src/contexts/SwapContext'
 import { useWalletPassThrough } from 'src/contexts/WalletPassthroughProvider'
 import ChevronDownIcon from 'src/icons/ChevronDownIcon'
 import { RoutesSVG } from 'src/icons/RoutesSVG'
 import WalletIcon from 'src/icons/WalletIcon'
+import { cn } from 'src/misc/cn'
 import { detectedSeparator } from 'src/misc/utils'
 import { WRAPPED_SOL_MINT } from '../constants'
+import { useTokenList } from '../queries/useTokenlist'
 import { CoinBalanceUSD } from './CoinBalanceUSD'
 import PriceInfo from './PriceInfo/index'
+import SuggestionTags from './SuggestionTags'
+import { useSuggestionTags } from './SuggestionTags/hooks/useSuggestionTags'
 import SwitchPairButton from './SwitchPairButton'
 import useTimeDiff from './useTimeDiff/useTimeDiff'
-import Decimal from 'decimal.js'
-import { useSuggestionTags } from './SuggestionTags/hooks/useSuggestionTags'
-import SuggestionTags from './SuggestionTags'
-import { cn } from 'src/misc/cn'
 
 const Form: React.FC<{
   onSubmit: () => void
@@ -48,6 +49,21 @@ const Form: React.FC<{
     refresh,
     quoteError,
   } = useSwapContext()
+  const { tokenList } = useTokenList()
+  const fromTokenInfoFromList = useMemo(() => {
+    if (!tokenList) return fromTokenInfo
+    const tokenInfo = tokenList.find((token) => token.address === fromTokenInfo?.address)
+    fromTokenInfo.logoURI = tokenInfo?.logoURI || fromTokenInfo.logoURI
+    fromTokenInfo.programId = tokenInfo?.programId
+    return fromTokenInfo
+  }, [fromTokenInfo, tokenList])
+  const toTokenInfoFromList = useMemo(() => {
+    if (!tokenList) return toTokenInfo
+    const tokenInfo = tokenList.find((token) => token.address === toTokenInfo?.address)
+    toTokenInfo.logoURI = tokenInfo?.logoURI || toTokenInfo.logoURI
+    toTokenInfo.programId = tokenInfo?.programId
+    return toTokenInfo
+  }, [toTokenInfo, tokenList])
   const [hasExpired, timeDiff] = useTimeDiff()
 
   useEffect(() => {
@@ -60,8 +76,8 @@ const Form: React.FC<{
   const walletPublicKey = useMemo(() => publicKey?.toString(), [publicKey])
 
   const listOfSuggestions = useSuggestionTags({
-    fromTokenInfo,
-    toTokenInfo,
+    fromTokenInfo: fromTokenInfoFromList?.programId ? undefined : fromTokenInfoFromList,
+    toTokenInfo: toTokenInfoFromList?.programId ? undefined : toTokenInfoFromList,
     quoteResponse: quoteResponseMeta?.quoteResponse,
   })
 
@@ -189,7 +205,12 @@ const Form: React.FC<{
                       onClick={onClickSelectFromMint}
                     >
                       <div className="h-5 w-5">
-                        <TokenIcon info={fromTokenInfo} width={20} height={20} />
+                        <TokenIcon
+                          info={fromTokenInfoFromList}
+                          width={20}
+                          height={20}
+                          enableUnknownTokenWarning={fromTokenInfoFromList?.programId ? false : true}
+                        />
                       </div>
                       <div className="ml-4 mr-2 font-semibold" translate="no">
                         {fromTokenInfo?.symbol}
@@ -270,7 +291,12 @@ const Form: React.FC<{
                       onClick={onClickSelectToMint}
                     >
                       <div className="h-5 w-5">
-                        <TokenIcon info={toTokenInfo} width={20} height={20} />
+                        <TokenIcon
+                          info={toTokenInfoFromList}
+                          width={20}
+                          height={20}
+                          enableUnknownTokenWarning={toTokenInfoFromList?.programId ? false : true}
+                        />
                       </div>
                       <div className="ml-4 mr-2 font-semibold" translate="no">
                         {toTokenInfo?.symbol}
