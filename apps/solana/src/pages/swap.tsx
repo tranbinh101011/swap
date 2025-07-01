@@ -1,8 +1,4 @@
-import dynamic from 'next/dynamic'
-
-const Swap = dynamic(() => import('@/features/Swap'), {
-  ssr: false
-})
+import Swap from '@/features/JupiterSwap'
 
 function SwapPage() {
   return <Swap />

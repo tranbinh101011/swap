@@ -26,7 +26,8 @@ export const ColumnsPoolActions: React.FC<{
   const onClickSwap = useCallback(() => {
     logGTMDepositLiquidityEvent()
     const getMint = (address: string) => {
-      return pageRoutePathnames.swap.includes('jupiter') ? address : wSolToSol(address)
+      // todo: update to wSolToSol(address) when update to our own swap page
+      return address
     }
     const [inputMint, outputMint] = [getMint(pool.mintA.address), getMint(pool.mintB.address)]
     router.push({

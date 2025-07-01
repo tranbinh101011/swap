@@ -54,8 +54,8 @@ export type PageRouteConfigs = {
 }
 export const pageRoutePathnames: Record<keyof PageRouteConfigs, string> = {
   '(home)': '/',
-  swap: '/jupiter-swap',
-  'legacy-swap': '/swap',
+  swap: '/swap',
+  'legacy-swap': '/__swap_',
   'edit-farm': '/farms/edit',
   portfolio: '/positions',
   staking: '/staking',
