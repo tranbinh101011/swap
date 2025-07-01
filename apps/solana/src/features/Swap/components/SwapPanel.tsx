@@ -283,14 +283,14 @@ export function SwapPanel({
       wrapSol: tokenInput?.address === PublicKey.default.toString(),
       unwrapSol: tokenOutput?.address === PublicKey.default.toString(),
       onCloseToast: offSending,
-      onConfirmed: ({ txId }) => {
+      onConfirmed: ({ txId } = {}) => {
         logGTMSwapTxSuccEvent({
           fromAddress: wallet?.adapter.publicKey?.toString() ?? '',
           fromToken: tokenInput?.address ?? '',
           fromAmt: response.data.inputAmount,
           toToken: tokenOutput?.address ?? '',
           toAmt: response.data.outputAmount,
-          txId
+          txId: txId ?? ''
         })
         // setAmountIn('')
         // setNeedPriceUpdatedAlert(false)

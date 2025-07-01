@@ -27,7 +27,7 @@ export interface TxMeta {
   txValues?: Record<string, any>
 }
 
-export type onConfirmed = (args: { txId: string; signatureResult: SignatureResult; context: Context }) => void
+export type onConfirmed = (args?: { txId?: string; signatureResult?: SignatureResult; context?: Context }) => void
 
 export const txStatusSubject = new Subject<
   TxMeta & {

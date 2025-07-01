@@ -81,7 +81,7 @@ export default function StakingPoolItem({ pool, apiVaultData }: { pool: ApiStake
           : undefined,
       amount: '0',
       userAuxiliaryLedgers,
-      onConfirmed: v1Balance.hasDeposited ? v1Balance.mutate : undefined,
+      onConfirmed: v1Balance.hasDeposited ? (v1Balance.mutate as () => void) : undefined,
       onFinally: offHarvesting
     })
   })
