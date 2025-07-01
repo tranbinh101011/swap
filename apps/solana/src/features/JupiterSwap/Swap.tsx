@@ -14,6 +14,7 @@ import { colors } from '@/theme/cssVariables'
 import { logGTMSwapTXSuccessEvent, logGTMWalletConnectedEvent } from '@/utils/report/curstomGTMEventTracking'
 import { logDDSwapTXSuccessEvent, logDDWalletConnectedEvent } from '@/utils/report/datadog'
 import { useRouteQuery } from '@/utils/routeTools'
+import { useAppStore } from '../../store/useAppStore'
 
 const SwapPage = styled(AtomBox)`
   display: flex;
@@ -29,6 +30,7 @@ const SwapPage = styled(AtomBox)`
 const JupiterTerminal = () => {
   const { isMobile } = useResponsive()
   const { connection } = useConnection()
+  const rpcNodeUrl = useAppStore((s) => s.rpcNodeUrl)
   const passthroughWalletContextState = useWallet()
   const { setVisible } = useWalletModal()
   const query = useRouteQuery<{ inputMint?: string; outputMint?: string }>()
@@ -63,7 +65,7 @@ const JupiterTerminal = () => {
     init({
       displayMode: 'integrated',
       integratedTargetId: TARGET_ELE_ID,
-      endpoint: connection.rpcEndpoint,
+      endpoint: rpcNodeUrl ?? process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT,
       refetchIntervalForTokenAccounts: 60000,
       containerStyles: {
         maxWidth: '480px',
