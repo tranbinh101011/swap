@@ -51,14 +51,14 @@ const Form: React.FC<{
   } = useSwapContext()
   const { tokenList } = useTokenList()
   const fromTokenInfoFromList = useMemo(() => {
-    if (!tokenList) return fromTokenInfo
+    if (!tokenList || !fromTokenInfo) return fromTokenInfo
     const tokenInfo = tokenList.find((token) => token.address === fromTokenInfo?.address)
-    fromTokenInfo.logoURI = tokenInfo?.logoURI || fromTokenInfo.logoURI
+    fromTokenInfo.logoURI = tokenInfo?.logoURI || fromTokenInfo?.logoURI
     fromTokenInfo.programId = tokenInfo?.programId
     return fromTokenInfo
   }, [fromTokenInfo, tokenList])
   const toTokenInfoFromList = useMemo(() => {
-    if (!tokenList) return toTokenInfo
+    if (!tokenList || !toTokenInfo) return toTokenInfo
     const tokenInfo = tokenList.find((token) => token.address === toTokenInfo?.address)
     toTokenInfo.logoURI = tokenInfo?.logoURI || toTokenInfo.logoURI
     toTokenInfo.programId = tokenInfo?.programId
