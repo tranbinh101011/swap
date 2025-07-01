@@ -1,16 +1,16 @@
-import { Button, Box, VStack, Flex } from '@chakra-ui/react'
-import { useState, useEffect } from 'react'
+import { Box, Button, Flex, VStack } from '@chakra-ui/react'
 import { useTranslation } from '@pancakeswap/localization'
-import { ModalV2, MotionModal, useMatchBreakpoints, useModalV2, Text, Checkbox } from '@pancakeswap/uikit'
+import { Checkbox, ModalV2, MotionModal, Text, useMatchBreakpoints, useModalV2 } from '@pancakeswap/uikit'
+import { useEffect, useState } from 'react'
+import { getStorageItem, setStorageItem } from '@/utils/localStorage'
 import { colors } from '@/theme/cssVariables'
-import { setStorageItem, getStorageItem } from '@/utils/localStorage'
 
 const DISCLAIMER_KEY = '_r_have_agreed_disclaimer_'
 
 function DisclaimerModal() {
   const { t } = useTranslation()
   const { isOpen, setIsOpen, onDismiss } = useModalV2()
-  const [userHaveAgree, setUserHaveAgree] = useState(false)
+  const [userHaveAgree, setUserHaveAgree] = useState(true)
   const { isMobile } = useMatchBreakpoints()
 
   const confirmDisclaimer = () => {
