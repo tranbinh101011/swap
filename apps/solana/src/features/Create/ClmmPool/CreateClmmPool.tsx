@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, GridItem, HStack, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, Flex, Grid, GridItem, HStack, Link, Text, useDisclosure } from '@chakra-ui/react'
 import { ApiClmmConfigInfo, ApiV3Token, solToWSol } from '@pancakeswap/solana-core-sdk'
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
@@ -272,9 +272,13 @@ export default function CreateClmmPool() {
             <SubPageNote
               title={t('Please Note')}
               description={
-                <>
-                  <Text>{t('This tool is for advanced users. For detailed instructions, read the guide for CLMM pools')}</Text>
-                </>
+                <Text>
+                  {t('This tool is for advanced users. For detailed instructions, read the guide for')}
+                  <Link isExternal color={colors.primary60} href="https://docs.pancakeswap.finance/earn/pancakeswap-pools">
+                    {' '}
+                    {t('CLMM pools')}
+                  </Link>
+                </Text>
               }
             />
           </Box>
