@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react'
+import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import { PositionTabValues } from '@/hooks/portfolio/useAllPositionInfo'
 import { AcceleraytorAlertChip } from './AcceleraytorAlertChip'
 import { CreateFarmTabValues } from './components/SectionMyFarms'
@@ -11,11 +12,12 @@ export type PortfolioPageQuery = {
 }
 
 export default function Portfolio() {
+  const { isMobile } = useMatchBreakpoints()
   return (
     <Box overflowX="hidden">
       <AcceleraytorAlertChip />
       <SectionMyPositions />
-      <Box pb="40px" />
+      {!isMobile && <Box pb="40px" />}
     </Box>
   )
 }

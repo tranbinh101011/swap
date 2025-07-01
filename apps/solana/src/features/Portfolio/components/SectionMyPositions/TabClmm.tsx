@@ -79,8 +79,31 @@ const ClmmMyPositionTabContent = memo(
     return (
       <Box display="flex" flexDir="column" gap={4}>
         {allPositions.length ? (
-          <VList style={{ height: isMobile ? '70vh' : '80vh' }} count={allPositions.length} itemSize={allPositions.length}>
-            {allPositions.map((data) => (
+          isMobile ? (
+            <VList style={{ height: 'calc(100vh - 258px)' }} count={allPositions.length} itemSize={allPositions.length}>
+              {allPositions.map((data) => (
+                <ClmmPositionItemsCard
+                  key={data[0]}
+                  isLoading={isLoading}
+                  poolId={data[0]}
+                  positions={data[1]}
+                  poolInfo={formattedDataMap[data[0]]}
+                  lockInfo={lockInfo[data[0]]}
+                  initRpcPoolData={
+                    dataMap[data[0]]
+                      ? {
+                          poolId: data[0],
+                          currentPrice: dataMap[data[0]].currentPrice.toNumber(),
+                          poolInfo: dataMap[data[0]]
+                        }
+                      : undefined
+                  }
+                  setNoRewardClmmPos={setNoRewardClmmPos}
+                />
+              ))}
+            </VList>
+          ) : (
+            allPositions.map((data) => (
               <ClmmPositionItemsCard
                 key={data[0]}
                 isLoading={isLoading}
@@ -99,8 +122,8 @@ const ClmmMyPositionTabContent = memo(
                 }
                 setNoRewardClmmPos={setNoRewardClmmPos}
               />
-            ))}
-          </VList>
+            ))
+          )
         ) : (
           <Flex
             {...panelCard}

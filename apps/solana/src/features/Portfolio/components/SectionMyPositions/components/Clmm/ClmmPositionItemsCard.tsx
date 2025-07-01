@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { SwapHorizIcon } from '@pancakeswap/uikit'
-import { useCallback, useState, useEffect, useMemo } from 'react'
+import { useCallback, useState, useEffect, useMemo, memo } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
 import { Box, Flex, Grid, GridItem, HStack, Tag, Text, Skeleton, useDisclosure } from '@chakra-ui/react'
 import Link from 'next/link'
@@ -27,7 +27,7 @@ import ClmmPositionAccountItem from './ClmmPositionAccountItem'
 
 const LIST_THRESHOLD = 10
 
-export function ClmmPositionItemsCard({
+function ClmmPositionItemsCardComp({
   poolInfo,
   isLoading,
   initRpcPoolData,
@@ -157,7 +157,6 @@ export function ClmmPositionItemsCard({
           )}
         </Flex>
       </GridItem>
-
       <GridItem area="price" justifySelf={['stretch', 'left']}>
         <Flex gap={2} justify={['start', 'space-between']} alignItems="center">
           <Text color={colors.textSubtle} fontSize={isMobile ? 'xs' : 'md'}>
@@ -199,7 +198,6 @@ export function ClmmPositionItemsCard({
           )}
         </Flex>
       </GridItem>
-
       <GridItem area="action" justifySelf={['center', 'right']}>
         {isMobile ? null : (
           <Button size="sm" variant="outline" onClick={handleCreatePositionBtnClick}>
@@ -207,7 +205,6 @@ export function ClmmPositionItemsCard({
           </Button>
         )}
       </GridItem>
-
       <GridItem area="items">
         <Flex flexDir="column" mt={[1, 0]} gap={3}>
           {positions.map((position) =>
@@ -277,3 +274,5 @@ export function ClmmPositionItemsCard({
     </Grid>
   )
 }
+
+export const ClmmPositionItemsCard = memo(ClmmPositionItemsCardComp)
