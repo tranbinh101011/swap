@@ -2,7 +2,7 @@ import { Box, Button, Flex, VStack } from '@chakra-ui/react'
 import { useTranslation } from '@pancakeswap/localization'
 import { Checkbox, ModalV2, MotionModal, Text, useMatchBreakpoints, useModalV2 } from '@pancakeswap/uikit'
 import { useEffect, useState } from 'react'
-import { getStorageItem, setStorageItem } from '@/utils/localStorage'
+import { setStorageItem } from '@/utils/localStorage'
 import { colors } from '@/theme/cssVariables'
 
 const DISCLAIMER_KEY = '_r_have_agreed_disclaimer_'
@@ -19,7 +19,8 @@ function DisclaimerModal() {
   }
 
   useEffect(() => {
-    const haveAgreedDisclaimer = getStorageItem(DISCLAIMER_KEY)
+    // const haveAgreedDisclaimer = getStorageItem(DISCLAIMER_KEY)
+    const haveAgreedDisclaimer = '1'
     if (!haveAgreedDisclaimer || haveAgreedDisclaimer !== '1') {
       setIsOpen(true)
     }
