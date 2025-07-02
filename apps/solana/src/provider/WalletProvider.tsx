@@ -1,31 +1,32 @@
 import { FC, PropsWithChildren, useEffect, useMemo, useState } from 'react'
 
+import { type Adapter, WalletAdapterNetwork, type WalletError } from '@solana/wallet-adapter-base'
+import { ExodusWalletAdapter } from '@solana/wallet-adapter-exodus'
+import { GlowWalletAdapter } from '@solana/wallet-adapter-glow'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-import { GlowWalletAdapter } from '@solana/wallet-adapter-glow'
-import { ExodusWalletAdapter } from '@solana/wallet-adapter-exodus'
 import { SlopeWalletAdapter } from '@solana/wallet-adapter-slope'
-import { SolflareWalletAdapter, initialize } from '@solflare-wallet/wallet-adapter'
 import {
-  PhantomWalletAdapter,
-  TorusWalletAdapter,
-  TrustWalletAdapter,
-  MathWalletAdapter,
-  TokenPocketWalletAdapter,
-  CoinbaseWalletAdapter,
-  SolongWalletAdapter,
-  Coin98WalletAdapter,
-  SafePalWalletAdapter,
+  BitgetWalletAdapter,
   BitpieWalletAdapter,
-  BitgetWalletAdapter
+  Coin98WalletAdapter,
+  CoinbaseWalletAdapter,
+  MathWalletAdapter,
+  PhantomWalletAdapter,
+  SafePalWalletAdapter,
+  SolongWalletAdapter,
+  TokenPocketWalletAdapter,
+  TorusWalletAdapter,
+  TrustWalletAdapter
 } from '@solana/wallet-adapter-wallets'
+import { initialize, SolflareWalletAdapter } from '@solflare-wallet/wallet-adapter'
 import { WalletConnectWalletAdapter } from '@walletconnect/solana-adapter'
-
-import { WalletAdapterNetwork, type Adapter, type WalletError } from '@solana/wallet-adapter-base'
 import { sendWalletEvent } from '@/api/event'
 import { useEvent } from '@/hooks/useEvent'
-// import { LedgerWalletAdapter } from './Ledger/LedgerWalletAdapter'
-import { useAppStore, defaultEndpoint, defaultNetWork } from '../store/useAppStore'
+
+import { defaultEndpoint, defaultNetWork, useAppStore } from '../store/useAppStore'
+import { BackpackWalletAdapter } from './walletAdapter/BackpackWalletAdapter'
+import { OKXWalletAdapter } from './walletAdapter/OKXWalletAdapter'
 
 initialize()
 
@@ -75,7 +76,9 @@ const App: FC<PropsWithChildren<any>> = ({ children }) => {
       new SafePalWalletAdapter({ endpoint }),
       new BitpieWalletAdapter({ endpoint }),
       new BitgetWalletAdapter({ endpoint }),
-      new ExodusWalletAdapter({ endpoint })
+      new ExodusWalletAdapter({ endpoint }),
+      new OKXWalletAdapter(),
+      new BackpackWalletAdapter()
     ],
     [endpoint, _walletConnect]
   )
