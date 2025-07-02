@@ -1,7 +1,8 @@
-import { AvatarProps, Box, forwardRef } from '@chakra-ui/react'
-import { DefaultTokenIcon } from '@pancakeswap/uikit'
-import { ApiV3Token } from '@pancakeswap/solana-core-sdk'
 import { useEffect, useMemo, useState } from 'react'
+import { AvatarProps, Box, forwardRef } from '@chakra-ui/react'
+import { ApiV3Token } from '@pancakeswap/solana-core-sdk'
+import { DefaultTokenIcon } from '@pancakeswap/uikit'
+
 import useTokenInfo from '@/hooks/token/useTokenInfo'
 import { colors } from '@/theme/cssVariables'
 
@@ -42,12 +43,7 @@ export default forwardRef(function TokenAvatar(
   { token: originalToken, tokenMint, icon, size = 'md', name, bgBlur, haveHTMLTitle, ...restProps }: TokenAvatarProps,
   ref
 ) {
-  const [queryUrl, setQueryUrl] = useState('')
   const [loadFailed, setLoadFailed] = useState(false)
-
-  useEffect(() => {
-    setQueryUrl('')
-  }, [originalToken])
 
   const boxSize = Array.isArray(size) ? size.map((s) => parseSize(s) ?? s) : parseSize(size) ?? size
   const { tokenInfo } = useTokenInfo({
@@ -57,6 +53,10 @@ export default forwardRef(function TokenAvatar(
   const token = originalToken || tokenInfo
 
   const iconSrc = useMemo(() => icon ?? (token ? token.logoURI : undefined), [icon, token])
+
+  useEffect(() => {
+    setLoadFailed(false)
+  }, [iconSrc])
 
   return (
     // panel bg board
@@ -76,7 +76,7 @@ export default forwardRef(function TokenAvatar(
       <Box borderRadius="50%" aspectRatio="1" overflow="hidden">
         {iconSrc && !loadFailed ? (
           <img
-            src={queryUrl || iconSrc}
+            src={iconSrc}
             onError={() => {
               setLoadFailed(true)
             }}
@@ -88,7 +88,6 @@ export default forwardRef(function TokenAvatar(
         ) : (
           <DefaultTokenIcon color="disabled" width="100%" height="100%" />
         )}
-        {loadFailed ? <DefaultTokenIcon color="disabled" width="100%" height="100%" /> : null}
       </Box>
     </Box>
   )

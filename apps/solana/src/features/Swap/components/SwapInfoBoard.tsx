@@ -114,7 +114,7 @@ export function SwapInfoBoard({
           </HStack>
 
           <HStack gap={4} py={1} justifyContent="space-between">
-            <ItemLabel name={t('Estimated Fees')} tooltip={t('Swap fees go to LPs, RAY buybacks, and treasury.')} />
+            <ItemLabel name={t('Estimated Fees')} tooltip={t('Swap fees go to LPs, CAKE burns, and treasury')} />
             <Box textAlign="end" fontSize="xs" color={colors.textPrimary}>
               <RouteFees routeStats={computedSwapResult?.routeStats} routePlan={computedSwapResult?.routePlan || []} />
             </Box>
@@ -427,7 +427,9 @@ function RoutingValue({
   return (
     <>
       <FlexGap alignItems="center" onClick={() => setIsOpen(true)} style={{ cursor: 'pointer' }}>
-        <Text color={colors.textPrimary}>{t('%count% Separate Routes', { count: routeStats?.numSubRoutes })}</Text>
+        <Text fontSize="14px" color={colors.textPrimary}>
+          {t('%count% Separate Routes', { count: routeStats?.numSubRoutes })}
+        </Text>
         <IconButton variant="text" color="primary60" scale="xs">
           <InfoIcon width="16px" height="16px" color="primary60" />
         </IconButton>
@@ -473,8 +475,6 @@ const RouteFees = ({
   routePlan: QuoteResponseData['routePlan'] | undefined
   routeStats: QuoteResponseData['routeStats'] | undefined
 }) => {
-  const { t } = useTranslation()
-
   if (!routePlan || !routeStats) return null
 
   if (routeStats.numSubRoutes === 1) {

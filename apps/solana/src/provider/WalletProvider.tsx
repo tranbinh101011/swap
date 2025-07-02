@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, useEffect, useMemo, useState } from 'react'
 
-import { type Adapter, WalletAdapterNetwork, type WalletError } from '@solana/wallet-adapter-base'
+import { type Adapter, type WalletError } from '@solana/wallet-adapter-base'
 import { ExodusWalletAdapter } from '@solana/wallet-adapter-exodus'
 import { GlowWalletAdapter } from '@solana/wallet-adapter-glow'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
@@ -31,7 +31,6 @@ import { OKXWalletAdapter } from './walletAdapter/OKXWalletAdapter'
 initialize()
 
 const App: FC<PropsWithChildren<any>> = ({ children }) => {
-  const [network] = useState<WalletAdapterNetwork>(defaultNetWork)
   const rpcNodeUrl = useAppStore((s) => s.rpcNodeUrl)
   const wsNodeUrl = useAppStore((s) => s.wsNodeUrl)
   const [endpoint, setEndpoint] = useState<string>(rpcNodeUrl || defaultEndpoint)
@@ -41,7 +40,7 @@ const App: FC<PropsWithChildren<any>> = ({ children }) => {
     try {
       connectWallet.push(
         new WalletConnectWalletAdapter({
-          network: network as WalletAdapterNetwork.Mainnet,
+          network: defaultNetWork,
           options: {
             projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PJ_ID,
             metadata: {
@@ -57,7 +56,7 @@ const App: FC<PropsWithChildren<any>> = ({ children }) => {
       // console.error('WalletConnect error', e)
     }
     return connectWallet
-  }, [network])
+  }, [])
 
   const wallets = useMemo(
     () => [

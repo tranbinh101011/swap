@@ -4122,7 +4122,7 @@
   "Order Routing": "Order Routing",
   "This route gave the best price for your trade": "This route gave the best price for your trade",
   "Estimated Fees": "Estimated Fees",
-  "Swap fees go to LPs, RAY buybacks, and treasury.": "Swap fees go to LPs, RAY buybacks, and treasury.",
+  "Swap fees go to LPs, CAKE burns, and treasury": "Swap fees go to LPs, CAKE burns, and treasury",
   "Show chart": "Show chart",
   "You need at least %amount% %symbol% to pay for fees and deposits": "You need at least %amount% %symbol% to pay for fees and deposits",
   "Tax": "Tax",
