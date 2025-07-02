@@ -44,7 +44,8 @@ export enum GTMAction {
   ClickMinusButton = 'Click Minus Button',
   ClickSubPoolLiquidityConfirmButton = 'Click Sub Pool liquidity Confirm Button',
   WithdrawSuccess = 'Withdraw Success',
-  ClickSwapButton = 'click swap Button'
+  ClickSwapButton = 'click swap Button',
+  SwapTransactionSuccess = 'Swap Transaction Success'
 }
 
 interface CustomGTMDataLayer {
@@ -327,7 +328,7 @@ export const logGTMSwapTxSuccEvent = ({ fromToken, fromAmt, toToken, toAmt, txId
   console.info('---SwapTXSuccess---')
   window?.dataLayer?.push({
     event: GTMEvent.SwapTXSuccess,
-    action: GTMAction.SwapTransactionSent,
+    action: GTMAction.SwapTransactionSuccess,
     from_address: fromAddress,
     token0: fromToken,
     token0Amt: fromAmt,
