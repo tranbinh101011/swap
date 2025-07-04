@@ -338,7 +338,7 @@ export default function PoolListItem({
               </Flex>
               <Flex flex={3} direction="column">
                 <Text fontSize="xs" color={colors.textTertiary}>
-                  {t(`Volume ${timeBase}`)}
+                  {`${t('Volume')} ${timeBase}`}
                 </Text>
                 <Text fontSize="sm" color={colors.textSubtle}>
                   {formatCurrency(timeData.volume, { decimalPlaces: 0 })}
@@ -346,7 +346,7 @@ export default function PoolListItem({
               </Flex>
               <Flex flex={2} direction="column">
                 <Text fontSize="xs" color={colors.textTertiary}>
-                  {t(`Fees ${timeBase}`)}
+                  {`${t('Fees')} ${timeBase}`}
                 </Text>
                 <Text fontSize="sm" color={colors.textSubtle}>
                   {formatCurrency(timeData.volumeFee, { decimalPlaces: 0 })}
