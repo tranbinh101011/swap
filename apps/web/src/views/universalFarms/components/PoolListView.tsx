@@ -4,8 +4,9 @@ import { memo, ReactNode, useCallback, useState } from 'react'
 import { getFarmAprInfo } from 'state/farmsV4/search/farm.util'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import styled from 'styled-components'
+import { getPoolDetailPageLink } from 'utils/getPoolLink'
 import { PoolGlobalAprButton } from './PoolAprButton'
-import { ActionItems, getPoolDetailPageLink } from './PoolListItemAction'
+import { ActionItems } from './PoolListItemAction'
 import { PoolTokenOverview, useColumnMobileConfig } from './useColumnConfig'
 
 const ListContainer = styled.ul``

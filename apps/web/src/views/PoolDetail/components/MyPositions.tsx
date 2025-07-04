@@ -30,9 +30,7 @@ import BigNumber from 'bignumber.js'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import Divider from 'components/Divider'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import { CHAIN_QUERY_NAME } from 'config/chains'
-import { PERSIST_CHAIN_KEY } from 'config/constants'
-import { getAddInfinityLiquidityURL } from 'config/constants/liquidity'
+import { getPoolAddLiquidityLink } from 'utils/getPoolLink'
 import { usePoolById } from 'hooks/infinity/usePool'
 import { useCurrencyByChainId } from 'hooks/Tokens'
 import useCatchTxError from 'hooks/useCatchTxError'
@@ -59,7 +57,6 @@ import {
 } from 'state/farmsV4/state/type'
 import { useChainIdByQuery } from 'state/info/hooks'
 import styled from 'styled-components'
-import { addQueryToPath } from 'utils/addQueryToPath'
 import { isInfinityProtocol } from 'utils/protocols'
 import { zeroAddress } from 'viem'
 import { useFarmsV3BatchHarvest } from 'views/Farms/hooks/v3/useFarmV3Actions'
@@ -214,29 +211,7 @@ const MyPositionsInner: React.FC<{ poolInfo: PoolInfo }> = ({ poolInfo }) => {
 
   const { lpAddress, protocol, feeTier } = poolInfo
 
-  const addLiquidityLink = useMemo(() => {
-    const token0Token1 = `${poolInfo.token0.wrapped.address}/${poolInfo.token1.wrapped.address}`
-    let link = ''
-    if (protocol === 'v3') {
-      link = `/add/${token0Token1}/${feeTier}`
-    }
-    if (protocol === 'v2') {
-      link = `/v2/add/${token0Token1}`
-    }
-    if (protocol === 'stable') {
-      link = `/stable/add/${token0Token1}`
-    }
-    if (isInfinityProtocol(protocol)) {
-      link = getAddInfinityLiquidityURL({
-        chainId: poolInfo.chainId,
-        poolId: (poolInfo as InfinityPoolInfo).poolId,
-      })
-    }
-    return addQueryToPath(link, {
-      chain: CHAIN_QUERY_NAME[poolInfo.chainId],
-      [PERSIST_CHAIN_KEY]: '1',
-    })
-  }, [poolInfo, protocol, feeTier])
+  const addLiquidityLink = useMemo(() => getPoolAddLiquidityLink(poolInfo), [poolInfo])
   const [_handleHarvestAll, setHandleHarvestAll] = useState(() => () => Promise.resolve())
   const [loading, setLoading] = useState(false)
   const { switchNetworkIfNecessary } = useCheckShouldSwitchNetwork()

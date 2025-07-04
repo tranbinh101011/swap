@@ -10,13 +10,13 @@ import { useTokenListPrepared } from 'hooks/useTokenListPrepared'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { getFarmKey } from 'state/farmsV4/search/farm.util'
 import { PoolInfo } from 'state/farmsV4/state/type'
+import { getPoolDetailPageLink } from 'utils/getPoolLink'
 import { farmsSearchAtom, farmsSearchPagingAtom } from './atom/farmsSearchAtom'
 import { searchQueryAtom, updateFilterAtom, updateSortAtom } from './atom/searchQueryAtom'
 import {
   Card,
   CardBody,
   CardHeader,
-  getPoolDetailPageLink,
   IPoolsFilterPanelProps,
   ListView,
   PoolsFilterPanel,

@@ -22,14 +22,8 @@ import styled from 'styled-components'
 import { getHookByAddress } from 'utils/getHookByAddress'
 import { Address, Chain, zeroAddress } from 'viem'
 import { usePoolFeatureAndType, usePoolTypeQuery } from 'views/AddLiquiditySelector/hooks/usePoolTypeQuery'
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  getPoolDetailPageLink,
-  ListView,
-  useColumnConfig,
-} from 'views/universalFarms/components'
+import { Card, CardBody, CardHeader, ListView, useColumnConfig } from 'views/universalFarms/components'
+import { getPoolDetailPageLink } from 'utils/getPoolLink'
 import { usePoolTypes } from 'views/universalFarms/constants'
 import { useOrderChainIds } from 'views/universalFarms/hooks/useMultiChains'
 
