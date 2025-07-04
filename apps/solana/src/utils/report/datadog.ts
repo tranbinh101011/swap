@@ -58,3 +58,11 @@ export const logDDWalletConnectedEvent = (name: string) => {
     label: name
   })
 }
+
+export const logDDNetworkErrorEvent = ({ url, errorMsg }: { url: string; errorMsg: string }) => {
+  logger.info(GTMEvent.SolErrorLog, {
+    event: GTMEvent.SolErrorLog,
+    url,
+    errorMsg
+  })
+}

@@ -8,8 +8,8 @@ import { useAppStore, defaultEndpoint } from '@/store/useAppStore'
 import usePrevious from '@/hooks/usePrevious'
 import { isLocal, cancelAllRetry } from '@/utils/common'
 import { getDevOnlyStorage } from '@/utils/localStorage'
-import { sendWalletEvent } from '@/api/event'
 import { validateTxData, extendTxData } from '@/api/txService'
+import { logGTMWalletConnectedEvent } from '@/utils/report/curstomGTMEventTracking'
 import { SSRData } from '../../type'
 import { toastSubject } from '../toast/useGlobalToast'
 
@@ -184,11 +184,7 @@ function useInitConnection(props: SSRData) {
 
   useEffect(() => {
     if (connected && publicKey) {
-      sendWalletEvent({
-        type: 'connectWallet',
-        connectStatus: 'success',
-        walletName: wallet?.adapter.name || 'unknown'
-      })
+      logGTMWalletConnectedEvent(wallet?.adapter.name || 'unknown')
       if (wallet) localStorage.setItem(WALLET_STORAGE_KEY, `"${wallet?.adapter.name}"`)
     }
   }, [publicKey, connected, wallet?.adapter.name])

@@ -39,8 +39,8 @@ import { useAppStore } from '@/store'
 import { ToastStatus } from '@/types/tx'
 import { getTxAllRecord } from '@/utils/tx/historyTxStatus'
 import { MoonpaySell } from '@/components/Moonpay'
-import { sendWalletEvent } from '@/api/event'
 import { useEvent } from '@/hooks/useEvent'
+import { logGTMWalletDisconnectedEvent } from '@/utils/report/curstomGTMEventTracking'
 import ChevronUpDownArrow from './ChevronUpDownArrow'
 import AddressChip from './AddressChip'
 import TokenAvatar from './TokenAvatar'
@@ -98,11 +98,7 @@ export default function WalletRecentTransactionBoard({ wallet, address, isOpen =
   const handleDisConnect = useEvent(() => {
     onDisconnect()
     onClose()
-    sendWalletEvent({
-      type: 'connectWallet',
-      connectStatus: 'userUnlink',
-      walletName: wallet?.adapter.name || 'unknown'
-    })
+    logGTMWalletDisconnectedEvent(wallet?.adapter.name || 'unknown')
   })
 
   const { isOpen: isRecentTransactionDetailView, onOpen: turnOn, onClose: turnOff } = useDisclosure()

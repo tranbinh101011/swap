@@ -1,6 +1,7 @@
 export enum GTMEvent {
   SwapTXSuccess = 'swapTXSuccess',
   WalletConnected = 'walletConnected',
+  WalletDisconnect = 'walletDisconnect',
   CreateLiquidityPool = 'createLiquidityPool',
   PoolFarmVersion = 'poolFarmVersion',
   V3lpStep1 = 'V3lpStep1',
@@ -30,6 +31,7 @@ export enum GTMCategory {
 export enum GTMAction {
   SwapTransactionSent = 'swap_transaction_sent',
   WalletConnected = 'Wallet Connected',
+  WalletDisconnect = 'Wallet Disconnect',
   ClickCreateBtn = 'Click Create Button on SOL LP Page',
   ClickContinueButton = 'Click on continue Button',
   ClickPreviewPoolButton = 'Click Preview Pool Button',
@@ -102,6 +104,16 @@ export const logGTMWalletConnectedEvent = (name: string) => {
   window?.dataLayer?.push({
     event: GTMEvent.WalletConnected,
     action: GTMAction.WalletConnected,
+    category: GTMCategory.Wallet,
+    label: name
+  })
+}
+
+export const logGTMWalletDisconnectedEvent = (name: string) => {
+  console.info('---wallet disconnected---')
+  window?.dataLayer?.push({
+    event: GTMEvent.WalletDisconnect,
+    action: GTMAction.WalletDisconnect,
     category: GTMCategory.Wallet,
     label: name
   })
@@ -284,7 +296,7 @@ export const logGTMPoolLiquiditySubSuccessEvent = ({
 }
 
 export interface SolErrorLogParams {
-  action: 'Add Liquidity Fail' | 'Remove Liquidity Fail' | 'Create Liquidity Pool Fail' | 'Swap Fail'
+  action: 'Add Liquidity Fail' | 'Remove Liquidity Fail' | 'Create Liquidity Pool Fail' | 'Swap Fail' | 'Wallet Connect Fail'
   e: any
 }
 
@@ -299,7 +311,7 @@ export const logGTMSolErrorLogEvent = ({ action, e }: SolErrorLogParams) => {
   window?.dataLayer?.push({
     event: GTMEvent.SolErrorLog,
     action,
-    category: action === 'Swap Fail' ? GTMCategory.Swap : GTMCategory.Liquidity,
+    category: action === 'Swap Fail' ? GTMCategory.Swap : action === 'Wallet Connect Fail' ? GTMCategory.Wallet : GTMCategory.Liquidity,
     label: 0,
     desc: errorMsg
   })

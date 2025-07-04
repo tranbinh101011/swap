@@ -1,9 +1,7 @@
-import { parseUserAgent } from 'react-device-detect'
 import { updateReqHistory } from '@pancakeswap/solana-core-sdk'
 import axios from 'axios'
 import { toastSubject } from '@/hooks/toast/useGlobalToast'
-import { isLocal } from '@/utils/common'
-import { useAppStore } from '@/store'
+import { logDDNetworkErrorEvent } from '@/utils/report/datadog'
 
 const axiosInstance = axios.create({ timeout: 60 * 1000 })
 export const retryCount = 5
@@ -11,30 +9,6 @@ export const skipRetryStatus = new Set([400, 403, 404, 500])
 const logCount = 800
 
 const isSkipLogs = (url?: string) => url?.includes('birdeye')
-
-interface EventTypeNetworkError {
-  url: string
-  errorMsg: string
-}
-
-export const sendNetworkEvent = async (props: EventTypeNetworkError) => {
-  if (isLocal()) return
-  try {
-    const deviceInfo = parseUserAgent(window.navigator.userAgent)
-    const deviceType = deviceInfo.device.type || 'pc'
-    axios.post(
-      `${useAppStore.getState().urlConfigs.MONITOR_BASE_HOST}/event`,
-      {
-        type: 'networkError',
-        deviceType,
-        ...props
-      },
-      { skipError: true }
-    )
-  } catch {
-    console.log('send network event error')
-  }
-}
 
 axiosInstance.interceptors.response.use(
   (response) => {
@@ -69,11 +43,10 @@ axiosInstance.interceptors.response.use(
     const { url } = config
 
     console.error(`axios request error: ${url}, status:${status || error.code}, msg:${response.message || error.message}`)
-    if (!url.includes('monitor'))
-      sendNetworkEvent({
-        url,
-        errorMsg: response.message || error.message
-      })
+    logDDNetworkErrorEvent({
+      url,
+      errorMsg: response.message || error.message
+    })
     if (!isSkipLogs(url)) {
       try {
         updateReqHistory({

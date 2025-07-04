@@ -21,8 +21,8 @@ import {
 } from '@solana/wallet-adapter-wallets'
 import { initialize, SolflareWalletAdapter } from '@solflare-wallet/wallet-adapter'
 import { WalletConnectWalletAdapter } from '@walletconnect/solana-adapter'
-import { sendWalletEvent } from '@/api/event'
 import { useEvent } from '@/hooks/useEvent'
+import { logGTMSolErrorLogEvent } from '@/utils/report/curstomGTMEventTracking'
 
 import { defaultEndpoint, defaultNetWork, useAppStore } from '../store/useAppStore'
 import { BackpackWalletAdapter } from './walletAdapter/BackpackWalletAdapter'
@@ -88,11 +88,9 @@ const App: FC<PropsWithChildren<any>> = ({ children }) => {
 
   const onWalletError = useEvent((error: WalletError, adapter?: Adapter) => {
     if (!adapter) return
-    sendWalletEvent({
-      type: 'connectWallet',
-      walletName: adapter.name,
-      connectStatus: 'failure',
-      errorMsg: error.message || error.stack
+    logGTMSolErrorLogEvent({
+      action: 'Wallet Connect Fail',
+      e: error.message || error.stack
     })
   })
 

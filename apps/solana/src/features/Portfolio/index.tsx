@@ -15,7 +15,6 @@ export default function Portfolio() {
   const { isMobile } = useMatchBreakpoints()
   return (
     <Box overflowX="hidden">
-      <AcceleraytorAlertChip />
       <SectionMyPositions />
       {!isMobile && <Box pb="40px" />}
     </Box>
