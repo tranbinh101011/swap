@@ -5,7 +5,6 @@ export const perpetualLangs = {
   de: 'de',
   fr: 'fr',
   id: 'id',
-  tr: 'tr',
   hi: 'hi',
   ru: 'ru',
   vi: 'vi',

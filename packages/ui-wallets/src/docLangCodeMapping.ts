@@ -2,7 +2,6 @@ const docLangCodeMapping: Record<string, string> = {
   it: 'italian',
   ja: 'japanese',
   fr: 'french',
-  tr: 'turkish',
   vi: 'vietnamese',
   id: 'indonesian',
   'zh-cn': 'chinese',
