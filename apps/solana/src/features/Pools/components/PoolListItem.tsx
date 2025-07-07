@@ -221,7 +221,7 @@ export default function PoolListItem({
                 </HStack>
                 <HStack justify="space-between" w="full">
                   <Text fontSize="sm" color={colors.textSubtle}>
-                    {t(`Volume ${timeBase}`)}
+                    {`${t('Volume')} ${timeBase}`}
                   </Text>
                   <Text fontSize="sm" color={colors.textPrimary}>
                     {formatCurrency(timeData.volume, { symbol: '$', decimalPlaces: 2 })}
@@ -229,7 +229,7 @@ export default function PoolListItem({
                 </HStack>
                 <HStack justify="space-between" w="full">
                   <Text fontSize="sm" color={colors.textSubtle}>
-                    {t(`Fees ${timeBase}`)}
+                    {`${t('Fees')} ${timeBase}`}
                   </Text>
                   <Text fontSize="sm" color={colors.textPrimary}>
                     {formatCurrency(timeData.volumeFee, { symbol: '$', decimalPlaces: 2 })}
