@@ -2,7 +2,7 @@ import { Protocol } from '@pancakeswap/farms'
 import { LegacyRouter } from '@pancakeswap/smart-router/legacy-router'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { PERSIST_CHAIN_KEY } from 'config/constants'
-import { getAddInfinityLiquidityURL, getLiquidityDetailURL } from 'config/constants/liquidity'
+import { getAddInfinityLiquidityURL } from 'config/constants/liquidity'
 import type { InfinityPoolInfo, PoolInfo } from 'state/farmsV4/state/type'
 import { multiChainPaths } from 'state/info/constant'
 import type { Address } from 'viem'
@@ -36,15 +36,6 @@ export async function getLinkForPool(pool: PoolInfo, type: 'detail' | 'info'): P
   const poolId = (pool as Partial<InfinityPoolInfo>).poolId
 
   if (type === 'detail') {
-    if ([Protocol.InfinityBIN, Protocol.InfinityCLAMM].includes(protocol)) {
-      return (
-        getLiquidityDetailURL({
-          chainId,
-          poolId: poolId || lpAddress,
-          protocol,
-        }) || ''
-      )
-    }
     const linkPrefix = `/liquidity/pool${multiChainPaths[chainId] || '/bsc'}`
     if (protocol === Protocol.STABLE) {
       if (stableSwapAddress) {
