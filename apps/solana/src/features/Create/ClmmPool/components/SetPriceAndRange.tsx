@@ -180,12 +180,15 @@ export default function SetPriceAndRange({
       }
       switchRef.current = false
       const val = extractNumberOnly(propsVal)
+      if (val === currentPrice) {
+        return
+      }
       setCurrentPrice(val)
       debouncePriceChange({ price: val })
       handleLeftRangeBlur(new Decimal(val || 0).mul(0.5).toString())
       handleRightRangeBlur(new Decimal(val || 0).mul(1.5).toString())
     },
-    [debouncePriceChange, handleLeftRangeBlur, handleRightRangeBlur]
+    [currentPrice, debouncePriceChange, handleLeftRangeBlur, handleRightRangeBlur]
   )
 
   const handleInputChange = useCallback((val: string, _: number, side?: string) => {
