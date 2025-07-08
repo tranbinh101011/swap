@@ -61,6 +61,7 @@ export interface AdsCampaignConfig {
   ad: AdsConfig
   infoStripe?: InfoStripeConfig
   priority?: number
+  deadline?: number
 }
 
 type Token = {

@@ -7,6 +7,7 @@ import { getImageUrl } from '../utils'
 
 export enum AdsIds {
   BINANCE_ALPHA = 'binance-alpha',
+  BINANCE_ALPHA_V2 = 'binance-alpha-v2',
   SOLANA_LIQUIDITY = 'solana-liquidity',
 }
 
@@ -14,7 +15,32 @@ type AdsConfigMap = {
   [key in AdsIds]: AdsCampaignConfig
 }
 const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig[] => {
+  const now = Date.now()
   return [
+    {
+      id: AdsIds.BINANCE_ALPHA_V2,
+      priority: Priority.HIGH,
+      ad: {
+        img: getImageUrl(!isMobile ? 'alpha-comp-v2' : 'alpha-comp-mobile-v2'),
+        texts: [
+          {
+            text: !isMobile ? t('Trade Binance Alpha Tokens to Win $250,000.') : t('Trade Alpha Tokens: Win $250K.'),
+          },
+          {
+            text: t('Trade Now'),
+            link: 'https://pancakeswap.finance/swap?utm_source=Website&utm_medium=banner&utm_campaign=AlphaTokens&utm_id=TradingCompetition',
+          },
+        ],
+        btn: {
+          text: t('Learn More'),
+          link: 'https://blog.pancakeswap.finance/articles/new-binance-alpha-trading-competition?utm_source=Website&utm_medium=banner&utm_campaign=AlphaTokens&utm_id=TradingCompetition',
+        },
+        options: {
+          imagePadding: '20px',
+        },
+      },
+      deadline: 1753660799000,
+    },
     {
       id: AdsIds.BINANCE_ALPHA,
       ad: {
@@ -36,6 +62,7 @@ const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig
           imagePadding: '20px',
         },
       },
+      deadline: 1752345599000,
     },
     {
       id: AdsIds.SOLANA_LIQUIDITY,
@@ -54,7 +81,10 @@ const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig
         },
       },
     },
-  ]
+  ].filter((ad) => {
+    const deadline = ad?.deadline
+    return !deadline || deadline > now
+  })
 }
 
 export const useAdsConfigs = (): AdsConfigMap => {

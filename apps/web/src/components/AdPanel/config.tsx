@@ -14,9 +14,17 @@ import { shouldRenderOnPages } from './renderConditions'
 import { AdSlide, Priority } from './types'
 import { useShouldRenderAdIfo } from './useShouldRenderAdIfo'
 
+const JULY_13_2025_TIMESTAMP = 1752364800000
+
 export const useAdConfig = () => {
   const { isDesktop } = useMatchBreakpoints()
-  const shouldRenderOnPage = shouldRenderOnPages(commonLayoutWhitelistedPages)
+  const shouldRenderOnPage = useMemo(() => {
+    const shouldRender = shouldRenderOnPages(commonLayoutWhitelistedPages)
+    if (!shouldRender) return false
+
+    const shouldIncludeIsDesktop = Date.now() < JULY_13_2025_TIMESTAMP
+    return shouldIncludeIsDesktop ? isDesktop : true
+  }, [isDesktop])
   const MAX_ADS = isDesktop ? 6 : 4
   const shouldRenderAdIfo = useShouldRenderAdIfo()
   const configs = useAdsConfigs()
