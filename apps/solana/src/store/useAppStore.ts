@@ -1,30 +1,31 @@
-import { Connection, PublicKey, Transaction, VersionedTransaction, EpochInfo, clusterApiUrl, Commitment } from '@solana/web3.js'
+import { PancakeClmmProgramId } from '@pancakeswap/solana-clmm-sdk'
 import {
+  ALL_PROGRAM_ID,
+  API_URL_CONFIG,
+  API_URLS,
+  AvailabilityCheckAPI3,
+  JupTokenType,
+  ProgramIdConfig,
   Raydium,
   RaydiumLoadParams,
-  API_URLS,
-  API_URL_CONFIG,
-  ProgramIdConfig,
-  ALL_PROGRAM_ID,
-  JupTokenType,
-  AvailabilityCheckAPI3,
-  TxVersion,
-  TokenInfo
+  TokenInfo,
+  TxVersion
 } from '@pancakeswap/solana-core-sdk'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { Wallet } from '@solana/wallet-adapter-react'
-import { compare } from 'compare-versions'
-import { PancakeClmmProgramId } from '@pancakeswap/solana-clmm-sdk'
-import { toastSubject } from '@/hooks/toast/useGlobalToast'
+import { clusterApiUrl, Commitment, Connection, EpochInfo, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
+
 import axios from '@/api/axios'
-import { isValidUrl } from '@/utils/url'
-import { setStorageItem, getStorageItem } from '@/utils/localStorage'
-import { retry, isProdEnv } from '@/utils/common'
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
+import { isProdEnv, retry } from '@/utils/common'
 import { rpcs } from '@/utils/config/endpoint'
+import { getStorageItem, setStorageItem } from '@/utils/localStorage'
+import { isValidUrl } from '@/utils/url'
+
+import { urlConfigs } from './configs/urls'
 import createStore from './createStore'
 // eslint-disable-next-line import/no-cycle
 import { blackJupMintSet, useTokenStore } from './useTokenStore'
-import { urlConfigs } from './configs/urls'
 
 export const defaultNetWork = WalletAdapterNetwork.Mainnet // Can be set to 'devnet', 'testnet', or 'mainnet-beta'
 export const defaultEndpoint = clusterApiUrl(defaultNetWork) // You can also provide a custom RPC endpoint
@@ -97,6 +98,7 @@ interface AppState {
     SWAP_COMPUTE: string
     SWAP_TX: string
     BIRDEYE_TOKEN_PRICE: string
+    POOL_TVL_LINE: string
   }
   programIdConfig: typeof ALL_PROGRAM_ID
 

@@ -1,14 +1,18 @@
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react'
 import { ReactNode, useMemo, useState } from 'react'
+
 import Tabs from '@/components/Tabs'
 import useFetchPoolChartData from '@/hooks/pool/useFetchPoolChartData'
 import { useAppStore } from '@/store'
 import { shrinkToValue } from '@/utils/shrinkToValue'
-import Chart from './Chart'
-import { TimeType, availableTimeType } from './const'
-import ChartTooltip from './ChartTooltip'
 
-export default function PoolChartModal<T extends string>({
+import Chart from './Chart'
+import ChartTooltip from './ChartTooltip'
+import { availableTimeType, TimeType } from './const'
+
+export type PoolChartCategory = 'liquidity' | 'volume' | 'tvl'
+
+export default function PoolChartModal({
   poolAddress,
   baseMint,
   isOpen,
@@ -19,9 +23,7 @@ export default function PoolChartModal<T extends string>({
   poolAddress: string | undefined
   baseMint?: string
   isOpen: boolean
-
-  /** it base on provided chartData */
-  categories: { label: string; value: T }[]
+  categories: { label: string; value: PoolChartCategory }[]
   renderModalHeader?: ((utils: { isOpen?: boolean }) => ReactNode) | ReactNode
   onClose?: () => void
 }) {
@@ -31,7 +33,6 @@ export default function PoolChartModal<T extends string>({
       <ModalContent>
         <ModalHeader>{shrinkToValue(renderModalHeader, [{ isOpen }])}</ModalHeader>
         <ModalCloseButton />
-
         <ModalBody py={0}>
           <ChartWindow poolAddress={poolAddress} baseMint={baseMint} categories={categories} />
         </ModalBody>
@@ -41,25 +42,24 @@ export default function PoolChartModal<T extends string>({
 }
 
 /** used in mobile  */
-export function ChartWindow<T extends string>({
+export function ChartWindow({
   poolAddress,
   baseMint,
   categories
 }: {
   poolAddress?: string
   baseMint?: string
-  /** it base on provided chartData */
-  categories: { label: string; value: T }[]
+  categories: { label: string; value: PoolChartCategory }[]
 }) {
   const isMobile = useAppStore((s) => s.isMobile)
-  const [currentCategory, setCurrentCategory] = useState<T>(categories[0].value)
+  const [currentCategory, setCurrentCategory] = useState<PoolChartCategory>(categories[0].value)
   const currentCategoryLabel = useMemo(
     () => categories.find((c) => c.value === currentCategory)?.label ?? '',
     [categories, currentCategory]
   )
   const [currentTimeType, setCurrentTimeType] = useState<TimeType>(availableTimeType[0])
   const { data, isLoading, isEmptyResult } = useFetchPoolChartData({
-    category: currentCategory === 'liquidity' ? 'liquidity' : 'volume',
+    category: currentCategory,
     poolAddress,
     baseMint,
     timeType: currentTimeType
@@ -90,9 +90,7 @@ export function ChartWindow<T extends string>({
           variant="subtle"
           items={availableTimeType}
           value={currentTimeType}
-          onChange={(value) => {
-            setCurrentTimeType(value)
-          }}
+          onChange={setCurrentTimeType}
           ml="auto"
         />
       }
@@ -104,9 +102,7 @@ export function ChartWindow<T extends string>({
           variant="subtle"
           items={categories}
           value={currentCategory}
-          onChange={(value) => {
-            setCurrentCategory(value)
-          }}
+          onChange={setCurrentCategory}
           my={2}
         />
       }

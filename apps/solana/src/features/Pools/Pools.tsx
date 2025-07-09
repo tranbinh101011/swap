@@ -1,4 +1,3 @@
-import { ButtonMenu, ButtonMenuItem } from '@pancakeswap/uikit'
 import {
   Box,
   Collapse,
@@ -13,16 +12,17 @@ import {
   Tag,
   Text,
   useBreakpointValue,
-  useOutsideClick,
   useDisclosure,
+  useOutsideClick,
   useUpdateEffect
 } from '@chakra-ui/react'
+import { Trans, useTranslation } from '@pancakeswap/localization'
 import { ApiV3Token, FetchPoolParams, PoolFetchType } from '@pancakeswap/solana-core-sdk'
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation, Trans } from '@pancakeswap/localization'
-
+import { ButtonMenu, ButtonMenuItem } from '@pancakeswap/uikit'
 import { AllCommunityModule, ColDef, ModuleRegistry, themeQuartz } from 'ag-grid-community'
 import { AgGridReact } from 'ag-grid-react'
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
 import Button from '@/components/Button'
 import List, { ListPropController } from '@/components/List'
 import { Desktop, Mobile } from '@/components/MobileDesktop'
@@ -37,35 +37,35 @@ import useFetchPoolByMint from '@/hooks/pool/useFetchPoolByMint'
 import useFetchPoolList from '@/hooks/pool/useFetchPoolList'
 import { useEvent } from '@/hooks/useEvent'
 import usePrevious from '@/hooks/usePrevious'
+import useResponsive from '@/hooks/useResponsive'
 import useSort from '@/hooks/useSort'
 import GridIcon from '@/icons/misc/GridIcon'
 import ListIcon from '@/icons/misc/ListIcon'
-import SearchIcon from '@/icons/misc/SearchIcon'
 import MoreListControllers from '@/icons/misc/MoreListControllers'
 import OpenBookIcon from '@/icons/misc/OpenBookIcon'
-import { useAppStore, useTokenStore } from '@/store'
+import SearchIcon from '@/icons/misc/SearchIcon'
+import { useTokenStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
 import { revertAppLayoutPaddingX } from '@/theme/detailConfig'
-import { isValidPublicKey } from '@/utils/publicKey'
-import toPercentString from '@/utils/numberish/toPercentString'
-import { formatCurrency, formatToRawLocaleStr } from '@/utils/numberish/formatter'
-import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
-import { urlToMint, mintToUrl } from '@/utils/token'
 import { ASSET_CDN } from '@/utils/config/endpoint'
-import useResponsive from '@/hooks/useResponsive'
-import { useEffectWithUrl, useStateWithUrl } from '../../hooks/useStateWithUrl'
+import { formatCurrency, formatToRawLocaleStr } from '@/utils/numberish/formatter'
+import toPercentString from '@/utils/numberish/toPercentString'
+import { isValidPublicKey } from '@/utils/publicKey'
+import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
+import { mintToUrl, urlToMint } from '@/utils/token'
+
 import CreatePoolButton from './components/CreatePoolButton'
 import PoolChartModal from './components/PoolChart'
 import PoolItemLoadingSkeleton from './components/PoolItemLoadingSkeleton'
-import { PoolListHeader } from './components/PoolListHeader'
 import PoolListItem from './components/PoolListItem'
+import { ColumnsPoolActions } from './components/PoolTableColumns/ColumnsPoolActions'
+import { ColumnPoolApr } from './components/PoolTableColumns/ColumnsPoolApr'
+import { ColumnsPoolLiquidity } from './components/PoolTableColumns/ColumnsPoolLiquidity'
+import { ColumnPoolName } from './components/PoolTableColumns/ColumnsPoolName'
 import TVLInfoPanel, { TVLInfoPanelMobile } from './components/TVLInfoPanel'
 import { useScrollTitleCollapse } from './useScrollTitleCollapse'
 import { getFavoritePoolCache, POOL_SORT_KEY } from './util'
-import { ColumnPoolName } from './components/PoolTableColumns/ColumnsPoolName'
-import { ColumnPoolApr } from './components/PoolTableColumns/ColumnsPoolApr'
-import { ColumnsPoolActions } from './components/PoolTableColumns/ColumnsPoolActions'
-import { ColumnsPoolLiquidity } from './components/PoolTableColumns/ColumnsPoolLiquidity'
+import { useEffectWithUrl, useStateWithUrl } from '../../hooks/useStateWithUrl'
 
 ModuleRegistry.registerModules([AllCommunityModule])
 
@@ -180,7 +180,7 @@ export default function Pools() {
         backgroundColor: colors.cardBg,
         foregroundColor: colors.textPrimary
       }),
-    [colors.secondary]
+    []
   )
 
   const tabItems: PoolTabItem[] = useMemo(
@@ -911,7 +911,8 @@ export default function Pools() {
             baseMint={chartPoolInfo?.mintA.address}
             categories={[
               { label: t('Volume'), value: 'volume' },
-              { label: t('Liquidity'), value: 'liquidity' }
+              { label: t('Liquidity'), value: 'liquidity' },
+              { label: t('TVL'), value: 'tvl' }
             ]}
             isOpen={isChartOpen}
             onClose={closeChart}

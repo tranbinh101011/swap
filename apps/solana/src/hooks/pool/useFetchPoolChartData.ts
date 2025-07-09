@@ -1,4 +1,7 @@
+import { useMemo } from 'react'
+
 import useFetchPoolChartLiquidity from './useFetchPoolChartLiquidity'
+import useFetchPoolChartTvl from './useFetchPoolChartTvl'
 import useFetchPoolChartVolume, { TimeType } from './useFetchPoolChartVolume'
 
 export default function useFetchPoolChartData({
@@ -8,7 +11,7 @@ export default function useFetchPoolChartData({
   baseMint,
   refreshInterval
 }: {
-  category: 'liquidity' | 'volume'
+  category: 'liquidity' | 'volume' | 'tvl'
   timeType: TimeType
   poolAddress?: string
   baseMint?: string
@@ -35,12 +38,56 @@ export default function useFetchPoolChartData({
     timeType,
     refreshInterval
   })
-  return {
-    data:
-      category === 'liquidity'
-        ? liquidityData.map((i) => ({ time: Number(i.time) * 1000 /* ms */, v: Number(i.liquidity) }))
-        : volumeData.map((i) => ({ time: Number(i.time) * 1000 /* ms */, v: i.value })),
-    isEmptyResult: category === 'liquidity' ? isEmptyLiquidityResult : isEmptyVolumeResult,
-    isLoading: category === 'liquidity' ? isLiquidityLoading : isVolumeLoading
-  }
+
+  const {
+    data: tvlData,
+    isEmptyResult: isEmptyTvlResult,
+    isLoading: isTvlLoading
+  } = useFetchPoolChartTvl({
+    disable: category !== 'tvl',
+    id: poolAddress,
+    refreshInterval
+  })
+
+  const result = useMemo(() => {
+    switch (category) {
+      case 'liquidity':
+        return {
+          data: liquidityData.map((i) => ({ time: Number(i.time) * 1000, v: Number(i.liquidity) })),
+          isEmptyResult: isEmptyLiquidityResult,
+          isLoading: isLiquidityLoading
+        }
+      case 'volume':
+        return {
+          data: volumeData.map((i) => ({ time: Number(i.time) * 1000, v: i.value })),
+          isEmptyResult: isEmptyVolumeResult,
+          isLoading: isVolumeLoading
+        }
+      case 'tvl':
+        return {
+          data: tvlData.map((i) => ({ time: Number(i.time) * 1000, v: Number(i.tvl) })),
+          isEmptyResult: isEmptyTvlResult,
+          isLoading: isTvlLoading
+        }
+      default:
+        return {
+          data: [],
+          isEmptyResult: true,
+          isLoading: false
+        }
+    }
+  }, [
+    category,
+    liquidityData,
+    isEmptyLiquidityResult,
+    isLiquidityLoading,
+    volumeData,
+    isEmptyVolumeResult,
+    isVolumeLoading,
+    tvlData,
+    isEmptyTvlResult,
+    isTvlLoading
+  ])
+
+  return result
 }
