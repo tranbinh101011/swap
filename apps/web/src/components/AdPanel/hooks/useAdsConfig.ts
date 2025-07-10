@@ -34,9 +34,7 @@ const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig
         btn: {
           text: t('Learn More'),
           link: 'https://blog.pancakeswap.finance/articles/new-binance-alpha-trading-competition?utm_source=Website&utm_medium=banner&utm_campaign=AlphaTokens&utm_id=TradingCompetition',
-        },
-        options: {
-          imagePadding: '20px',
+          mt: !isMobile ? '8px' : undefined,
         },
       },
       deadline: 1753660799000,
@@ -57,9 +55,7 @@ const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig
         btn: {
           text: t('Learn More'),
           link: 'https://blog.pancakeswap.finance/articles/binance-alpha-trading-competition',
-        },
-        options: {
-          imagePadding: '20px',
+          mt: !isMobile ? '8px' : undefined,
         },
       },
       deadline: 1752345599000,
