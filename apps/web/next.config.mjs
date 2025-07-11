@@ -108,6 +108,10 @@ const config = {
           source: '/.well-known/vercel/flags',
           destination: '/api/vercel/flags',
         },
+        {
+          source: '/perp/:path*',
+          destination: 'https://perp.pancakeswap.finance/perp/:path*',
+        },
       ],
     }
   },
