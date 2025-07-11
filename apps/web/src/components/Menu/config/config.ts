@@ -11,6 +11,8 @@ import {
   GameIcon,
   MenuItemsType,
   MoreIcon,
+  TradeIcon,
+  TradeFilledIcon,
   SwapFillIcon,
   SwapIcon,
 } from '@pancakeswap/uikit'
@@ -61,20 +63,22 @@ const config: (
           href: '/swap',
         },
         {
-          label: t('Perps'),
-          href: getPerpetualUrl({
-            chainId,
-            languageCode,
-            isDark,
-          }),
-          confirmModalId: 'perpConfirmModal',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-        {
           label: t('Buy Crypto'),
           href: '/buy-crypto',
         },
       ].map((item) => addMenuItemSupported(item, chainId)),
+    },
+    {
+      label: t('Perps'),
+      icon: TradeIcon,
+      fillIcon: TradeFilledIcon,
+      href: getPerpetualUrl({
+        chainId,
+        languageCode,
+        isDark,
+      }),
+      hideSubNav: true,
+      confirmModalId: 'perpConfirmModal',
     },
     {
       label: t('Earn'),

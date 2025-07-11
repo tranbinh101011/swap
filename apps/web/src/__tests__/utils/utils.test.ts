@@ -23,7 +23,7 @@ describe('getActiveMenuItem', () => {
     const result = getActiveMenuItem({ pathname, menuConfig: menuConfig(mockT, false, undefined) })
 
     // Then
-    expect(result).toEqual(menuConfig(mockT, false, undefined)[1])
+    expect(result).toEqual(menuConfig(mockT, false, undefined)[2])
   })
 
   it('should not return an item that only includes pathname but not starts with', () => {
@@ -34,7 +34,7 @@ describe('getActiveMenuItem', () => {
     const result = getActiveMenuItem({ pathname, menuConfig: menuConfig(mockT, false, undefined) })
 
     // Then
-    expect(result).toEqual(menuConfig(mockT, false, undefined)[4])
+    expect(result).toEqual(menuConfig(mockT, false, undefined)[5])
   })
 
   it('should return undefined if item is not found', () => {
@@ -55,7 +55,7 @@ describe('getActiveSubMenuItem', () => {
     const pathname = '/'
 
     // When
-    const result = getActiveSubMenuItem({ pathname, menuItem: menuConfig(mockT, false, undefined)[1] })
+    const result = getActiveSubMenuItem({ pathname, menuItem: menuConfig(mockT, false, undefined)[2] })
 
     // Then
     expect(result).toEqual(undefined)
@@ -66,10 +66,10 @@ describe('getActiveSubMenuItem', () => {
     const pathname = '/liquidity/pools'
 
     // When
-    const result = getActiveSubMenuItem({ pathname, menuItem: menuConfig(mockT, false, undefined)[1] })
+    const result = getActiveSubMenuItem({ pathname, menuItem: menuConfig(mockT, false, undefined)[2] })
 
     // Then
-    expect(result).toEqual(menuConfig(mockT, false, undefined)[1].items?.[0])
+    expect(result).toEqual(menuConfig(mockT, false, undefined)[2].items?.[0])
   })
 
   it('should return undefined if item is not found', () => {
@@ -77,7 +77,7 @@ describe('getActiveSubMenuItem', () => {
     const pathname = '/corgi'
 
     // When
-    const result = getActiveSubMenuItem({ pathname, menuItem: menuConfig(mockT, false, undefined)[1] })
+    const result = getActiveSubMenuItem({ pathname, menuItem: menuConfig(mockT, false, undefined)[2] })
 
     // Then
     expect(result).toEqual(undefined)
