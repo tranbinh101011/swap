@@ -7,6 +7,7 @@ export type ChartLiquidityProps = {
 
 export type BasicChartLiquidityProps = ChartLiquidityProps & {
   liquidityChartData?: LiquidityChartData[]
+  defaultZoomLevel?: number
 }
 
 export type InfinityCLChartLiquidityProps = {

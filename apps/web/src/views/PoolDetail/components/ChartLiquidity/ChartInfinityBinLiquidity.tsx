@@ -60,5 +60,5 @@ export const ChartInfinityBinLiquidity: React.FC<InfinityBinChartLiquidityProps>
     [activeBinId, poolInfo, poolTickData],
   )
 
-  return <BasicChartLiquidity poolInfo={poolInfo} liquidityChartData={formattedData} />
+  return <BasicChartLiquidity poolInfo={poolInfo} liquidityChartData={formattedData} defaultZoomLevel={0} />
 }

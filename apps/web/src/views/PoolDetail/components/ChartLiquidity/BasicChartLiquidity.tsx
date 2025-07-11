@@ -12,8 +12,12 @@ import { BasicChartLiquidityProps } from './type'
 const ZOOM_INTERVAL = 20
 const DEFAULT_ZOOM_LEVEL = 14
 
-export const BasicChartLiquidity: React.FC<BasicChartLiquidityProps> = ({ poolInfo, liquidityChartData }) => {
-  const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
+export const BasicChartLiquidity: React.FC<BasicChartLiquidityProps> = ({
+  poolInfo,
+  liquidityChartData,
+  defaultZoomLevel,
+}) => {
+  const [zoomLevel, setZoomLevel] = useState(defaultZoomLevel ?? DEFAULT_ZOOM_LEVEL)
   const [zoomInDisabled, setZoomInDisabled] = useState(false)
   const [activeIndex, setActiveIndex] = useState<number | undefined>()
 
