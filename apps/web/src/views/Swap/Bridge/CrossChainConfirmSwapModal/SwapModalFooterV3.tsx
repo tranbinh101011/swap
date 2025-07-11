@@ -38,10 +38,12 @@ import { DISPLAY_PRECISION } from 'config/constants/formatting'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { currenciesUSDPriceAtom } from 'hooks/useCurrencyUsdPrice'
+import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
 import { useAtomValue } from 'jotai'
 import { notEmpty } from 'utils/notEmpty'
 import { BridgeOrderFee, getBridgeOrderPriceImpact } from 'views/Swap/Bridge/utils'
 import { formatDollarAmount } from 'views/V3Info/utils/numbers'
+import { useChainId } from 'wagmi'
 import { TotalFeeToolTip } from '../components/FeeToolTip'
 import { EstimatedTime } from './components/EstimatedTime'
 
@@ -80,12 +82,12 @@ const Badge = styled.span`
 
 function TotalBridgeFee({ priceBreakdown }: { priceBreakdown: BridgeOrderFee[] }) {
   const lpFeeAmounts = useMemo(() => {
-    return priceBreakdown.map((p) => p.lpFeeAmount).filter(notEmpty)
+    return priceBreakdown.map((p) => p?.lpFeeAmount).filter(notEmpty)
   }, [priceBreakdown])
 
   const currencies = useMemo(() => {
     return lpFeeAmounts.map((p) => p.currency)
-  }, [priceBreakdown])
+  }, [lpFeeAmounts])
 
   const usdPrices = useAtomValue(currenciesUSDPriceAtom(currencies))
 
@@ -93,7 +95,15 @@ function TotalBridgeFee({ priceBreakdown }: { priceBreakdown: BridgeOrderFee[] }
     return lpFeeAmounts.map((lpFeeAmount, index) => {
       return new BigNumber(lpFeeAmount.toExact()).times(usdPrices[index] ?? 0)
     })
-  }, [usdPrices, priceBreakdown])
+  }, [usdPrices])
+
+  if (currencyUsdPrices.length === 0) {
+    return (
+      <Text fontSize="14px" textAlign="right">
+        -
+      </Text>
+    )
+  }
 
   return (
     <Text fontSize="14px" textAlign="right">
@@ -132,6 +142,10 @@ export const SwapModalFooterV3 = memo(function SwapModalFooterV3({
   const { t } = useTranslation()
   const [showInverted, setShowInverted] = useState<boolean>(false)
 
+  const chainId = useChainId()
+
+  const { switchNetworkAsync } = useSwitchNetwork()
+
   const [gasToken] = useGasToken()
   const { isPaymasterAvailable, isPaymasterTokenActive } = usePaymaster()
   const gasTokenInfo = paymasterInfo[gasToken.isToken ? gasToken?.wrapped.address : '']
@@ -163,6 +177,10 @@ export const SwapModalFooterV3 = memo(function SwapModalFooterV3({
     const price = SmartRouter.getExecutionPrice(order?.trade) ?? undefined
     return formatExecutionPrice(price, inputAmount, outputAmount, showInverted)
   }, [order, inputAmount, outputAmount, showInverted])
+
+  const isWrongNetwork = useMemo(() => {
+    return chainId && chainId !== order?.trade?.inputAmount?.currency?.chainId
+  }, [chainId, order?.trade?.inputAmount?.currency?.chainId])
 
   return (
     <>
@@ -349,13 +367,21 @@ export const SwapModalFooterV3 = memo(function SwapModalFooterV3({
       <AutoRow>
         <Button
           variant={severity > 2 ? 'danger' : 'primary'}
-          onClick={onConfirm}
+          onClick={() => {
+            if (isWrongNetwork && order?.trade?.inputAmount?.currency?.chainId) {
+              switchNetworkAsync(order?.trade?.inputAmount?.currency?.chainId)
+            } else {
+              onConfirm()
+            }
+          }}
           disabled={disabledConfirm}
           mt="12px"
           id="confirm-swap-or-send"
           width="100%"
         >
-          {severity > 2 || (tradeType === TradeType.EXACT_OUTPUT && !isEnoughInputBalance)
+          {isWrongNetwork
+            ? t('Wrong Network')
+            : severity > 2 || (tradeType === TradeType.EXACT_OUTPUT && !isEnoughInputBalance)
             ? t('Submit Order Anyway')
             : t('Submit Order')}
         </Button>
