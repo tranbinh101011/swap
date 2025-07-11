@@ -1,20 +1,10 @@
-import { Flex, RowBetween, Text } from '@pancakeswap/uikit'
+import { AutoColumn, Flex, RowBetween, Text } from '@pancakeswap/uikit'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { useMemo } from 'react'
 import { PoolInfo } from 'state/farmsV4/state/type'
-import styled from 'styled-components'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { usePoolSymbol } from '../hooks/usePoolSymbol'
-
-const StyledPoolTokens = styled(Flex)`
-  border: 1px solid ${({ theme }) => theme.colors.cardBorder};
-  background-color: ${({ theme }) => theme.colors.background};
-  padding: 16px;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
-  border-radius: 16px;
-`
+import { PoolTokensBar } from './PoolTokensBar'
 
 const formatOptions = {
   displayThreshold: 0.001,
@@ -38,25 +28,32 @@ export const PoolTokens: React.FC<PoolTokensProps> = ({ poolInfo }) => {
   }
 
   return (
-    <StyledPoolTokens>
-      <RowBetween>
-        <Flex>
-          <CurrencyLogo currency={currency0} size="20px" />
-          <Text fontSize={14} ml="8px">
-            {symbol0}
+    <AutoColumn gap="12px">
+      <RowBetween alignItems="center">
+        <AutoColumn>
+          <Flex>
+            <CurrencyLogo currency={currency0} size="24px" />
+            <Text fontSize={14} ml="8px" mt="1px" color="textSubtle">
+              {symbol0}
+            </Text>
+          </Flex>
+          <Text mt="4px" fontSize="18px">
+            {token0Tvl}
           </Text>
-        </Flex>
-        <Text small>{token0Tvl}</Text>
-      </RowBetween>
-      <RowBetween>
-        <Flex>
-          <CurrencyLogo currency={currency1} size="20px" />
-          <Text fontSize={14} ml="8px">
-            {symbol1}
+        </AutoColumn>
+        <AutoColumn>
+          <Flex>
+            <Text fontSize={14} mr="8px" mt="1px" color="textSubtle">
+              {symbol1}
+            </Text>
+            <CurrencyLogo currency={currency1} size="24px" />
+          </Flex>
+          <Text mt="4px" fontSize="18px">
+            {token1Tvl}
           </Text>
-        </Flex>
-        <Text small>{token1Tvl}</Text>
+        </AutoColumn>
       </RowBetween>
-    </StyledPoolTokens>
+      <PoolTokensBar poolInfo={poolInfo} />
+    </AutoColumn>
   )
 }

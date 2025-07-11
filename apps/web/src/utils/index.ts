@@ -11,7 +11,7 @@ export * from './safeGetAddress'
 
 export function getBlockExploreLink(
   data: string | number | undefined | null,
-  type: 'transaction' | 'token' | 'address' | 'block' | 'countdown',
+  type: 'transaction' | 'token' | 'address' | 'block' | 'countdown' | 'nft',
   chainIdOverride?: number,
 ): string {
   const chainId = chainIdOverride || ChainId.BSC
@@ -29,6 +29,9 @@ export function getBlockExploreLink(
     }
     case 'countdown': {
       return `${chain?.blockExplorers?.default.url}/block/countdown/${data}`
+    }
+    case 'nft': {
+      return `${chain?.blockExplorers?.default.url}/nft/${data}`
     }
     default: {
       return `${chain?.blockExplorers?.default.url}/address/${data}`

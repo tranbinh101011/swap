@@ -66,6 +66,7 @@ const DataRow = ({ transaction }: { transaction: Transaction; color?: string }) 
         <ScanLink
           useBscCoinFallback={ChainLinkSupportChains.includes(chainId)}
           href={getBlockExploreLink(transaction.transactionHash, 'transaction', chainId)}
+          color="primary60"
         >
           <Text fontWeight={600}>
             {transaction.type === TransactionType.Add
@@ -108,6 +109,7 @@ const DataRow = ({ transaction }: { transaction: Transaction; color?: string }) 
               useBscCoinFallback={ChainLinkSupportChains.includes(multiChainId[chainName])}
               href={getBlockExploreLink(transaction.sender, 'address', multiChainId[chainName])}
               fontWeight={400}
+              color="primary60"
             >
               {shortenAddress(transaction.sender)}
             </ScanLink>
@@ -123,6 +125,7 @@ const DataRow = ({ transaction }: { transaction: Transaction; color?: string }) 
           useBscCoinFallback={ChainLinkSupportChains.includes(multiChainId[chainName])}
           href={getBlockExploreLink(transaction.transactionHash, 'transaction', multiChainId[chainName])}
           fontWeight={400}
+          color="primary60"
         >
           {truncateHash(transaction.transactionHash, 8, 0)}
         </ScanLink>
@@ -145,7 +148,6 @@ const DEFAULT_FIELD_SORT_DIRECTION = {
 export const TransactionsTable: React.FC<TransactionTableProps> = ({ transactions, maxItems = 10 }) => {
   const { t } = useTranslation()
 
-  // for sorting
   const [sortField, setSortField] = useState(SortField.Timestamp)
   const [sortDirection, setSortDirection] = useState<SortDirection>(SortDirection.Descending)
   const fieldSortDirection = useMemo(() => {
@@ -155,7 +157,6 @@ export const TransactionsTable: React.FC<TransactionTableProps> = ({ transaction
     }
   }, [sortField, sortDirection])
 
-  // pagination
   const [page, setPage] = useState(1)
   const [maxPage, setMaxPage] = useState(1)
 
@@ -217,7 +218,7 @@ export const TransactionsTable: React.FC<TransactionTableProps> = ({ transaction
     <TableWrapper>
       <AutoColumn gap="16px">
         <TableHeader>
-          <RowFixed>
+          <RowFixed gap="12px">
             <SortText
               onClick={() => {
                 setTxFilter(undefined)

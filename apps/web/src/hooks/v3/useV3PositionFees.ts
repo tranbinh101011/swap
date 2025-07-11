@@ -13,6 +13,7 @@ export function useV3PositionFees(
   pool?: Pool,
   tokenId?: bigint,
   asWNATIVE = false,
+  enable = true,
 ): [CurrencyAmount<Currency>, CurrencyAmount<Currency>] | [undefined, undefined] {
   const positionManager = useV3NFTPositionManagerContract()
   const owner = useSingleCallResult({
@@ -27,7 +28,7 @@ export function useV3PositionFees(
   // latestBlockNumber is included to ensure data stays up-to-date every block
   const [amounts, setAmounts] = useState<[bigint, bigint] | undefined>()
   useEffect(() => {
-    if (positionManager && typeof tokenId !== 'undefined' && owner) {
+    if (enable && positionManager && typeof tokenId !== 'undefined' && owner) {
       positionManager.simulate
         .collect(
           [
@@ -45,7 +46,7 @@ export function useV3PositionFees(
           setAmounts([amount0, amount1])
         })
     }
-  }, [positionManager, owner, latestBlockNumber, tokenId])
+  }, [enable, positionManager, owner, latestBlockNumber, tokenId])
 
   if (pool && amounts) {
     return [

@@ -1,36 +1,24 @@
 import { Box, Flex, Spinner } from '@pancakeswap/uikit'
+import { formatFiatNumber } from '@pancakeswap/utils/formatFiatNumber'
+import { formatAmount } from '@pancakeswap/utils/formatInfoNumbers'
+import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { ChartToolTip } from './ChartToolTip'
 import { CurrentPriceLabel } from './CurrentPriceLabel'
 import { ActionButton, ControlsWrapper } from './styled'
 import { BasicChartLiquidityProps } from './type'
 
 const ZOOM_INTERVAL = 20
-
-const CustomBar = ({
-  x,
-  y,
-  width,
-  height,
-  fill,
-}: {
-  x: number
-  y: number
-  width: number
-  height: number
-  fill: string
-}) => {
-  return (
-    <g>
-      <rect x={x} y={y} fill={fill} width={width} height={height} rx="2" />
-    </g>
-  )
-}
+const DEFAULT_ZOOM_LEVEL = 14
 
 export const BasicChartLiquidity: React.FC<BasicChartLiquidityProps> = ({ poolInfo, liquidityChartData }) => {
-  const [zoomLevel, setZoomLevel] = useState(0)
+  const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
   const [zoomInDisabled, setZoomInDisabled] = useState(false)
+  const [activeIndex, setActiveIndex] = useState<number | undefined>()
+
+  const { data: token0Price } = useCurrencyUsdPrice(poolInfo?.token0.wrapped)
+  const { data: token1Price } = useCurrencyUsdPrice(poolInfo?.token1.wrapped)
 
   const handleZoomIn = useCallback(() => {
     if (!zoomInDisabled) {
@@ -50,6 +38,31 @@ export const BasicChartLiquidity: React.FC<BasicChartLiquidityProps> = ({ poolIn
     }
     return undefined
   }, [liquidityChartData, zoomLevel])
+
+  const zoomedDataWithUSD = useMemo(() => {
+    if (!zoomedData) return zoomedData
+
+    return zoomedData.map((dataPoint) => {
+      let liquidityUSD = 0
+
+      if (token0Price && token1Price && poolInfo?.token0Price) {
+        // Use the same logic as ChartToolTip to determine which token to use
+        if (Number(poolInfo.token0Price) > dataPoint.price1) {
+          liquidityUSD = token0Price * dataPoint.tvlToken0
+        } else {
+          liquidityUSD = token1Price * dataPoint.tvlToken1
+        }
+      } else {
+        // Fallback to activeLiquidity if USD prices are not available
+        liquidityUSD = dataPoint.activeLiquidity
+      }
+
+      return {
+        ...dataPoint,
+        liquidityUSD,
+      }
+    })
+  }, [zoomedData, token0Price, token1Price, poolInfo?.token0Price])
 
   useEffect(() => {
     if (!liquidityChartData || !liquidityChartData.length) {
@@ -72,17 +85,41 @@ export const BasicChartLiquidity: React.FC<BasicChartLiquidityProps> = ({ poolIn
   }
 
   return (
-    <Box height="380px" mb="-20px">
+    <Box height="380px" mb="-20px" position="relative">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={zoomedData}
+          data={zoomedDataWithUSD}
           margin={{
-            top: 0,
-            right: 0,
-            left: 0,
+            top: 20,
+            right: 20,
+            left: 20,
             bottom: 60,
           }}
+          onMouseMove={(state) => {
+            if (state?.activePayload?.[0]?.payload) {
+              setActiveIndex(state.activeTooltipIndex)
+            }
+          }}
+          onMouseLeave={() => {
+            setActiveIndex(undefined)
+          }}
         >
+          <XAxis
+            dataKey="price0"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12, fill: '#9383B4' }}
+            tickFormatter={(value) => formatAmount(value, { precision: 2 }) ?? ''}
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12, fill: '#9383B4' }}
+            tickFormatter={(value) => formatFiatNumber(value)}
+            orientation="right"
+            width={80}
+            tickMargin={10}
+          />
           <Tooltip
             content={(props) => (
               <ChartToolTip
@@ -90,31 +127,27 @@ export const BasicChartLiquidity: React.FC<BasicChartLiquidityProps> = ({ poolIn
                 currentPrice={poolInfo?.token0Price}
                 currency0={poolInfo?.token0.wrapped}
                 currency1={poolInfo?.token1.wrapped}
+                activeLiquidity={props.payload?.[0]?.payload?.activeLiquidity}
+                isCurrent={props.payload?.[0]?.payload?.isCurrent}
               />
             )}
+            cursor={{ fill: 'transparent' }}
           />
-          <XAxis reversed tick={false} />
-          <Bar dataKey="activeLiquidity" fill="#2172E5" isAnimationActive={false} shape={CustomBar}>
-            {zoomedData?.map((entry) => {
-              return <Cell key={`cell-${entry.index}`} fill={entry.isCurrent ? '#ED4B9E' : '#31D0AA'} />
+          <Bar dataKey="liquidityUSD" fill="#1FC7D4" isAnimationActive={false} radius={16}>
+            {zoomedDataWithUSD?.map((entry, index) => {
+              return (
+                <Cell
+                  key={`cell-${entry.index}`}
+                  fill={entry.isCurrent ? '#ED4B9E' : '#1FC7D4'}
+                  fillOpacity={activeIndex === undefined ? 1 : activeIndex === index ? 1 : 0.3}
+                  style={{ transition: 'fill-opacity 0.2s ease' }}
+                />
+              )
             })}
-            <LabelList
-              dataKey="activeLiquidity"
-              position="inside"
-              content={(props) => {
-                return poolInfo ? (
-                  <CurrentPriceLabel
-                    x={Number(props.x) ?? 0}
-                    index={(props as any).index}
-                    poolInfo={poolInfo}
-                    data={zoomedData}
-                  />
-                ) : null
-              }}
-            />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      <CurrentPriceLabel data={zoomedDataWithUSD} poolInfo={poolInfo} />
       <ControlsWrapper>
         <ActionButton disabled={false} onClick={handleZoomOut}>
           -

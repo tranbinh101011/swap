@@ -15,7 +15,7 @@ export const V3UnstakeModalContent: React.FC<PositionInfoProps> = (props) => {
   )
   return (
     <>
-      <PositionInfo {...props} />
+      <PositionInfo disableFixedTags {...props} />
       {linkWithChain ? (
         <Box mt="8px">
           <NextLink href={linkWithChain}>
@@ -31,7 +31,14 @@ export const V3UnstakeModalContent: React.FC<PositionInfoProps> = (props) => {
                 {t('View Position')}
               </Button>
             ) : (
-              <Button variant="tertiary" width="100%" as="a">
+              <Button
+                variant="tertiary"
+                width="100%"
+                as="a"
+                style={{
+                  boxShadow: '0px -2px 0px 0px rgba(0, 0, 0, 0.10) inset',
+                }}
+              >
                 {t('Manage Position')}
               </Button>
             )}

@@ -20,6 +20,7 @@ interface DoubleCurrencyLogoProps {
   currency1?: Currency;
   innerMargin?: string | number;
   showChainLogo?: boolean;
+  showChainLogoCurrency1?: boolean;
 }
 
 export function DoubleCurrencyLogo({
@@ -29,6 +30,7 @@ export function DoubleCurrencyLogo({
   margin = false,
   innerMargin = "4px",
   showChainLogo = false,
+  showChainLogoCurrency1 = false,
 }: DoubleCurrencyLogoProps) {
   const chainLogoSize = useMemo(() => size * 0.66, [size]);
   return (
@@ -37,7 +39,14 @@ export function DoubleCurrencyLogo({
         {currency0 && (
           <CurrencyLogo currency={currency0} size={`${size.toString()}px`} style={{ marginRight: innerMargin }} />
         )}
-        {currency1 && <CurrencyLogo currency={currency1} size={`${size.toString()}px`} />}
+        {currency1 && (
+          <CurrencyLogo
+            currency={currency1}
+            size={`${size.toString()}px`}
+            style={{ minWidth: `${size.toString()}px` }}
+            showChainLogo={showChainLogoCurrency1}
+          />
+        )}
         {showChainLogo && currency0 ? (
           <Image
             alt={`chain-${currency0.chainId}`}

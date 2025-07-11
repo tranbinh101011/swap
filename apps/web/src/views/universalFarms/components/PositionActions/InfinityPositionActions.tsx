@@ -26,12 +26,22 @@ const ActionPanelContainer = styled(Flex)`
   }
 `
 
-export const InfinityPositionActions = ({ pos, positionList = [] }: ActionPanelProps) => {
+export const InfinityPositionActions = ({
+  pos: pos_,
+  positionList = [],
+  showPositionFees = true,
+  chainId: chainId_,
+}: ActionPanelProps) => {
   const { t } = useTranslation()
   const [, setLatestTxReceipt] = useLatestTxReceipt()
   const modalState = useModalV2()
 
-  const { chainId, poolKey } = pos
+  const pos = pos_ ?? positionList?.[0] ?? {}
+
+  const { chainId: chainIdPos, poolKey } = pos
+
+  const chainId = chainId_ ?? chainIdPos
+
   const {
     onHarvest,
     attemptingTx: harvestAttemptingTxn,
@@ -44,32 +54,34 @@ export const InfinityPositionActions = ({ pos, positionList = [] }: ActionPanelP
   })
   const { onCollect, attemptingTx: collectAttemptingTxn } = useInfinityCollectFeeAction({ chainId })
 
-  const currency0 = useCurrencyByChainId(pos.poolKey?.currency0, chainId) ?? undefined
-  const currency1 = useCurrencyByChainId(pos.poolKey?.currency1, chainId) ?? undefined
+  const currency0 = useCurrencyByChainId(pos?.poolKey?.currency0, chainId) ?? undefined
+  const currency1 = useCurrencyByChainId(pos?.poolKey?.currency1, chainId) ?? undefined
 
   const harvestList = useMemo(() => {
     const filtered = positionList.filter(
       (p) =>
         !(
           p === pos ||
-          (p.chainId === pos.chainId &&
-            p.protocol === pos.protocol &&
+          (p.chainId === pos?.chainId &&
+            p.protocol === pos?.protocol &&
             (p.protocol === Protocol.InfinityCLAMM
               ? p.tokenId === (pos as InfinityCLPositionDetail).tokenId
               : (p as InfinityBinPositionDetail).activeId === (pos as InfinityBinPositionDetail).activeId))
         ),
     )
     // Only show the current chain's positions and prioritize the clicked position
-    filtered.unshift(pos)
+    if (pos) {
+      filtered.unshift(pos)
+    }
     return filtered
   }, [positionList, pos])
 
   const handleCollect = useCallback(() => {
-    if (pos.protocol !== Protocol.InfinityCLAMM) {
+    if (pos?.protocol !== Protocol.InfinityCLAMM) {
       return
     }
     onCollect({
-      tokenId: pos.tokenId,
+      tokenId: pos?.tokenId,
       poolKey: poolKey as PoolKey<'CL'>,
     })
   }, [poolKey, onCollect, pos])
@@ -104,6 +116,8 @@ export const InfinityPositionActions = ({ pos, positionList = [] }: ActionPanelP
           onHarvest={onHarvest}
           onCollect={handleCollect}
           pos={pos}
+          showPositionFees={showPositionFees}
+          closeOnOverlayClick
         />
       ) : null}
     </StopPropagation>

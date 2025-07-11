@@ -53,7 +53,7 @@ export const V3StakeModal: React.FC<React.PropsWithChildren<IStakeModalProps>> =
           <AtomBox
             position="relative"
             style={{
-              minHeight: '96px',
+              minHeight: '68px',
             }}
           >
             <AtomBox
@@ -71,7 +71,7 @@ export const V3StakeModal: React.FC<React.PropsWithChildren<IStakeModalProps>> =
               <StyledTooltip
                 data-theme={isDark ? 'light' : 'dark'}
                 style={{
-                  maxWidth: '160px',
+                  maxWidth: '240px',
                   position: 'relative',
                 }}
               >

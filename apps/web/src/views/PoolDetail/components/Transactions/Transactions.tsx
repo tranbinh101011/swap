@@ -1,6 +1,6 @@
 import { Protocol } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
-import { AutoColumn, Heading } from '@pancakeswap/uikit'
+import { AutoColumn } from '@pancakeswap/uikit'
 import { useChainIdByQuery } from 'state/info/hooks'
 import { useRouterQuery } from 'views/PoolDetail/hooks/useRouterQuery'
 import { LocalLoader } from 'views/V3Info/components/Loader'
@@ -18,9 +18,6 @@ export const Transactions: React.FC<TransactionProps> = ({ protocol }) => {
   const { data: transactions } = usePoolTransactions(address, protocol, chainId)
   return (
     <AutoColumn>
-      <Heading mb="16px" mt="40px" scale="lg">
-        {t('Transactions')}
-      </Heading>
       {transactions ? <TransactionsTable transactions={transactions} /> : <LocalLoader fill={false} />}
     </AutoColumn>
   )

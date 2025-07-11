@@ -2,7 +2,7 @@ import { Protocol } from '@pancakeswap/farms'
 import { useTheme } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Token } from '@pancakeswap/swap-sdk-core'
-import { FeeTier, Flex, Row, Skeleton, Tag, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { FeeTier, FlexGap, Row, Skeleton, Tag, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { formatNumber as formatBalance } from '@pancakeswap/utils/formatBalance'
 import { formatNumber } from '@pancakeswap/utils/formatNumber'
 import { DoubleCurrencyLogo, FiatNumberDisplay } from '@pancakeswap/widgets-internal'
@@ -67,6 +67,7 @@ export type PositionInfoProps = {
   userPosition?: PositionDetail | V2LPDetail | StableLPDetail | InfinityBinPositionDetail
   showAPR?: boolean
   miniMode?: boolean
+  disableFixedTags?: boolean
 }
 
 export const PositionInfo = memo((props: PositionInfoProps) => {
@@ -93,24 +94,33 @@ export const PositionInfo = memo((props: PositionInfoProps) => {
     showAPR = true,
     miniMode = isTablet || isMobile,
     chainId,
+    disableFixedTags,
   } = props
   const hookData = useHookByPoolId(
     chainId,
     isInfinityProtocol(protocol) ? (pool as InfinityPoolInfo)?.poolId : undefined,
   )
 
+  const tags = useMemo(() => {
+    return (
+      <>
+        {(isInfinityProtocol(protocol) ? isStaked && !outOfRange && !removed : isStaked) && (
+          <Tag variant="primary60">{t('Farming')}</Tag>
+        )}
+        {![Protocol.STABLE, Protocol.V2].includes(protocol) && (
+          <RangeTag lowContrast removed={removed} outOfRange={outOfRange} protocol={protocol} />
+        )}
+        <MerklTag poolAddress={pool?.lpAddress} />
+      </>
+    )
+  }, [t, protocol, isStaked, outOfRange, removed, pool?.lpAddress])
+
   const title = useMemo(
     () =>
       miniMode ? (
         <DetailInfoTitle $isMobile>
-          <Row gap="8px" flexWrap={isMobile ? 'wrap' : undefined}>
-            <DoubleCurrencyLogo
-              size={24}
-              currency0={currency0}
-              currency1={currency1}
-              showChainLogo
-              innerMargin="-10px"
-            />
+          <Row gap="8px" flexWrap="wrap">
+            <DoubleCurrencyLogo size={24} currency0={currency0} currency1={currency1} showChainLogoCurrency1 />
             {isInfinityProtocol(protocol) ? (
               <InfinityFeeTierBreakdown
                 poolId={(pool as InfinityPoolInfo)?.poolId}
@@ -140,30 +150,31 @@ export const PositionInfo = memo((props: PositionInfoProps) => {
         </DetailInfoTitle>
       ) : (
         <DetailInfoTitle>
-          <PositionDebugView json={props}>
-            <Text bold>{`${currency0?.symbol} / ${currency1?.symbol} LP`}</Text>
-          </PositionDebugView>
-          {tokenId ? <Text color="textSubtle">(#{tokenId.toString()})</Text> : null}
-          {isInfinityProtocol(protocol) ? (
-            <InfinityFeeTierBreakdown
-              poolId={(pool as InfinityPoolInfo)?.poolId}
-              chainId={chainId}
-              hookData={hookData}
-            />
-          ) : (
-            <FeeTier type={protocol} fee={fee} denominator={feeTierBase} />
-          )}
-          <TagCell>
-            {(isInfinityProtocol(protocol) ? isStaked && !outOfRange && !removed : isStaked) && (
-              <Tag variant="primary60" mr="8px">
-                {t('Farming')}
-              </Tag>
+          <FlexGap flexWrap="wrap" gap="8px" justifyContent="space-between" width="100%">
+            <FlexGap gap="8px" alignItems="center">
+              <PositionDebugView json={props}>
+                <Text bold>{`${currency0?.symbol} / ${currency1?.symbol} LP`}</Text>
+              </PositionDebugView>
+              {tokenId ? <Text color="textSubtle">(#{tokenId.toString()})</Text> : null}
+              {isInfinityProtocol(protocol) ? (
+                <InfinityFeeTierBreakdown
+                  poolId={(pool as InfinityPoolInfo)?.poolId}
+                  chainId={chainId}
+                  hookData={hookData}
+                />
+              ) : (
+                <FeeTier type={protocol} fee={fee} denominator={feeTierBase} />
+              )}
+            </FlexGap>
+
+            {disableFixedTags ? (
+              <FlexGap gap="8px" flexWrap="wrap">
+                {tags}
+              </FlexGap>
+            ) : (
+              <TagCell gap="8px">{tags}</TagCell>
             )}
-            {![Protocol.STABLE, Protocol.V2].includes(protocol) && (
-              <RangeTag lowContrast removed={removed} outOfRange={outOfRange} protocol={protocol} />
-            )}
-            <MerklTag poolAddress={pool?.lpAddress} />
-          </TagCell>
+          </FlexGap>
         </DetailInfoTitle>
       ),
     [
@@ -333,13 +344,6 @@ const DetailInfoTitle = styled.div<{ $isMobile?: boolean }>`
   flex-direction: ${({ $isMobile }) => ($isMobile ? 'column' : 'row')};
 `
 
-const TagCell = styled(Flex)`
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding: 16px;
-`
-
 const DetailInfoDesc = styled.div`
   display: flex;
   flex-direction: column;
@@ -352,4 +356,11 @@ const DetailInfoLabel = styled(Text)`
   color: ${({ theme }) => theme.colors.textSubtle};
   font-weight: 600;
   font-size: 12px;
+`
+
+const TagCell = styled(FlexGap)`
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 16px;
 `

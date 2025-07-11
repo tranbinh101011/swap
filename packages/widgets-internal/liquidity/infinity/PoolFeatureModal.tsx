@@ -41,11 +41,19 @@ export const PoolFeatureModal: React.FC<PoolTypeModalProps> = ({ onDismiss, titl
           </AutoColumn>
 
           {link ? (
-            <LinkExternal href={link} marginTop="auto">
-              <Text fontSize={16} color="primary" bold>
-                {t("View details in Docs")}
+            <>
+              <Text fontSize={12} color="secondary" bold textTransform="uppercase">
+                {t("Links")}
               </Text>
-            </LinkExternal>
+              <Flex justifyContent="space-between">
+                <Text color="textSubtle">{t("Docs")}</Text>
+                <LinkExternal href={link} marginTop="auto">
+                  <Text color="primary60" bold>
+                    {t("View details in Docs")}
+                  </Text>
+                </LinkExternal>
+              </Flex>
+            </>
           ) : null}
         </AutoColumn>
       </Flex>

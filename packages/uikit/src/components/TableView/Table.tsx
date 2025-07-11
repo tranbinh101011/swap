@@ -69,6 +69,7 @@ const TableBody = styled.tbody``;
 
 const Row = styled.tr<{ $withLink?: boolean }>`
   border-top: 1px solid ${({ theme }) => theme.colors.cardBorder};
+  transition: background 0.2s ease-in-out;
   ${({ $withLink, theme }) =>
     $withLink &&
     `

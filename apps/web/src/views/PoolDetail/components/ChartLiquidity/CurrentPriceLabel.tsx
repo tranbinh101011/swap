@@ -1,65 +1,58 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { AutoColumn, Box, Text } from '@pancakeswap/uikit'
-import { RowFixed } from 'components/Layout/Row'
-import useTheme from 'hooks/useTheme'
+import { Flex, Text } from '@pancakeswap/uikit'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import { styled } from 'styled-components'
 import { LiquidityChartData } from './type'
 
 const Wrapper = styled.div`
   border-radius: 8px;
-  padding: 6px 12px;
-  color: white;
-  width: fit-content;
-  font-size: 14px;
   background-color: ${({ theme }) => theme.colors.backgroundAlt};
+  width: fit-content;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+`
+
+const PriceDot = styled.div`
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  background-color: ${({ theme }) => theme.colors.secondary};
+  margin-right: 6px;
 `
 
 interface CurrentPriceLabelProps {
   data: LiquidityChartData[] | undefined
-  x?: number
-  // y?: number
-  index?: number
-  poolInfo?: PoolInfo
+  poolInfo?: PoolInfo | null
 }
 
-export const CurrentPriceLabel: React.FC<CurrentPriceLabelProps> = ({ data, x = 0, index = 0, poolInfo }) => {
+export const CurrentPriceLabel: React.FC<CurrentPriceLabelProps> = ({ data, poolInfo }) => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
-  const entryData = data?.[index]
-  if (entryData?.isCurrent) {
-    const { price0 } = entryData
-    const { price1 } = entryData
-    return (
-      <g>
-        <foreignObject x={Math.max(x - 80, 0)} y={290} width="100%" height={100} style={{ zIndex: 9999 }}>
-          <Wrapper>
-            <AutoColumn gap="2px">
-              <RowFixed align="center">
-                <Text mr="6px">{t('Current Price')}</Text>
-                <Box
-                  style={{
-                    marginTop: '2px',
-                    height: '6px',
-                    width: '6px',
-                    borderRadius: '50%',
-                    backgroundColor: theme.colors.failure,
-                  }}
-                />
-              </RowFixed>
-              <Text>{`1 ${poolInfo?.token0.symbol} = ${Number(price0).toLocaleString(undefined, {
-                minimumSignificantDigits: 1,
-                maximumSignificantDigits: 3,
-              })} ${poolInfo?.token1.symbol}`}</Text>
-              <Text>{`1 ${poolInfo?.token1.symbol} = ${Number(price1).toLocaleString(undefined, {
-                minimumSignificantDigits: 1,
-                maximumSignificantDigits: 3,
-              })} ${poolInfo?.token0.symbol}`}</Text>
-            </AutoColumn>
-          </Wrapper>
-        </foreignObject>
-      </g>
-    )
+
+  const currentPriceData = data?.find((entry) => entry.isCurrent)
+
+  if (!currentPriceData || !poolInfo) {
+    return null
   }
-  return null
+
+  const { price0 } = currentPriceData
+
+  return (
+    <Wrapper>
+      <Flex alignItems="center" mb="4px">
+        <PriceDot />
+        <Text small bold>
+          {t('Current Price')}
+        </Text>
+      </Flex>
+      <Text>
+        {Number(price0).toLocaleString(undefined, {
+          minimumSignificantDigits: 1,
+          maximumSignificantDigits: 5,
+        })}{' '}
+        {poolInfo.token1.symbol} per {poolInfo.token0.symbol}
+      </Text>
+    </Wrapper>
+  )
 }

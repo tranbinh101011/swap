@@ -22,11 +22,11 @@ export const ResponsiveGrid = styled.div`
 
 export const SortText = styled.button<{ $active: boolean }>`
   cursor: pointer;
-  font-weight: 600;
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
   margin-right: 0.75rem !important;
   border: none;
   background-color: transparent;
-  font-size: 1rem;
+  font-size: 16px;
   padding: 0px;
   color: ${({ $active, theme }) => ($active ? theme.colors.secondary : theme.colors.textSubtle)};
   outline: none;
@@ -41,8 +41,8 @@ export const ClickableColumnHeader = styled(Text)`
   justify-content: flex-end;
   gap: 5px;
   font-weight: 600;
-  font-size: 14px;
-  line-height: 1.75;
+  font-size: 12px;
+  line-height: 2;
 `
 
 const AscSortButtonStyle = css`

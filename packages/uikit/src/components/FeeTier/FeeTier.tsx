@@ -8,10 +8,11 @@ export type FeeTierProps = {
   fee: number;
   denominator?: number;
   dynamic?: boolean;
+  showType?: boolean;
 };
 
 export const FeeTier = forwardRef<HTMLSpanElement, FeeTierProps>(
-  ({ type, fee, denominator = 10_000, dynamic }, ref) => {
+  ({ type, fee, denominator = 10_000, dynamic, showType = true }, ref) => {
     const percent = useMemo(() => {
       const value = new BigNumber(fee).div(denominator).times(100).toNumber().toString();
       const formatted = smartRoundNumber(value, 6);
@@ -19,8 +20,12 @@ export const FeeTier = forwardRef<HTMLSpanElement, FeeTierProps>(
     }, [fee, denominator]);
     return (
       <StyledFeeTier ref={ref}>
-        <span style={{ textTransform: "capitalize" }}>{type}</span>
-        <span style={{ opacity: 0.5 }}>|</span>
+        {showType ? (
+          <>
+            <span style={{ textTransform: "capitalize" }}>{type}</span>
+            <span style={{ opacity: 0.5 }}>|</span>
+          </>
+        ) : null}
         <span>
           {dynamic ? <span style={{ marginRight: "2px" }}>↕️</span> : ""}
           {percent}%
@@ -35,6 +40,7 @@ const StyledFeeTier = styled.span`
   padding: 2px 8px;
   background: ${({ theme }) => theme.colors.tertiary};
   gap: 4px;
+  border: 2px solid ${({ theme }) => theme.colors.tertiary20};
   border-radius: 999px;
   color: ${({ theme }) => theme.colors.textSubtle};
   font-size: 14px;

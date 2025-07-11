@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Button, FlexGap } from '@pancakeswap/uikit'
+import { Button, FlexGap, FlexGapProps } from '@pancakeswap/uikit'
 import { useCallback, useState } from 'react'
 
 import styled from 'styled-components'
@@ -22,18 +22,23 @@ const Tab = styled(Button).attrs(({ $isActive }) => ({ scale: 'sm', variant: $is
   padding: 0 12px;
 `
 
-interface TabMenuProps {
-  tabs?: string[]
-  defaultTab?: string
-  onTabChange?: (tab: string) => void
+interface TabMenuProps<T> extends FlexGapProps {
+  tabs?: T[]
+  defaultTab?: T
+  onTabChange?: (tab: T) => void
 }
 
-export const TabMenu = ({ tabs = ['3m', '6m', '1Y', 'All'], defaultTab = '3m', onTabChange }: TabMenuProps) => {
+export const TabMenu = <T extends string>({
+  tabs = ['3m', '6m', '1Y', 'All'] as T[],
+  defaultTab = '3m' as T,
+  onTabChange,
+  ...props
+}: TabMenuProps<T>) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState(defaultTab)
 
   const handleTabChange = useCallback(
-    (tab: string) => {
+    (tab: T) => {
       setActiveTab(tab)
       onTabChange?.(tab)
     },
@@ -41,7 +46,7 @@ export const TabMenu = ({ tabs = ['3m', '6m', '1Y', 'All'], defaultTab = '3m', o
   )
 
   return (
-    <TabsContainer role="tablist" aria-label={t('Select a tab')}>
+    <TabsContainer role="tablist" aria-label={t('Select a tab')} {...props}>
       {tabs.map((tab) => (
         <Tab
           role="tab"

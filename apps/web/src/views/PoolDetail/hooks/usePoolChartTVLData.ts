@@ -51,7 +51,7 @@ export const usePoolChartTVLData = (
   const chainName = useExplorerChainNameByQuery()
 
   return useQuery({
-    queryKey: ['poolChartTVLData', chainName, address, protocol],
+    queryKey: ['poolChartTVLData', chainName, address, protocol, period],
     queryFn: () => fetchChartTVLData(address!, chainName!, protocol!, period),
     enabled: !!address && !!protocol && !!chainName,
     ...QUERY_SETTINGS_IMMUTABLE,

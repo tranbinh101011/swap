@@ -14,6 +14,7 @@ const StyledFeatureItem = styled.div`
   display: inline-flex;
   gap: 4px;
   padding: 2px 10px 2px 10px;
+  border: 2px solid ${({ theme }) => theme.colors.tertiary20};
   border-radius: 999px;
   background-color: ${({ theme }) => theme.colors.tertiary};
   font-size: 14px;

@@ -18,7 +18,7 @@ const StyledPage = styled(Page)`
 export const PoolDetail: React.FC = () => {
   return (
     <StyledPage>
-      <AutoColumn gap={['16px', null, null, '48px']}>
+      <AutoColumn gap={['16px', null, null, '32px']}>
         <BreadcrumbNav />
         <PoolInfo />
       </AutoColumn>

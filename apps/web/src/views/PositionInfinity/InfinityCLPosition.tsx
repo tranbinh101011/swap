@@ -136,8 +136,42 @@ export const InfinityCLPosition = () => {
   const fiatValueOfLiquidity: CurrencyAmount<Currency> | null = useMemo(() => {
     if ((!price0 && !price1) || (!positionAmount0 && !positionAmount1)) return null
 
-    const amount0 = price0 && positionAmount0 ? price0.quote(positionAmount0) : undefined
-    const amount1 = price1 && positionAmount1 ? price1.quote(positionAmount1) : undefined
+    let amount0: CurrencyAmount<Currency> | undefined
+    let amount1: CurrencyAmount<Currency> | undefined
+
+    // Safely quote amount0 with proper error handling
+    if (price0 && positionAmount0) {
+      try {
+        // Check if currencies are compatible before quoting
+        if (positionAmount0.currency.equals(price0.baseCurrency)) {
+          amount0 = price0.quote(positionAmount0)
+        } else {
+          console.warn('Currency mismatch for price0.quote(positionAmount0)', {
+            positionAmount0Currency: positionAmount0.currency.symbol,
+            price0BaseCurrency: price0.baseCurrency.symbol,
+          })
+        }
+      } catch (error) {
+        console.error('Error quoting amount0:', error)
+      }
+    }
+
+    // Safely quote amount1 with proper error handling
+    if (price1 && positionAmount1) {
+      try {
+        // Check if currencies are compatible before quoting
+        if (positionAmount1.currency.equals(price1.baseCurrency)) {
+          amount1 = price1.quote(positionAmount1)
+        } else {
+          console.warn('Currency mismatch for price1.quote(positionAmount1)', {
+            positionAmount1Currency: positionAmount1.currency.symbol,
+            price1BaseCurrency: price1.baseCurrency.symbol,
+          })
+        }
+      } catch (error) {
+        console.error('Error quoting amount1:', error)
+      }
+    }
 
     if (amount0 && amount1) return amount0.add(amount1)
     if (amount0) return amount0
@@ -363,7 +397,18 @@ export const InfinityCLPosition = () => {
                           <RowBetween justifyContent="flex-end">
                             <Text fontSize="14px" color="textSubtle" mr="4px">
                               {positionValueUpper && priceValueUpper
-                                ? `~$${priceValueUpper.quote(positionValueUpper).toFixed(2, { groupSeparator: ',' })}`
+                                ? (() => {
+                                    try {
+                                      if (positionValueUpper.currency.equals(priceValueUpper.baseCurrency)) {
+                                        return `~$${priceValueUpper
+                                          .quote(positionValueUpper)
+                                          .toFixed(2, { groupSeparator: ',' })}`
+                                      }
+                                    } catch (error) {
+                                      console.error('Error quoting positionValueUpper:', error)
+                                    }
+                                    return ''
+                                  })()
                                 : ''}
                             </Text>
                           </RowBetween>
@@ -383,7 +428,18 @@ export const InfinityCLPosition = () => {
                           <RowBetween justifyContent="flex-end">
                             <Text fontSize="14px" color="textSubtle" mr="4px">
                               {positionValueLower && priceValueLower
-                                ? `~$${priceValueLower.quote(positionValueLower).toFixed(2, { groupSeparator: ',' })}`
+                                ? (() => {
+                                    try {
+                                      if (positionValueLower.currency.equals(priceValueLower.baseCurrency)) {
+                                        return `~$${priceValueLower
+                                          .quote(positionValueLower)
+                                          .toFixed(2, { groupSeparator: ',' })}`
+                                      }
+                                    } catch (error) {
+                                      console.error('Error quoting positionValueLower:', error)
+                                    }
+                                    return ''
+                                  })()
                                 : ''}
                             </Text>
                           </RowBetween>
@@ -439,7 +495,18 @@ export const InfinityCLPosition = () => {
                           <RowBetween justifyContent="flex-end">
                             <Text fontSize="14px" color="textSubtle" ml="4px">
                               {feeValueUpper && priceValueUpper
-                                ? `~$${priceValueUpper.quote(feeValueUpper).toFixed(2, { groupSeparator: ',' })}`
+                                ? (() => {
+                                    try {
+                                      if (feeValueUpper.currency.equals(priceValueUpper.baseCurrency)) {
+                                        return `~$${priceValueUpper
+                                          .quote(feeValueUpper)
+                                          .toFixed(2, { groupSeparator: ',' })}`
+                                      }
+                                    } catch (error) {
+                                      console.error('Error quoting feeValueUpper:', error)
+                                    }
+                                    return ''
+                                  })()
                                 : ''}
                             </Text>
                           </RowBetween>
@@ -457,7 +524,18 @@ export const InfinityCLPosition = () => {
                           <RowBetween justifyContent="flex-end">
                             <Text fontSize="14px" color="textSubtle" ml="4px">
                               {feeValueLower && priceValueLower
-                                ? `~$${priceValueLower.quote(feeValueLower).toFixed(2, { groupSeparator: ',' })}`
+                                ? (() => {
+                                    try {
+                                      if (feeValueLower.currency.equals(priceValueLower.baseCurrency)) {
+                                        return `~$${priceValueLower
+                                          .quote(feeValueLower)
+                                          .toFixed(2, { groupSeparator: ',' })}`
+                                      }
+                                    } catch (error) {
+                                      console.error('Error quoting feeValueLower:', error)
+                                    }
+                                    return ''
+                                  })()
                                 : ''}
                             </Text>
                           </RowBetween>

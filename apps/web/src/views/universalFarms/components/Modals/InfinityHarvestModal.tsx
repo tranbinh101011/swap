@@ -45,10 +45,12 @@ import { InfinityBinPositionItem } from '../PositionItem/InfinityBinPositionItem
 import { InfinityCLPositionItem } from '../PositionItem/InfinityCLPositionItem'
 
 export type InfinityHarvestProps = {
-  pos: InfinityCLPositionDetail | InfinityBinPositionDetail
+  pos?: InfinityCLPositionDetail | InfinityBinPositionDetail
   currency0: Currency
   currency1: Currency
   positionList?: (InfinityCLPositionDetail | InfinityBinPositionDetail)[]
+  showPositionFees?: boolean
+  chainId?: number
   onHarvest?: () => void
   onCollect?: () => void
 }
@@ -75,17 +77,24 @@ const ListContainer = styled.div<{ $num: number; $visible: boolean }>`
 `
 
 export const InfinityHarvestModal = ({
-  pos,
+  pos: pos_,
   positionList,
   currency0,
   currency1,
-  onDismiss,
   isOpen,
   closeOnOverlayClick,
+  showPositionFees = true,
+  onDismiss,
   onHarvest,
   onCollect,
+  chainId: chainId_,
 }: InfinityHarvestModalProps) => {
-  const { protocol, chainId, poolKey } = pos
+  const pos = pos_ ?? positionList?.[0]
+
+  const { protocol, chainId: chainIdPos, poolKey } = pos ?? {}
+
+  const chainId = chainId_ ?? chainIdPos
+
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { address } = useAccount()
@@ -119,10 +128,11 @@ export const InfinityHarvestModal = ({
   const { feeAmount0, feeAmount1, totalFiatValue } = useFeesEarnedUSD({
     currency0,
     currency1,
-    tickLower: 'tickLower' in pos ? pos.tickLower : undefined,
-    tickUpper: 'tickUpper' in pos ? pos.tickUpper : undefined,
-    tokenId: 'tokenId' in pos ? pos.tokenId : undefined,
-    poolId,
+    tickLower: pos && ('tickLower' in pos ? pos.tickLower : undefined),
+    tickUpper: pos && ('tickUpper' in pos ? pos.tickUpper : undefined),
+    tokenId: pos && ('tokenId' in pos ? pos.tokenId : undefined),
+    poolId: pos ? poolId : undefined,
+    enabled: showPositionFees && !!pos,
   })
 
   const { isMobile } = useMatchBreakpoints()
@@ -143,10 +153,10 @@ export const InfinityHarvestModal = ({
             quoteToken={currency1}
             iconWidth="48px"
             title={
-              <>
+              <FlexGap gap="4px" alignItems="center">
                 <Text as="span" bold fontSize="20px" mr="8px">{`${currency0.symbol} / ${currency1.symbol}`}</Text>
                 <InfinityFeeTierBreakdown poolId={poolId} chainId={chainId} />
-              </>
+              </FlexGap>
             }
             getChainName={getChainFullName}
             icon={
@@ -161,7 +171,7 @@ export const InfinityHarvestModal = ({
           />
           <Tips
             primaryMsg={t('Harvesting earnings from all Infinity farming positions under %chainName%', {
-              chainName: chainNames[chainId],
+              chainName: chainId ? chainNames[chainId] : '',
             })}
           />
           <GreyCard border={`1px solid ${theme.colors.cardBorder}`} padding="0">
@@ -239,7 +249,7 @@ export const InfinityHarvestModal = ({
             </ListContainer>
           </GreyCard>
 
-          {protocol === Protocol.InfinityCLAMM ? (
+          {showPositionFees && protocol === Protocol.InfinityCLAMM ? (
             <AutoColumn padding="12px" width="100%">
               <Text color="textSubtle" as="span" fontSize="12px" fontWeight={600} textTransform="uppercase">
                 {t('Unclaimed Fees')}

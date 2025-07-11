@@ -19,6 +19,7 @@ export type LPFeesParam = {
   poolId?: Address
   tickLower?: number
   tickUpper?: number
+  enabled?: boolean
 }
 
 const fetchFeesEarned = ({
@@ -47,11 +48,13 @@ const fetchFeesEarned = ({
 }
 
 export const useFeesEarned = (params: LPFeesParam) => {
-  const { poolId, tokenId, tickLower, tickUpper, currency0, currency1 } = params
+  const { poolId, tokenId, tickLower, tickUpper, currency0, currency1, enabled: _enabled } = params
   const chainId = currency0?.chainId
   const { data: poolKey } = usePoolKeyByPoolId(poolId, chainId)
   const { poolManager } = poolKey ?? {}
-  const enabled = !!(poolManager && poolId && chainId && tokenId && !isUndefined(tickUpper) && !isUndefined(tickLower))
+  const enabled =
+    (_enabled === undefined || _enabled === true) &&
+    !!(poolManager && poolId && chainId && tokenId && !isUndefined(tickUpper) && !isUndefined(tickLower))
 
   const { data } = useQuery({
     queryKey: ['useFeesEarned', poolId, chainId, Number(tokenId), tickLower, tickUpper],
@@ -90,9 +93,33 @@ export const useFeesEarnedUSD = (params: LPFeesParam) => {
   const price0 = useStablecoinPrice(currency0, { enabled: Boolean(feeAmount0?.greaterThan(0)) })
   const price1 = useStablecoinPrice(currency1, { enabled: Boolean(feeAmount1?.greaterThan(0)) })
 
+  const calculateFiatValue = (
+    price: any,
+    feeAmount: CurrencyAmount<Currency> | undefined,
+    currencyLabel: string,
+  ): CurrencyAmount<Currency> | undefined => {
+    try {
+      if (price && feeAmount) {
+        if (price.baseCurrency.equals(feeAmount.currency)) {
+          return price.quote(feeAmount)
+        }
+
+        if (price.baseCurrency.wrapped.address === feeAmount.currency.wrapped.address) {
+          // Create a new CurrencyAmount with the correct currency from price
+          const adjustedAmount = CurrencyAmount.fromRawAmount(price.baseCurrency, feeAmount.quotient)
+          return price.quote(adjustedAmount)
+        }
+      }
+    } catch (error) {
+      console.warn(`Error calculating fiat value for ${currencyLabel}:`, error)
+    }
+    return undefined
+  }
+
   const { totalFiatValue, fiatValue0, fiatValue1 } = useMemo(() => {
-    const fiatValue0_ = price0 && feeAmount0 ? price0.quote(feeAmount0) : undefined
-    const fiatValue1_ = price1 && feeAmount1 ? price1.quote(feeAmount1) : undefined
+    const fiatValue0_ = calculateFiatValue(price0, feeAmount0, 'currency0')
+    const fiatValue1_ = calculateFiatValue(price1, feeAmount1, 'currency1')
+
     return {
       fiatValue0: fiatValue0_,
       fiatValue1: fiatValue1_,

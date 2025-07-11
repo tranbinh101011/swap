@@ -16,6 +16,7 @@ interface FeeTierBreakdownProps {
   hookData?: HookData
   poolInfo?: PoolInfo
   infoIconVisible?: boolean
+  showType?: boolean
 }
 export const InfinityFeeTierBreakdown = ({
   poolId,
@@ -23,6 +24,7 @@ export const InfinityFeeTierBreakdown = ({
   hookData,
   infoIconVisible = true,
   poolInfo,
+  showType = true,
 }: FeeTierBreakdownProps) => {
   const enabled = !poolInfo?.farm
 
@@ -40,17 +42,19 @@ export const InfinityFeeTierBreakdown = ({
       chainId={chainId}
       hookData={hookData}
       infoIconVisible={infoIconVisible}
+      showType={showType}
     />
   )
 }
 
 export const InfinityFeeTierBreakdownDisplay = ({
   pool,
-
+  showType = true,
   hookData,
   infoIconVisible = true,
 }: FeeTierBreakdownProps & {
   pool: InfinityFeeTierPoolParams
+  showType?: boolean
 }) => {
   const infinityFeeTier = useInfinityFeeTier(pool)
   const [onPresentHookDetailModal] = useModal(<Liquidity.HookModal hookData={hookData} />)
@@ -78,6 +82,7 @@ export const InfinityFeeTierBreakdownDisplay = ({
         dynamic={pool?.dynamic}
         type={infinityFeeTier.type}
         percent={infinityFeeTier.percent}
+        showType={showType}
       />
       {hookData?.category?.includes(HOOK_CATEGORY.DynamicFees) && infoIconVisible ? (
         <InfoIcon

@@ -10,6 +10,10 @@ import { useV3CakeEarning } from 'views/universalFarms/hooks/useCakeEarning'
 import { V3StakeModal } from '../Modals/V3StakeModal'
 import { StopPropagation } from '../StopPropagation'
 
+const StyledButton = styled(Button)`
+  color: ${({ theme }) => theme.colors.primary60};
+`
+
 type ActionPanelProps = {
   removed: boolean
   outOfRange: boolean
@@ -118,7 +122,7 @@ export const V3PositionActions = ({
             <MinusIcon color="primary" width="24px" />
           </IconButton>
         ) : (
-          <Button
+          <StyledButton
             scale="md"
             width={['100px']}
             style={{ alignSelf: 'center' }}
@@ -127,7 +131,7 @@ export const V3PositionActions = ({
             disabled={attemptingTxn || isSwitchingNetwork}
           >
             {t('Unstake')}
-          </Button>
+          </StyledButton>
         )}
         <V3StakeModal
           disabled={attemptingTxn || isSwitchingNetwork}

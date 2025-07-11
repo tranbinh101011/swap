@@ -1,7 +1,9 @@
 import { Button } from '@pancakeswap/uikit'
 import styled from 'styled-components'
 
-export const PrimaryOutlineButton = styled(Button)<{ $height?: string }>`
+export const PrimaryOutlineButton = styled(Button).attrs({
+  variant: 'tertiary',
+})<{ $height?: string }>`
   border-radius: ${({ theme }) => theme.radii['12px']};
   height: ${({ $height }) => $height ?? '40px'};
 

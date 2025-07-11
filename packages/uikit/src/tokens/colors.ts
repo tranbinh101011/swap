@@ -120,7 +120,7 @@ export const darkColors = {
   inputSecondary: "#262130",
   primaryDark: "#0098A1",
   tertiary: "#353547",
-  tertiary20: "#E2EDEE",
+  tertiary20: "#44445B",
   tertiaryPale20: "#44445B",
   text: "#F4EEFF",
   text99: "#F4EEFF99",

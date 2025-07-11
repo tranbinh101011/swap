@@ -194,15 +194,16 @@ const FeatureItem = ({
   link,
   ...props
 }: FeatureItemProps) => {
+  const { t } = useTranslation();
   const LayoutContainer = layout === "column" ? AutoColumn : AutoRow;
   const FeaturesContainer = layout === "column" ? AutoRow : AutoColumn;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [featureContent, setFeatureContent] = useState<ReactNode>();
-  const [selectFeature, setSelectFeature] = useState<React.ReactNode>();
+  // const [selectFeature, setSelectFeature] = useState<React.ReactNode>();
   const onItemClick = (feature: React.ReactNode) => {
     if (typeof feature === "string" && hookCategoryDesc[feature as keyof typeof hookCategoryDesc]) {
       setFeatureContent(hookCategoryDesc[feature as keyof typeof hookCategoryDesc]);
-      setSelectFeature(feature);
+      // setSelectFeature(feature);
       setIsModalOpen(true);
     }
   };
@@ -224,7 +225,7 @@ const FeatureItem = ({
         />
         {clickable && (
           <ModalV2 isOpen={isModalOpen} onDismiss={() => setIsModalOpen(false)} closeOnOverlayClick>
-            <PoolFeatureModal content={featureContent} title={selectFeature} link={link} />
+            <PoolFeatureModal content={featureContent} title={t("Pool feature")} link={link} />
           </ModalV2>
         )}
       </FeaturesContainer>

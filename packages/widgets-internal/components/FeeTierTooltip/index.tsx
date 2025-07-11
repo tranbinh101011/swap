@@ -9,9 +9,10 @@ export type FeeTierTooltipProps = {
   dynamic?: boolean;
   percent: Percent;
   tooltips?: React.ReactNode | null;
+  showType?: boolean;
 };
 
-const FeeTooltips: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent }) => {
+const FeeTooltips: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent, showType }) => {
   const { t } = useTranslation();
   const p = useMemo(() => percent.toSignificant(2), [percent]);
 
@@ -51,7 +52,7 @@ const FeeTooltips: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent }) 
   }
 };
 
-export const FeeTierTooltip: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent, tooltips }) => {
+export const FeeTierTooltip: React.FC<FeeTierTooltipProps> = ({ type, dynamic, percent, tooltips, showType }) => {
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     tooltips ?? <FeeTooltips type={type} dynamic={dynamic} percent={percent} />
   );
@@ -74,6 +75,7 @@ export const FeeTierTooltip: React.FC<FeeTierTooltipProps> = ({ type, dynamic, p
         type={typeSymbol}
         fee={Number(percent.numerator)}
         denominator={Number(percent.denominator)}
+        showType={showType}
       />
       {tooltipVisible && tooltip}
     </>

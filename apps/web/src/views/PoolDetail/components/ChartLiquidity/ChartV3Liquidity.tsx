@@ -1,8 +1,13 @@
+import { useTheme } from '@pancakeswap/hooks'
 import { CurrencyAmount, Token } from '@pancakeswap/swap-sdk-core'
 import { Box, Flex, Spinner } from '@pancakeswap/uikit'
+import { formatFiatNumber } from '@pancakeswap/utils/formatFiatNumber'
 import { FeeAmount, Pool, TICK_SPACINGS, TickMath } from '@pancakeswap/v3-sdk'
+import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+
+import { formatAmount } from 'utils/formatInfoNumbers'
 import { maxUint128 } from 'viem'
 import { TickProcessed } from 'views/V3Info/data/pool/tickData'
 import { usePoolTickData } from 'views/V3Info/hooks'
@@ -12,36 +17,23 @@ import { ActionButton, ControlsWrapper } from './styled'
 import type { ChartLiquidityProps, LiquidityChartData } from './type'
 
 const ZOOM_INTERVAL = 20
-
-const CustomBar = ({
-  x,
-  y,
-  width,
-  height,
-  fill,
-}: {
-  x: number
-  y: number
-  width: number
-  height: number
-  fill: string
-}) => {
-  return (
-    <g>
-      <rect x={x} y={y} fill={fill} width={width} height={height} rx="2" />
-    </g>
-  )
-}
+const DEFAULT_ZOOM_LEVEL = 14
 
 export const ChartV3Liquidity: React.FC<ChartLiquidityProps> = ({ address, poolInfo }) => {
   // tick data tracking
   const poolTickData = usePoolTickData(address)
   const feeTier = useMemo(() => poolInfo?.feeTier, [poolInfo?.feeTier])
+  const { theme } = useTheme()
 
   const [loading, setLoading] = useState(false)
-  const [zoomLevel, setZoomLevel] = useState(0)
+  const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
   const [zoomInDisabled, setZoomInDisabled] = useState(false)
   const [formattedData, setFormattedData] = useState<LiquidityChartData[] | undefined>()
+
+  const [activeIndex, setActiveIndex] = useState<number | undefined>()
+
+  const { data: token0Price } = useCurrencyUsdPrice(poolInfo?.token0.wrapped)
+  const { data: token1Price } = useCurrencyUsdPrice(poolInfo?.token1.wrapped)
 
   const handleZoomIn = useCallback(() => {
     if (!zoomInDisabled) {
@@ -65,6 +57,32 @@ export const ChartV3Liquidity: React.FC<ChartLiquidityProps> = ({ address, poolI
     }
     return undefined
   }, [formattedData, zoomLevel])
+
+  const zoomedDataWithUSD = useMemo(() => {
+    if (!zoomedData) return zoomedData
+
+    return zoomedData.map((dataPoint) => {
+      let liquidityUSD = 0
+
+      if (token0Price && token1Price && poolInfo?.token0Price) {
+        // Use the same logic as ChartToolTip to determine which token to use
+        if (Number(poolInfo.token0Price) > dataPoint.price1) {
+          liquidityUSD = token0Price * dataPoint.tvlToken0
+        } else {
+          liquidityUSD = token1Price * dataPoint.tvlToken1
+        }
+      } else {
+        // Fallback to activeLiquidity if USD prices are not available
+        // Scale down the activeLiquidity value since it's in wei-like units
+        liquidityUSD = dataPoint.activeLiquidity / 1e18
+      }
+
+      return {
+        ...dataPoint,
+        liquidityUSD,
+      }
+    })
+  }, [zoomedData, token0Price, token1Price, poolInfo?.token0Price])
 
   useEffect(() => {
     if (!formattedData || !formattedData.length) {
@@ -158,17 +176,41 @@ export const ChartV3Liquidity: React.FC<ChartLiquidityProps> = ({ address, poolI
   }
 
   return (
-    <Box height="380px" mb="-20px">
+    <Box height="380px" mb="-20px" position="relative">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={zoomedData}
+          data={zoomedDataWithUSD}
           margin={{
-            top: 0,
-            right: 0,
-            left: 0,
+            top: 20,
+            right: 20,
+            left: 20,
             bottom: 60,
           }}
+          onMouseMove={(state) => {
+            if (state?.activePayload?.[0]?.payload) {
+              setActiveIndex(state.activeTooltipIndex)
+            }
+          }}
+          onMouseLeave={() => {
+            setActiveIndex(undefined)
+          }}
         >
+          <XAxis
+            dataKey="price0"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12, fill: '#9383B4' }}
+            tickFormatter={(value) => formatAmount(value, { precision: 6 }) ?? Intl.NumberFormat('en-US').format(value)}
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12, fill: '#9383B4' }}
+            tickFormatter={(value) => formatFiatNumber(value)}
+            orientation="right"
+            width={80}
+            tickMargin={10}
+          />
           <Tooltip
             content={(props) => (
               <ChartToolTip
@@ -176,31 +218,27 @@ export const ChartV3Liquidity: React.FC<ChartLiquidityProps> = ({ address, poolI
                 currentPrice={poolInfo?.token0Price}
                 currency0={poolInfo?.token0.wrapped}
                 currency1={poolInfo?.token1.wrapped}
+                activeLiquidity={props.payload?.[0]?.payload?.activeLiquidity}
+                isCurrent={props.payload?.[0]?.payload?.isCurrent}
               />
             )}
+            cursor={{ fill: 'transparent' }}
           />
-          <XAxis reversed tick={false} />
-          <Bar dataKey="activeLiquidity" fill="#2172E5" isAnimationActive={false} shape={CustomBar}>
-            {zoomedData?.map((entry) => {
-              return <Cell key={`cell-${entry.index}`} fill={entry.isCurrent ? '#ED4B9E' : '#31D0AA'} />
+          <Bar dataKey="liquidityUSD" fill={theme.colors.primary} isAnimationActive={false} radius={16}>
+            {zoomedDataWithUSD?.map((entry, index) => {
+              return (
+                <Cell
+                  key={`cell-${entry.index}`}
+                  fill={entry.isCurrent ? theme.colors.failure : theme.colors.primary}
+                  fillOpacity={activeIndex === undefined ? 1 : activeIndex === index ? 1 : 0.3}
+                  style={{ transition: 'fill-opacity 0.2s ease' }}
+                />
+              )
             })}
-            <LabelList
-              dataKey="activeLiquidity"
-              position="inside"
-              content={(props) => {
-                return poolInfo ? (
-                  <CurrentPriceLabel
-                    x={Number(props.x) ?? 0}
-                    index={(props as any).index}
-                    poolInfo={poolInfo}
-                    data={zoomedData}
-                  />
-                ) : null
-              }}
-            />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      <CurrentPriceLabel data={zoomedDataWithUSD} poolInfo={poolInfo || undefined} />
       <ControlsWrapper>
         <ActionButton disabled={false} onClick={handleZoomOut}>
           -
