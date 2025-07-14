@@ -27,10 +27,12 @@ import { useGasPrice, usePairAdder } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
 import { calculateSlippageAmount, useRouterContract } from 'utils/exchange'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import currencyId from 'utils/currencyId'
 import SettingsModal from '../../components/Menu/GlobalSettings/SettingsModal'
 import { useTransactionDeadline } from '../../hooks/useTransactionDeadline'
 import ConfirmAddLiquidityModal from './components/ConfirmAddLiquidityModal'
 import { useCurrencySelectRoute } from './useCurrencySelectRoute'
+import useWarningLiquidity from './hooks/useWarningLiquidity'
 
 export interface LP2ChildrenProps {
   error?: string
@@ -147,6 +149,26 @@ export default function AddLiquidity({
   )
 
   const { handleCurrencyASelect, handleCurrencyBSelect } = useCurrencySelectRoute()
+  const warningHandler = useWarningLiquidity(
+    currencyA ? currencyId(currencyA) : undefined,
+    currencyB ? currencyId(currencyB) : undefined,
+  )
+
+  const handleCurrencyASelectWithWarning = useCallback(
+    (curr: Currency) => {
+      warningHandler(curr)
+      handleCurrencyASelect(curr)
+    },
+    [warningHandler, handleCurrencyASelect],
+  )
+
+  const handleCurrencyBSelectWithWarning = useCallback(
+    (curr: Currency) => {
+      warningHandler(curr)
+      handleCurrencyBSelect(curr)
+    },
+    [warningHandler, handleCurrencyBSelect],
+  )
 
   const parsedAmounts = mintParsedAmounts
 
@@ -345,11 +367,11 @@ export default function AddLiquidity({
     error,
     currencies,
     noLiquidity,
-    handleCurrencyASelect,
+    handleCurrencyASelect: handleCurrencyASelectWithWarning,
     formattedAmounts,
     onFieldAInput,
     maxAmounts,
-    handleCurrencyBSelect,
+    handleCurrencyBSelect: handleCurrencyBSelectWithWarning,
     onFieldBInput,
     pairState,
     poolTokenPercentage,

@@ -51,6 +51,14 @@ export const bscWarningTokens = {
     'NFPrompt Token',
     'https://nfprompt.io/',
   ),
+  pundiai: new ERC20Token(
+    ChainId.BSC,
+    '0x67AA700Ab0110Cc52bf7F308fe25068E87a0f581',
+    18,
+    'PUNDIAI',
+    'PundiAI Token',
+    'https://twitter.com/PundiAI',
+  ),
   nmt: new ERC20Token(ChainId.BSC, '0x03AA6298F1370642642415EDC0db8b957783e8D6', 18, 'NMT', 'NetMind Token'),
   uniBTC: new ERC20Token(ChainId.BSC, '0x6B2a01A5f79dEb4c2f3c0eDa7b01DF456FbD726a', 8, 'uniBTC', 'uniBTC'),
 }
