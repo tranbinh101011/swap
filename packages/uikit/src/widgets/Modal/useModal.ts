@@ -27,7 +27,7 @@ const useModal = (
     if (modalId === currentModalId.current) {
       onDismiss?.();
     }
-  }, [onDismiss]);
+  }, [onDismiss, modalId]);
 
   // Updates the "modal" component if props are changed
   // Use carefully since it might result in unnecessary rerenders

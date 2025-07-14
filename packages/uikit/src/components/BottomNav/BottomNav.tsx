@@ -22,10 +22,21 @@ const BottomNav: React.FC<React.PropsWithChildren<BottomNavProps>> = ({
       <StyledBottomNav justifyContent="space-around" {...props}>
         {items.map(
           (
-            { label, items: menuItems, href, icon, fillIcon, showOnMobile = true, showItemsOnMobile = true, disabled },
+            {
+              label,
+              items: menuItems,
+              href,
+              icon,
+              fillIcon,
+              showOnMobile = true,
+              showItemsOnMobile = true,
+              disabled,
+              onClick,
+            },
             index
           ) => {
             const statusColor = findMenuItemsStatusColor(menuItems);
+            const hasItems = menuItems && menuItems.length > 0;
             return (
               showOnMobile && (
                 <DropdownMenu
@@ -47,7 +58,8 @@ const BottomNav: React.FC<React.PropsWithChildren<BottomNavProps>> = ({
                         label={label}
                         icon={icon}
                         fillIcon={fillIcon}
-                        showItemsOnMobile={showItemsOnMobile}
+                        showItemsOnMobile={showItemsOnMobile && hasItems}
+                        onClick={onClick}
                       />
                     </NotificationDot>
                   </Box>

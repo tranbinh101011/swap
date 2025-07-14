@@ -43,12 +43,9 @@ const Menu = (props) => {
   )
   const onSubMenuClick = useCallback<NonNullable<UseMenuItemsParams['onClick']>>(
     (e, item) => {
-      const preventRedirect = () => {
+      if (item.confirmModalId === 'perpConfirmModal' && !perpConfirmed) {
         e.preventDefault()
         e.stopPropagation()
-      }
-      if (item.confirmModalId === 'perpConfirmModal' && !perpConfirmed) {
-        preventRedirect()
         onPerpConfirmModalPresent()
       }
     },
