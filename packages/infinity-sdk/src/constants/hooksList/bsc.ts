@@ -209,6 +209,26 @@ export const bscHooksList: HookData[] = [
     hookType: HookType.PerPool,
     defaultFee: 2500,
   },
+  {
+    poolType: POOL_TYPE.CLAMM,
+    address: '0x544Ec7F1bA881ff150331e7557b40945e2FC0f3C',
+    name: 'Arbiter MEV Capture',
+    description: `Arbiter hook allows LPs to capture significant part of MEV extracted from pool. This is achieved by introducing auction for MEV actors. Winner can control the pool’s fee, outperform competitors and optimize routing traffic - increasing their and LPs profits as proceeds from auction go to LPs.`,
+    github: 'https://github.com/ArbiterFinance/arbiter-contracts/blob/main/src/ArbiterAmAmmPoolCurrencyHook.sol',
+    category: [HOOK_CATEGORY.MEV, HOOK_CATEGORY.DynamicFees],
+    creator: 'https://github.com/ArbiterFinance',
+    audit: 'https://github.com/ArbiterFinance/arbiter-contracts/tree/main/audits',
+    isVerified: true,
+    isUpgradable: false,
+    hooksRegistration: {
+      afterInitialize: true,
+      beforeAddLiquidity: true,
+      beforeSwap: true,
+      beforeSwapReturnsDelta: true,
+    },
+    hookType: HookType.PerPool,
+    defaultFee: 500, // 0.05%
+  },
 ]
 
 /**
