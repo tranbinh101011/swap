@@ -7,8 +7,8 @@ interface ResponseLanguageType {
 }
 
 // We can't hide the language in Strapi only can delete it.
-// 日本語, Georgian, Français, Deutsch
-const HIDE_LANGUAGE_CODE = ['ja', 'ka', 'fr', 'de']
+// 日本語, Georgian, Français, Deutsch, Italiano
+const HIDE_LANGUAGE_CODE = ['ja', 'ka', 'fr', 'de', 'it']
 
 const useLanguage = () => {
   const { t } = useTranslation()

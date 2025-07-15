@@ -103,16 +103,8 @@ export const socials = [
         href: "https://t.me/PancakeSwapVN",
       },
       {
-        label: "Italiano",
-        href: "https://t.me/pancakeswap_Ita",
-      },
-      {
         label: "русский",
         href: "https://t.me/pancakeswap_ru",
-      },
-      {
-        label: "Türkiye",
-        href: "https://t.me/pancakeswapturkiye",
       },
       {
         label: "Português",
@@ -125,10 +117,6 @@ export const socials = [
       {
         label: "日本語",
         href: "https://t.me/pancakeswapJP",
-      },
-      {
-        label: "Français",
-        href: "https://t.me/pancakeswapFR",
       },
       {
         label: "Filipino",

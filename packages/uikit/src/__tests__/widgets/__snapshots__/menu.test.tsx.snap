@@ -2656,15 +2656,6 @@ exports[`renders correctly 1`] = `
               Tiếng Việt
             </a>
             <a
-              aria-label="Italiano"
-              class="c26 c13"
-              href="https://t.me/pancakeswap_Ita"
-              rel="noreferrer noopener"
-              target="_blank"
-            >
-              Italiano
-            </a>
-            <a
               aria-label="русский"
               class="c26 c13"
               href="https://t.me/pancakeswap_ru"
@@ -2672,15 +2663,6 @@ exports[`renders correctly 1`] = `
               target="_blank"
             >
               русский
-            </a>
-            <a
-              aria-label="Türkiye"
-              class="c26 c13"
-              href="https://t.me/pancakeswapturkiye"
-              rel="noreferrer noopener"
-              target="_blank"
-            >
-              Türkiye
             </a>
             <a
               aria-label="Português"
@@ -2708,15 +2690,6 @@ exports[`renders correctly 1`] = `
               target="_blank"
             >
               日本語
-            </a>
-            <a
-              aria-label="Français"
-              class="c26 c13"
-              href="https://t.me/pancakeswapFR"
-              rel="noreferrer noopener"
-              target="_blank"
-            >
-              Français
             </a>
             <a
               aria-label="Deutsch"
