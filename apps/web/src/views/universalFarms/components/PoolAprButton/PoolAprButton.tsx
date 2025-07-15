@@ -42,9 +42,7 @@ export const PoolAprButton: React.FC<PoolGlobalAprButtonProps> = ({
     return sumApr(lpApr, cakeApr?.value, merklApr)
   }, [lpApr, cakeApr?.value, merklApr])
   const hasBCake = pool.protocol === 'v2' || pool.protocol === 'stable'
-  const merklLink = useMemo(() => {
-    return getMerklLink({ chainId: pool.chainId, lpAddress: pool.lpAddress })
-  }, [pool.chainId, pool.lpAddress])
+  const merklLink = getMerklLink({ chainId: pool.chainId, lpAddress: pool.lpAddress })
 
   const modal = useModalV2()
 

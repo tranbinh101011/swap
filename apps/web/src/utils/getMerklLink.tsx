@@ -1,5 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import MERKL_POOLS from 'config/constants/merklPools.json'
+import memoize from 'lodash/memoize'
 import { useMemo } from 'react'
 import { Address } from 'viem'
 import { useAccount } from 'wagmi'
@@ -10,30 +11,27 @@ type MerklPools = {
   link: string
 }[]
 
-export const getMerklLink = ({
-  chainId,
-  lpAddress,
-}: {
-  chainId?: ChainId | number
-  lpAddress?: Address
-}): string | undefined => {
-  if (!chainId || !lpAddress || !MERKL_POOLS.length) return undefined
+export const getMerklLink = memoize(
+  ({ chainId, lpAddress }: { chainId?: ChainId | number; lpAddress?: Address }): string | undefined => {
+    if (!chainId || !lpAddress || !MERKL_POOLS.length) return undefined
 
-  let link: string | undefined
-  ;(MERKL_POOLS as MerklPools).forEach((pool) => {
-    if (pool.chainId === chainId && pool.address.toLowerCase() === lpAddress.toLowerCase()) {
-      // eslint-disable-next-line prefer-destructuring
-      link = pool.link
-    }
-  })
+    let link: string | undefined
+    ;(MERKL_POOLS as MerklPools).forEach((pool) => {
+      if (pool.chainId === chainId && pool.address.toLowerCase() === lpAddress.toLowerCase()) {
+        // eslint-disable-next-line prefer-destructuring
+        link = pool.link
+      }
+    })
 
-  return link
-}
+    return link
+  },
+  ({ chainId, lpAddress }) => `${chainId}:${lpAddress?.toLowerCase()}`,
+)
 
 export const useMerklUserLink = (): string => {
   const { address: account } = useAccount()
   const link = useMemo(() => {
-    return `https://merkl.angle.money/user/${account ?? ''}`
+    return `https://app.merkl.xyz/users/${account ?? ''}`
   }, [account])
   return link
 }

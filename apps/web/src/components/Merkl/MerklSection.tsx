@@ -69,7 +69,7 @@ export function MerklSection({
 
   const { claimTokenReward, isClaiming, rewardsPerToken, hasMerkl } = useMerkl(poolAddress)
 
-  const merklLink = useMemo(() => getMerklLink({ chainId, lpAddress: poolAddress }), [chainId, poolAddress])
+  const merklLink = getMerklLink({ chainId, lpAddress: poolAddress })
 
   if (!rewardsPerToken.length || (!hasMerkl && rewardsPerToken.every((r) => r.equalTo('0')))) return null
 
@@ -125,7 +125,7 @@ export function MerklSection({
               external
               color="currentColor"
               style={{ display: 'inline-flex' }}
-              href={merklLink ?? 'https://merkl.angle.money/?search=PancakeSwap&status=live%2Csoon'}
+              href={merklLink ?? 'https://app.merkl.xyz/?protocol=pancake-swap'}
             >
               {t('here')}
             </Link>

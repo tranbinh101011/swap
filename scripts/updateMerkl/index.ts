@@ -5,7 +5,7 @@ type MerklConfigPool = {
   chainId: number
   // lp address
   address: `0x${string}`
-  // link to merkl.angle.money
+  // link to app.merkl.xyz
   link: string
 }
 
