@@ -13,6 +13,7 @@ import { getCurrencyLogoUrlsByInfo } from "./utils";
 const StyledLogo = styled(TokenLogo)<{ size: string }>`
   width: ${({ size }) => size};
   height: ${({ size }) => size};
+  min-width: ${({ size }) => size};
   border-radius: 50%;
   ${space}
 `;

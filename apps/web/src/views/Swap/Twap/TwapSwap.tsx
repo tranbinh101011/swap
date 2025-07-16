@@ -3,6 +3,7 @@ import { Currency } from '@pancakeswap/sdk'
 import { AutoRow, BottomDrawer, Box, Flex, StyledLink, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useCurrency } from 'hooks/Tokens'
 import { useSwapHotTokenDisplay } from 'hooks/useSwapHotTokenDisplay'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
@@ -15,9 +16,10 @@ import { QuoteProvider } from 'quoter/QuoteProvider'
 import { useSingleTokenSwapInfo } from 'quoter/hook/useSingleTokenSwapInfo'
 import { SwapSelection } from '../../SwapSimplify/InfinitySwap/SwapSelectionTab'
 import { SwapFeaturesContext } from '../SwapFeaturesContext'
-import PriceChartContainer from '../components/Chart/PriceChartContainer'
 import { SwapType } from '../types'
 import { OrderHistory, TWAPPanel } from './Twap'
+
+const ChartWithPriceHeader = dynamic(() => import('components/Chart/ChartWithPriceHeader'), { ssr: false })
 
 export default function TwapAndLimitSwap({ limit }: { limit?: boolean }) {
   return (
@@ -48,11 +50,11 @@ const TwapAndLimitSwapInner = ({ limit }: { limit?: boolean }) => {
 
   // swap state & price data
   const {
-    [Field.INPUT]: { currencyId: inputCurrencyId },
-    [Field.OUTPUT]: { currencyId: outputCurrencyId },
+    [Field.INPUT]: { currencyId: inputCurrencyId, chainId: inputChainId },
+    [Field.OUTPUT]: { currencyId: outputCurrencyId, chainId: outputChainId },
   } = useSwapState()
-  const inputCurrency = useCurrency(inputCurrencyId)
-  const outputCurrency = useCurrency(outputCurrencyId)
+  const inputCurrency = useCurrency(inputCurrencyId, inputChainId)
+  const outputCurrency = useCurrency(outputCurrencyId, outputChainId)
 
   const currencies: { [field in Field]?: Currency } = {
     [Field.INPUT]: inputCurrency ?? undefined,
@@ -77,47 +79,45 @@ const TwapAndLimitSwapInner = ({ limit }: { limit?: boolean }) => {
         alignItems="flex-start"
         mb={isMobile ? '40px' : '0'}
         style={{ zIndex: 1 }}
+        mt={isChartExpanded ? undefined : isMobile ? '18px' : '42px'}
+        p={isChartExpanded ? undefined : isMobile ? '16px' : '24px'}
       >
         {isDesktop && (
           <Flex width={isChartExpanded ? '100%' : '50%'} maxWidth="928px" flexDirection="column" style={{ gap: 20 }}>
-            <PriceChartContainer
-              inputCurrencyId={inputCurrencyId}
-              inputCurrency={currencies[Field.INPUT]}
-              outputCurrencyId={outputCurrencyId}
-              outputCurrency={currencies[Field.OUTPUT]}
-              isChartExpanded={isChartExpanded}
-              setIsChartExpanded={setIsChartExpanded}
-              isChartDisplayed={isChartDisplayed}
-              currentSwapPrice={singleTokenPrice}
-              isFullWidthContainer
-            />
+            {isChartDisplayed && (
+              <ChartWithPriceHeader
+                currency0={inputCurrency || undefined}
+                currency1={outputCurrency || undefined}
+                symbol={`${inputCurrency?.symbol}/${outputCurrency?.symbol}`}
+                theme="Dark"
+              />
+            )}
             <OrderHistory />
           </Flex>
         )}
-        {!isDesktop && isChartSupported && (
+        {!isDesktop && (
           <BottomDrawer
             content={
-              <PriceChartContainer
-                inputCurrencyId={inputCurrencyId}
-                inputCurrency={currencies[Field.INPUT]}
-                outputCurrencyId={outputCurrencyId}
-                outputCurrency={currencies[Field.OUTPUT]}
-                isChartExpanded={isChartExpanded}
-                setIsChartExpanded={setIsChartExpanded}
-                isChartDisplayed={isChartDisplayed}
-                currentSwapPrice={singleTokenPrice}
-                isFullWidthContainer
-                isMobile
+              <ChartWithPriceHeader
+                currency0={inputCurrency || undefined}
+                currency1={outputCurrency || undefined}
+                symbol={`${inputCurrency?.symbol}/${outputCurrency?.symbol}`}
+                theme="Dark"
               />
             }
             isOpen={isChartDisplayed}
             setIsOpen={(isOpen) => setIsChartDisplayed?.(isOpen)}
+            hideCloseButton
           />
         )}
         <Flex flexDirection="column" width={isDesktop ? undefined : '100%'}>
           <StyledSwapContainer $isChartExpanded={isChartExpanded}>
             <StyledInputCurrencyWrapper mt={isChartExpanded ? '24px' : '0'}>
-              <SwapSelection swapType={limit ? SwapType.LIMIT : SwapType.TWAP} style={{ marginBottom: 16 }} />
+              <SwapSelection
+                swapType={limit ? SwapType.LIMIT : SwapType.TWAP}
+                style={{ marginBottom: 16 }}
+                withToolkit
+              />
               <TWAPPanel limit={limit} />
               <Flex flexDirection={!isDesktop ? 'column-reverse' : 'column'}>
                 {limit && (
@@ -151,7 +151,7 @@ export const StyledSwapContainer = styled(Flex)<{ $isChartExpanded: boolean }>`
   }
 
   ${({ theme }) => theme.mediaQueries.xxl} {
-    ${({ $isChartExpanded }) => ($isChartExpanded ? 'padding:  0 0px 0px 16px' : 'padding: 0 0px 0px 16px')};
+    ${({ $isChartExpanded }) => ($isChartExpanded ? 'padding:  0 0px 0px 40px' : 'padding: 0 0px 0px 40px')};
   }
 `
 
@@ -159,6 +159,6 @@ export const StyledInputCurrencyWrapper = styled(Box)`
   width: 100%;
 
   ${({ theme }) => theme.mediaQueries.md} {
-    width: 400px;
+    width: 480px;
   }
 `

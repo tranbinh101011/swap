@@ -3,7 +3,10 @@ import { useTranslation } from '@pancakeswap/localization'
 import {
   ButtonMenu,
   ButtonMenuItem,
+  ChartDisableIcon,
+  ChartIcon,
   FlexGap,
+  IconButton,
   Text,
   TooltipText,
   useMatchBreakpoints,
@@ -12,16 +15,18 @@ import {
 import GlobalSettings from 'components/Menu/GlobalSettings'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { styled } from 'styled-components'
 import { SettingsMode } from '../../../components/Menu/GlobalSettings/types'
+import { SwapFeaturesContext } from '../../Swap/SwapFeaturesContext'
+
 import { SwapType } from '../../Swap/types'
 import { isTwapSupported } from '../../Swap/utils'
 
-// const ColoredIconButton = styled(IconButton)`
-//   color: ${({ theme }) => theme.colors.textSubtle};
-//   overflow: hidden;
-// `
+const ColoredIconButton = styled(IconButton)`
+  color: ${({ theme }) => theme.colors.textSubtle};
+  overflow: hidden;
+`
 
 const StyledButtonMenuItem = styled(ButtonMenuItem)`
   height: 40px;
@@ -108,13 +113,11 @@ export const SwapSelection = ({
     { placement: 'top' },
   )
 
-  // NOTE: Commented out until charts are supported again
-  // const { isChartSupported, isChartDisplayed, setIsChartDisplayed, isHotTokenSupported } =
-  //   useContext(SwapFeaturesContext)
-  // const [isSwapHotTokenDisplay, setIsSwapHotTokenDisplay] = useSwapHotTokenDisplay()
-  // const toggleChartDisplayed = () => {
-  //   setIsChartDisplayed?.((currentIsChartDisplayed) => !currentIsChartDisplayed)
-  // }
+  const { isChartSupported, isChartDisplayed, setIsChartDisplayed } = useContext(SwapFeaturesContext)
+
+  const toggleChartDisplayed = () => {
+    setIsChartDisplayed?.((currentIsChartDisplayed) => !currentIsChartDisplayed)
+  }
 
   const { theme } = useTheme()
   const tSwapProps = useMemo(() => {
@@ -153,12 +156,9 @@ export const SwapSelection = ({
         <StyledButtonMenuItem {...tSwapProps}>{t('Limit')}</StyledButtonMenuItem>
       </ButtonMenu>
       {/* NOTE: Commented out until charts are supported again */}
-      {/* {isChartSupported && withToolkit && (
+      {withToolkit && (
         <ColoredIconButton
           onClick={() => {
-            if (!isChartDisplayed && isSwapHotTokenDisplay) {
-              setIsSwapHotTokenDisplay(false)
-            }
             toggleChartDisplayed()
           }}
           variant="text"
@@ -173,7 +173,7 @@ export const SwapSelection = ({
             <ChartIcon width="24px" color="textSubtle" />
           )}
         </ColoredIconButton>
-      )} */}
+      )}
       {withToolkit && (
         <FlexGap alignItems="center" gap="4px">
           {/* <RecentTransactionsButton /> */}

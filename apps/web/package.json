@@ -12,7 +12,7 @@
     "test": "LC_ALL=\"en_US.UTF-8\" vitest --run",
     "test:watch": "LC_ALL=\"en_US.UTF-8\" vitest --watch",
     "test:config": "vitest --run --config vitest-config-test.config.ts",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --ignore-pattern src/components/Chart/lib/pancakeswap-charting-library.es.js",
     "lint:style": "npx stylelint '**/*.{ts,tsx}'",
     "format:write": "prettier --write \"**/*.{js,jsx,ts,tsx,json}\"",
     "typechecks": "tsc --noEmit -p ./tsconfig.json"

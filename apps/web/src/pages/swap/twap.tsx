@@ -7,7 +7,7 @@ import TwapAndLimitSwap from 'views/Swap/Twap/TwapSwap'
 
 const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
-    <Page showExternalLink={false} showHelpLink={false}>
+    <Page showExternalLink={false} showHelpLink={false} removePadding>
       {children}
     </Page>
   )
