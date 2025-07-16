@@ -1,7 +1,21 @@
 import { ChainId } from '@pancakeswap/chains'
 
+/**
+ * This config is used to manage the supported chains for crosschain swap:
+ * [] API is ready
+ * [] Supported token list is ready
+ * [] Update this config
+ */
+
 // Order will be decided for the Token Selection Modal
-export const CROSSCHAIN_SUPPORTED_CHAINS = [ChainId.BSC, ChainId.BASE, ChainId.ARBITRUM_ONE, ChainId.ETHEREUM]
+export const CROSSCHAIN_SUPPORTED_CHAINS = [
+  ChainId.BSC,
+  ChainId.BASE,
+  ChainId.ARBITRUM_ONE,
+  ChainId.ETHEREUM,
+  ChainId.LINEA,
+  ChainId.ZKSYNC,
+]
 
 // OriginChainId -> TokenAddress[]
 export const WHITELIST_TOKEN_MAP = {
@@ -32,5 +46,19 @@ export const WHITELIST_TOKEN_MAP = {
     '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     '0x152649eA73beAb28c5b49B26eb48f7EAD6d4c898',
+  ],
+  [ChainId.LINEA.toString()]: [
+    '0x176211869cA2b568f2A7D4EE941E073a821EE1ff',
+    '0x3aAB2285ddcDdaD8edf438C1bAB47e1a9D05a9b4',
+    '0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5',
+    '0xA219439258ca9da29E9Cc4cE5596924745e12B93',
+    '0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f',
+  ],
+  [ChainId.ZKSYNC.toString()]: [
+    '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
+    '0x493257fD37EDB34451f62EDf8D2a0C418852bA4C',
+    '0x4B9eb6c0b6ea15176BBF62841C6B2A8a398cb656',
+    '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
+    '0xBBeB516fb02a01611cBBE0453Fe3c580D7281011',
   ],
 }
