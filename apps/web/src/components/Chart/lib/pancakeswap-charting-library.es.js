@@ -197,8 +197,7 @@ class z {
     P(this, 'configuration')
     P(this, 'api')
     P(this, 'ws', null)
-    P(this, 'wsUrl', 'wss://dws.coinmarketcap.com/ws')
-    // "wss://pcs-ws.dquery.ai/ws";
+    P(this, 'wsUrl', 'wss://pcs-ws.dquery.ai/ws')
     P(this, 'subscriptions', /* @__PURE__ */ new Map())
     ;(this.configuration = {
       ...V,
