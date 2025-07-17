@@ -91,6 +91,11 @@ const config = {
         hostname: 'assets.pancakeswap.finance',
         pathname: '/web/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'tokens.pancakeswap.finance',
+        pathname: '/web/**',
+      }
     ],
   },
   async rewrites() {

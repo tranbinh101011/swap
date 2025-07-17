@@ -50,8 +50,10 @@ export function CurrencyLogo({
   imageRef,
   showChainLogo = false,
   containerStyle,
+  crossOrigin,
   ...props
 }: {
+  crossOrigin?: "anonymous" | "use-credentials";
   currency?: CurrencyInfo & {
     logoURI?: string | undefined;
   };
@@ -96,6 +98,8 @@ export function CurrencyLogo({
       );
     }
 
+    const crossOriginProp = crossOrigin ? { crossOrigin } : {};
+
     return (
       <StyledLogo
         imageRef={imageRef}
@@ -103,6 +107,7 @@ export function CurrencyLogo({
         srcs={srcs}
         alt={`${currency?.symbol ?? "token"} logo`}
         style={style}
+        {...crossOriginProp}
         {...props}
       />
     );

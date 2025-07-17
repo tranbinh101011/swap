@@ -20,6 +20,7 @@ async function convertToCanvas(elementId: string, isDark: boolean): Promise<Blob
       scale: OPTIONS.scale,
       logging: false,
       useCORS: true,
+      allowTaint: true,
       windowWidth: element.scrollWidth,
       windowHeight: element.scrollHeight,
     })
