@@ -154,31 +154,36 @@ async function queryFarms(query: {
       .map(normalizeAddress)
       .filter((x) => x) as InfinityRouter.RemotePoolBase[]
 
-    const allPools = uniqBy(all, (p) => `${p.chainId}:${p.id}`).map((pool) => {
-      const remotePool = InfinityRouter.parseRemotePool(pool as InfinityRouter.RemotePool)
-      // @ts-ignore
-      if (typeof remotePool.tvlUSD !== 'undefined') {
+    const allPools = uniqBy(all, (p) => `${p.chainId}:${p.id}`)
+      .map((pool) => {
+        const remotePool = InfinityRouter.parseRemotePool(pool as InfinityRouter.RemotePool)
+        if (!remotePool) {
+          return null
+        }
         // @ts-ignore
-        remotePool.tvlUSD = remotePool.tvlUSD.toString()
-      }
+        if (typeof remotePool.tvlUSD !== 'undefined') {
+          // @ts-ignore
+          remotePool.tvlUSD = remotePool.tvlUSD.toString()
+        }
 
-      const farmInfo = farmMaps[`${pool.chainId}:${pool.id}`]
-      const pid = farmInfo ? farmInfo.pid : undefined
-      const lpAddress = farmInfo ? farmInfo.lpAddress : undefined
-      return {
-        pool: SmartRouter.Transformer.serializePool(remotePool),
-        id: pool.id,
-        chainId: pool.chainId,
-        protocol: pool.protocol,
-        tvlUSD: pool.tvlUSD || '0',
-        vol24hUsd: pool.volumeUSD24h || '0',
-        pid,
-        apr24h: Number(pool.apr24h || 0),
-        isDynamicFee: pool.isDynamicFee,
-        feeTier: pool.feeTier,
-        lpAddress: lpAddress || pool.id,
-      } as SerializedFarmInfo
-    })
+        const farmInfo = farmMaps[`${pool.chainId}:${pool.id}`]
+        const pid = farmInfo ? farmInfo.pid : undefined
+        const lpAddress = farmInfo ? farmInfo.lpAddress : undefined
+        return {
+          pool: SmartRouter.Transformer.serializePool(remotePool),
+          id: pool.id,
+          chainId: pool.chainId,
+          protocol: pool.protocol,
+          tvlUSD: pool.tvlUSD || '0',
+          vol24hUsd: pool.volumeUSD24h || '0',
+          pid,
+          apr24h: Number(pool.apr24h || 0),
+          isDynamicFee: pool.isDynamicFee,
+          feeTier: pool.feeTier,
+          lpAddress: lpAddress || pool.id,
+        } as SerializedFarmInfo
+      })
+      .filter((x) => x) as SerializedFarmInfo[]
     return allPools
   } catch (ex) {
     console.warn('Error fetching farms:', ex)

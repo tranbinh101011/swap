@@ -120,6 +120,9 @@ export const bestSameChainWithoutPlaceHolderAtom = atomFamily((_option: QuoteQue
       const tests = [p1, p2]
       for (let i = 0; i < tests.length; i++) {
         const strategy = tests[i]
+        if (strategy.length === 0) {
+          return Loadable.Fail<InterfaceOrder>(new NoValidRouteError())
+        }
         const { quote, anyShadowFail, anyTimeout, key } = executeRoutes(strategy, option, i)
 
         if (quote.isJust()) {

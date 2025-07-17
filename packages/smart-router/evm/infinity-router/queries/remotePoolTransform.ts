@@ -125,6 +125,10 @@ export function toLocalInfinityPool(remote: RemotePoolCL | RemotePoolBIN, chainI
 
   const type = protocol === 'infinityCl' ? PoolType.InfinityCL : PoolType.InfinityBIN
   const relatedHook = hooksList[chainId].find((hook) => hook.address.toLowerCase() === hookAddress?.toLocaleLowerCase())
+  const hookNotInWhitelist = hookAddress && !relatedHook
+  if (hookNotInWhitelist) {
+    return null
+  }
 
   const currency0 = getValidToken(chainId, remote.token0)
   const currency1 = getValidToken(chainId, remote.token1)
