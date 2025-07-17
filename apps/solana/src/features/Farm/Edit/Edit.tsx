@@ -1,38 +1,39 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from '@pancakeswap/localization'
 import { Box, Flex, Grid, GridItem, HStack, Heading, Link, Skeleton, Text, VStack, useDisclosure } from '@chakra-ui/react'
+import { useTranslation } from '@pancakeswap/localization'
 import {
   ApiV3PoolInfoConcentratedItem,
+  FARM_PROGRAM_ID_V6,
+  FarmStateV6,
   FormatFarmInfoOutV6,
   TokenInfo,
   solToWSol,
-  solToWSolToken,
-  FarmStateV6,
-  FARM_PROGRAM_ID_V6
+  solToWSolToken
 } from '@pancakeswap/solana-core-sdk'
 import { PublicKey } from '@solana/web3.js'
 import { useRouter } from 'next/router'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { shallow } from 'zustand/shallow'
 
-import Decimal from 'decimal.js'
 import { BN } from 'bn.js'
+import Decimal from 'decimal.js'
 import Button from '@/components/Button'
 import useFetchFarmInfoById from '@/hooks/farm/useFetchFarmInfoById'
 import useFetchPoolById from '@/hooks/pool/useFetchPoolById'
-import { refreshCreatedFarm } from '@/hooks/portfolio/farm/useCreatedFarmInfo'
 import { refreshPoolCache } from '@/hooks/pool/useFetchPoolList'
+import { refreshCreatedFarm } from '@/hooks/portfolio/farm/useCreatedFarmInfo'
 import { useEvent } from '@/hooks/useEvent'
 import PlusCircleIcon from '@/icons/misc/PlusCircleIcon'
 import { useAppStore, useClmmStore, useFarmStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
 
 import SubPageNote from '@/components/SubPageNote'
+import useFetchFarmInfoByRpc from '@/hooks/farm/useFetchFarmInfoByRpc'
+import useFetchRpcClmmInfo from '@/hooks/pool/clmm/useFetchRpcClmmInfo'
 import ChevronLeftIcon from '@/icons/misc/ChevronLeftIcon'
 import { genCSS2GridTemplateColumns, genCSS3GridTemplateColumns } from '@/theme/detailConfig'
-import { routeBack, routeToPage } from '@/utils/routeTools'
-import useFetchRpcClmmInfo from '@/hooks/pool/clmm/useFetchRpcClmmInfo'
-import useFetchFarmInfoByRpc from '@/hooks/farm/useFetchFarmInfoByRpc'
 import { TxCallbackProps } from '@/types/tx'
+import { routeBack, routeToPage } from '@/utils/routeTools'
+import { getClmmKeysFromPoolInfo } from '@/utils/getPoolKeysFromPoolInfo'
 import AddAnotherRewardDialog from './components/AddAnotherRewardDialog'
 import FarmInfoItem from './components/FarmInfoItem'
 import ExistFarmingRewards from './components/FarmingRewards'
@@ -50,7 +51,9 @@ export default function FarmEdit() {
   const { t } = useTranslation()
   const { query } = useRouter()
   const { farmId, clmmId } = (query || {}) as QueryParams
+
   const [remainRewardsCount, setRemainRewardsCount] = useState(0)
+
   const editFarmRewardsAct = useFarmStore((s) => s.editFarmRewardsAct)
   const withdrawCreatorFarmRewardAct = useFarmStore((s) => s.withdrawCreatorFarmRewardAct)
   const [rewardWhiteListMints, setRewardsAct, collectRewardAct] = useClmmStore(
@@ -79,7 +82,7 @@ export default function FarmEdit() {
   const clmmData = formattedPoolData?.[0]
   const clmmRewardWhiteListMints = useMemo(
     () => new Set([...rewardWhiteListMints.map((pub) => pub.toBase58()), clmmData?.mintA.address, clmmData?.mintB.address]),
-    [rewardWhiteListMints, clmmData?.id]
+    [rewardWhiteListMints, clmmData?.id, clmmData?.mintA.address, clmmData?.mintB.address]
   )
 
   const { data: rpcFarm, farmMutate } = useFetchFarmInfoByRpc({
@@ -104,16 +107,28 @@ export default function FarmEdit() {
           }))
       : []
 
-  const { ownerRemainingRewards, mutate: mutateClmmInfo } = useFetchRpcClmmInfo({
+  const {
+    ownerRemainingRewards,
+    data: rpcPoolInfo,
+    mutate: mutateClmmInfo
+  } = useFetchRpcClmmInfo({
     shouldFetch: !!clmmData,
     id: clmmId,
     apiPoolInfo: clmmData
   })
 
   const isLoading = isFarmLoading || isPoolLoading
+
   const hasData = (farmId && !!farmData) || (clmmId && clmmData)
+
   const isValidData = farmData ? farmData.version === 6 : clmmData ? clmmData.type === 'Concentrated' : false
-  const availableRewardCount = farmData ? 5 : clmmData ? 2 : 0
+
+  const operationOwners = useClmmStore((s) => s.operationOwners)
+  const publicKey = useAppStore((s) => s.publicKey)
+  const isOp = publicKey && operationOwners.map((r) => r.toBase58()).includes(publicKey.toBase58())
+  const maxRewardCount = isOp ? 3 : 2
+
+  const availableRewardCount = farmData ? 5 : clmmData ? maxRewardCount : 0
 
   const [token1, token2] = [farmData?.symbolMints[0] || clmmData?.mintA, farmData?.symbolMints[1] || clmmData?.mintB]
   const [name = '-', tvl = '0', apr = ''] = [
@@ -121,7 +136,9 @@ export default function FarmEdit() {
     farmData?.tvl || clmmData?.tvl,
     farmData?.apr || clmmData?.day.apr
   ]
+
   const id = farmData?.id || clmmData?.id
+
   const farmTVL = farmData?.tvl || clmmData?.tvl
 
   const rewardData = farmData
@@ -145,20 +162,25 @@ export default function FarmEdit() {
   const handleSubmitEdit = useEvent(() => {
     onSending()
     if (clmmData) {
+      const rewardInfos = editedRewardRef.current.getRewards().map((r) => ({
+        mint: solToWSolToken({
+          ...r.mint,
+          programId: r.mint.address === clmmData.mintA?.address ? clmmData.mintA.programId : r.mint.programId
+        }),
+        openTime: Math.floor(Math.max(r.openTime, onlineCurrentDate) / 1000),
+        endTime: Math.floor(r.endTime / 1000),
+        perSecond: new Decimal(r.total)
+          .mul(10 ** r.mint.decimals)
+          .div(new Decimal(r.endTime).sub(Math.max(r.openTime, onlineCurrentDate)).div(1000))
+          .toDecimalPlaces(0, Decimal.ROUND_DOWN)
+      }))
       return setRewardsAct({
         poolInfo: clmmData,
-        rewardInfos: editedRewardRef.current.getRewards().map((r) => ({
-          mint: solToWSolToken(r.mint),
-          openTime: Math.floor(Math.max(r.openTime, onlineCurrentDate) / 1000),
-          endTime: Math.floor(r.endTime / 1000),
-          perSecond: new Decimal(r.total)
-            .mul(10 ** r.mint.decimals)
-            .div(new Decimal(r.endTime).sub(Math.max(r.openTime, onlineCurrentDate)).div(1000))
-            .toDecimalPlaces(0, Decimal.ROUND_DOWN)
-        })),
+        poolKeys: getClmmKeysFromPoolInfo(clmmData),
+        rewardInfos,
         newRewardInfos: newRewardRef.current.getRewards().map((r) => ({
           mint: solToWSolToken(r.mint),
-          openTime: Math.floor(r.openTime / 1000),
+          openTime: Math.ceil(r.openTime / 1000),
           endTime: Math.floor(r.endTime / 1000),
           perSecond: new Decimal(r.total)
             .mul(10 ** r.mint.decimals)
@@ -169,7 +191,7 @@ export default function FarmEdit() {
         onConfirmed: () => {
           refreshCreatedFarm()
           refreshPoolCache()
-          routeToPage('portfolio')
+          routeToPage('pools')
         }
       })
     }
@@ -257,8 +279,8 @@ export default function FarmEdit() {
   })
 
   if (!isLoading) {
-    if (!hasData) return <div>{t('Farm not found')}</div>
-    if (!isValidData) return <div>{t('Farm is not editable')}</div>
+    if (!hasData) return <Box mt="24px">{t('Farm not found')}</Box>
+    if (!isValidData) return <Box mt="24px">{t('Farm is not editable')}</Box>
   }
 
   return (
@@ -280,7 +302,7 @@ export default function FarmEdit() {
           `,
         `
             "back    word           ." auto
-            "note    pool           ." auto
+            "note    pool           " auto
             "note    rewards        ." auto
             "note    action-buttons ." 1fr / ${genCSS3GridTemplateColumns({ rightLeft: 344, center: 468 })}
           `
@@ -288,10 +310,12 @@ export default function FarmEdit() {
       columnGap={[0, 24]}
       rowGap={[4, 4]}
       mt={[2, 8]}
+      mx={[0, 0, 0, 16]}
+      pb="48px"
     >
       <GridItem area="back">
         <Flex mb={[0, 4]}>
-          <HStack cursor="pointer" onClick={routeBack} color={colors.textTertiary} fontWeight="500" fontSize={['md', 'xl']}>
+          <HStack cursor="pointer" onClick={routeBack} color={colors.primary60} fontWeight="500" fontSize={['md', 'lg']}>
             <ChevronLeftIcon />
             <Text>{t('Back')}</Text>
           </HStack>
@@ -324,20 +348,22 @@ export default function FarmEdit() {
       <GridItem area="word">
         <Flex flexDirection="column" gap="2">
           <HStack gap={4}>
-            <Heading color={colors.textSecondary} fontSize="20px">
+            <Text fontWeight="600" color={colors.textSecondary} fontSize="20px">
               {t('Edit Farm')}
-            </Heading>
+            </Text>
             {id && (
-              <Text color={colors.textTertiary} fontSize="sm">
+              <Text color={colors.textSubtle} fontSize="sm">
                 {t('Farm id')}: {id?.slice(0, 6)}...{id.slice(-6)}
               </Text>
             )}
           </HStack>
-          <Text fontSize="sm" color={colors.textSecondary}>
+          <Text fontSize="sm" color={colors.textSubtle}>
             {t('Before creating a farm, make sure to check the')}{' '}
             <Link
-              href="https://docs.raydium.io/raydium/pool-creation/creating-a-constant-product-pool/creating-an-ecosystem-farm"
+              href="https://docs.pancakeswap.finance/" // TODO: Add docs link for farms
               isExternal
+              fontWeight="600"
+              color={colors.primary}
             >
               {t('detailed guide')}
             </Link>
@@ -347,7 +373,9 @@ export default function FarmEdit() {
 
       <GridItem area="pool">
         <VStack align="stretch">
-          <Heading fontSize="md">{t('Pool')}</Heading>
+          <Text fontWeight="600" color={colors.textSubtle} fontSize="xl">
+            {t('Pool')}
+          </Text>
           {isLoading ? (
             <Skeleton height="60px" />
           ) : (
@@ -356,18 +384,20 @@ export default function FarmEdit() {
         </VStack>
       </GridItem>
 
-      <GridItem area="rewards">
+      <GridItem mt="6" area="rewards">
         <VStack align="stretch">
           <HStack justifyContent="space-between">
-            <Heading fontSize="md">{t('Farm reward')}</Heading>
+            <Text fontWeight="600" color={colors.textSubtle} fontSize="xl">
+              {t('Farm rewards')}
+            </Text>
             <HStack
               align="center"
               opacity={remainRewardsCount ? 1 : 0.5}
               onClick={remainRewardsCount ? onOpenAddAnotherRewardDialog : undefined}
               cursor={remainRewardsCount ? 'pointer' : 'default'}
             >
-              <PlusCircleIcon width="14px" height="14px" />
-              <Text color={colors.priceFloatingUp} fontSize="16px" fontWeight="500">
+              <PlusCircleIcon width="14px" height="14px" color={colors.primary60} />
+              <Text color={colors.primary60} fontSize="16px" fontWeight="500">
                 {t('Add another')}
               </Text>
             </HStack>
@@ -398,13 +428,14 @@ export default function FarmEdit() {
       </GridItem>
 
       <GridItem area="action-buttons">
-        <Flex justifyContent="center" mt="15px" gap="4">
+        <Flex justifyContent="center" mt="15px" mb="12px" gap="4">
           <Button
             key={flag}
             mt="15px"
-            size="lg"
+            width="100%"
             minWidth="16em"
             maxWidth="unset"
+            borderBottom="2px solid rgb(0, 0, 0, 0.2)"
             isLoading={isSending}
             onClick={handleSubmitEdit}
             isDisabled={!hasRewardsData}

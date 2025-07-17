@@ -1,5 +1,8 @@
 import { Trans } from '@pancakeswap/localization'
 
+export const MIN_DURATION_DAYS = 1
+export const MAX_DURATION_DAYS = 90
+
 const FARM_TX_MSG = (props?: Record<string, unknown>) => ({
   deposit: {
     title: <Trans {...props}>Staked %symbol%</Trans>,

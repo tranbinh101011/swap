@@ -1,9 +1,6 @@
 import { VersionedTransaction, Transaction } from '@solana/web3.js'
-import { parseUserAgent } from 'react-device-detect'
-import { txToBase64 } from '@pancakeswap/solana-core-sdk'
 import { retry, idToIntervalRecord, cancelRetry } from '@/utils/common'
 import { useAppStore } from '@/store'
-import axios from '@/api/axios'
 
 const retryRecord = new Map<
   string,
@@ -13,30 +10,9 @@ const retryRecord = new Map<
 >()
 
 export default function retryTx({ tx, id }: { tx: Transaction | VersionedTransaction; id: string }) {
-  const { connection, urlConfigs } = useAppStore.getState()
+  const { connection } = useAppStore.getState()
   if (retryRecord.has(id)) return
 
-  const deviceInfo = parseUserAgent(window.navigator.userAgent)
-  const sendApi = () => {
-    try {
-      axios
-        .post(
-          `${urlConfigs.SERVICE_1_BASE_HOST}/send-tx`,
-          {
-            data: txToBase64(tx),
-            walletName: useAppStore.getState().wallet?.adapter.name || '',
-            deviceType: deviceInfo.device.type || 'pc'
-          },
-          { skipError: true }
-        )
-        .catch((e) => {
-          console.error('send tx to be error', e.message)
-        })
-    } catch {
-      console.error('send tx to be error')
-    }
-  }
-  sendApi()
   if (!connection) return
   retryRecord.set(id, {
     done: false
@@ -51,7 +27,6 @@ export default function retryTx({ tx, id }: { tx: Transaction | VersionedTransac
       } catch {
         console.error('send tx to rpc error')
       }
-      sendApi()
 
       throw new Error('sending')
     },

@@ -67,7 +67,7 @@ export default function useSwap(props: {
     updateAmount(propsAmount)
   }, [propsAmount, updateAmount])
 
-  const { data, error, ...swrProps } = useSWR(() => (disabled ? null : [`${quoteApi}/api/quote`, requestBody]), fetcher, {
+  const { data, error, ...swrProps } = useSWR(() => (disabled ? null : [`${quoteApi}/quote`, requestBody]), fetcher, {
     refreshInterval,
     focusThrottleInterval: refreshInterval,
     dedupingInterval: 30 * 1000

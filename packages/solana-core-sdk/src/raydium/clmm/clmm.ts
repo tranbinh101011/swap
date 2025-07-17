@@ -57,6 +57,7 @@ import {
   getPdaProtocolPositionAddress,
   getPdaExBitmapAccount,
   getPdaMintExAccount,
+  getPdaPoolRewardVaulId,
 } from "./utils/pda";
 import { PoolUtils, clmmComputeInfoToApiInfo } from "./utils/pool";
 import { TickUtils } from "./utils/tick";
@@ -1250,6 +1251,7 @@ export class Clmm extends ModuleBase {
 
   public async collectReward<T extends TxVersion>({
     poolInfo,
+    poolKeys: propsPoolKeys,
     ownerInfo,
     rewardMint,
     associatedOnly = true,
@@ -1282,7 +1284,7 @@ export class Clmm extends ModuleBase {
 
     if (!ownerRewardAccount)
       this.logAndCreateError("no money", "ownerRewardAccount", this.scope.account.tokenAccountRawInfos);
-    const poolKeys = await this.getClmmPoolKeys(poolInfo.id);
+    const poolKeys = propsPoolKeys ?? (await this.getClmmPoolKeys(poolInfo.id));
     const insInfo = ClmmInstrument.collectRewardInstructions({
       poolInfo,
       poolKeys,
@@ -1738,7 +1740,7 @@ export class Clmm extends ModuleBase {
         rewardAccounts.push(ownerRewardAccount!);
       }
 
-      const poolKeys = await this.getClmmPoolKeys(poolInfo.id);
+      const poolKeys = this.getClmmKeysFromPoolInfo(poolInfo);
 
       const rewardAccountsFullInfo: {
         poolRewardVault: PublicKey;
@@ -1843,11 +1845,42 @@ export class Clmm extends ModuleBase {
     return txBuilder.sizeCheckBuild({ computeBudgetConfig }) as Promise<MakeMultiTxData<T>>;
   }
 
+  getClmmKeysFromPoolInfo(poolInfo: ApiV3PoolInfoConcentratedItem): ClmmKeys {
+    return {
+      programId: poolInfo.programId,
+      id: poolInfo.id,
+      config: poolInfo.config,
+      mintA: poolInfo.mintA,
+      mintB: poolInfo.mintB,
+      // lookupTableAccount: poolInfo.lookupTableAccount
+      alt: poolInfo.alt,
+      openTime: poolInfo.openTime,
+      vault: (poolInfo as any).vault,
+      rewardInfos: poolInfo.rewardDefaultInfos.map((r) => ({
+        mint: r.mint,
+        vault: getPdaPoolRewardVaulId(
+          new PublicKey(poolInfo.programId),
+          new PublicKey(poolInfo.id),
+          new PublicKey(r.mint.address),
+        ).publicKey.toBase58(),
+      })),
+      observationId: "",
+      exBitmapAccount: "",
+    };
+  }
+
   public async getWhiteListMint({ programId }: { programId: PublicKey }): Promise<PublicKey[]> {
     const accountInfo = await this.scope.connection.getAccountInfo(getPdaOperationAccount(programId).publicKey);
     if (!accountInfo) return [];
     const whitelistMintsInfo = OperationLayout.decode(accountInfo.data);
     return whitelistMintsInfo.whitelistMints.filter((i) => !i.equals(PublicKey.default));
+  }
+
+  public async getOperationOwners({ programId }: { programId: PublicKey }): Promise<PublicKey[]> {
+    const accountInfo = await this.scope.connection.getAccountInfo(getPdaOperationAccount(programId).publicKey);
+    if (!accountInfo) return [];
+    const operationOwnersInfo = OperationLayout.decode(accountInfo.data);
+    return operationOwnersInfo.operationOwners.filter((i) => !i.equals(PublicKey.default));
   }
 
   public async getOwnerPositionInfo({

@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react'
 import Decimal from 'decimal.js'
 import { useTranslation } from '@pancakeswap/localization'
+import { ApiV3Token } from '@pancakeswap/solana-core-sdk'
 import { FormattedPoolInfoConcentratedItem, AprKey, timeBasisOptions } from '@/hooks/pool/type'
 import useClmmBalance, { ClmmPosition } from '@/hooks/portfolio/clmm/useClmmBalance'
 import MinusIcon from '@/icons/misc/MinusIcon'
@@ -41,18 +42,25 @@ import Tabs from '@/components/Tabs'
 import { PoolListItemAprLine } from '@/features/Pools/components/PoolListItemAprLine'
 import { panelCard } from '@/theme/cssBlocks'
 
+import { BreakdownRewardInfo } from '@/hooks/pool/clmm/useFetchClmmRewardInfo'
 import PoolInfoDrawerFace from './ClmmPositionAccountItemDetail/PoolInfoDrawerFace'
+import EstimatedApr from './ClmmPositionAccountItemDetail/EstimatedApr'
+import PendingYield from './ClmmPositionAccountItemDetail/PendingYield'
 
 type DetailProps = {
   poolInfo: FormattedPoolInfoConcentratedItem
   position: ClmmPosition
   aprData: AprData
+  timeBasis: AprKey
   onTimeBasisChange?: (val: AprKey) => void
   nftMint: string
   totalPendingYield: string
   baseIn: boolean
   hasReward?: boolean
+  rewardInfos: { mint: ApiV3Token; amount: string; amountUSD: string }[]
+  breakdownRewardInfo: BreakdownRewardInfo
   isLock?: boolean
+  isRewardLoading?: boolean
   onHarvest: (props: { onSend?: () => void; onFinally?: () => void }) => void
   onClickCloseButton: (props: { onSend?: () => void; onFinally?: () => void }) => void
   onClickMinusButton: () => void
@@ -69,9 +77,13 @@ export default function ClmmPositionAccountItemDetailMobileDrawer({
   aprData,
   totalPendingYield,
   baseIn,
+  timeBasis,
   onTimeBasisChange,
   hasReward,
   isLock,
+  isRewardLoading,
+  rewardInfos,
+  breakdownRewardInfo,
   onHarvest,
   onClickCloseButton,
   onClickMinusButton,
@@ -306,52 +318,19 @@ export default function ClmmPositionAccountItemDetailMobileDrawer({
                 alignItems="center"
                 columnGap={3}
               >
-                <Text gridArea="value" fontSize="md" fontWeight="600" color={colors.textPrimary}>
-                  {formatToRawLocaleStr(toPercentString(aprData.apr))}
-                </Text>
-                <Box gridArea="line">
-                  <PoolListItemAprLine aprData={aprData} />
-                </Box>
-                <Box gridArea="tokens">
-                  {poolInfo.weeklyRewards.map((r) => (
-                    <TokenAvatar key={r.token.address} token={r.token} />
-                  ))}
-                </Box>
+                <EstimatedApr timeAprData={poolInfo.allApr} aprData={aprData} timeBasis={timeBasis} poolId={poolInfo.id} />
               </SimpleGrid>
             </Flex>
-            <Flex p={4} direction="column" justify="space-between" gap={2} {...panelCard} w="full" rounded="2xl" fontSize="sm">
-              <Text fontSize="sm" color={colors.textSecondary} whiteSpace="nowrap">
-                {t('Pending Yield')}
-              </Text>
-              <Flex justify="space-between" align="center">
-                <HStack fontSize="xl" fontWeight="medium" spacing={2}>
-                  <Text whiteSpace="nowrap" color={colors.primary}>
-                    {formatCurrency(totalPendingYield.toString(), { symbol: '$', decimalPlaces: 2 }) ?? '$0'}
-                  </Text>
-                  <QuestionToolTip
-                    label={t('Pending rewards are calculated based on the current pool size and the time since the last harvest.')}
-                    iconType="info"
-                    iconProps={{
-                      width: '18px',
-                      height: '18px',
-                      color: colors.textSubtle
-                    }}
-                  />
-                </HStack>
-                <Button
-                  isLoading={isLoading}
-                  isDisabled={!hasReward}
-                  onClick={handleHarvest}
-                  size="sm"
-                  fontSize="md"
-                  variant="outline"
-                  borderColor={colors.primary}
-                  color={colors.primary60}
-                  borderRadius="12px"
-                >
-                  {t('Harvest')}
-                </Button>
-              </Flex>
+            <Flex direction="column" justify="space-between" gap={2} {...panelCard} w="full" rounded="2xl" fontSize="sm">
+              <PendingYield
+                isLoading={isLoading}
+                isRewardLoading={isRewardLoading}
+                hasReward={hasReward}
+                pendingYield={formatCurrency(totalPendingYield, { symbol: '$', decimalPlaces: 2 })}
+                rewardInfos={rewardInfos}
+                breakdownRewardInfo={breakdownRewardInfo}
+                onHarvest={handleHarvest}
+              />
             </Flex>
             {isLock ? null : (
               <HStack w="full" spacing={4}>

@@ -2,9 +2,12 @@ import {
   Commitment,
   Connection,
   PublicKey,
+  RpcResponseAndContext,
   sendAndConfirmTransaction,
   SignatureResult,
   Signer,
+  SimulatedTransactionResponse,
+  SimulateTransactionConfig,
   SystemProgram,
   Transaction,
   TransactionInstruction,
@@ -49,6 +52,7 @@ interface ExecuteParams {
   recentBlockHash?: string;
   sendAndConfirm?: boolean;
   notSendToRpc?: boolean;
+  simulate?: boolean;
 }
 
 interface TxBuilderInit {
@@ -78,6 +82,9 @@ export interface TxBuildData<T = Record<string, any>> {
   instructionTypes: string[];
   signers: Signer[];
   execute: (params?: ExecuteParams) => Promise<{ txId: string; signedTx: Transaction }>;
+  simulate: (
+    simulateConfig?: SimulateTransactionConfig,
+  ) => Promise<RpcResponseAndContext<SimulatedTransactionResponse>>;
   extInfo: T;
 }
 
@@ -200,6 +207,13 @@ export class TxBuilder {
     return false;
   }
 
+  private logSimulation(simulation: RpcResponseAndContext<SimulatedTransactionResponse>): void {
+    console.log(`simulation ${simulation.value.err ? "❌" : "✅"}`, {
+      error: simulation.value.err,
+      logs: simulation.value.logs,
+    });
+  }
+
   public addTipInstruction(tipConfig?: TxTipConfig): boolean {
     if (tipConfig) {
       this.endInstructions.push(
@@ -279,6 +293,10 @@ export class TxBuilder {
 
         printSimulate([transaction]);
         if (this.owner?.isKeyPair) {
+          if (params?.simulate) {
+            const simulation = await this.connection.simulateTransaction(transaction);
+            this.logSimulation(simulation);
+          }
           const txId = sendAndConfirm
             ? await sendAndConfirmTransaction(
                 this.connection,
@@ -296,6 +314,10 @@ export class TxBuilder {
           };
         }
         if (this.signAllTransactions) {
+          if (params?.simulate) {
+            const simulation = await this.connection.simulateTransaction(transaction);
+            this.logSimulation(simulation);
+          }
           const txs = await this.signAllTransactions([transaction]);
           if (this.signers.length) {
             for (const item of txs) {
@@ -312,6 +334,23 @@ export class TxBuilder {
           };
         }
         throw new Error("please provide owner in keypair format or signAllTransactions function");
+      },
+      simulate: async () => {
+        const recentBlockHash = await getRecentBlockHash(this.connection, this.blockhashCommitment);
+        transaction.recentBlockhash = recentBlockHash;
+        if (this.signers.length) transaction.sign(...this.signers);
+
+        printSimulate([transaction]);
+        if (this.owner?.isKeyPair) {
+          const simulation = await this.connection.simulateTransaction(transaction);
+          this.logSimulation(simulation);
+          return simulation;
+        }
+        if (this.signAllTransactions) {
+          const simulation = await this.connection.simulateTransaction(transaction);
+          this.logSimulation(simulation);
+        }
+        throw new Error("Failed to simulate transaction");
       },
       extInfo: extInfo || ({} as O),
     };
@@ -552,6 +591,14 @@ export class TxBuilder {
         const { skipPreflight = true, sendAndConfirm, notSendToRpc } = params || {};
         printSimulate([transaction]);
         if (this.owner?.isKeyPair) {
+          if (params?.simulate) {
+            const simulation = await this.connection.simulateTransaction(transaction, {
+              commitment: "confirmed",
+              sigVerify: false,
+              innerInstructions: true,
+            });
+            this.logSimulation(simulation);
+          }
           const txId = await this.connection.sendTransaction(transaction, { skipPreflight });
           if (sendAndConfirm) {
             await confirmTransaction(this.connection, txId);
@@ -563,6 +610,14 @@ export class TxBuilder {
           };
         }
         if (this.signAllTransactions) {
+          if (params?.simulate) {
+            const simulation = await this.connection.simulateTransaction(transaction, {
+              commitment: "confirmed",
+              innerInstructions: true,
+              sigVerify: false,
+            });
+            this.logSimulation(simulation);
+          }
           const txs = await this.signAllTransactions<VersionedTransaction>([transaction]);
           if (this.signers.length) {
             for (const item of txs) {
@@ -579,6 +634,30 @@ export class TxBuilder {
           };
         }
         throw new Error("please provide owner in keypair format or signAllTransactions function");
+      },
+      simulate: async (simulateConfig: SimulateTransactionConfig = {}) => {
+        printSimulate([transaction]);
+        if (this.owner?.isKeyPair) {
+          const simulation = await this.connection.simulateTransaction(transaction, {
+            commitment: "confirmed",
+            sigVerify: false,
+            innerInstructions: true,
+            ...simulateConfig,
+          });
+          this.logSimulation(simulation);
+          return simulation;
+        }
+        if (this.signAllTransactions) {
+          const simulation = await this.connection.simulateTransaction(transaction, {
+            commitment: "confirmed",
+            innerInstructions: true,
+            sigVerify: false,
+            ...simulateConfig,
+          });
+          this.logSimulation(simulation);
+          return simulation;
+        }
+        throw new Error("Failed to simulate transaction");
       },
       extInfo: (extInfo || {}) as O,
     };
@@ -1161,6 +1240,14 @@ export class TxBuilder {
                 txIds.push("tx skipped");
                 continue;
               }
+              if (executeParams?.simulate) {
+                const simulation = await this.connection.simulateTransaction(tx, {
+                  commitment: "confirmed",
+                  innerInstructions: true,
+                  sigVerify: false,
+                });
+                console.log("simulation", simulation);
+              }
               const txId = await this.connection.sendTransaction(tx, { skipPreflight });
               await confirmTransaction(this.connection, txId);
 
@@ -1173,6 +1260,14 @@ export class TxBuilder {
           return {
             txIds: await Promise.all(
               allTransactions.map(async (tx) => {
+                if (executeParams?.simulate) {
+                  const simulation = await this.connection.simulateTransaction(tx, {
+                    commitment: "confirmed",
+                    innerInstructions: true,
+                    sigVerify: false,
+                  });
+                  console.log("simulation", simulation);
+                }
                 return await this.connection.sendTransaction(tx, { skipPreflight });
               }),
             ),
@@ -1180,6 +1275,16 @@ export class TxBuilder {
           };
         }
         if (this.signAllTransactions) {
+          if (executeParams?.simulate) {
+            for await (const tx of allTransactions) {
+              const simulation = await this.connection.simulateTransaction(tx, {
+                commitment: "confirmed",
+                innerInstructions: true,
+                sigVerify: false,
+              });
+              this.logSimulation(simulation);
+            }
+          }
           const needSignedTx = await this.signAllTransactions(
             allTransactions.slice(skipTxCount, allTransactions.length),
           );
@@ -1265,6 +1370,14 @@ export class TxBuilder {
           } else {
             const txIds: string[] = [];
             for (let i = 0; i < signedTxs.length; i += 1) {
+              if (executeParams?.simulate) {
+                const simulation = await this.connection.simulateTransaction(signedTxs[i], {
+                  commitment: "confirmed",
+                  innerInstructions: true,
+                  sigVerify: false,
+                });
+                this.logSimulation(simulation);
+              }
               const txId = await this.connection.sendTransaction(signedTxs[i], { skipPreflight });
               txIds.push(txId);
             }

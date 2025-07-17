@@ -45,13 +45,15 @@ export default function EstimatedApr({ aprData, timeBasis, onTimeBasisChange, po
                 {mint ? mint.symbol : t('Trade fees')}
               </Text>
             </Flex>
-            <Text color={colors.textPrimary}>{formatToRawLocaleStr(toPercentString(apr))}</Text>
+            <Text color={colors.textPrimary}>{apr === 0 ? 0 : formatToRawLocaleStr(toPercentString(apr))}</Text>
           </Flex>
         ))}
       </Flex>
-      <Flex alignItems={['center', 'start']} justifyContent={['center', 'start']}>
-        <Tabs value={timeBasis} items={timeBasisOptions} onChange={onTimeBasisChange} size="xs" variant="subtle" />
-      </Flex>
+      {onTimeBasisChange ? (
+        <Flex alignItems={['center', 'start']} justifyContent={['center', 'start']}>
+          <Tabs value={timeBasis} items={timeBasisOptions} onChange={onTimeBasisChange} size="xs" variant="subtle" />
+        </Flex>
+      ) : null}
     </HStack>
   )
 }

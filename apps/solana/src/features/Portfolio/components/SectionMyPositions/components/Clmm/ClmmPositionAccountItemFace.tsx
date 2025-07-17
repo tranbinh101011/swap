@@ -2,6 +2,7 @@ import BN from 'bn.js'
 import Decimal from 'decimal.js'
 import { useTranslation } from '@pancakeswap/localization'
 import { Badge, Button, Divider, Flex, HStack, Text, Tooltip, useDisclosure } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import AprMDSwitchWidget from '@/components/AprMDSwitchWidget'
 import { Desktop, Mobile } from '@/components/MobileDesktop'
 import { FormattedPoolInfoConcentratedItem, AprKey } from '@/hooks/pool/type'
@@ -97,15 +98,20 @@ export default function ClmmPositionAccountItemFace({
     subB: poolInfo[baseIn ? 'mintA' : 'mintB'].symbol
   })
 
-  const apr = getPositionAprCore({
-    poolInfo,
-    positionAccount: position,
-    poolLiquidity: poolLiquidity || new BN(0),
-    tokenPrices,
-    timeBasis: AprKey.Day,
-    planType: aprMode,
-    chainTimeOffsetMs: chainTimeOffset
-  })
+  const apr = useMemo(
+    () =>
+      getPositionAprCore({
+        poolInfo,
+        positionAccount: position,
+        poolLiquidity: poolLiquidity || new BN(0),
+        tokenPrices,
+        timeBasis: AprKey.Day,
+        planType: aprMode,
+        chainTimeOffsetMs: chainTimeOffset,
+        inRange
+      }),
+    [poolInfo, position, poolLiquidity, tokenPrices, aprMode, chainTimeOffset, inRange]
+  )
   return (
     <>
       <Desktop>

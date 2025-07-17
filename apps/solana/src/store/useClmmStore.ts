@@ -1,45 +1,54 @@
+import { TranslateFunction } from '@pancakeswap/localization'
+import { ammConfigs, PancakeClmmProgramId } from '@pancakeswap/solana-clmm-sdk'
 import {
-  TxBuildData,
-  TxV0BuildData,
-  MakeMultiTxData,
   ApiClmmConfigInfo,
-  ClmmPositionLayout,
-  InitRewardsParams,
-  Price,
-  TickUtils,
-  PoolUtils,
-  ReturnTypeGetPriceAndTick,
-  ApiV3Token,
-  SetRewardsParams,
-  ClmmKeys,
   ApiV3PoolInfoConcentratedItem,
+  ApiV3Token,
+  ClmmKeys,
+  ClmmLockAddress,
+  ClmmPositionLayout,
+  DecreaseLiquidityEventLayout,
+  getTransferAmountFeeV2,
+  InitRewardsParams,
+  MakeMultiTxData,
   MakeTxData,
   OpenPositionFromBaseExtInfo,
-  toToken,
+  PoolUtils,
+  Price,
+  ReturnTypeGetPriceAndTick,
+  SetRewardsParams,
   solToWSolToken,
-  TxVersion,
-  getTransferAmountFeeV2,
-  ClmmLockAddress
+  TickUtils,
+  toToken,
+  TxBuildData,
+  TxV0BuildData,
+  TxVersion
 } from '@pancakeswap/solana-core-sdk'
-import { ammConfigs, PancakeClmmProgramId } from '@pancakeswap/solana-clmm-sdk'
-import { PublicKey, VersionedTransaction } from '@solana/web3.js'
+import { PublicKey, RpcResponseAndContext, SimulatedTransactionResponse } from '@solana/web3.js'
 import BN from 'bn.js'
 import Decimal from 'decimal.js'
-import { TranslateFunction } from '@pancakeswap/localization'
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token-0.4'
-import createStore from '@/store/createStore'
-import { useAppStore, useTokenAccountStore, useLiquidityStore } from '@/store'
-import { isSolWSol, getMintSymbol, shortenAddress } from '@/utils/token'
+import PQueue from 'p-queue'
+import { getDefaultToastData, handleMultiTxToast, transformProcessData } from '@/hooks/toast/multiToastUtil'
 import { toastSubject } from '@/hooks/toast/useGlobalToast'
 import { txStatusSubject } from '@/hooks/toast/useTxStatus'
-import { getDefaultToastData, transformProcessData, handleMultiTxToast } from '@/hooks/toast/multiToastUtil'
+import { useAppStore, useLiquidityStore, useTokenAccountStore } from '@/store'
+import createStore from '@/store/createStore'
+import { getMintSymbol, isSolWSol, shortenAddress } from '@/utils/token'
 import getEphemeralSigners from '@/utils/tx/getEphemeralSigners'
 
-import { getComputeBudgetConfig } from '@/utils/tx/computeBudget'
-import { handleMultiTxRetry } from '@/hooks/toast/retryTx'
 import { ClmmLockInfo } from '@/hooks/portfolio/clmm/useClmmBalance'
-import { CLMM_FEE_CONFIGS, getTxMeta } from './configs/clmm'
+import { handleMultiTxRetry } from '@/hooks/toast/retryTx'
+import { getComputeBudgetConfig } from '@/utils/tx/computeBudget'
+import { getClmmKeysFromPoolInfo } from '@/utils/getPoolKeysFromPoolInfo'
+import toPercentString from '@/utils/numberish/toPercentString'
 import { TxCallbackProps, TxCallbackPropsGeneric } from '../types/tx'
+import { getTxMeta } from './configs/clmm'
+
+const rewardsSimulateQueue = new PQueue({
+  // concurrency: 2,
+  interval: 1000,
+  intervalCap: 2
+})
 
 export type CreatePoolBuildData =
   | TxBuildData<{ mockPoolInfo: ApiV3PoolInfoConcentratedItem; address: ClmmKeys }>
@@ -52,6 +61,9 @@ interface ClmmState {
   currentPoolInfo?: ApiV3PoolInfoConcentratedItem
   currentPoolLoading: boolean
   rewardWhiteListMints: PublicKey[]
+  operationOwners: PublicKey[]
+
+  rewardsSimulateQueue: PQueue
 
   harvestAllAct: (
     props: {
@@ -89,8 +101,9 @@ interface ClmmState {
       position: ClmmPositionLayout
     } & TxCallbackProps
   ) => Promise<string>
-  removeLiquidityAct: (
+  removeLiquidityAct: <TSimulate extends boolean = false>(
     props: {
+      simulateOnly?: TSimulate
       poolInfo: ApiV3PoolInfoConcentratedItem
       position: ClmmPositionLayout
       liquidity: number | string | BN
@@ -100,7 +113,20 @@ interface ClmmState {
       harvest?: boolean
       closePosition?: boolean
     } & TxCallbackProps
-  ) => Promise<string>
+  ) => Promise<ReturnType<typeof DecreaseLiquidityEventLayout.decode> | string>
+  removeLiquidityActThrottle: <TSimulate extends boolean = false>(
+    props: {
+      simulateOnly?: TSimulate
+      poolInfo: ApiV3PoolInfoConcentratedItem
+      position: ClmmPositionLayout
+      liquidity: number | string | BN
+      amountMinA: number | string | BN
+      amountMinB: number | string | BN
+      needRefresh?: boolean
+      harvest?: boolean
+      closePosition?: boolean
+    } & TxCallbackProps
+  ) => Promise<ReturnType<typeof DecreaseLiquidityEventLayout.decode> | string>
   increaseLiquidityAct: (
     props: {
       poolInfo: ApiV3PoolInfoConcentratedItem
@@ -189,9 +215,11 @@ interface ClmmState {
   >
 
   loadAddRewardWhiteListAct: (props?: { checkFetch: boolean }) => void
+  loadOperationOwnersAct: (props?: { checkFetch: boolean }) => void
   setRewardsAct: (
     props: {
       poolInfo: ApiV3PoolInfoConcentratedItem
+      poolKeys?: ClmmKeys
       rewardInfos: SetRewardsParams['rewardInfos']
       newRewardInfos: SetRewardsParams['rewardInfos']
     } & TxCallbackProps
@@ -204,7 +232,9 @@ const clmmInitState = {
   currentPoolLoading: true,
   clmmFeeConfigs: {},
   rewardWhiteListMints: [],
-  slippage: 0.005
+  operationOwners: [],
+  slippage: 0.005,
+  rewardsSimulateQueue
 }
 
 export const useClmmStore = createStore<ClmmState>(
@@ -443,6 +473,7 @@ export const useClmmStore = createStore<ClmmState>(
       needRefresh,
       closePosition,
       harvest,
+      simulateOnly = false,
       onSent,
       onError,
       onFinally,
@@ -472,18 +503,9 @@ export const useClmmStore = createStore<ClmmState>(
 
       try {
         const computeBudgetConfig = await getComputeBudgetConfig()
-        const { execute } = await raydium.clmm.decreaseLiquidity({
+        const { execute, simulate } = await raydium.clmm.decreaseLiquidity({
           poolInfo,
-          // @todo: @ChefJerry ask BE implement rewardDefaultInfos
-          // poolInfo: {
-          //   ...poolInfo,
-          //   rewardDefaultInfos: [
-          //     {
-          //       mint: poolInfo.mintA,
-          //       perSecond: 0
-          //     }
-          //   ]
-          // },
+          poolKeys: getClmmKeysFromPoolInfo(poolInfo),
           ownerPosition: position,
           ownerInfo: {
             useSOLBalance: true,
@@ -506,6 +528,45 @@ export const useClmmStore = createStore<ClmmState>(
             symbolB: getMintSymbol({ mint: poolInfo.mintB, transformSol: true })
           }
         })
+
+        if (simulateOnly) {
+          try {
+            const simulateResult = await simulate({
+              accounts: {
+                encoding: 'base64',
+                addresses: poolInfo.rewardDefaultInfos.map((r) => r.mint.address)
+              }
+            })
+            // console.log('simulateResult', simulateResult)
+
+            if (!simulateResult.value.logs || simulateResult.value.logs.length < 3) {
+              onError?.()
+              toastSubject.next({ txError: new Error('Simulation failed'), ...meta })
+              return ''
+            }
+            const disclaimerDigest = await crypto.subtle.digest('SHA-256', Buffer.from('event:DecreaseLiquidityEvent', 'utf-8'))
+            const disclaimer = Buffer.from(disclaimerDigest).toString('base64').slice(0, 8)
+
+            const data = simulateResult.value.logs
+              .find((log) => log.startsWith(`Program data: ${disclaimer}`))
+              ?.slice(`Program data: `.length)
+            if (!data) {
+              onError?.()
+              // toastSubject.next({ txError: new Error('DecreaseLiquidityEvent not found in logs'), ...meta })
+              return ''
+            }
+            const decreaseLiquidityEventData = DecreaseLiquidityEventLayout.decode(Buffer.from(data, 'base64'))
+
+            onFinally?.()
+            return decreaseLiquidityEventData
+          } catch (e) {
+            console.error('Simulation error:', e)
+            onError?.(e)
+          } finally {
+            onFinally?.()
+          }
+          return {} as ReturnType<typeof DecreaseLiquidityEventLayout.decode>
+        }
 
         return execute()
           .then(({ txId, signedTx }) => {
@@ -535,6 +596,14 @@ export const useClmmStore = createStore<ClmmState>(
         onFinally?.()
         return ''
       }
+    },
+
+    removeLiquidityActThrottle: async (props) => {
+      const result = await get().rewardsSimulateQueue.add(async () => {
+        const result = await get().removeLiquidityAct(props)
+        return result
+      })
+      return result as ReturnType<typeof DecreaseLiquidityEventLayout.decode> | string
     },
 
     closePositionAct: async ({ poolInfo, position, ...txProps }) => {
@@ -652,6 +721,7 @@ export const useClmmStore = createStore<ClmmState>(
       const { execute } = await raydium.clmm.collectReward({
         ownerInfo: { useSOLBalance: true },
         poolInfo,
+        poolKeys: getClmmKeysFromPoolInfo(poolInfo),
         rewardMint,
         txVersion,
         computeBudgetConfig
@@ -775,50 +845,84 @@ export const useClmmStore = createStore<ClmmState>(
         .finally(txProps.onFinally)
     },
 
-    setRewardsAct: async ({ poolInfo, rewardInfos, newRewardInfos, onConfirmed, ...txProps }) => {
+    setRewardsAct: async ({ poolInfo, poolKeys, rewardInfos, newRewardInfos, onConfirmed, ...txProps }) => {
       const { raydium, txVersion } = useAppStore.getState()
       if (!raydium || rewardInfos.length + newRewardInfos.length < 1) return ''
-      const allBuildData: (
-        | TxV0BuildData<{
-            address: Record<string, PublicKey>
-          }>
-        | TxBuildData<{
-            address: Record<string, PublicKey>
-          }>
-      )[] = []
 
       const meta = getTxMeta({
         action: 'updateRewards',
         values: {
-          pool: poolInfo.id.slice(0, 6)
+          pool: `${poolInfo.mintA.symbol}/${poolInfo.mintB.symbol} (${toPercentString(poolInfo.feeRate * 100)})`
         }
       })
       const computeBudgetConfig = await getComputeBudgetConfig()
-      if (rewardInfos.length) {
+
+      if (rewardInfos.length && newRewardInfos.length) {
         const setRewardsBuildData = await raydium.clmm.setRewards({
           poolInfo,
+          poolKeys,
+          ownerInfo: { useSOLBalance: true },
+          rewardInfos,
+          txVersion
+        })
+
+        const initRewardBuildData = await raydium.clmm.initRewards({
+          poolInfo,
+          ownerInfo: { useSOLBalance: true },
+          checkCreateATAOwner: true,
+          rewardInfos: newRewardInfos,
+          txVersion
+        })
+
+        const builder0 = setRewardsBuildData.builder
+        builder0.addInstruction(initRewardBuildData.builder.AllTxData)
+        builder0.addCustomComputeBudget(computeBudgetConfig)
+
+        const txBuild = await builder0.versionBuild({ txVersion })
+        if (!txBuild) {
+          txProps.onError?.('build call data failed')
+          txProps.onFinally?.()
+          return ''
+        }
+        const mints = new Map()
+        rewardInfos.forEach((r) => mints.set(r.mint.address, r.mint))
+        newRewardInfos.forEach((r) => mints.set(r.mint.address, r.mint))
+        return txBuild
+          .execute()
+          .then(({ txId }) => {
+            txStatusSubject.next({ txId, ...txProps, ...meta, mintInfo: Array.from(mints.values()) })
+            return txId
+          })
+          .catch((e) => {
+            txProps.onError?.(e)
+            toastSubject.next({ txError: e, ...meta })
+            return ''
+          })
+          .finally(txProps.onFinally)
+      }
+      if (rewardInfos.length && !newRewardInfos.length) {
+        const setRewardsBuildData = await raydium.clmm.setRewards({
+          poolInfo,
+          poolKeys,
           ownerInfo: { useSOLBalance: true },
           rewardInfos,
           computeBudgetConfig,
           txVersion
         })
-
-        if (!newRewardInfos.length)
-          return setRewardsBuildData
-            .execute()
-            .then(({ txId, signedTx }) => {
-              txStatusSubject.next({ txId, ...meta, signedTx, mintInfo: newRewardInfos.map((r) => r.mint), onConfirmed })
-              return txId
-            })
-            .catch((e) => {
-              txProps.onError?.(e)
-              toastSubject.next({ txError: e, ...meta })
-              return ''
-            })
-            .finally(txProps.onFinally)
-        allBuildData.push(setRewardsBuildData)
+        return setRewardsBuildData
+          .execute()
+          .then(({ txId, signedTx }) => {
+            txStatusSubject.next({ txId, ...meta, signedTx, mintInfo: newRewardInfos.map((r) => r.mint), onConfirmed })
+            return txId
+          })
+          .catch((e) => {
+            txProps.onError?.(e)
+            toastSubject.next({ txError: e, ...meta })
+            return ''
+          })
+          .finally(txProps.onFinally)
       }
-      if (newRewardInfos.length) {
+      if (!rewardInfos.length && newRewardInfos.length) {
         const initRewardBuildData = await raydium.clmm.initRewards({
           poolInfo,
           ownerInfo: { useSOLBalance: true },
@@ -828,43 +932,20 @@ export const useClmmStore = createStore<ClmmState>(
           txVersion
         })
 
-        if (!rewardInfos.length)
-          return initRewardBuildData
-            .execute()
-            .then(({ txId }) => {
-              txStatusSubject.next({ txId, ...meta, mintInfo: rewardInfos.map((r) => r.mint), onConfirmed })
-              return txId
-            })
-            .catch((e) => {
-              txProps.onError?.(e)
-              toastSubject.next({ txError: e, ...meta })
-              return ''
-            })
-            .finally(txProps.onFinally)
-        allBuildData.push(initRewardBuildData)
+        return initRewardBuildData
+          .execute()
+          .then(({ txId }) => {
+            txStatusSubject.next({ txId, ...meta, mintInfo: rewardInfos.map((r) => r.mint), onConfirmed })
+            return txId
+          })
+          .catch((e) => {
+            txProps.onError?.(e)
+            toastSubject.next({ txError: e, ...meta })
+            return ''
+          })
+          .finally(txProps.onFinally)
       }
-      const builder0 = allBuildData[0].builder
-      const res = await builder0.addInstruction(allBuildData[1].builder.AllTxData).build()
-      if (!res) {
-        txProps.onError?.('build call data failed')
-        txProps.onFinally?.()
-        return ''
-      }
-      const mints = new Map()
-      rewardInfos.forEach((r) => mints.set(r.mint.address, r.mint))
-      newRewardInfos.forEach((r) => mints.set(r.mint.address, r.mint))
-      return res
-        .execute()
-        .then(({ txId }) => {
-          txStatusSubject.next({ txId, ...txProps, ...meta, mintInfo: Array.from(mints.values()) })
-          return txId
-        })
-        .catch((e) => {
-          txProps.onError?.(e)
-          toastSubject.next({ txError: e, ...meta })
-          return ''
-        })
-        .finally(txProps.onFinally)
+      return ''
     },
 
     createClmmPool: async ({ token1, token2, config, price, execute, forerunCreate, getObserveState }) => {
@@ -931,8 +1012,7 @@ export const useClmmStore = createStore<ClmmState>(
         } as any,
         rewardInfos: rewardInfos.map((r) => ({
           ...r,
-          mint: solToWSolToken(r.mint),
-          programId: PancakeClmmProgramId['mainnet-beta']
+          mint: solToWSolToken(r.mint)
         })),
         ownerInfo: {
           useSOLBalance: true
@@ -1060,6 +1140,15 @@ export const useClmmStore = createStore<ClmmState>(
       if (checkFetch && get().rewardWhiteListMints.length > 0) return
       raydium.clmm.getWhiteListMint({ programId: useAppStore.getState().programIdConfig.CLMM_PROGRAM_ID }).then((data) => {
         set({ rewardWhiteListMints: data }, false, { type: 'loadAddRewardWhiteListAct' })
+      })
+    },
+    loadOperationOwnersAct: async (props) => {
+      const { raydium } = useAppStore.getState()
+      if (!raydium) return ''
+      const { checkFetch } = props || {}
+      if (checkFetch && get().operationOwners.length > 0) return
+      raydium.clmm.getOperationOwners({ programId: useAppStore.getState().programIdConfig.CLMM_PROGRAM_ID }).then((data) => {
+        set({ operationOwners: data }, false, { type: 'loadOperationOwnersAct' })
       })
     },
     reset: () => set(clmmInitState)

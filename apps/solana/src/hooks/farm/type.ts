@@ -45,6 +45,7 @@ export type FormattedRewardInfoV345 = {
 
 export type FormattedRewardInfoV6 = {
   weekly: string
+  daily: string
   periodString: string
   periodDays: number
   unEmit: string

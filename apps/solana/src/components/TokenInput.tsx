@@ -405,6 +405,10 @@ function TokenInput(props: TokenInputProps) {
               if (targetValue === '.') {
                 targetValue = '0.'
               }
+              if (targetValue === '') {
+                onChange?.('')
+                return
+              }
               if (Number.isNaN(parseFloat(targetValue))) return
               onChange?.(targetValue)
             }}

@@ -251,6 +251,7 @@ export interface ApiV3PoolInfoBaseItem {
 export type ApiV3PoolInfoConcentratedItem = ApiV3PoolInfoBaseItem & {
   type: "Concentrated";
   config: ApiClmmConfigV3;
+  alt?: string;
 };
 export type ApiV3PoolInfoStandardItem = ApiV3PoolInfoBaseItem & {
   type: "Standard";

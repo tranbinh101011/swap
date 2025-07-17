@@ -25,6 +25,7 @@ export type GetAprPositionParameters = {
   timeBasis: AprKey
   planType: 'D' | 'M'
   chainTimeOffsetMs?: number
+  inRange?: boolean
 }
 
 export function getPositionAprCore({
@@ -34,9 +35,25 @@ export function getPositionAprCore({
   poolLiquidity,
   timeBasis,
   planType,
-  chainTimeOffsetMs = 0
+  chainTimeOffsetMs = 0,
+  inRange = true
 }: GetAprPositionParameters) {
   if (positionAccount.liquidity.isZero()) {
+    return {
+      fee: {
+        apr: 0,
+        percentInTotal: 0
+      },
+      rewards: poolInfo.rewardDefaultInfos.map((i, idx) => ({
+        apr: 0,
+        percentInTotal: 0,
+        mint: poolInfo.rewardDefaultInfos[idx].mint
+      })),
+      apr: 0
+    }
+  }
+
+  if (!inRange) {
     return {
       fee: {
         apr: 0,

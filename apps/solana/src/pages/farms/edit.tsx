@@ -4,11 +4,11 @@ import { useAppStore, useClmmStore } from '@/store'
 
 function FarmEditPage() {
   const raydium = useAppStore((s) => s.raydium)
-  const loadAddRewardWhiteListAct = useClmmStore((s) => s.loadAddRewardWhiteListAct)
+  const loadOperationOwnersAct = useClmmStore((s) => s.loadOperationOwnersAct)
 
   useEffect(() => {
-    raydium && loadAddRewardWhiteListAct({ checkFetch: true })
-  }, [loadAddRewardWhiteListAct, raydium])
+    raydium && loadOperationOwnersAct({ checkFetch: true })
+  }, [loadOperationOwnersAct, raydium])
 
   return <EditFarm />
 }

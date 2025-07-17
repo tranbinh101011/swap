@@ -106,7 +106,7 @@ export default function AddAnotherRewardDialog({
       size="2xl"
     >
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent borderRadius="24px">
         <ModalHeader>{t('Add another token')}</ModalHeader>
         <ModalCloseButton />
 
@@ -120,27 +120,28 @@ export default function AddAnotherRewardDialog({
               onTokenChange={onTokenChange}
               onChange={onAmountChange}
             />
-            <Box borderRadius="12px" bg={colors.backgroundDark} py={3} px={6}>
+            <Box borderRadius="24px" bg={colors.cardSecondary} border="1px solid" borderColor={colors.cardBorder01} py={3} px={6}>
               {!rewardInfo.openTime ? (
                 <>
                   <Flex justify="space-between" mb={2}>
-                    <Text fontSize="xs" fontWeight={300} color={colors.textTertiary}>
+                    <Text fontSize="xs" fontWeight={300} color={colors.textSubtle}>
                       {t('Farming starts')}
                     </Text>
-                    <Text fontSize="xs" fontWeight={300} color={colors.textTertiary}>
+                    <Text fontSize="xs" fontWeight={300} color={colors.textSubtle}>
                       {t('Farming ends')}
                     </Text>
                   </Flex>
                   <Flex
                     cursor="pointer"
                     onClick={onOpenDatePicker}
-                    bg={colors.backgroundTransparent07}
-                    borderRadius="4px"
+                    bg={colors.textSubtle}
+                    borderRadius="20px"
                     justify="center"
                     align="center"
-                    py={2}
+                    py={1}
+                    mt={4}
                   >
-                    <Text fontWeight="medium" fontSize="xl">
+                    <Text fontWeight="medium" fontSize="md" color={colors.invertedContrast}>
                       {t('Select')}
                     </Text>
                   </Flex>
@@ -148,20 +149,28 @@ export default function AddAnotherRewardDialog({
               ) : (
                 <HStack justifyContent="space-between">
                   <Box cursor="pointer" onClick={onOpenDatePicker}>
-                    <Text fontSize="xs" fontWeight={300} color={colors.textTertiary}>
+                    <Text fontSize="xs" fontWeight={300} color={colors.textSubtle}>
                       {t('Farming starts')}
                     </Text>
                     <Text fontSize="md" fontWeight={500} color={colors.textPrimary} my={1} mb={2}>
                       {`${farmOpenTimeInfo.year}/${farmOpenTimeInfo.month}/${farmOpenTimeInfo.day}`}
                     </Text>
-                    <Text fontSize="xs" color={colors.textSecondary}>
+                    <Text fontSize="xs" color={colors.textSubtle}>
                       {`${farmOpenTimeInfo.hour}:${farmOpenTimeInfo.minutes} (UTC)`}
                     </Text>
                   </Box>
                   {rewardInfo.openTime && rewardInfo.endTime ? (
                     <Flex flexGrow={1} align="center">
                       <Box flexGrow={1} height="1px" color={colors.backgroundLight} bg={colors.dividerDashGradient} />
-                      <Box rounded="md" bg={colors.backgroundLight} py={1.5} px={[4, 10]} cursor="pointer" onClick={onOpenDatePicker}>
+                      <Box
+                        rounded="full"
+                        bg={colors.textSubtle}
+                        color={colors.invertedContrast}
+                        py={2}
+                        px={[4, 6]}
+                        cursor="pointer"
+                        onClick={onOpenDatePicker}
+                      >
                         <Text fontWeight="500" fontSize="sm">
                           {(rewardInfo.endTime - rewardInfo.openTime) / (60 * 60 * 24 * 1000)} Days
                         </Text>
@@ -170,24 +179,32 @@ export default function AddAnotherRewardDialog({
                     </Flex>
                   ) : null}
                   <Box textAlign="right">
-                    <Text fontSize="xs" fontWeight={300} color={colors.textTertiary}>
+                    <Text fontSize="xs" fontWeight={300} color={colors.textSubtle}>
                       {t('Farming ends')}
                     </Text>
-                    <Text fontSize="md" fontWeight={500} color={colors.textSecondary} my={1} mb={2}>
+                    <Text fontSize="md" fontWeight={500} color={colors.textSubtle} my={1} mb={2}>
                       {`${farmEndTimeInfo.year}/${farmEndTimeInfo.month}/${farmEndTimeInfo.day}`}
                     </Text>
-                    <Text fontSize="xs" color={colors.textSecondary}>
+                    <Text fontSize="xs" color={colors.textSubtle}>
                       {`${farmEndTimeInfo.hour}:${farmEndTimeInfo.minutes} (UTC)`}
                     </Text>
                   </Box>
                 </HStack>
               )}
             </Box>
-            <HStack justify="space-between" borderRadius="12px" bg={colors.backgroundDark} py={3} px={6}>
-              <Text color={colors.textTertiary} fontSize="xs">
+            <HStack
+              justify="space-between"
+              borderRadius="24px"
+              bg={colors.cardSecondary}
+              border="1px solid"
+              borderColor={colors.cardBorder01}
+              py={3}
+              px={6}
+            >
+              <Text color={colors.textSubtle} fontSize="xs">
                 {t('Estimated rewards / week')}
               </Text>
-              <Text color={colors.textSecondary} fontSize="xl" fontWeight={500} mt={1}>
+              <Text color={colors.textPrimary} fontSize="xl" fontWeight={500} mt={1}>
                 {rewardInfo.perWeek
                   ? formatToRawLocaleStr(
                       new Decimal(rewardInfo.perWeek || 0).toDecimalPlaces(rewardInfo.mint?.decimals || 6, Decimal.ROUND_FLOOR).toString()

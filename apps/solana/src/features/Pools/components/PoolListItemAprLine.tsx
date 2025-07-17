@@ -3,7 +3,17 @@ import { colors } from '@/theme/cssVariables'
 import { AprData } from '@/features/Clmm/utils/calApr'
 import { useAppStore } from '@/store'
 
-export const aprColors = [colors.chart03 /* fee color */, colors.chart02, colors.chart04, colors.chart05, colors.chart06, colors.chart07]
+export const aprColors = [
+  /* fee color */
+  colors.chart03,
+  /* reward colors */
+  colors.chart02,
+  colors.chart04,
+  colors.chart05,
+  colors.chart06,
+  colors.chart07
+]
+
 export const emptyAprColor = aprColors[0]
 
 export function PoolListItemAprLine({ aprData }: { aprData: AprData }) {

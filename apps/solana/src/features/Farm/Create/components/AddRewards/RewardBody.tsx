@@ -10,15 +10,17 @@ import { useEvent } from '@/hooks/useEvent'
 import { parseDateInfo } from '@/utils/date'
 import FarmDatePickerModal from '@/components/FarmDatePickerModal'
 import { formatToRawLocaleStr } from '@/utils/numberish/formatter'
+import { useAppStore, useClmmStore } from '@/store'
 import { NewRewardInfo } from '../../type'
 
 type RewardBodyProps = {
   rewardInfo: NewRewardInfo
   onChange: (rewardInfo: NewRewardInfo) => void
   tokenFilterFn: (token: ApiV3Token) => boolean
+  maxRewardCount?: number
 }
 
-export default function RewardBody({ rewardInfo, tokenFilterFn, onChange }: RewardBodyProps) {
+export default function RewardBody({ rewardInfo, tokenFilterFn, onChange, maxRewardCount }: RewardBodyProps) {
   const { isOpen, onClose, onOpen } = useDisclosure()
   const { t } = useTranslation()
 
@@ -43,7 +45,10 @@ export default function RewardBody({ rewardInfo, tokenFilterFn, onChange }: Rewa
   return (
     <Box>
       <Text fontWeight="500" fontSize={['sm', 'md']} color={colors.textSubtle} mt={[1, 2]}>
-        {t('You can add up to 2 reward tokens.')}
+        <span>isOp: {maxRewardCount}</span>
+        {t('You can add up to %count% reward tokens.', {
+          count: maxRewardCount
+        })}
       </Text>
       <Flex direction="column" gap={4} mt={4} px={1}>
         <TokenInput

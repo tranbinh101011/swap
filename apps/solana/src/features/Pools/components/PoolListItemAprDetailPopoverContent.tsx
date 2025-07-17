@@ -62,6 +62,8 @@ export default function PoolListItemAprDetailPopoverContent({
               {aprData.rewards.map(({ apr, mint }, idx) => {
                 const reward = weeklyRewards.find((r) => r.token.address === mint.address)
                 if (!reward || reward.amount === '0') return null
+                const isRewardEnded = reward.endTime ? reward.endTime * 1000 < Date.now() : true
+                if (isRewardEnded) return null
                 return (
                   <Flex w="full" gap={4} key={`reward-${mint?.symbol}-${idx}`} justify="space-between" align="center">
                     <Flex fontSize={sizes.textXS} fontWeight="normal" color={colors.textSubtle} justify="flex-start" align="center">
@@ -96,34 +98,17 @@ export default function PoolListItemAprDetailPopoverContent({
             const { endTime } = reward
             const isRewardStarted = startTime ? startTime * 1000 < Date.now() : true
             const isRewardEnded = endTime ? endTime * 1000 < Date.now() : true
+
+            if (isRewardEnded) return null
             return (
               <Flex gap={4} w="full" key={String(reward.token?.address)} justify="space-between" align="center" fontSize="12px" mt="8px">
                 <HStack fontWeight="normal" color={colors.textSubtle} spacing="5px">
                   {isRewardStarted ? (
                     <TokenAvatar size="xs" token={reward.token} />
                   ) : (
-                    <Box position="relative">
-                      <Box
-                        position="absolute"
-                        top="0"
-                        right="0"
-                        bottom="0"
-                        left="0"
-                        bg={colors.tokenAvatarBg}
-                        display="flex"
-                        justifyContent="center"
-                        alignItems="center"
-                        border={isLight ? `1px solid ${colors.primary}` : 'none'}
-                        borderRadius="50%"
-                        mx={0.5}
-                        gap={0.5}
-                      >
-                        <Box width={0.5} height={0.5} borderRadius="50%" backgroundColor={colors.lightPurple} />
-                        <Box width={0.5} height={0.5} borderRadius="50%" backgroundColor={colors.lightPurple} />
-                        <Box width={0.5} height={0.5} borderRadius="50%" backgroundColor={colors.lightPurple} />
-                      </Box>
+                    <div style={{ filter: 'grayscale(100%)' }}>
                       <TokenAvatar size="xs" token={reward.token} />
-                    </Box>
+                    </div>
                   )}
                   <Box color={colors.success}>{formatCurrency(reward.amount, { decimalPlaces: 1, abbreviated: true })}</Box>
                   <Box color={colors.textPrimary}>{wSolToSolString(reward.token?.symbol)}</Box>

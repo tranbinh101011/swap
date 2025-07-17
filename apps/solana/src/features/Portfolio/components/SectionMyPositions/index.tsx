@@ -1,7 +1,8 @@
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
-import { Box, Flex, Grid, GridItem, HStack, Heading, SimpleGrid, Text } from '@chakra-ui/react'
+import { Box, Button, Flex, Grid, GridItem, HStack, Heading, SimpleGrid, Text } from '@chakra-ui/react'
 import { useTranslation } from '@pancakeswap/localization'
+import { Skeleton } from '@pancakeswap/uikit'
 import useAllPositionInfo, { PositionTabValues } from '@/hooks/portfolio/useAllPositionInfo'
 import { useEvent } from '@/hooks/useEvent'
 import { useStateWithUrl } from '@/hooks/useStateWithUrl'
@@ -85,7 +86,7 @@ export default function SectionMyPositions() {
     isFarmLoading,
     rewardState,
     isSending
-  } = useAllPositionInfo({})
+  } = useAllPositionInfo({ noRewardClmmPos: noRewardClmmPos.current })
 
   const currentRewardState = rewardState[currentTab as PositionTabValues]
 
@@ -153,12 +154,16 @@ export default function SectionMyPositions() {
                         <Text whiteSpace="nowrap" color={colors.textSubtle}>
                           {t('Pending Yield')}
                         </Text>
-                        <Text color={colors.primary} fontWeight={600}>
-                          {formatCurrency(currentRewardState.pendingReward, { symbol: '$', maximumDecimalTrailingZeroes: 4 })}
-                        </Text>
+                        {currentRewardState.isReady ? (
+                          <Text color={colors.primary} fontWeight={600}>
+                            {formatCurrency(currentRewardState.pendingReward, { symbol: '$', maximumDecimalTrailingZeroes: 4 })}
+                          </Text>
+                        ) : (
+                          <Skeleton height="20px" width="100px" />
+                        )}
                       </HStack>
                     )}
-                    {isMobile && currentRewardState.rewardInfo.length > 0 && (
+                    {isMobile && currentRewardState.rewardInfo.length > 0 && currentRewardState.isReady && (
                       <>
                         <QuestionToolTip
                           placement="left"
@@ -201,35 +206,57 @@ export default function SectionMyPositions() {
                           {t('Pending Yield')}
                         </Text>
                         <Flex gap="2" alignItems="center" whiteSpace="nowrap">
-                          <Text color={colors.primary} fontWeight={600}>
-                            {formatCurrency(currentRewardState.pendingReward, { symbol: '$', maximumDecimalTrailingZeroes: 4 })}
-                          </Text>
-                          <QuestionToolTip
-                            label={
-                              <>
-                                {currentRewardState.rewardInfo.map((r) => (
-                                  <Flex key={r.mint.address} alignItems="center" gap="1" my="2">
-                                    <TokenAvatar key={`pool-reward-${r.mint.address}`} size="sm" token={r.mint} />
-                                    <Text color={colors.primary}>
-                                      {formatCurrency(r.amount, {
-                                        maximumDecimalTrailingZeroes: 5
-                                      })}
-                                    </Text>
-                                    <Text>{getMintSymbol({ mint: r.mint, transformSol: true })}</Text>
-                                    <Text color={colors.primary}>({formatCurrency(r.amountUSD, { symbol: '$', decimalPlaces: 4 })})</Text>
-                                  </Flex>
-                                ))}
-                              </>
-                            }
-                            iconType="info"
-                            iconProps={{ width: 18, height: 18, fill: colors.textSecondary }}
-                          />
+                          {currentRewardState.isReady ? (
+                            <>
+                              <Text color={colors.primary} fontWeight={600}>
+                                {formatCurrency(currentRewardState.pendingReward, { symbol: '$', maximumDecimalTrailingZeroes: 4 })}
+                              </Text>
+                              <QuestionToolTip
+                                placement="bottom"
+                                label={
+                                  <>
+                                    <Flex
+                                      direction="column"
+                                      maxHeight="450px"
+                                      overflowY="auto"
+                                      css={{
+                                        scrollSnapType: 'x mandatory',
+                                        scrollbarWidth: 'none',
+                                        '&::-webkit-scrollbar': {
+                                          display: 'none'
+                                        }
+                                      }}
+                                    >
+                                      {currentRewardState.rewardInfo.map((r) => (
+                                        <Flex key={r.mint.address} alignItems="center" gap="1" my="2">
+                                          <TokenAvatar key={`pool-reward-${r.mint.address}`} size="sm" token={r.mint} />
+                                          <Text color={colors.primary}>
+                                            {formatCurrency(r.amount, {
+                                              maximumDecimalTrailingZeroes: 5
+                                            })}
+                                          </Text>
+                                          <Text>{getMintSymbol({ mint: r.mint, transformSol: true })}</Text>
+                                          <Text color={colors.primary}>
+                                            ({formatCurrency(r.amountUSD, { symbol: '$', decimalPlaces: 4 })})
+                                          </Text>
+                                        </Flex>
+                                      ))}
+                                    </Flex>
+                                  </>
+                                }
+                                iconType="info"
+                                iconProps={{ width: 18, height: 18, fill: colors.textSecondary }}
+                              />
+                            </>
+                          ) : (
+                            <Skeleton height="20px" width="100px" />
+                          )}
                         </Flex>
                       </>
                     ) : null}
                   </HStack>
                 </Flex>
-                {/* <Button
+                <Button
                   size={['xs', 'md']}
                   minHeight={[7, 10]}
                   isLoading={isSending}
@@ -237,7 +264,7 @@ export default function SectionMyPositions() {
                   onClick={() => handleHarvest({ tab: currentTab as PositionTabValues, zeroClmmPos: noRewardClmmPos.current })}
                 >
                   {t('Harvest All')}
-                </Button> */}
+                </Button>
               </HStack>
             </Box>
           ) : null}

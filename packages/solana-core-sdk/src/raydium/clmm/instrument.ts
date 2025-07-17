@@ -38,6 +38,7 @@ import {
   getPdaTickArrayAddress,
   getPdaLockClPositionIdV2,
   getPdaMintExAccount,
+  getPdaPermissionlessFarmSwitchAccount,
 } from "./utils/pda";
 import { PoolUtils } from "./utils/pool";
 import { TickUtils } from "./utils/tick";
@@ -1842,6 +1843,7 @@ export class ClmmInstrument {
     payer: PublicKey,
     poolId: PublicKey,
     operationId: PublicKey,
+    permissionlessFarmSwitch: PublicKey,
     ammConfigId: PublicKey,
 
     ownerTokenAccount: PublicKey,
@@ -1862,6 +1864,7 @@ export class ClmmInstrument {
 
       { pubkey: poolId, isSigner: false, isWritable: true },
       { pubkey: operationId, isSigner: false, isWritable: true },
+      { pubkey: permissionlessFarmSwitch, isSigner: false, isWritable: true },
       { pubkey: rewardMint, isSigner: false, isWritable: false },
       { pubkey: rewardVault, isSigner: false, isWritable: true },
 
@@ -1912,12 +1915,14 @@ export class ClmmInstrument {
     const [programId, id] = [new PublicKey(poolInfo.programId), new PublicKey(poolInfo.id)];
     const poolRewardVault = getPdaPoolRewardVaulId(programId, id, rewardInfo.mint).publicKey;
     const operationId = getPdaOperationAccount(programId).publicKey;
+    const permissionlessFarmSwitch = getPdaPermissionlessFarmSwitchAccount(programId).publicKey;
     const ins = [
       this.initRewardInstruction(
         programId,
         ownerInfo.wallet,
         id,
         operationId,
+        permissionlessFarmSwitch,
         new PublicKey(poolInfo.config.id),
 
         ownerInfo.tokenAccount,

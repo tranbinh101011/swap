@@ -10,12 +10,18 @@ import { colors } from '@/theme/cssVariables'
 import { wSolToSol } from '@/utils/token'
 import { pageRoutePathnames } from '@/utils/config/routers'
 import { logGTMDepositLiquidityEvent } from '@/utils/report/curstomGTMEventTracking'
+import { useAppStore, useClmmStore } from '@/store'
 
 export const ColumnsPoolActions: React.FC<{
   data: FormattedPoolInfoItem
   onOpenChart?: (pool: FormattedPoolInfoItem) => void
 }> = ({ data: pool, onOpenChart }) => {
   const { t } = useTranslation()
+  const operationOwners = useClmmStore((s) => s.operationOwners)
+  const publicKey = useAppStore((s) => s.publicKey)
+  const isOp = publicKey && operationOwners.map((r) => r.toBase58()).includes(publicKey.toBase58())
+
+  const farmCreated = pool?.rewardDefaultInfos.length > 0
 
   const handleOpenChart = useCallback(() => {
     onOpenChart?.(pool)
@@ -50,8 +56,50 @@ export const ColumnsPoolActions: React.FC<{
     })
   }, [pool, router])
 
+  const handleCreateOrEditFarm = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation()
+      if (farmCreated) {
+        router.push({
+          pathname: '/farms/edit',
+          query: {
+            clmmId: pool.id
+          }
+        })
+      } else {
+        router.push({
+          pathname: '/farms/create',
+          query: {
+            step: 'reward',
+            ammId: pool.id,
+            poolType: 'Concentrated'
+          }
+        })
+      }
+    },
+    [farmCreated, router]
+  )
+
   return (
     <HStack justify="flex-end" h="100%">
+      {isOp ? (
+        <Box>
+          <Tooltip usePortal label={farmCreated ? t('Edit farm') : t('Create farm')}>
+            <Box
+              display="grid"
+              placeItems="center"
+              cursor="pointer"
+              rounded="full"
+              bgColor={colors.tertiary}
+              px={3}
+              py={2}
+              onClick={handleCreateOrEditFarm}
+            >
+              <span style={{ height: '14px', lineHeight: '14px' }}>{farmCreated ? '📝' : '🌿'}</span>
+            </Box>
+          </Tooltip>
+        </Box>
+      ) : null}
       <Box>
         <Tooltip usePortal label={t('View pool charts')}>
           <Box

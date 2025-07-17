@@ -111,6 +111,13 @@ export function getPdaOperationAccount(programId: PublicKey): {
   return findProgramAddress([OPERATION_SEED], programId);
 }
 
+export function getPdaPermissionlessFarmSwitchAccount(programId: PublicKey): {
+  publicKey: PublicKey;
+  nonce: number;
+} {
+  return findProgramAddress([Buffer.from("permissionless_farm_switch", "utf8")], programId);
+}
+
 export function getPdaExBitmapAccount(
   programId: PublicKey,
   poolId: PublicKey,

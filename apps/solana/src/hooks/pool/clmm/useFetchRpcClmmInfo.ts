@@ -24,7 +24,7 @@ const fetcher = ([connection, publicKey]: [Connection, string]) => {
 }
 
 const fetcherAccount = ([connection, publicKeyList]: [Connection, string[]]) => {
-  logMessage('rpc: get clmm account info')
+  logMessage('rpc: get multiple clmm account info', publicKeyList.length, 'accounts')
   return connection.getMultipleAccountsInfo(
     publicKeyList.map((p) => ToPublicKey(p)),
     { commitment: useAppStore.getState().commitment }

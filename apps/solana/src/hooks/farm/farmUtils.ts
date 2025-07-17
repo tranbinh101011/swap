@@ -113,6 +113,10 @@ export function formatFarmData<T = FormatFarmInfoOut>(farm: FormatFarmInfoOut): 
         .mul(60 * 60 * 24 * 7)
         .div(10 ** r.mint.decimals)
         .toString(),
+      daily: new Decimal(r.perSecond)
+        .mul(60 * 60 * 24)
+        .div(10 ** r.mint.decimals)
+        .toString(),
       periodString:
         farm.programId === FARM_PROGRAM_ID_V6.toString() ? `${openTime.format('YYYY/MM/DD')} - ${endTime.format('YYYY/MM/DD')}` : '',
       periodDays: endTime.diff(openTime, 'days'),

@@ -31,4 +31,4 @@ const parseRPCConf = (): RPCConfType[] => {
 
 export const rpcs = parseRPCConf()
 
-export const quoteApi = 'https://sol-quoter-api-dev-pcs-svihc.ondigitalocean.app'
+export const quoteApi = 'https://sol-swap.pancakeswap.com/api'

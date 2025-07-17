@@ -129,12 +129,12 @@ function useInitConnection(props: SSRData) {
 
   // register wallet connect/disconnect toast
   useEffect(() => {
-    wallet?.adapter.once('connect', showConnect)
+    // wallet?.adapter.once('connect', showConnect)
     wallet?.adapter.once('disconnect', showDisconnect)
     walletRef.current = wallet || walletRef.current
 
     return () => {
-      wallet?.adapter.off('connect', showConnect)
+      // wallet?.adapter.off('connect', showConnect)
       wallet?.adapter.off('disconnect', showDisconnect)
     }
   }, [wallet, showConnect, showDisconnect])

@@ -269,7 +269,7 @@ function useTxStatus() {
             cancelRetryTx(txId)
             connection.removeSignatureListener(subId)
             toastSubject.next({
-              title: t('Send transaction timeout'),
+              title: t('Something went wrong. Request timed out'),
               description,
               status: 'warning',
               duration: 8 * 1000,
@@ -317,7 +317,29 @@ function useTxStatus() {
             if (tx.status) txStatus[tx.txId] = tx.status
           })
 
+          const openAllTxDetails = () => {
+            subTxIds.forEach(({ txId }) => {
+              if (txId) window.open(`${explorerUrl}/tx/${txId}`)
+            })
+          }
+
           const renderDetail = () => {
+            return (
+              <>
+                <Box>
+                  {subTxIds.length} {t('Transaction')} {t('Sent')}
+                </Box>
+                <Box>
+                  <Flex gap="1" alignItems="center" onClick={openAllTxDetails} cursor="pointer" opacity={1}>
+                    {t('View transaction details')}
+                    <ExternalLink cursor="pointer" color={colors.primary60} />
+                  </Flex>
+                </Box>
+              </>
+            )
+          }
+
+          const renderDetail_ = () => {
             return (
               <Flex flexDirection="column" gap="3">
                 {subTxIds.map(({ txId, title = t('Transaction') }, idx) => (
@@ -380,7 +402,7 @@ function useTxStatus() {
 
           setTxRecord({
             status: status || 'info',
-            title: txHistoryTitle || 'transaction.title',
+            title: txHistoryTitle || `${t('Transaction')} ${t('Sent')}`,
             description: txHistoryDesc,
             txId: toastId,
             owner,
@@ -398,6 +420,8 @@ function useTxStatus() {
           // prepare for tx timeout
           const isTxOnChain = status === 'success' || status === 'error'
           if (!subscribeMap.has(toastId)) {
+            // adjust timeout based on the number of subTxIds
+            const adjustedTimeout = TOAST_DURATION + subTxIds.length * 2000
             window.setTimeout(() => {
               if (subscribeMap.get(toastId) !== true) {
                 toastSubject.next({
@@ -406,7 +430,7 @@ function useTxStatus() {
                 })
                 subTxIds.forEach(({ txId }) => cancelRetryTx(txId))
                 toastSubject.next({
-                  title: t('Send transaction timeout'),
+                  title: t('Something went wrong. Request timed out'),
                   detail: renderDetail(),
                   status: 'warning',
                   duration: 5 * 1000,
@@ -414,7 +438,7 @@ function useTxStatus() {
                 })
               }
               subscribeMap.delete(toastId)
-            }, TOAST_DURATION)
+            }, adjustedTimeout)
           }
           subscribeMap.set(toastId, isTxOnChain)
 

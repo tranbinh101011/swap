@@ -432,6 +432,7 @@ export default function Pools() {
         resizable: false,
         cellRenderer: ColumnsPoolActions,
         pinned: 'right',
+        width: 250,
         cellRendererParams: {
           onOpenChart: handleOpenChart
         }

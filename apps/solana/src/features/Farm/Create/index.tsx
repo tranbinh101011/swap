@@ -51,12 +51,16 @@ export default function CreateFarm() {
   const query = useRouteQuery<QueryDetail>()
   const createStandardFarmAct = useFarmStore((s) => s.createFarmAct)
   const createClmmFarmAct = useClmmStore((s) => s.createFarm)
+  const operationOwners = useClmmStore((s) => s.operationOwners)
+  const publicKey = useAppStore((s) => s.publicKey)
+  const isOp = publicKey && operationOwners.map((r) => r.toBase58()).includes(publicKey.toBase58())
   const [farmId, setFarmId] = useState('')
   const [currentStep, setCurrentStep] = useState<LiquidityFarmActionModeType>(query.step ?? 'select')
   const currentStepIndex = useMemo(() => MODE_TO_STEP[currentStep], [currentStep])
   const stepsRef = useRef<StepsRef>(null)
   const defaultPoolRef = useRef<string | undefined>(query.ammId)
   const owner = useAppStore((s) => s.publicKey)
+  const maxRewardTokenCount = isOp ? 3 : 2
 
   // -------- step 1 --------
   const [selectedPoolType, setSelectedPoolType] = useState<CreateFarmType>('Concentrated')
@@ -302,7 +306,7 @@ export default function CreateFarm() {
               onClick={addANewRewardInfo}
               color={colors.secondary}
               sx={
-                (selectedPoolType === 'Concentrated' && rewardInfos.length >= 2) ||
+                (selectedPoolType === 'Concentrated' && rewardInfos.length >= maxRewardTokenCount) ||
                 (selectedPoolType === 'Standard' && rewardInfos.length >= 5)
                   ? { opacity: 0.5, pointerEvents: 'none' }
                   : { cursor: 'pointer' }
@@ -339,7 +343,7 @@ export default function CreateFarm() {
             />
           ) : currentStep === 'reward' ? (
             <RewardAddItem
-              maxRewardCount={selectedPoolType === 'Concentrated' ? 2 : 5}
+              maxRewardCount={selectedPoolType === 'Concentrated' ? maxRewardTokenCount : 5}
               rewardInfos={rewardInfos}
               onRewardInfoChange={onRewardInfoChange}
               onAddAnotherReward={addANewRewardInfo}

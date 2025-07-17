@@ -9,11 +9,11 @@ export interface CalloutNoteProps {
 
 export default function CalloutNote({ header, content: detail }: CalloutNoteProps) {
   return (
-    <Box bg={colors.backgroundTransparent12} rounded="xl" p={3} fontSize="sm">
+    <Box bg={colors.cardSecondary} border="1px solid" borderColor={colors.cardBorder01} rounded="24px" p={4} fontSize="sm">
       <Text mr={0.5} display="inline" color={colors.semanticError}>
         {header}:
       </Text>
-      <Text display="inline" color={colors.textSecondary}>
+      <Text display="inline" color={colors.textSubtle}>
         {detail}
       </Text>
     </Box>

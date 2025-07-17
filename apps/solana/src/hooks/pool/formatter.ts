@@ -80,18 +80,6 @@ export function formatPoolData(pool: ApiV3PoolInfoItem, tokenList?: TokenInfo[])
     }
   )
 
-  const weeklyRewards = pool.rewardDefaultInfos
-    .filter((r) => isRewardValid(r.endTime))
-    .map((r) => {
-      const amount = new Decimal(r.perSecond || 0).mul(60 * 60 * 24 * 7).div(10 ** r.mint.decimals)
-      return {
-        orgAmount: amount.toString(),
-        amount: trimTrailZero(amount.toFixed(r.mint.decimals)) as string,
-        token: r.mint,
-        startTime: r.startTime,
-        endTime: r.endTime
-      }
-    })
   const formattedRewardInfos = pool.rewardDefaultInfos
     .filter((r) => isRewardValid(r.endTime))
     .map((r) => {
@@ -117,6 +105,10 @@ export function formatPoolData(pool: ApiV3PoolInfoItem, tokenList?: TokenInfo[])
         endTime: endTime.valueOf(),
         weekly: new Decimal(r.perSecond || 0)
           .mul(60 * 60 * 24 * 7)
+          .div(10 ** r.mint.decimals)
+          .toString(),
+        daily: new Decimal(r.perSecond || 0)
+          .mul(60 * 60 * 24)
           .div(10 ** r.mint.decimals)
           .toString(),
         periodString: `${openTime.format('YYYY/MM/DD')} - ${endTime.format('YYYY/MM/DD')}`,
@@ -163,6 +155,28 @@ export function formatPoolData(pool: ApiV3PoolInfoItem, tokenList?: TokenInfo[])
     mintB.decimals = mintBInTokenList?.decimals
     mintB.name = mintBInTokenList?.name
   }
+
+  const rewardMints = pool.rewardDefaultInfos.map((r) => r.mint)
+  const rewardMintsInTokenList = tokenList?.filter((t) => rewardMints.some((r) => r.address === t.address))
+  rewardMintsInTokenList?.forEach((t) => {
+    const rewardMint = pool.rewardDefaultInfos.find((r) => r.mint.address === t.address)
+    if (rewardMint) {
+      rewardMint.mint.logoURI = t.logoURI
+    }
+  })
+
+  const weeklyRewards = pool.rewardDefaultInfos
+    .filter((r) => isRewardValid(r.endTime))
+    .map((r) => {
+      const amount = new Decimal(r.perSecond || 0).mul(60 * 60 * 24 * 7).div(10 ** r.mint.decimals)
+      return {
+        orgAmount: amount.toString(),
+        amount: trimTrailZero(amount.toFixed(r.mint.decimals)) as string,
+        token: r.mint,
+        startTime: r.startTime,
+        endTime: r.endTime
+      }
+    })
 
   return {
     ...formatAprData(pool),

@@ -1,35 +1,35 @@
-import { PancakeClmmProgramId } from '@pancakeswap/solana-clmm-sdk'
+import { Connection, PublicKey, Transaction, VersionedTransaction, EpochInfo, clusterApiUrl, Commitment } from '@solana/web3.js'
 import {
-  ALL_PROGRAM_ID,
-  API_URL_CONFIG,
-  API_URLS,
-  AvailabilityCheckAPI3,
-  JupTokenType,
-  ProgramIdConfig,
   Raydium,
   RaydiumLoadParams,
-  TokenInfo,
-  TxVersion
+  API_URLS,
+  API_URL_CONFIG,
+  ProgramIdConfig,
+  ALL_PROGRAM_ID,
+  JupTokenType,
+  AvailabilityCheckAPI3,
+  TxVersion,
+  TokenInfo
 } from '@pancakeswap/solana-core-sdk'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { Wallet } from '@solana/wallet-adapter-react'
-import { clusterApiUrl, Commitment, Connection, EpochInfo, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
-
-import axios from '@/api/axios'
+import { compare } from 'compare-versions'
+import { PancakeClmmProgramId } from '@pancakeswap/solana-clmm-sdk'
 import { toastSubject } from '@/hooks/toast/useGlobalToast'
-import { isProdEnv, retry } from '@/utils/common'
-import { rpcs } from '@/utils/config/endpoint'
-import { getStorageItem, setStorageItem } from '@/utils/localStorage'
+import axios from '@/api/axios'
 import { isValidUrl } from '@/utils/url'
-
-import { urlConfigs } from './configs/urls'
+import { setStorageItem, getStorageItem } from '@/utils/localStorage'
+import { retry, isProdEnv } from '@/utils/common'
+import { rpcs } from '@/utils/config/endpoint'
 import createStore from './createStore'
 // eslint-disable-next-line import/no-cycle
 import { blackJupMintSet, useTokenStore } from './useTokenStore'
+import { urlConfigs } from './configs/urls'
 
 export const defaultNetWork = WalletAdapterNetwork.Mainnet // Can be set to 'devnet', 'testnet', or 'mainnet-beta'
 export const defaultEndpoint = clusterApiUrl(defaultNetWork) // You can also provide a custom RPC endpoint
 export const APR_MODE_KEY = '_r_apr_'
+export const REWARD_BREAKDOWN_MODE_KEY = '_r_reward_breakdown_mode_'
 export const EXPLORER_KEY = '_r_explorer_'
 export const supportedExplorers = [
   {
@@ -83,6 +83,7 @@ interface AppState {
   isMobile: boolean
   isDesktop: boolean
   aprMode: 'M' | 'D'
+  rewardBreakdownMode: 'Aggr' | 'Split'
   wallet?: Wallet
   initialing: boolean
   connected: boolean
@@ -129,6 +130,7 @@ interface AppState {
   setProgramIdConfigAct: (urls: ProgramIdConfig) => void
   setRpcUrlAct: (url: string, skipToast?: boolean, skipError?: boolean) => Promise<boolean>
   setAprModeAct: (mode: 'M' | 'D') => void
+  setRewardBreakdownModeAct: (mode: 'Aggr' | 'Split') => void
   checkAppVersionAct: () => Promise<void>
   fetchPriorityFeeAct: () => Promise<void>
 }
@@ -143,6 +145,7 @@ const appInitState = {
   isMobile: false,
   isDesktop: false,
   aprMode: 'M' as 'M' | 'D',
+  rewardBreakdownMode: 'Aggr' as 'Aggr' | 'Split',
   rpcs: [],
   urlConfigs,
   programIdConfig: {
@@ -331,7 +334,7 @@ export const useAppStore = createStore<AppState>(
       }
     },
     setRpcUrlAct: async (url, skipToast, skipError) => {
-      if (url === get().rpcNodeUrl) {
+      if (url === get().rpcNodeUrl && !skipToast) {
         toastSubject.next({
           status: 'info',
           title: 'Switch Rpc Node',
@@ -341,7 +344,7 @@ export const useAppStore = createStore<AppState>(
       }
       try {
         if (!isValidUrl(url)) throw new Error('invalid url')
-        if (isRpcLoading) {
+        if (isRpcLoading && !skipToast) {
           toastSubject.next({
             status: 'warning',
             title: 'Switch Rpc Node',
@@ -386,6 +389,10 @@ export const useAppStore = createStore<AppState>(
     setAprModeAct: (mode) => {
       setStorageItem(APR_MODE_KEY, mode)
       set({ aprMode: mode })
+    },
+    setRewardBreakdownModeAct: (mode) => {
+      setStorageItem(REWARD_BREAKDOWN_MODE_KEY, mode)
+      set({ rewardBreakdownMode: mode })
     },
     checkAppVersionAct: async () => {
       // const { urlConfigs, appVersion } = get()

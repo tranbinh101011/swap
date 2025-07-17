@@ -577,6 +577,7 @@ export interface SetRewardsParams<T = TxVersion.LEGACY> extends Omit<SetRewardPa
 
 export interface CollectRewardParams<T = TxVersion.LEGACY> {
   poolInfo: ApiV3PoolInfoConcentratedItem;
+  poolKeys: ClmmKeys;
   ownerInfo: {
     feePayer?: PublicKey;
     useSOLBalance?: boolean; // if has WSOL mint

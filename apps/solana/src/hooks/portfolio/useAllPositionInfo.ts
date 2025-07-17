@@ -39,7 +39,13 @@ export type ClmmDataWithUpdateFn = Map<string, PositionWithUpdateFn[]>
 
 export type PositionTabValues = 'concentrated' | 'standard' | 'staked RAY'
 
-export default function useAllPositionInfo({ shouldFetch = true }: { shouldFetch?: boolean }) {
+export default function useAllPositionInfo({
+  shouldFetch = true,
+  noRewardClmmPos
+}: {
+  shouldFetch?: boolean
+  noRewardClmmPos?: Set<string>
+}) {
   const { t } = useTranslation()
   const harvestAllFarmAct = useFarmStore((s) => s.harvestAllAct)
   const harvestAllClmmAct = useClmmStore((s) => s.harvestAllAct)
@@ -345,13 +351,14 @@ export default function useAllPositionInfo({ shouldFetch = true }: { shouldFetch
       const noneZeroPos = { ...clmmRecord }
       Object.keys(noneZeroPos).forEach((key) => {
         const readyList = noneZeroPos[key].filter(
-          (p) => !p.liquidity.isZero() && (zeroClmmPos ? !zeroClmmPos.has(p.nftMint.toBase58()) : true)
+          (p) =>
+            !p.liquidity.isZero() &&
+            (noRewardClmmPos ? !noRewardClmmPos.has(p.nftMint.toBase58()) : zeroClmmPos ? zeroClmmPos.has(p.nftMint.toBase58()) : true)
         )
+        noneZeroPos[key] = readyList
         if (!readyList.length) {
           delete noneZeroPos[key]
-          return
         }
-        noneZeroPos[key] = readyList
       })
       await harvestAllClmmAct({
         t,

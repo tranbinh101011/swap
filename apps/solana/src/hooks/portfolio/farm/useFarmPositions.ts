@@ -46,7 +46,9 @@ export default function useFarmPositions(props: { shouldFetch?: boolean; refresh
     shallow
   )
 
-  const url = !publicKey || !shouldFetch ? null : host + OWNER_STAKE_FARMS.replace('{owner}', publicKey.toString())
+  // const url = !publicKey || !shouldFetch ? null : host + OWNER_STAKE_FARMS.replace('{owner}', publicKey.toString())
+  // @notice: not supporting owner stake farms for now
+  const url = null
 
   const { data, isLoading, error, ...rest } = useSWR(url ? [url, refreshTag] : url, fetcher, {
     dedupingInterval: refreshInterval,

@@ -7,7 +7,7 @@ import { aprColors, emptyAprColor } from './PoolListItemAprLine'
 export function PoolListItemAprPie({ aprs, w = 16, h = 16 }: { aprs: AprData; w?: number; h?: number }) {
   const isNotZeroApr = useMemo(() => Boolean(aprs.rewards.some(({ apr }) => !eq(apr, 0))), [aprs])
   const isZeroApr = !isNotZeroApr
-  const rewards = aprs.fee.apr > 0 ? [aprs.fee, ...aprs.rewards] : aprs.rewards
+  const rewards = [aprs.fee, ...aprs.rewards]
 
   return (
     <Box

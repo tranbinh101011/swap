@@ -64,7 +64,12 @@ export default function useFetchPoolByMint<T extends PoolFetchType>(
     url
       ? {
           mintA: baseMint ?? mint1,
-          mintB: quoteMint ?? mint2
+          mintB: quoteMint ?? mint2,
+          poolType: showFarms ? `${type}Farm` : type,
+          poolSortField: sort,
+          sortType: order,
+          pageSize,
+          page: 1
         }
       : null,
     getPoolsByMints,

@@ -5,7 +5,7 @@ import Decimal from 'decimal.js'
 import { AprKey, timeBasisOptions, FormattedPoolInfoConcentratedItem } from '@/hooks/pool/type'
 import AddLiquidityModal from '@/features/Clmm/LiquidityEditModal/AddLiquidityModal'
 import RemoveLiquidityModal from '@/features/Clmm/LiquidityEditModal/RemoveLiquidityModal'
-import useFetchClmmRewardInfo from '@/hooks/pool/clmm/useFetchClmmRewardInfo'
+import { BreakdownRewardInfo, useClmmRewardInfoFromSimulation } from '@/hooks/pool/clmm/useFetchClmmRewardInfo'
 import { PositionWithUpdateFn } from '@/hooks/portfolio/useAllPositionInfo'
 import { getPositionAprCore } from '@/features/Clmm/utils/calApr'
 import useFetchRpcClmmInfo from '@/hooks/pool/clmm/useFetchRpcClmmInfo'
@@ -14,7 +14,7 @@ import { useEvent } from '@/hooks/useEvent'
 import { useAppStore } from '@/store'
 import { useClmmStore } from '@/store/useClmmStore'
 import { RpcPoolData } from '@/hooks/pool/clmm/useSubscribeClmmInfo'
-import { ClmmLockInfo } from '@/hooks/portfolio/clmm/useClmmBalance'
+import useClmmBalance, { ClmmLockInfo } from '@/hooks/portfolio/clmm/useClmmBalance'
 import { logGTMAddPoolLiquidityEvent, logGTMSubPoolLiquidityEvent } from '@/utils/report/curstomGTMEventTracking'
 import ClmmPositionAccountItemDetail from './ClmmPositionAccountItemDetail'
 import ClmmPositionAccountItemDetailMobileDrawer from './ClmmPositionAccountItemDetailMobileDrawer'
@@ -48,6 +48,7 @@ export default function ClmmPositionAccountItem({
   const removeLiquidityAct = useClmmStore((s) => s.removeLiquidityAct)
   const harvestLockPositionAct = useClmmStore((s) => s.harvestLockPositionAct)
   const closePositionAct = useClmmStore((s) => s.closePositionAct)
+  const { getPriceAndAmount } = useClmmBalance({})
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !!openCache.get(position.nftMint.toBase58()) })
   const { isOpen: isRemoveOpen, onClose: onRemoveClose, onOpen: onRemoveOpen } = useDisclosure()
@@ -67,6 +68,9 @@ export default function ClmmPositionAccountItem({
   })
 
   const chainTimeOffset = useAppStore((s) => s.chainTimeOffset)
+
+  const { priceLower, priceUpper } = getPriceAndAmount({ poolInfo, position })
+  const inRange = priceLower.price.lt(poolInfo.price) && priceUpper.price.gt(poolInfo.price)
   const aprData = getPositionAprCore({
     poolInfo,
     positionAccount: position,
@@ -74,17 +78,19 @@ export default function ClmmPositionAccountItem({
     tokenPrices,
     timeBasis,
     planType: 'D',
-    chainTimeOffsetMs: chainTimeOffset
+    chainTimeOffsetMs: chainTimeOffset,
+    inRange
   })
 
-  const { totalPendingYield, isEmptyReward, allRewardInfos } = useFetchClmmRewardInfo({
+  const { totalPendingYield, isEmptyReward, allRewardInfos, breakdownRewardInfo, isLoading } = useClmmRewardInfoFromSimulation({
     poolInfo,
     initRpcPoolData,
     position,
     subscribe: false,
-    shouldFetch: false,
+    shouldFetch: !isOpen && !isRemoveOpen && !isAddOpen && !isSending,
     tickLowerPrefetchData: position.tickLowerRpcData,
-    tickUpperPrefetchData: position.tickUpperRpcData
+    tickUpperPrefetchData: position.tickUpperRpcData,
+    inRange
   })
 
   useEffect(() => {
@@ -194,10 +200,14 @@ export default function ClmmPositionAccountItem({
             poolInfo={poolInfo}
             position={position}
             aprData={aprData}
+            timeBasis={timeBasis}
             onTimeBasisChange={setTimeBasis}
             nftMint={position.nftMint.toString()}
             totalPendingYield={totalPendingYield.toString()}
             baseIn={baseIn}
+            isRewardLoading={isLoading}
+            rewardInfos={allRewardInfos}
+            breakdownRewardInfo={breakdownRewardInfo as BreakdownRewardInfo}
             onClickCloseButton={handleClosePosition}
             onClickMinusButton={handleRemoveOpen}
             onClickPlusButton={handleAddOpen}
@@ -218,16 +228,18 @@ export default function ClmmPositionAccountItem({
           totalPendingYield={totalPendingYield.toString()}
           baseIn={baseIn}
           rewardInfos={allRewardInfos}
+          breakdownRewardInfo={breakdownRewardInfo as BreakdownRewardInfo}
+          isRewardLoading={isLoading}
         />
       )}
       <RemoveLiquidityModal
         isOpen={isRemoveOpen}
         onClose={onRemoveClose}
         onSyncSending={handleSyncSending}
-        initRpcPoolData={initRpcPoolData}
         poolInfo={rpcData.data ? { ...poolInfo, price: rpcData.data.currentPrice.toNumber() } : poolInfo}
         onRefresh={rpcData.mutate}
         position={position}
+        allRewardInfos={allRewardInfos}
       />
       {isAddOpen ? (
         <AddLiquidityModal

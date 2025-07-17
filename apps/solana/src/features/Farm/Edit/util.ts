@@ -11,6 +11,7 @@ export interface EditReward {
   openTime: number
   endTime: number
   perWeek: string
+  perDay: string
   status: FarmStatus
   apr: number
 }
@@ -25,6 +26,7 @@ export function farmV6RewardToEditReward(reward: FormattedRewardInfoV6): EditRew
     openTime: Number(reward.openTime),
     endTime: Number(reward.endTime),
     perWeek: reward.weekly,
+    perDay: reward.daily,
     status: getFarmStatus(reward),
     apr: reward.apr
   }
@@ -37,6 +39,7 @@ export function poolRewardToEditReward(reward: FormattedPoolReward): EditReward 
     openTime: reward.startTime!,
     endTime: reward.endTime!,
     perWeek: reward.weekly,
+    perDay: reward.daily,
     status: getFarmStatus(reward),
     apr: reward.apr
   }
@@ -44,16 +47,20 @@ export function poolRewardToEditReward(reward: FormattedPoolReward): EditReward 
 
 export function getRewardMeta(reward: EditReward) {
   const startTimeInfo = parseDateInfo(reward.openTime)
-  const startTimeText = reward.openTime ? `${startTimeInfo.year}/${startTimeInfo.month}/${startTimeInfo.day}` : undefined
+  const startDateText = reward.openTime ? `${startTimeInfo.year}/${startTimeInfo.month}/${startTimeInfo.day}` : undefined
+  const startTimeText = reward.openTime ? `${startTimeInfo.hour}:${startTimeInfo.minutes}` : undefined
 
   const endTimeInfo = parseDateInfo(reward.endTime)
-  const endTimeText = reward.endTime ? `${endTimeInfo.year}/${endTimeInfo.month}/${endTimeInfo.day}` : undefined
+  const endDateText = reward.endTime ? `${endTimeInfo.year}/${endTimeInfo.month}/${endTimeInfo.day}` : undefined
+  const endTimeText = reward.endTime ? `${endTimeInfo.hour}:${endTimeInfo.minutes}` : undefined
 
   const duration = parseDuration(reward.endTime - reward.openTime)
   const durationText = `${duration.days}D${duration.hours ? ` ${duration.hours}H` : ''}`
 
   return {
+    startDateText,
     startTimeText,
+    endDateText,
     endTimeText,
     durationText
   }

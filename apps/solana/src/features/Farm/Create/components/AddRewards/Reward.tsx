@@ -14,12 +14,21 @@ export type AddRewardItemProps = {
   isDefaultOpen?: boolean
   index: number
   rewardInfo: NewRewardInfo
+  maxRewardCount?: number
   onChange: (rewardInfo: NewRewardInfo) => void
   onDeleteReward(): void
   tokenFilterFn: (token: ApiV3Token) => boolean
 }
 
-export default function AddRewardItem({ isDefaultOpen, index, rewardInfo, tokenFilterFn, onChange, onDeleteReward }: AddRewardItemProps) {
+export default function AddRewardItem({
+  isDefaultOpen,
+  index,
+  rewardInfo,
+  maxRewardCount,
+  tokenFilterFn,
+  onChange,
+  onDeleteReward
+}: AddRewardItemProps) {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isDefaultOpen })
   const domRef = useRef<HTMLDivElement>(null)
   const schema = useRewardSchema()
@@ -72,7 +81,7 @@ export default function AddRewardItem({ isDefaultOpen, index, rewardInfo, tokenF
         perWeek={rewardInfo.perWeek}
       />
       <Collapse in={isOpen} animateOpacity>
-        <RewardBody rewardInfo={rewardInfo} onChange={onRewardEdit} tokenFilterFn={tokenFilterFn} />
+        <RewardBody maxRewardCount={maxRewardCount} rewardInfo={rewardInfo} onChange={onRewardEdit} tokenFilterFn={tokenFilterFn} />
       </Collapse>
       <Text color="red" fontSize="sm" fontWeight={300} mt={4}>
         {rewardInfo.error}

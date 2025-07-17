@@ -31,6 +31,7 @@ import { formatCurrency, formatToRawLocaleStr } from '@/utils/numberish/formatte
 import toPercentString from '@/utils/numberish/toPercentString'
 import { wSolToSolString } from '@/utils/token'
 import useTokenPrice, { TokenPrice } from '@/hooks/token/useTokenPrice'
+import { MAX_DURATION_DAYS, MIN_DURATION_DAYS } from '@/store/configs/farm'
 import { EditReward } from '../util'
 import useAdjustRewardSchema, { ADJUST_REWARD_ERROR } from '../schema/useAdjustRewardSchema'
 
@@ -67,15 +68,10 @@ export default function AdjustRewardDialog({
     mintList: [rewardToken.address]
   })
 
-  const newPerSecondA = new Decimal(moreAmount || 0).div(new Decimal(daysExtend || 1).mul(DAY_SECONDS))
-  const newPerSecondB = new Decimal(remainAmount).add(moreAmount || 0).div(new Decimal(daysExtend || 1).mul(DAY_SECONDS).add(remainSeconds))
-
-  const newPerSecond = newPerSecondA.lt(newPerSecondB) ? newPerSecondA : newPerSecondB
+  const newPerSecond = new Decimal(remainAmount).add(moreAmount || 0).div(new Decimal(daysExtend || 0).mul(DAY_SECONDS).add(remainSeconds))
   const isDecrease = newPerSecond.lt(oldPerSecond)
 
-  const newTotal = isDecrease
-    ? new Decimal(moreAmount || 0).add(newPerSecond.mul(remainSeconds)).toString()
-    : remainAmount.add(moreAmount || 0).toString()
+  const newTotal = remainAmount.add(moreAmount || 0).toString()
 
   const newEndTime = new Decimal(daysExtend || 0)
     .mul(DAY_SECONDS * 1000)
@@ -101,15 +97,16 @@ export default function AdjustRewardDialog({
     isDecrease
   })
 
-  const invalid = !!error && error !== ADJUST_REWARD_ERROR.DECREASE
+  const invalid = !!error && error !== (ADJUST_REWARD_ERROR.DECREASE as unknown as string)
 
   const handleSave = useEvent(() => {
     onSave({
       ...oldReward,
       total: newTotal,
-      openTime: onlineCurrentDate,
-      endTime: new Decimal(oldReward.endTime).add(new Decimal(daysExtend).mul(DAY_SECONDS * 1000)).toNumber(),
+      openTime: Date.now() + chainTimeOffset + 30 * 1000, // 30 seconds as buffer
+      endTime: new Decimal(oldReward.endTime).add(new Decimal(daysExtend || 0).mul(DAY_SECONDS * 1000)).toNumber(),
       perWeek: newPerSecond.mul(WEEK_SECONDS).toString(),
+      perDay: newPerSecond.mul(DAY_SECONDS).toString(),
       status: 'updated',
       apr: newApr
     })
@@ -124,38 +121,33 @@ export default function AdjustRewardDialog({
       size="2xl"
     >
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent borderRadius="24px">
         <ModalHeader>{t('Adjust rewards')}</ModalHeader>
         <ModalCloseButton />
 
-        <ModalBody mb={5} overflow="visible">
+        <ModalBody mb={5} overflow="scroll">
           <VStack spacing={4} align="stretch">
-            <CalloutNote
-              header={t('Please note')}
-              content={t(
-                'You can add more tokens and/or extend the farming period. Any action that will decrease the reward rate can only be done within 72 hours of current farm end time, and the period must be extended by at least 7 days.'
-              )}
-            />
-
             <Box>
-              <Heading fontSize="md" color={colors.textSecondary} fontWeight={500} mb={3}>
+              <Heading fontSize="md" color={colors.textSubtle} fontWeight={600} mb={3}>
                 {t('Current rewards period')}
               </Heading>
               <RewardInfoItem
                 tokenPrices={tokenPrices}
                 mint={oldReward.mint}
                 amount={remainAmount.toString()}
+                openTime={oldReward.openTime}
                 endTime={oldReward.endTime}
                 perWeek={oldReward.perWeek}
+                perDay={oldReward.perDay}
                 apr={oldReward.apr}
               />
             </Box>
 
             <Box>
-              <Heading fontSize="md" color={colors.textSecondary} fontWeight={500} mb={3}>
+              <Heading fontSize="md" color={colors.textSubtle} fontWeight={600} mb={3}>
                 {t('Rewards adjustment')}
               </Heading>
-              <HStack align="stretch">
+              <HStack align="stretch" spacing={6}>
                 <TokenInput
                   token={rewardToken}
                   disableSelectToken
@@ -163,8 +155,8 @@ export default function AdjustRewardDialog({
                   // onTokenChange={onTokenChange}
                   onChange={setMoreAmount}
                 />
-                <VStack bg={colors.backgroundDark} p={3} rounded="md" align="start">
-                  <Text fontSize="xs" color={colors.textTertiary}>
+                <VStack bg={colors.cardSecondary} border="1px solid" borderColor={colors.cardBorder01} rounded="24px" p={4} align="start">
+                  <Text fontSize="xs" color={colors.textSubtle}>
                     {t('Days Extends')}
                   </Text>
                   <Spacer />
@@ -174,6 +166,7 @@ export default function AdjustRewardDialog({
                         bg: 'transparent',
                         p: 0,
                         fontSize: 'lg',
+                        padding: '16px',
                         fontWeight: 500,
                         _hover: { bg: 'transparent' },
                         _active: { bg: 'transparent' },
@@ -182,11 +175,11 @@ export default function AdjustRewardDialog({
                       inputGroupSx={{
                         px: 0
                       }}
-                      placeholder="7 - 90"
+                      placeholder="0"
                       value={daysExtend}
                       onChange={setDaysExtend}
                     />
-                    <Text color={colors.textTertiary} fontSize="xs" fontWeight={700}>
+                    <Text color={colors.textSubtle} fontSize="xs" fontWeight={600}>
                       {t('Days')}
                     </Text>
                   </HStack>
@@ -204,7 +197,9 @@ export default function AdjustRewardDialog({
                   mint={oldReward.mint}
                   amount={newTotal.toString()}
                   endTime={newEndTime}
+                  openTime={oldReward.openTime}
                   perWeek={newPerSecond.mul(WEEK_SECONDS).toString()}
+                  perDay={newPerSecond.mul(DAY_SECONDS).toString()}
                   apr={newApr}
                 />
               </Box>
@@ -230,23 +225,42 @@ export default function AdjustRewardDialog({
 function RewardInfoItem(props: {
   mint: ApiV3Token
   amount: string
+  openTime: number
   endTime: number
   perWeek: string
+  perDay: string
   apr: number
   tokenPrices: Record<string, TokenPrice>
 }) {
   const { t } = useTranslation()
+  const periodLessThanWeek = props.endTime - props.openTime <= 1000 * DAY_SECONDS * 7
   return (
     <Flex overflow="hidden" align="stretch" rounded="20px" fontSize="sm">
       <Flex direction="column" flexGrow={1}>
-        <Box bg={colors.backgroundDark} py={3} px={6}>
-          <Text color={colors.textTertiary}>{t('Remaining amount')}</Text>
+        <Box
+          bg={colors.cardSecondary}
+          border="1px solid"
+          borderRadius="20px 0 0 0"
+          borderBottom="none"
+          borderColor={colors.cardBorder01}
+          py={3}
+          px={6}
+        >
+          <Text color={colors.textSubtle}>{t('Remaining amount')}</Text>
         </Box>
-        <Box flexGrow={1} bg={colors.backgroundTransparent12} py={4} px={6}>
+        <Box
+          flexGrow={1}
+          bg={colors.cardSecondary}
+          border="1px solid"
+          borderRadius="0 0 0 20px"
+          borderColor={colors.cardBorder01}
+          py={4}
+          px={6}
+        >
           <Text fontSize="md" fontWeight={500} color={colors.textPrimary} mb={3}>
             {formatCurrency(props.amount, { decimalPlaces: props.mint.decimals })}
           </Text>
-          <Text fontSize="xs" color={colors.textSecondary}>
+          <Text fontSize="xs" color={colors.textSubtle}>
             {formatCurrency(new Decimal(props.amount).mul(props.tokenPrices[props.mint.address]?.value || 0).toString(), {
               symbol: '$',
               decimalPlaces: 2
@@ -255,31 +269,55 @@ function RewardInfoItem(props: {
         </Box>
       </Flex>
       <Flex direction="column" flexGrow={1}>
-        <Box bg={colors.backgroundDark} py={3} px={6}>
-          <Text color={colors.textTertiary}>{t('Farming ends')}</Text>
+        <Box bg={colors.cardSecondary} borderTop="1px solid" borderColor={colors.cardBorder01} py={3} px={6}>
+          <Text color={colors.textSubtle}>{t('Farming ends')}</Text>
         </Box>
-        <Box flexGrow={1} bg={colors.backgroundTransparent12} py={4} px={6}>
+        <Box
+          flexGrow={1}
+          bg={colors.cardSecondary}
+          borderTop="1px solid"
+          borderBottom="1px solid"
+          borderColor={colors.cardBorder01}
+          py={4}
+          px={6}
+        >
           <Text fontSize="md" fontWeight={500} color={colors.textPrimary} mb={3}>
             {toUTC(props.endTime)}
           </Text>
-          <Text fontSize="xs" color={colors.textSecondary}>
+          <Text fontSize="xs" color={colors.textSubtle}>
             {t('%days%D remaining', { days: parseDateInfo(getDuration(props.endTime, Date.now())).day })}
           </Text>
         </Box>
       </Flex>
       <Flex direction="column" flexGrow={1}>
-        <Box bg={colors.backgroundDark} py={3} px={6}>
-          <Text color={colors.textTertiary}>{t('Rate')}</Text>
+        <Box
+          bg={colors.cardSecondary}
+          border="1px solid"
+          borderRadius="0 20px 0 0"
+          borderBottom="none"
+          borderColor={colors.cardBorder01}
+          py={3}
+          px={6}
+        >
+          <Text color={colors.textSubtle}>{t('Rate')}</Text>
         </Box>
-        <Box flexGrow={1} bg={colors.backgroundTransparent12} py={4} px={6}>
+        <Box
+          flexGrow={1}
+          bg={colors.cardSecondary}
+          border="1px solid"
+          borderRadius="0 0 20px 0"
+          borderColor={colors.cardBorder01}
+          py={4}
+          px={6}
+        >
           <Text fontSize="md" fontWeight={500} color={colors.textPrimary} mb={3}>
-            {formatCurrency(props.perWeek, { decimalPlaces: props.mint.decimals })}
-            <Text display="inline" ml="2" color={colors.textSecondary}>
+            {formatCurrency(props.perDay, { decimalPlaces: props.mint.decimals })}
+            <Text display="inline" ml="2" color={colors.textSubtle}>
               {wSolToSolString(props.mint.symbol)}
-              {t('/week')}
+              {t('/day')}
             </Text>
           </Text>
-          <Text fontSize="xs" color={colors.textSecondary}>
+          <Text fontSize="xs" color={colors.textSubtle}>
             {formatToRawLocaleStr(toPercentString(props.apr))} {t('APR')}
           </Text>
         </Box>

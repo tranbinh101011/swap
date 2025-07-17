@@ -117,7 +117,7 @@ export const useSwapStore = createStore<SwapStore>(
           // version: 'V1'
           message?: string
           data?: [{ transaction: string }]
-        } = await axios.post(`${quoteApi}/api/swap`, {
+        } = await axios.post(`${quoteApi}/swap`, {
           wallet: publicKey.toBase58(),
           computeUnitPriceMicroLamports: new Decimal(computeData?.microLamports || 0).toNumber(),
           swapResponse: swapResponse.data,

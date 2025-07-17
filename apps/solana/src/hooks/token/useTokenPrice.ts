@@ -58,7 +58,7 @@ export default function useTokenPrice(props: { mintList: (string | PublicKey | u
     const prices: Record<string, TokenPrice> = Object.keys(data?.data || {}).reduce((acc, cur) => {
       return {
         ...acc,
-        [cur]: { value: data?.data[cur] || 0 }
+        [cur]: { value: Math.max(data?.data[cur] || 0, 0) }
       }
     }, {})
     // set sol price to wsol price
@@ -79,12 +79,12 @@ export default function useTokenPrice(props: { mintList: (string | PublicKey | u
         if (data) {
           fetchRecord.set(key, {
             fetchTime: Date.now(),
-            data: { value: data.data[key] || 0 }
+            data: { value: Math.max(data.data[key] || 0, 0) }
           })
           if (key === NATIVE_MINT.toBase58()) {
             fetchRecord.set(PublicKey.default.toBase58(), {
               fetchTime: Date.now(),
-              data: { value: data.data[key] || 0 }
+              data: { value: Math.max(data.data[key] || 0, 0) }
             })
           }
         }

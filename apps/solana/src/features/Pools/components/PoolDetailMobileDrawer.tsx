@@ -1,3 +1,4 @@
+import { Button } from '@pancakeswap/uikit'
 import {
   Badge,
   Box,
@@ -14,12 +15,11 @@ import {
   Text,
   VStack
 } from '@chakra-ui/react'
-import { useTranslation } from '@pancakeswap/localization'
 import { ApiV3Token, TokenInfo } from '@pancakeswap/solana-core-sdk'
-import { Button } from '@pancakeswap/uikit'
 import Decimal from 'decimal.js'
 import React from 'react'
-
+import { useTranslation } from '@pancakeswap/localization'
+import { panelCard } from '@/theme/cssBlocks'
 import TokenAvatar from '@/components/TokenAvatar'
 import TokenAvatarPair from '@/components/TokenAvatarPair'
 import { AprData } from '@/features/Clmm/utils/calApr'
@@ -27,15 +27,13 @@ import { WeeklyRewardData } from '@/hooks/pool/type'
 import useTokenPrice from '@/hooks/token/useTokenPrice'
 import OpenBookIcon from '@/icons/misc/OpenBookIcon'
 import StarIcon from '@/icons/misc/StarIcon'
-import { panelCard } from '@/theme/cssBlocks'
 import { colors } from '@/theme/cssVariables'
 import { formatCurrency } from '@/utils/numberish/formatter'
 import { getMintSymbol, wSolToSolString } from '@/utils/token'
-
+import { toAPRPercent } from '../util'
 import { ChartWindow } from './PoolChart'
 import { aprColors } from './PoolListItemAprLine'
 import { PoolListItemAprPie } from './PoolListItemAprPie'
-import { toAPRPercent } from '../util'
 
 type PoolDetailMobileDrawerProps = {
   pairName: string

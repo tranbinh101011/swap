@@ -777,6 +777,9 @@ export interface operations {
         token0?: string
         /** @description Second token mint address */
         token1?: string
+        poolType?: string
+        pageSize?: string | number
+        page?: string | number
       }
       header?: never
       path?: never

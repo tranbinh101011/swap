@@ -144,7 +144,12 @@ export const TickArrayLayout = struct([
   seq(u8(), 115, ""),
 ]);
 
-export const OperationLayout = struct([blob(329), seq(publicKey(), 100, "whitelistMints")]);
+export const OperationLayout = struct([
+  blob(8),
+  u8("bump"),
+  seq(publicKey(), 10, "operationOwners"),
+  seq(publicKey(), 100, "whitelistMints"),
+]);
 
 export const TickArrayBitmapExtensionLayout = struct([
   blob(8),
@@ -173,4 +178,17 @@ export const LockClPositionLayoutV2 = struct([
   publicKey("lockNftMint"),
   u64("recentEpoch"),
   seq(u64(), 8),
+]);
+
+export const DecreaseLiquidityEventLayout = struct([
+  blob(8),
+  publicKey("positionNftMint"),
+  u128("liquidity"),
+  u64("decreaseAmount0"),
+  u64("decreaseAmount1"),
+  u64("feeAmount0"),
+  u64("feeAmount1"),
+  seq(u64(), 3, "rewardAmounts"),
+  u64("transferFee0"),
+  u64("transferFee1"),
 ]);

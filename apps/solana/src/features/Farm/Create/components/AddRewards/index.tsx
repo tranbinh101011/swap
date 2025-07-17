@@ -37,6 +37,7 @@ export default function RewardAddItem(props: {
           key={`${index}${rewardInfo.id}`}
           index={index}
           rewardInfo={rewardInfo}
+          maxRewardCount={props.maxRewardCount}
           isDefaultOpen={index === 0}
           onDeleteReward={() => props.onDeleteReward(index)}
           onChange={(rewardInfo) => props.onRewardInfoChange(rewardInfo, index)}

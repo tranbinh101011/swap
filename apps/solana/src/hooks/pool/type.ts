@@ -17,6 +17,7 @@ export type TotalApr = Record<AprKey, number>
 export interface FormattedPoolReward extends PoolFarmRewardInfo {
   apr: number
   weekly: string
+  daily: string
   periodString: string
   periodDays: number
   unEmit: string

@@ -21,3 +21,4 @@ catalog:
   '@next/eslint-plugin-next': 14.2.3
   jotai: ^2.4.3
   '@vanilla-extract/vite-plugin': ^4.0.2
+  '@solana/web3.js': 1.95.8
