@@ -18,6 +18,10 @@ const QuestionWrapper = styled.div`
   }
 `;
 
+export const TextWithUnderline = styled(Text)`
+  text-decoration: underline dotted;
+`;
+
 export const DottedHelpText = styled(Text)`
   text-decoration: underline dotted;
   font-size: 14px;

@@ -14,6 +14,7 @@ interface UXOptions {
     title: string
     description: string
   }
+  value?: bigint
 }
 
 export const createWriteContractCallback = <
@@ -60,6 +61,9 @@ export const createWriteContractCallback = <
             method,
             // @ts-ignore
             args,
+            {
+              value: options?.value,
+            },
           )
           setTxHash(result.hash)
           setStatus('CONFIRMING')

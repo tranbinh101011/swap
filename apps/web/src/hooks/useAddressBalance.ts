@@ -35,7 +35,7 @@ interface UseAddressBalanceOptions {
   enabled?: boolean
 }
 
-const API_BASE_URL = 'https://wallet-api.pancakeswap.com/v1/balances'
+const API_BASE_URL = process.env.NEXT_PUBLIC_WALLET_API_BASE_URL || 'https://wallet-api.pancakeswap.com/v1/balances'
 
 /**
  * Hook to fetch and manage token balances for a specific address using React Query
@@ -53,7 +53,45 @@ export const useAddressBalance = (address?: string, options: UseAddressBalanceOp
       throw new Error(`Error fetching balances: ${response.statusText}`)
     }
 
-    return response.json()
+    const data = (await response.json()) || []
+
+    // TODO: remove this, mock data
+    data.push(
+      {
+        id: '97-0x0000000000000000000000000000000000000000-0x9d24d495f7380ba80dc114d8c2cf1a54a68e25a4',
+        quantity: '100',
+        timestamp: '2025-07-01T20:57:14.404Z',
+        value: '1000000000000000000',
+        chainId: 97,
+        token: {
+          decimals: 18,
+          name: 'BNB',
+          symbol: 'BNB',
+          address: '0x0000000000000000000000000000000000000000',
+          logoURI: 'https://assets.pancakeswap.finance/web/native/56.png',
+          isSpam: false,
+        },
+        price: { totalUsd: 1000, usd: 1000, usd24h: 1000 },
+      },
+      {
+        id: '97-0x8d008B313C1d6C7fE2982F62d32Da7507cF43551-0x9d24d495f7380ba80dc114d8c2cf1a54a68e25a4',
+        quantity: '100',
+        timestamp: '2025-07-01T20:57:14.404Z',
+        value: '1000000000000000000',
+        chainId: 97,
+        token: {
+          decimals: 18,
+          name: 'CAKE',
+          symbol: 'CAKE',
+          address: '0x8d008B313C1d6C7fE2982F62d32Da7507cF43551',
+          logoURI: 'https://assets.pancakeswap.finance/web/native/56.png',
+          isSpam: false,
+        },
+        price: { totalUsd: 1000, usd: 1000, usd24h: 1000 },
+      },
+    )
+
+    return data
   }, [address])
 
   const {

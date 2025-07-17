@@ -1,7 +1,8 @@
 import { ChainId, getChainName } from '@pancakeswap/chains'
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { Percent, Token } from '@pancakeswap/sdk'
+import { Percent } from '@pancakeswap/sdk'
+import { WrappedTokenInfo } from '@pancakeswap/token-lists'
 import {
   AutoRenewIcon,
   BalanceInput,
@@ -26,10 +27,14 @@ import useCatchTxError from 'hooks/useCatchTxError'
 import { useERC20 } from 'hooks/useContract'
 import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
+import { logGTMGiftPreviewEvent } from 'utils/customGTMEventTracking'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { formatUnits, isAddress, zeroAddress } from 'viem'
+import { checksumAddress, formatUnits, isAddress, zeroAddress } from 'viem'
+import { CreateGiftView } from 'views/Gift/components/CreateGiftView'
+import { SendGiftToggle } from 'views/Gift/components/SendGiftToggle'
+import { SendGiftContext, useSendGiftContext } from 'views/Gift/providers/SendGiftProvider'
 import { useUserInsufficientBalanceLight } from 'views/SwapSimplify/hooks/useUserInsufficientBalance'
 import { useAccount, usePublicClient, useSendTransaction } from 'wagmi'
 import { ActionButton } from './ActionButton'
@@ -87,6 +92,8 @@ export interface SendAssetFormProps {
 }
 
 export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewStateChange, viewState }) => {
+  const { isSendGift } = useContext(SendGiftContext)
+
   const { t } = useTranslation()
   const [address, setAddress] = useState<string | null>(null)
   const debouncedAddress = useDebounce(address, 500)
@@ -101,6 +108,7 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
   const publicClient = usePublicClient({ chainId: asset.chainId })
   const { toastSuccess } = useToast()
   const { fetchWithCatchTxError, loading: attemptingTxn } = useCatchTxError()
+  const { includeStarterGas, nativeAmount, isUserInsufficientBalance } = useSendGiftContext()
 
   // Get native currency for fee calculation
   const nativeCurrency = useNativeCurrency(asset.chainId)
@@ -109,13 +117,14 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
     () =>
       asset.token.address === zeroAddress
         ? nativeCurrency
-        : new Token(
-            asset.chainId,
-            asset.token.address as `0x${string}`,
-            asset.token.decimals,
-            asset.token.symbol,
-            asset.token.name,
-          ),
+        : new WrappedTokenInfo({
+            name: asset.token.name,
+            symbol: asset.token.symbol,
+            decimals: asset.token.decimals,
+            address: checksumAddress(asset.token.address as `0x${string}`),
+            chainId: asset.chainId,
+            logoURI: asset.token.logoURI,
+          }),
     [asset, nativeCurrency],
   )
 
@@ -175,17 +184,7 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
       setEstimatedFee(null)
       setEstimatedFeeUsd(null)
     }
-  }, [
-    address,
-    amount,
-    publicClient,
-    accountAddress,
-    isNativeToken,
-    currency,
-    asset.token.address,
-    nativeCurrencyPrice,
-    erc20Contract,
-  ])
+  }, [address, amount, publicClient, accountAddress, isNativeToken, currency, nativeCurrencyPrice, erc20Contract])
 
   const sendAsset = useCallback(async () => {
     const amounts = tryParseAmount(amount, currency)
@@ -230,7 +229,6 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
     isNativeToken,
     sendTransactionAsync,
     asset.chainId,
-    asset.token.symbol,
     fetchWithCatchTxError,
     t,
     toastSuccess,
@@ -238,7 +236,7 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
   ])
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+    const { value } = e.target
     setAddress(value)
   }
 
@@ -256,12 +254,9 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
     setAddressError('')
   }
 
-  const handleAmountChange = useCallback(
-    (value: string) => {
-      setAmount(value)
-    },
-    [currency],
-  )
+  const handleAmountChange = useCallback((value: string) => {
+    setAmount(value)
+  }, [])
 
   const handleUserInputBlur = useCallback(() => {
     setTimeout(() => setIsInputFocus(false), 300)
@@ -284,6 +279,22 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
 
   const chainName = asset.chainId === ChainId.BSC ? 'BNB' : getChainName(asset.chainId)
   const price = asset.price?.usd ?? 0
+  const tokenAmount = tryParseAmount(amount, currency)
+
+  // if gift, tokenAmount must be greater than $1
+  const isGiftTokenAmountValid = useMemo(() => {
+    if (isSendGift && amount && !isInsufficientBalance) {
+      const valueInUsd = parseFloat(amount) * price
+      // NOTE: user can only send gift with amount greater than $1
+      const LIMIT_AMOUNT_USD = 1
+
+      // if value is 0, user is not inputting any amount, so make it valid
+      // avoid showing error message when user is not inputting any amount
+      return valueInUsd === 0 || valueInUsd >= LIMIT_AMOUNT_USD
+    }
+
+    return true
+  }, [isSendGift, amount, isInsufficientBalance, price])
 
   // Effect to estimate fee when address and amount are valid
   useEffect(() => {
@@ -294,7 +305,16 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
     }
   }, [address, amount, addressError, estimateTransactionFee])
 
-  const renderConfirmationModal = () => {
+  const isValidAddress = useMemo(() => {
+    // send gift doesn't need to check address
+    return isSendGift ? true : address && !addressError
+  }, [address, addressError, isSendGift])
+
+  if (viewState === ViewState.CONFIRM_TRANSACTION && isSendGift) {
+    return <CreateGiftView key={viewState} tokenAmount={tokenAmount} />
+  }
+
+  if (viewState >= ViewState.CONFIRM_TRANSACTION) {
     return (
       <SendTransactionFlow
         asset={asset}
@@ -320,108 +340,127 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
     )
   }
 
-  if (viewState >= ViewState.CONFIRM_TRANSACTION) {
-    return renderConfirmationModal()
-  }
+  const isValidGasSponsor = includeStarterGas ? nativeAmount?.greaterThan(0) && !isUserInsufficientBalance : true
+
   return (
     <FormContainer>
-      <FlexGap alignItems="center" justifyContent="space-between">
-        <FlexGap alignItems="center" gap="8px" flexDirection="column">
-          <Text fontSize="20px" fontWeight="bold">
-            {t('Send')}
-          </Text>
-        </FlexGap>
-      </FlexGap>
-
-      <Box>
-        <AddressInputWrapper>
-          <Box position="relative">
-            <Input
-              value={address ?? ''}
-              onChange={handleAddressChange}
-              placeholder="Recipient address"
-              style={{ height: '64px' }}
-              isError={Boolean(addressError)}
-            />
-            {address && (
-              <ClearButton
-                scale="sm"
-                onClick={handleClearAddress}
-                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)' }}
-                variant="tertiary"
-              >
-                <CloseIcon color="textSubtle" />
-              </ClearButton>
+      <SendGiftToggle isNativeToken={isNativeToken} tokenChainId={asset.chainId}>
+        {(isSendGiftOn) => (
+          <>
+            {isSendGiftOn ? null : (
+              <Box>
+                <AddressInputWrapper>
+                  <Box position="relative">
+                    <Input
+                      value={address ?? ''}
+                      onChange={handleAddressChange}
+                      placeholder="Recipient address"
+                      style={{ height: '64px' }}
+                      isError={Boolean(addressError)}
+                    />
+                    {address && (
+                      <ClearButton
+                        scale="sm"
+                        onClick={handleClearAddress}
+                        style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)' }}
+                        variant="tertiary"
+                      >
+                        <CloseIcon color="textSubtle" />
+                      </ClearButton>
+                    )}
+                  </Box>
+                </AddressInputWrapper>
+                {addressError && <ErrorMessage>{addressError}</ErrorMessage>}
+              </Box>
             )}
-          </Box>
-        </AddressInputWrapper>
-        {addressError && <ErrorMessage>{addressError}</ErrorMessage>}
-      </Box>
 
-      <Box mb="16px">
-        <FlexGap alignItems="center" gap="8px" justifyContent="space-between" position="relative">
-          <FlexGap alignItems="center" gap="8px" mb="8px">
-            <AssetContainer>
-              <CurrencyLogo currency={currency} size="40px" src={asset.token.logoURI} />
-              <ChainIconWrapper>
-                <img
-                  src={`${ASSET_CDN}/web/chains/${asset.chainId}.png`}
-                  alt={`${chainName}-logo`}
-                  width="12px"
-                  height="12px"
-                />
-              </ChainIconWrapper>
-            </AssetContainer>
-            <FlexGap flexDirection="column">
-              <Text fontWeight="bold" fontSize="20px">
-                {asset.token.symbol}
-              </Text>
-              <Text color="textSubtle" fontSize="12px" mt="-4px">{`${chainName.toUpperCase()} ${t('Chain')}`}</Text>
-            </FlexGap>
-          </FlexGap>
-          <Box position="relative">
-            <LazyAnimatePresence mode="wait" features={domAnimation}>
-              {tokenBalance ? (
-                !isInputFocus ? (
-                  <SwapUIV2.WalletAssetDisplay
-                    isUserInsufficientBalance={isInsufficientBalance}
-                    balance={tokenBalance.toSignificant(6)}
-                    onMax={handleMaxInput}
-                  />
-                ) : (
-                  <SwapUIV2.AssetSettingButtonList onPercentInput={handlePercentInput} />
-                )
-              ) : null}
-            </LazyAnimatePresence>
-          </Box>
-        </FlexGap>
+            <Box>
+              <FlexGap alignItems="center" gap="8px" justifyContent="space-between" position="relative">
+                <FlexGap alignItems="center" gap="8px" mb="8px">
+                  <AssetContainer>
+                    <CurrencyLogo currency={currency} size="40px" src={asset.token.logoURI} />
+                    <ChainIconWrapper>
+                      <img
+                        src={`${ASSET_CDN}/web/chains/${asset.chainId}.png`}
+                        alt={`${chainName}-logo`}
+                        width="12px"
+                        height="12px"
+                      />
+                    </ChainIconWrapper>
+                  </AssetContainer>
+                  <FlexGap flexDirection="column">
+                    <Text fontWeight="bold" fontSize="20px">
+                      {asset.token.symbol}
+                    </Text>
+                    <Text color="textSubtle" fontSize="12px" mt="-4px">{`${chainName.toUpperCase()} ${t(
+                      'Chain',
+                    )}`}</Text>
+                  </FlexGap>
+                </FlexGap>
+                <Box position="relative">
+                  <LazyAnimatePresence mode="wait" features={domAnimation}>
+                    {tokenBalance ? (
+                      !isInputFocus ? (
+                        <SwapUIV2.WalletAssetDisplay
+                          isUserInsufficientBalance={isInsufficientBalance}
+                          balance={tokenBalance.toSignificant(6)}
+                          onMax={handleMaxInput}
+                        />
+                      ) : (
+                        <SwapUIV2.AssetSettingButtonList onPercentInput={handlePercentInput} />
+                      )
+                    ) : null}
+                  </LazyAnimatePresence>
+                </Box>
+              </FlexGap>
 
-        <BalanceInput
-          value={amount}
-          onUserInput={handleAmountChange}
-          onFocus={() => setIsInputFocus(true)}
-          onBlur={handleUserInputBlur}
-          currencyValue={amount ? `~${(parseFloat(amount) * price).toFixed(2)} USD` : ''}
-          placeholder="0.0"
-          unit={asset.token.symbol}
-        />
-        {isInsufficientBalance && amount && (
-          <Text color="failure" fontSize="14px" mt="8px">
-            {t('Insufficient balance')}
-          </Text>
+              <BalanceInput
+                value={amount}
+                onUserInput={handleAmountChange}
+                onFocus={() => setIsInputFocus(true)}
+                onBlur={handleUserInputBlur}
+                currencyValue={amount ? `~${(parseFloat(amount) * price).toFixed(2)} USD` : ''}
+                placeholder="0.0"
+                unit={asset.token.symbol}
+              />
+              {isInsufficientBalance && amount && (
+                <Text color="failure" fontSize="14px" mt="8px">
+                  {t('Insufficient balance')}
+                </Text>
+              )}
+
+              {!isGiftTokenAmountValid && (
+                <Text color="failure" fontSize="14px" mt="8px">
+                  {t('Gift amount must be greater than $1')}
+                </Text>
+              )}
+            </Box>
+          </>
         )}
-      </Box>
+      </SendGiftToggle>
 
       <FlexGap gap="16px" mt="16px">
         <ActionButton onClick={() => onViewStateChange(ViewState.SEND_ASSETS)} variant="tertiary">
           {t('Close')}
         </ActionButton>
         <Button
+          id="send-gift-confirm-button"
           width="100%"
           onClick={() => {
+            if (isSendGift) {
+              logGTMGiftPreviewEvent(asset.chainId)
+            }
             onViewStateChange(ViewState.CONFIRM_TRANSACTION)
           }}
-          disabled={!address || !amount || !!addressError || isInsufficientBalance || attemptingTxn}
+          disabled={
+            !isValidAddress ||
+            !amount ||
+            parseFloat(amount) === 0 ||
+            isInsufficientBalance ||
+            attemptingTxn ||
+            !isValidGasSponsor ||
+            !isGiftTokenAmountValid
+          }
           isLoading={attemptingTxn}
           endIcon={attemptingTxn ? <AutoRenewIcon spin color="currentColor" /> : undefined}
         >

@@ -277,6 +277,126 @@ export function useTokenByChainId(tokenAddress?: string, chainId?: number): ERC2
   }, [token, chainId, address, isLoading, data, unsupportedTokens])
 }
 
+// Batch version of useTokenByChainId
+// Returns a map of address -> token for multiple token addresses
+export function useTokensByChainId(
+  tokenAddresses: string[],
+  chainId?: number,
+): Record<string, ERC20Token | undefined | null> {
+  const unsupportedTokens = useUnsupportedTokens()
+  const tokens = useAllTokensByChainIds(chainId ? [chainId] : [])
+
+  // Process addresses and separate existing tokens from ones that need to be fetched
+  const processedData = useMemo(() => {
+    const validAddresses: Address[] = []
+    const existingTokens: Record<string, ERC20Token> = {}
+    const addressesToFetch: Address[] = []
+
+    tokenAddresses.forEach((tokenAddress) => {
+      const address = safeGetAddress(tokenAddress)
+      if (!address) return
+
+      validAddresses.push(address)
+
+      const existingToken = chainId ? tokens[chainId]?.[address] : undefined
+      if (existingToken) {
+        existingTokens[address] = existingToken
+      } else if (!unsupportedTokens[address]) {
+        addressesToFetch.push(address)
+      }
+    })
+
+    return { validAddresses, existingTokens, addressesToFetch }
+  }, [tokenAddresses, chainId, tokens, unsupportedTokens])
+
+  // Build contracts array for addresses that need to be fetched
+  const contracts = useMemo(() => {
+    const contractsArray: any[] = []
+
+    processedData.addressesToFetch.forEach((address) => {
+      contractsArray.push(
+        {
+          chainId,
+          address,
+          abi: erc20Abi,
+          functionName: 'decimals',
+        },
+        {
+          chainId,
+          address,
+          abi: erc20Abi,
+          functionName: 'symbol',
+        },
+        {
+          chainId,
+          address,
+          abi: erc20Abi,
+          functionName: 'name',
+        },
+      )
+    })
+
+    return contractsArray
+  }, [processedData.addressesToFetch, chainId])
+
+  const { data, isLoading } = useReadContracts({
+    allowFailure: false,
+    contracts,
+    query: {
+      enabled: Boolean(processedData.addressesToFetch.length > 0 && chainId),
+      staleTime: Infinity,
+    },
+  })
+
+  return useMemo(() => {
+    const result: Record<string, ERC20Token | undefined | null> = {}
+
+    // Add existing tokens
+    Object.entries(processedData.existingTokens).forEach(([address, token]) => {
+      result[address] = token
+    })
+
+    // Handle unsupported tokens
+    processedData.validAddresses.forEach((address) => {
+      if (unsupportedTokens[address]) {
+        result[address] = undefined
+      }
+    })
+
+    // Handle loading state for addresses being fetched
+    if (isLoading && processedData.addressesToFetch.length > 0) {
+      processedData.addressesToFetch.forEach((address) => {
+        if (!(address in result)) {
+          result[address] = null
+        }
+      })
+    }
+
+    // Handle fetched data
+    if (data && chainId) {
+      processedData.addressesToFetch.forEach((address, index) => {
+        const dataIndex = index * 3
+        if (dataIndex + 2 < data.length) {
+          const decimals = data[dataIndex] as number
+          const symbol = data[dataIndex + 1] as string
+          const name = data[dataIndex + 2] as string
+
+          result[address] = new ERC20Token(chainId, address, decimals, symbol ?? 'UNKNOWN', name ?? 'Unknown Token')
+        }
+      })
+    }
+
+    // Set undefined for addresses that weren't found in any category
+    processedData.validAddresses.forEach((address) => {
+      if (!(address in result)) {
+        result[address] = undefined
+      }
+    })
+
+    return result
+  }, [processedData, unsupportedTokens, isLoading, data, chainId])
+}
+
 export function useOnRampToken(currencyId?: string): Currency | undefined {
   const { chainId } = useActiveChainId()
   const tokens = useAllOnRampTokens()

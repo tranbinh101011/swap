@@ -1,5 +1,5 @@
-import { styled } from "styled-components";
 import { m as Motion } from "framer-motion";
+import { styled } from "styled-components";
 
 export const Arrow = styled.div`
   &,
@@ -28,6 +28,7 @@ export const StyledTooltip = styled(Motion.div)`
   background: ${({ theme }) => theme.tooltip.background};
   color: ${({ theme }) => theme.tooltip.text};
   box-shadow: ${({ theme }) => theme.tooltip.boxShadow};
+  word-wrap: break-word;
 
   &[data-popper-placement^="top"] > ${Arrow} {
     bottom: -4px;

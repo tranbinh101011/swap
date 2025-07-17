@@ -51,12 +51,12 @@ export const useGetBnbBalance = () => {
   return { balance: data?.value ? BigInt(data.value) : 0n, fetchStatus: status, refresh: refetch }
 }
 
-export const useGetNativeTokenBalance = () => {
+export const useGetNativeTokenBalance = (chainId?: ChainId) => {
   const { address: account } = useAccount()
-  const { chainId } = useActiveChainId()
+  const { chainId: activeChainId } = useActiveChainId()
 
   const { status, refetch, data } = useBalance({
-    chainId,
+    chainId: chainId || activeChainId,
     address: account,
     query: {
       enabled: !!account,

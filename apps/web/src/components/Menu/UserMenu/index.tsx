@@ -1,10 +1,14 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Box, UserMenu as UIKitUserMenu, UserMenuVariant, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Box, UserMenu as UIKitUserMenu, useMatchBreakpoints, UserMenuVariant } from '@pancakeswap/uikit'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import useAirdropModalStatus from 'components/GlobalCheckClaimStatus/hooks/useAirdropModalStatus'
 import Trans from 'components/Trans'
 import { WalletContent, WalletModalV2 } from 'components/WalletModalV2'
 import ReceiveModal from 'components/WalletModalV2/ReceiveModal'
+import { ViewState } from 'components/WalletModalV2/type'
+import {
+  useWalletModalV2ViewState,
+  WalletModalV2ViewStateProvider,
+} from 'components/WalletModalV2/WalletModalV2ViewStateProvider'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useDomainNameForAddress } from 'hooks/useDomain'
@@ -13,22 +17,17 @@ import { useProfile } from 'state/profile/hooks'
 import { usePendingTransactions } from 'state/transactions/hooks'
 import styled from 'styled-components'
 import { logGTMDisconnectWalletEvent } from 'utils/customGTMEventTracking'
+import { useAutoFillCode } from 'views/Gift/hooks/useAutoFillCode'
+import { ClaimGiftProvider, useClaimGiftContext } from 'views/Gift/providers/ClaimGiftProvider'
+import { SendGiftProvider, useSendGiftContext } from 'views/Gift/providers/SendGiftProvider'
+import { UnclaimedOnlyProvider } from 'views/Gift/providers/UnclaimedOnlyProvider'
 import { useAccount } from 'wagmi'
+import { MenuTabProvider, useMenuTab, WalletView } from './providers/MenuTabProvider'
 
 const UserMenuItems = ({ onReceiveClick }: { onReceiveClick: () => void }) => {
-  const { t } = useTranslation()
-  const { chainId, isWrongNetwork } = useActiveChainId()
+  const { chainId } = useActiveChainId()
   const { logout } = useAuth()
   const { address: account, connector } = useAccount()
-  const { hasPendingTransactions } = usePendingTransactions()
-  const { isInitialized, isLoading, profile } = useProfile()
-  const { shouldShowModal } = useAirdropModalStatus()
-
-  const hasProfile = isInitialized && !!profile
-
-  // Use PancakeSwap's breakpoint system
-  const { isMobile } = useMatchBreakpoints()
-  const isMobileView = isMobile
 
   const handleClickDisconnect = useCallback(() => {
     logGTMDisconnectWalletEvent(chainId, connector?.name, account)
@@ -82,12 +81,39 @@ const UserMenu = () => {
   const [showDesktopPopup] = useState(true)
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
 
+  const { reset: resetViewState, viewState } = useWalletModalV2ViewState()
+  const { setCode, code: giftCode } = useClaimGiftContext()
+  const { setNativeAmount, setIncludeStarterGas } = useSendGiftContext()
   // State for click-based menu
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const { setView } = useMenuTab()
+
+  useAutoFillCode({
+    onAutoFillCode: () => {
+      if (isMobile) {
+        setShowMobileWalletModal(true)
+      } else {
+        setIsMenuOpen(true)
+      }
+    },
+  })
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      setView(WalletView.WALLET_INFO)
+      setNativeAmount(undefined)
+      setIncludeStarterGas(false)
+    }
+  }, [isMenuOpen, setView, setNativeAmount, setIncludeStarterGas])
 
   // Handle click outside to close menu
   useEffect(() => {
+    // Disable click outside to close menu when sending gift
+    if (viewState === ViewState.CONFIRM_TRANSACTION) {
+      return undefined
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
       // Check if the click target is within portal-root
 
@@ -97,6 +123,9 @@ const UserMenu = () => {
       // Only close if click is outside menu and not in portal-root
       if (menuRef.current && !menuRef.current.contains(event.target as Node) && !isClickInPortal) {
         setIsMenuOpen(false)
+        // reset view state and code
+        resetViewState()
+        setCode('')
       }
     }
 
@@ -104,7 +133,7 @@ const UserMenu = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [menuRef])
+  }, [menuRef, viewState, resetViewState, setCode])
 
   useEffect(() => {
     if (hasPendingTransactions) {
@@ -121,7 +150,7 @@ const UserMenu = () => {
     logout()
   }, [logout, connector?.name, account, chainId])
 
-  if (account) {
+  if (account || giftCode) {
     return (
       <>
         <ClickableUserMenu ref={menuRef}>
@@ -160,7 +189,10 @@ const UserMenu = () => {
           account={account}
           onReceiveClick={() => setIsReceiveModalOpen(true)}
           onDisconnect={handleClickDisconnect}
-          onDismiss={() => setShowMobileWalletModal(false)}
+          onDismiss={() => {
+            setShowMobileWalletModal(false)
+            resetViewState()
+          }}
         />
         {account && (
           <ReceiveModal account={account} onDismiss={() => setIsReceiveModalOpen(false)} isOpen={isReceiveModalOpen} />
@@ -208,4 +240,20 @@ const UserMenu = () => {
   )
 }
 
-export default UserMenu
+const UserMenuContainer = () => {
+  return (
+    <WalletModalV2ViewStateProvider>
+      <MenuTabProvider>
+        <SendGiftProvider>
+          <ClaimGiftProvider>
+            <UnclaimedOnlyProvider>
+              <UserMenu />
+            </UnclaimedOnlyProvider>
+          </ClaimGiftProvider>
+        </SendGiftProvider>
+      </MenuTabProvider>
+    </WalletModalV2ViewStateProvider>
+  )
+}
+
+export default UserMenuContainer

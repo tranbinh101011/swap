@@ -6,6 +6,7 @@ import { AdsCampaignConfig, Priority } from '../types'
 import { getImageUrl } from '../utils'
 
 export enum AdsIds {
+  PANCAKE_GIFT = 'pancake-gift',
   BINANCE_ALPHA = 'binance-alpha',
   BINANCE_ALPHA_V2 = 'binance-alpha-v2',
   SOLANA_LIQUIDITY = 'solana-liquidity',
@@ -17,6 +18,27 @@ type AdsConfigMap = {
 const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig[] => {
   const now = Date.now()
   return [
+    {
+      id: AdsIds.PANCAKE_GIFT,
+      priority: Priority.HIGH,
+      ad: {
+        img: getImageUrl(isMobile ? 'pancake-gift-mobile' : 'pancake-gift'),
+        texts: [
+          {
+            text: t('Introducing Pancake Gifts.'),
+          },
+          {
+            text: t('Gift Now'),
+            link: 'https://pancakeswap.finance/swap?utm_source=website&utm_medium=Homepage&utm_campaign=banner&utm_id=PancakeGifts',
+          },
+        ],
+        btn: {
+          text: t('Learn More'),
+          link: 'https://blog.pancakeswap.finance/articles/Pancake-Gifts?utm_source=website&utm_medium=Homepage&utm_campaign=banner&utm_id=PancakeGifts',
+          mt: !isMobile ? '8px' : undefined,
+        },
+      },
+    },
     {
       id: AdsIds.BINANCE_ALPHA_V2,
       priority: Priority.HIGH,

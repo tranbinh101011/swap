@@ -1,12 +1,9 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Token } from '@pancakeswap/sdk'
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
   Box,
   Button,
-  ButtonMenu,
-  ButtonMenuItem,
   FlexGap,
   Modal,
   ModalHeader,
@@ -18,18 +15,25 @@ import {
 import { RecentTransactions } from 'components/App/Transactions/TransactionsModal'
 
 import { useTheme } from '@pancakeswap/hooks'
-import { TabsComponent, WalletView } from 'components/Menu/UserMenu/WalletModal'
+import { useMenuTab, WalletView } from 'components/Menu/UserMenu/providers/MenuTabProvider'
+import { TabsComponent } from 'components/Menu/UserMenu/WalletModal'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { useAddressBalance } from 'hooks/useAddressBalance'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { formatAmount } from 'utils/formatInfoNumbers'
+import { ClaimGiftConfirmView } from 'views/Gift/components/ClaimGiftConfirmView'
+import { ClaimGiftView } from 'views/Gift/components/ClaimGiftView'
+import { GiftInfoDetailView } from 'views/Gift/components/GiftInfoDetailView'
+import { GiftsDashboard } from 'views/Gift/components/GiftsDashboard'
+import { CancelGiftProvider } from 'views/Gift/providers/CancelGiftProvider'
 import { ActionButton } from './ActionButton'
 import { AssetsList } from './AssetsList'
 import { SendAssets } from './SendAssets'
+import { SEND_ENTRY, ViewState } from './type'
 import { CopyAddress } from './WalletCopyButton'
-import { ViewState } from './type'
+import { useWalletModalV2ViewState } from './WalletModalV2ViewStateProvider'
 
 interface WalletModalProps {
   isOpen: boolean
@@ -59,23 +63,6 @@ const TotalBalanceDecimal = styled(Text)`
   font-size: 40px;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.textSubtle};
-`
-
-const StyledButtonMenu = styled(ButtonMenu)`
-  width: 100%;
-  background-color: ${({ theme }) => theme.colors.input};
-  border-radius: 16px;
-  padding: 0;
-  margin: 0 0 16px 0;
-  border: none;
-`
-
-const StyledButtonMenuItem = styled(ButtonMenuItem)`
-  height: 40px;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  flex: 1;
 `
 
 const ActionButtonsContainer = styled(FlexGap)`
@@ -110,8 +97,10 @@ const OptionBox = styled(Box)`
 `
 
 const WalletModal: React.FC<WalletModalProps> = ({ account, onDismiss, isOpen, onReceiveClick, onDisconnect }) => {
+  const { viewState } = useWalletModalV2ViewState()
+
   // If no account is provided, show a message or redirect
-  if (!account) {
+  if (!account && viewState !== ViewState.CLAIM_GIFT) {
     return null
   }
   return (
@@ -139,11 +128,11 @@ export const WalletContent = ({
   onReceiveClick: () => void
   onDisconnect: () => void
 }) => {
-  const [view, setView] = useState(WalletView.WALLET_INFO)
+  const { view, setView } = useMenuTab()
   const { t } = useTranslation()
   const router = useRouter()
   const { isMobile } = useMatchBreakpoints()
-  const [viewState, setViewState] = useState(ViewState.WALLET_INFO)
+  const { viewState, setViewState, goBack, setSendEntry } = useWalletModalV2ViewState()
   const { theme } = useTheme()
 
   // Fetch balances using the hook we created
@@ -160,23 +149,39 @@ export const WalletContent = ({
   }, [totalBalanceUsd])
 
   const noAssets = (balances.length === 0 || totalBalanceUsd === 0) && !isLoading
-  const handleClick = useCallback((newIndex: number) => {
-    setView(newIndex)
-  }, [])
+  const handleClick = useCallback(
+    (newIndex: number) => {
+      setView(newIndex)
+    },
+    [setView],
+  )
 
-  const tokenFilterData = useMemo(() => {
-    if (balances.length === 0) return []
+  const actionView = useMemo(() => {
+    if (viewState === ViewState.GIFT_INFO_DETAIL) return <GiftInfoDetailView />
 
-    return balances.map((asset) => {
-      return new Token(
-        asset.chainId,
-        asset.token.address as `0x${string}`,
-        asset.token.decimals,
-        asset.token.symbol,
-        asset.token.name,
+    // Claim Gift
+    if ([ViewState.CLAIM_GIFT, ViewState.CLAIM_GIFT_CONFIRM].includes(viewState)) {
+      return (
+        <>
+          {viewState === ViewState.CLAIM_GIFT ? (
+            <ClaimGiftView setViewState={setViewState} />
+          ) : (
+            <ClaimGiftConfirmView />
+          )}
+        </>
       )
-    })
-  }, [balances])
+    }
+
+    return (
+      <SendAssets
+        assets={balances}
+        isLoading={isLoading}
+        onViewStateChange={setViewState}
+        viewState={viewState}
+        onBack={goBack}
+      />
+    )
+  }, [viewState, balances, isLoading, goBack, setViewState])
 
   return (
     <Box
@@ -185,74 +190,73 @@ export const WalletContent = ({
       maxWidth={isMobile ? '100%' : '377px'}
       overflowY={isMobile ? undefined : 'auto'}
     >
-      <FlexGap mb="10px" gap="8px" justifyContent="space-between" alignItems="center" paddingRight="16px" mt="8px">
-        {viewState > ViewState.SEND_ASSETS && (
-          <Button
-            variant="tertiary"
-            style={{ width: '34px', height: '34px', padding: '6px', borderRadius: '12px' }}
-            onClick={() => {
-              setViewState((prevState) => prevState - 1)
-            }}
-            ml={isMobile ? '8px' : '16px'}
-          >
-            <ArrowBackIcon fontSize="24px" color={theme.colors.primary60} />
-          </Button>
-        )}
+      {account ? (
+        <FlexGap mb="10px" gap="8px" justifyContent="space-between" alignItems="center" paddingRight="16px" mt="8px">
+          {viewState > ViewState.SEND_ASSETS && (
+            <Button
+              variant="tertiary"
+              style={{ width: '34px', height: '34px', padding: '6px', borderRadius: '12px' }}
+              onClick={goBack}
+              ml={isMobile ? '8px' : '16px'}
+            >
+              <ArrowBackIcon fontSize="24px" color={theme.colors.primary60} />
+            </Button>
+          )}
 
-        <CopyAddress tooltipMessage={t('Copied')} account={account || ''} />
-        {viewState <= ViewState.SEND_ASSETS && (
-          <FlexGap>
-            <DisconnectButton scale="xs" onClick={onDisconnect}>
-              {t('Disconnect')}
-            </DisconnectButton>
-          </FlexGap>
-        )}
-      </FlexGap>
-      <Box padding={isMobile ? '0' : '0 16px 16px'}>
-        {viewState >= ViewState.SEND_ASSETS ? (
-          <SendAssets
-            assets={balances}
-            isLoading={isLoading}
-            onViewStateChange={setViewState}
-            viewState={viewState}
-            onBack={() => setViewState((prevState) => ViewState.WALLET_INFO)}
-          />
-        ) : (
-          <>
-            <FlexGap alignItems="center" gap="3px">
-              <TotalBalanceInteger>${balanceDisplay.integer}</TotalBalanceInteger>
-              <TotalBalanceDecimal>.{balanceDisplay.decimal}</TotalBalanceDecimal>
+          <CopyAddress tooltipMessage={t('Copied')} account={account || ''} />
+          {viewState <= ViewState.SEND_ASSETS && (
+            <FlexGap>
+              <DisconnectButton scale="xs" onClick={onDisconnect}>
+                {t('Disconnect')}
+              </DisconnectButton>
             </FlexGap>
-            <Text fontSize="20px" fontWeight="bold" mb="8px">
-              {t('My Wallet')}
-            </Text>
-            {!noAssets && (
-              <Box mb="16px" onClick={(e) => e.stopPropagation()}>
-                <TabsComponent
-                  view={view}
-                  handleClick={handleClick}
-                  style={{ backgroundColor: 'transparent', padding: '0', borderBottom: 'none' }}
-                />
-              </Box>
-            )}
-            {view === WalletView.WALLET_INFO && !noAssets ? (
-              <Box mt="16px">
-                <Text fontSize="14px" color="textSubtle">
-                  {t('Assets')}
-                </Text>
+          )}
+        </FlexGap>
+      ) : null}
 
-                <AssetsList assets={balances} isLoading={isLoading} />
-              </Box>
-            ) : (
-              !noAssets && (
-                <Box padding="16px 0" maxHeight="280px" overflow="auto">
-                  <RecentTransactions />
+      <CancelGiftProvider>
+        <Box padding={isMobile ? '0' : '0 16px 16px'}>
+          {viewState >= ViewState.SEND_ASSETS ? (
+            actionView
+          ) : (
+            <>
+              <FlexGap alignItems="center" gap="3px">
+                <TotalBalanceInteger>${balanceDisplay.integer}</TotalBalanceInteger>
+                <TotalBalanceDecimal>.{balanceDisplay.decimal}</TotalBalanceDecimal>
+              </FlexGap>
+              <Text fontSize="20px" fontWeight="bold" mb="8px">
+                {t('My Wallet')}
+              </Text>
+              {!noAssets && (
+                <Box mb="16px" onClick={(e) => e.stopPropagation()}>
+                  <TabsComponent
+                    view={view}
+                    handleClick={handleClick}
+                    style={{ backgroundColor: 'transparent', padding: '0', borderBottom: 'none' }}
+                  />
                 </Box>
-              )
-            )}
-          </>
-        )}
-      </Box>
+              )}
+              {view === WalletView.GIFTS ? (
+                <GiftsDashboard setViewState={setViewState} />
+              ) : view === WalletView.WALLET_INFO && !noAssets ? (
+                <Box mt="16px">
+                  <Text fontSize="14px" color="textSubtle">
+                    {t('Assets')}
+                  </Text>
+
+                  <AssetsList assets={balances} isLoading={isLoading} />
+                </Box>
+              ) : (
+                !noAssets && (
+                  <Box padding="16px 0" maxHeight="280px" overflow="auto">
+                    <RecentTransactions />
+                  </Box>
+                )
+              )}
+            </>
+          )}
+        </Box>
+      </CancelGiftProvider>
       {viewState === ViewState.WALLET_INFO && (
         <>
           {noAssets ? (
@@ -309,7 +313,7 @@ export const WalletContent = ({
                 <ArrowForwardIcon color="primary" />
               </FlexGap>
             </Box>
-          ) : (
+          ) : view === WalletView.GIFTS ? null : (
             <ActionButtonsContainer>
               <FlexGap gap="8px" width="100%">
                 <ActionButton
@@ -324,6 +328,7 @@ export const WalletContent = ({
                 <ActionButton
                   onClick={() => {
                     setViewState(ViewState.SEND_ASSETS)
+                    setSendEntry(SEND_ENTRY.SEND_ONLY)
                   }}
                   variant="tertiary"
                 >

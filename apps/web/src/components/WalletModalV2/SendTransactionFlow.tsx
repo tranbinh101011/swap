@@ -13,14 +13,15 @@ import {
   Spinner,
   Text,
 } from '@pancakeswap/uikit'
+import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { ConfirmationPendingContent } from '@pancakeswap/widgets-internal'
 import { ChainLogo } from 'components/Logo/ChainLogo'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
+import { TokenAmountSection } from 'components/TokenAmountSection'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { BalanceData } from 'hooks/useAddressBalance'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { styled } from 'styled-components'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 
@@ -70,20 +71,26 @@ export function ConfirmTransactionContent({
   onBack?: () => void
 }) {
   const { t } = useTranslation()
-  const currency = new Token(
-    asset.chainId,
-    asset.token.address as `0x${string}`,
-    asset.token.decimals,
-    asset.token.symbol,
-    asset.token.name,
-  )
-  const price = asset.price?.usd ?? 0
-  const usdValue = parseFloat(amount) * price
+
   const chainName = (asset.chainId === ChainId.BSC ? 'BNB' : getChainName(asset.chainId)).toUpperCase()
   const { chainId } = useActiveChainId()
   const isChainMatched = chainId === asset.chainId
   const nativeCurrency = useNativeCurrency(asset.chainId)
   const { switchNetworkAsync } = useSwitchNetwork()
+
+  const price = asset.price?.usd ?? 0
+
+  const tokenAmount = useMemo(() => {
+    const currency = new Token(
+      asset.chainId,
+      asset.token.address as `0x${string}`,
+      asset.token.decimals,
+      asset.token.symbol,
+      asset.token.name,
+    )
+
+    return tryParseAmount(amount, currency)
+  }, [amount, asset])
 
   return (
     <Wrapper>
@@ -96,19 +103,8 @@ export function ConfirmTransactionContent({
               </Text>
             </Box>
           </FlexGap>
-          <Box position="relative" mb="16px">
-            <CurrencyLogo currency={currency} size="80px" src={asset.token.logoURI} />
-          </Box>
-          <Text fontSize="32px" bold>
-            {parseFloat(amount).toLocaleString(undefined, {
-              maximumFractionDigits: 6,
-              minimumFractionDigits: 0,
-            })}{' '}
-            {asset.token.symbol}
-          </Text>
-          <Text fontSize="16px" color="textSubtle" mb="24px">
-            ~${usdValue.toFixed(6)} USD
-          </Text>
+
+          <TokenAmountSection tokenAmount={tokenAmount} />
 
           <Flex justifyContent="space-between" width="100%" mb="8px" alignItems="flex-start">
             <Text color="textSubtle">{t('To')}</Text>

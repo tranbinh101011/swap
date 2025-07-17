@@ -91,6 +91,7 @@ export function useApproveCallback(
   }, [amountToApprove, currentAllowance, pending, spender])
 
   const tokenContract = useTokenContract(token?.address, chainId)
+
   const addTransaction = useTransactionAdder(chainId)
 
   const approve = useCallback(

@@ -52,6 +52,9 @@ export enum GTMEvent {
   DisconnectWallet = 'disconnectWallet',
   WalletConnected = 'walletConnected',
   WalletConnect = 'walletConnect', // deprecated
+
+  // Gift
+  GiftEvent = 'giftEvent',
 }
 
 export enum GTMCategory {
@@ -71,6 +74,7 @@ export enum GTMCategory {
   Prediction = 'Prediction',
   IFO = 'IFO',
   IDO = 'IDO',
+  Gift = 'Gift',
 }
 
 export enum GTMAction {
@@ -123,6 +127,12 @@ export enum GTMAction {
   ClickOnWalletBtn = 'click on the connect wallet button',
   WalletConnectSucc = 'wallet connected successfully',
   ClickOnDisconnectedBtn = 'click on the disconnected wallet button',
+
+  // Gift
+  ToggleSendGift = 'toggle Send Gift',
+  GiftPreview = 'click Gift Preview button',
+  GiftCreate = 'click Gift Create button',
+  GiftCreateSuccess = 'show Gift Create Success',
 }
 
 interface CustomGTMDataLayer {
@@ -517,12 +527,55 @@ export const logGTMIdoConnectWalletEvent = (preTGE: boolean) => {
   })
 }
 
+export const logGTMToggleSendGiftEvent = (isSendGiftOn: boolean, chainId?: number) => {
+  console.info('---ToggleSendGift---', { isSendGiftOn, chainId })
+  window?.dataLayer?.push({
+    event: GTMEvent.GiftEvent,
+    action: GTMAction.ToggleSendGift,
+    category: GTMCategory.Gift,
+    label: isSendGiftOn ? 'on' : 'off',
+    chainId,
+  })
+}
+
+export const logGTMGiftPreviewEvent = (chainId?: number) => {
+  console.info('---GiftPreview---', { chainId })
+  window?.dataLayer?.push({
+    event: GTMEvent.GiftEvent,
+    action: GTMAction.GiftPreview,
+    category: GTMCategory.Gift,
+    chainId,
+  })
+}
+
+export const logGTMGiftCreateEvent = (chainId?: number) => {
+  console.info('---GiftCreate---', { chainId })
+  window?.dataLayer?.push({
+    event: GTMEvent.GiftEvent,
+    action: GTMAction.GiftCreate,
+    category: GTMCategory.Gift,
+    chainId,
+  })
+}
+
+export const logGTMGiftCreateSuccessEvent = (chainId?: number, amount?: string, giftTokenType?: 'link' | 'qr') => {
+  console.info('---GiftCreateSuccess---', { chainId, amount, giftTokenType })
+  window?.dataLayer?.push({
+    event: GTMEvent.GiftEvent,
+    action: GTMAction.GiftCreateSuccess,
+    category: GTMCategory.Gift,
+    chainId,
+    amount,
+    giftTokenType,
+  })
+}
+
 export const logGTMOrderStatusEvent = (status: BridgeStatus) => {
   console.info('---OrderStatus---', status)
   const event = status === BridgeStatus.SUCCESS ? GTMEvent.ORDER_STATUS_SUCCESS : GTMEvent.ORDER_STATUS_FAILED
 
   window?.dataLayer?.push({
-    event: GTMEvent.ORDER_STATUS_START,
+    event: [BridgeStatus.SUCCESS, BridgeStatus.PARTIAL_SUCCESS].includes(status) ? event : GTMEvent.ORDER_STATUS_START,
     action: GTMAction.UpdateOrderStatus,
   })
 }

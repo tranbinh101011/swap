@@ -10,3 +10,4 @@ export { SwapUIV2 } from "./swap-v2";
 export * from "./swap/LiquidityChartRangeInput";
 export * as UsdvWidget from "./usdv";
 export * from "./utils/displaySymbolWithChainName";
+export * from "./utils/numbers";
