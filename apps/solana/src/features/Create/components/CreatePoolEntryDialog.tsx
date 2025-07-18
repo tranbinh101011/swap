@@ -30,7 +30,7 @@ import CircleCheck from '@/icons/misc/CircleCheck'
 import { Desktop, Mobile } from '@/components/MobileDesktop'
 import { logGTMPoolFarmVersionEvent } from '@/utils/report/curstomGTMEventTracking'
 
-type CreateTarget = 'legacy-amm' | 'standard-amm' | 'concentrated-liquidity' | 'standard-farm' | 'clmm-lock' | 'cpmm-lock'
+type CreateTarget = 'concentrated-liquidity' | 'standard-farm' | 'clmm-lock' | 'cpmm-lock'
 
 export function CreatePoolEntryDialog({
   isOpen,
@@ -47,13 +47,6 @@ export function CreatePoolEntryDialog({
     let to = ''
     const query = { ...router.query }
     switch (type) {
-      case 'legacy-amm':
-        query.type = 'legacy-amm'
-        to = '/liquidity/create-pool'
-        break
-      case 'standard-amm':
-        to = '/liquidity/create-pool'
-        break
       case 'concentrated-liquidity':
         to = '/clmm/create-pool'
         break
@@ -166,7 +159,7 @@ function CreatePoolEntryMobileDrawer({
 
 export function CreatePoolEntryDialogBody({ type, onChange }: { type: CreateTarget; onChange: (val: CreateTarget) => void }) {
   const { t } = useTranslation()
-  const isCreatePool = ['concentrated-liquidity', 'standard-amm', 'legacy-amm'].includes(type)
+  const isCreatePool = type === 'concentrated-liquidity'
   // const isCreateFarm = type === 'standard-farm'
 
   return (
@@ -192,25 +185,6 @@ export function CreatePoolEntryDialogBody({ type, onChange }: { type: CreateTarg
                         </Box>
                       }
                       onClickSelf={() => onChange('concentrated-liquidity')}
-                    />
-                    <PoolTypeItem
-                      isDisabled
-                      isActive={false}
-                      content={
-                        <Box lineHeight="1.5">
-                          <Flex alignItems="flex-end" gap="2px">
-                            <Text whiteSpace="nowrap" fontSize="md" fontWeight={600}>
-                              {t('V2 Pools')}
-                            </Text>
-                            <Text fontSize="sm" color={colors.textSubtle}>
-                              Coming Soon
-                            </Text>
-                          </Flex>
-                          <Text fontSize="xs" color={colors.textSubtle}>
-                            {t('Newest CPMM, supports Token 2022')}
-                          </Text>
-                        </Box>
-                      }
                     />
                   </Stack>
                 </>

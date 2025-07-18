@@ -191,11 +191,6 @@ export default function Pools() {
         value: PoolFetchType.Concentrated
       },
       {
-        name: 'V2',
-        label: 'V2',
-        value: PoolFetchType.Standard
-      },
-      {
         name: 'All',
         label: isEN && isMobile ? 'ALL' : t('All'),
         value: PoolFetchType.All
