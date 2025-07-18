@@ -41,7 +41,7 @@ export const LockInfo: React.FC<LockInfoProps> = ({ amount, status }) => {
     <FlexGap flexDirection="column" gap="4px" mt="4px" width="100%" alignItems="center" justifyContent="center">
       <Flex alignItems="center" width="100%" justifyContent="center">
         <TokenImage
-          src={`https://pancakeswap.finance/images/tokens/${CAKE[ChainId.BSC].address}.png`}
+          src="https://tokens.pancakeswap.finance/images/symbol/cake.png"
           height={20}
           width={20}
           mr="4px"

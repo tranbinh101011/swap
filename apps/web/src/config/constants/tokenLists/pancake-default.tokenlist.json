@@ -48,7 +48,7 @@
       "address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
       "chainId": 56,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x2170Ed0880ac9A755fd29B2688956BD959F933F8.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/0x2170Ed0880ac9A755fd29B2688956BD959F933F8.png"
     },
     {
       "name": "BTCB Token",
@@ -72,7 +72,7 @@
       "address": "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
       "chainId": 56,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -80,7 +80,7 @@
       "address": "0xFa60D973F7642B748046464e165A65B7323b0DEE",
       "chainId": 97,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -88,7 +88,7 @@
       "address": "0x152649eA73beAb28c5b49B26eb48f7EAD6d4c898",
       "chainId": 1,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -96,7 +96,7 @@
       "address": "0xc2C3eAbE0368a2Ea97f485b03D1098cdD7d0c081",
       "chainId": 5,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -104,7 +104,7 @@
       "address": "0xFf2FA31273c1aedB67017B52C625633d2F021f67",
       "chainId": 280,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -112,7 +112,7 @@
       "address": "0x0D1E753a25eBda689453309112904807625bEFBe",
       "chainId": 1101,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -120,7 +120,7 @@
       "address": "0x3A287a06c66f9E95a56327185cA2BDF5f031cEcD",
       "chainId": 324,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -128,7 +128,7 @@
       "address": "0x1b896893dfc86bb67Cf57767298b9073D2c1bA2c",
       "chainId": 42161,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -136,7 +136,7 @@
       "address": "0x2B3C5df29F73dbF028BA82C33e0A5A6e5800F75e",
       "chainId": 1442,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -144,7 +144,7 @@
       "address": "0x0D1E753a25eBda689453309112904807625bEFBe",
       "chainId": 59144,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -152,7 +152,7 @@
       "address": "0x62FF25CFD64E55673168c3656f4902bD7Aa5F0f4",
       "chainId": 421613,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -160,7 +160,7 @@
       "address": "0x3055913c90Fcc1A6CE9a358911721eEb942013A1",
       "chainId": 8453,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -168,7 +168,7 @@
       "address": "0x8d008B313C1d6C7fE2982F62d32Da7507cF43551",
       "chainId": 97,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "PancakeSwap Token",
@@ -176,7 +176,7 @@
       "address": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
       "chainId": 97,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "Test BUSD Token",
@@ -488,7 +488,7 @@
       "address": "0xd66c6B4F0be8CE5b39D52E0Fd1344c389929B378",
       "chainId": 97,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x2170Ed0880ac9A755fd29B2688956BD959F933F8.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/0x2170Ed0880ac9A755fd29B2688956BD959F933F8.png"
     },
     {
       "name": "Wrapped BNB",
@@ -512,7 +512,7 @@
       "address": "0xe7798f023fc62146e8aa1b36da45fb70855a77ea",
       "chainId": 204,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x2170Ed0880ac9A755fd29B2688956BD959F933F8.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/0x2170Ed0880ac9A755fd29B2688956BD959F933F8.png"
     },
     {
       "name": "Tether USD",
@@ -528,7 +528,7 @@
       "address": "0xa11B290B038C35711eB309268a2460754f730921",
       "chainId": 5611,
       "decimals": 18,
-      "logoURI": "https://pancakeswap.finance/images/tokens/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/cake.png"
     },
     {
       "name": "Tether USD",
