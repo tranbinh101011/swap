@@ -1,4 +1,4 @@
-import { useTranslation } from '@pancakeswap/localization'
+import { useTranslation, Trans } from '@pancakeswap/localization'
 import { Box, Text, Link } from '@pancakeswap/uikit'
 
 const XCADWarning = () => {
@@ -14,14 +14,16 @@ const XCADWarning = () => {
           'You can obtain the new token either by swapping your old tokens on PancakeSwap or bridging them to ETH and back to BSC using the new bridge provider.',
         )}
         <br />
-        {t('For more info, click')}{' '}
-        <Link
-          style={{ display: 'inline' }}
-          external
-          href="https://blog.xcadnetwork.com/xcad-network-bsc-token-migration-wormhole-partnership-3c73aaabe4ba"
-        >
-          {t('here')}
-        </Link>
+        <Trans
+          i18nKey="For more info, click <0>here</0>"
+          components={[
+            <Link
+              style={{ display: 'inline' }}
+              external
+              href="https://blog.xcadnetwork.com/xcad-network-bsc-token-migration-wormhole-partnership-3c73aaabe4ba"
+            />,
+          ]}
+        />
         <br />
         <Link external href="https://bscscan.com/token/0xa026ad2ceda16ca5fc28fd3c72f99e2c332c8a26">
           {t('New token contract address')}.

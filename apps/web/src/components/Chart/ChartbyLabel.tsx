@@ -1,5 +1,5 @@
 import { Flex, FlexProps, Link, Text, LinkProps } from '@pancakeswap/uikit'
-import { useTranslation } from '@pancakeswap/localization'
+import { Trans } from '@pancakeswap/localization'
 
 export const ChartByLabel = ({
   symbol,
@@ -8,15 +8,15 @@ export const ChartByLabel = ({
   linkProps,
   ...props
 }: { symbol: string; link: string; by: string; linkProps?: LinkProps } & FlexProps) => {
-  const { t } = useTranslation()
   return (
     <Flex alignItems="center" px="24px" {...props}>
-      <Text fontSize="14px" mr="4px">
-        {symbol} {t('Chart')} {t('by')}
+      <Text fontSize="14px">
+        <Trans
+          i18nKey="%symbol% Chart by <0>%by%</0>"
+          values={{ symbol, by }}
+          components={[<Link ml="4px" fontSize="14px" href={link} external {...linkProps} />]}
+        />
       </Text>
-      <Link fontSize="14px" href={link} external {...linkProps}>
-        {by}
-      </Link>
     </Flex>
   )
 }

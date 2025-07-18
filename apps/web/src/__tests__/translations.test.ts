@@ -1,3 +1,4 @@
+/* eslint-disable no-cond-assign */
 import teams from 'config/constants/teams'
 import fs from 'fs'
 import Path from 'path'
@@ -166,8 +167,16 @@ describe('Check translations available', () => {
       }
     }
 
+    const regexWithTransI18nKey = /i18nKey=(["'`])((?:\1|(?:(?!\1)).)*?)\1/gm
+
     const regexWithTrans = /<Trans>([^$]*?)<\/Trans>/gm
     const regexWithTransCarriage = /<Trans>([\r\n]\s+([^]*?))<\/Trans>/gm
+
+    while ((match = regexWithTransI18nKey.exec(data)) !== null) {
+      if (match[2].trim()) {
+        extractedFileKeys.add(match[2].trim())
+      }
+    }
 
     while (
       // eslint-disable-next-line no-cond-assign

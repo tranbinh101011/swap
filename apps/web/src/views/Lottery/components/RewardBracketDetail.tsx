@@ -1,4 +1,4 @@
-import { useTranslation } from '@pancakeswap/localization'
+import { Trans } from '@pancakeswap/localization'
 import { Balance, Flex, Skeleton, Text } from '@pancakeswap/uikit'
 import { getBalanceNumber, getFullDisplayBalance } from '@pancakeswap/utils/formatBalance'
 import BigNumber from 'bignumber.js'
@@ -21,18 +21,17 @@ const RewardBracketDetail: React.FC<React.PropsWithChildren<RewardBracketDetailP
   isBurn,
   isLoading,
 }) => {
-  const { t } = useTranslation()
   const cakePrice = useCakePrice()
 
   const getRewardText = () => {
     const numberMatch = rewardBracket + 1
     if (isBurn) {
-      return t('Burn')
+      return <Trans>Burn</Trans>
     }
     if (rewardBracket === 5) {
-      return t('Match all %numberMatch%', { numberMatch })
+      return <Trans i18nKey="Match all %numberMatch%" values={{ numberMatch }} />
     }
-    return t('Match first %numberMatch%', { numberMatch })
+    return <Trans i18nKey="Match first %numberMatch%" values={{ numberMatch }} />
   }
 
   return (
@@ -67,11 +66,11 @@ const RewardBracketDetail: React.FC<React.PropsWithChildren<RewardBracketDetailP
           <>
             {numberWinners && numberWinners !== '0' && (
               <Text fontSize="12px" color="textSubtle">
-                {getFullDisplayBalance(cakeAmount.div(parseInt(numberWinners, 10)), 18, 2)} CAKE {t('each')}
+                {getFullDisplayBalance(cakeAmount.div(parseInt(numberWinners, 10)), 18, 2)} CAKE <Trans>each</Trans>
               </Text>
             )}
             <Text fontSize="12px" color="textSubtle">
-              {numberWinners} {t('Winning Tickets')}
+              {numberWinners} <Trans>Winning Tickets</Trans>
             </Text>
           </>
         )}

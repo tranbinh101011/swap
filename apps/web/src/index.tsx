@@ -1,4 +1,4 @@
-import { useTranslation } from '@pancakeswap/localization'
+import { useTranslation, Trans } from '@pancakeswap/localization'
 import { Grid, Link, Modal, ModalV2, Text } from '@pancakeswap/uikit'
 import { useQuery } from '@tanstack/react-query'
 import { WALLET_API } from 'config/constants/endpoints'
@@ -52,16 +52,22 @@ export function Blocklist() {
           <Grid style={{ gap: '16px' }} maxWidth={['100%', null, '400px']}>
             <Text style={{ wordBreak: 'break-word' }}>{address}</Text>
             <Text>
-              {t('We have detected that this address is associated with a Prohibited Activity')}{' '}
-              <Link style={{ display: 'inline-block' }} href="https://pancakeswap.finance/terms-of-service" external>
-                {t('Learn more')}
-              </Link>
+              <Trans
+                i18nKey="We have detected that this address is associated with a Prohibited Activity <0>Learn more</0>"
+                components={[
+                  <Link
+                    style={{ display: 'inline-block' }}
+                    href="https://pancakeswap.finance/terms-of-service"
+                    external
+                  />,
+                ]}
+              />
             </Text>
             <Text>
-              {t('If you believe that your address has been misclassified, please email')}{' '}
-              <Link style={{ display: 'inline-block' }} href="mailto:info@pancakeswap.com">
-                info@pancakeswap.com
-              </Link>
+              <Trans
+                i18nKey="If you believe that your address has been misclassified, please email <0>info@pancakeswap.com</0>"
+                components={[<Link style={{ display: 'inline-block' }} href="mailto:info@pancakeswap.com" />]}
+              />
             </Text>
           </Grid>
         </Modal>

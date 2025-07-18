@@ -1,7 +1,9 @@
+import { I18nextProvider } from 'react-i18next'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import i18n from './i18n'
+import translations from './config/translations.json'
 import { EN, languages } from './config/languages'
 import { LS_KEY, fetchLocale, getLanguageCodeFromLS } from './helpers'
-import useLastUpdated from './hooks/useLastUpdated'
 import { ContextApi, Language, ProviderState, TranslateFunction } from './types'
 
 const initialState: ProviderState = {
@@ -9,31 +11,14 @@ const initialState: ProviderState = {
   currentLanguage: EN,
 }
 
-function isUndefinedOrNull(value: any): boolean {
-  return value === null || value === undefined
-}
-
-const includesVariableRegex = new RegExp(/%\S+?%/, 'gm')
-
-const translatedTextIncludesVariable = (translatedText: string): boolean => {
-  return !!translatedText?.match(includesVariableRegex)
-}
-
-const getRegExpForDataKey = (dataKey: string): RegExp => {
-  return new RegExp(`%${dataKey}%`, 'g')
-}
-
-// Export the translations directly
 const languageMap = new Map<Language['locale'], Record<string, string>>()
-languageMap.set(EN.locale, {})
+languageMap.set(EN.locale, translations as Record<string, string>)
 
 export const LanguageContext = createContext<ContextApi | undefined>(undefined)
 
 export const LanguageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { lastUpdated, setLastUpdated: refresh } = useLastUpdated()
   const [state, setState] = useState<ProviderState>(() => {
     const codeFromStorage = getLanguageCodeFromLS()
-
     return {
       ...initialState,
       currentLanguage: languages[codeFromStorage] || EN,
@@ -44,87 +29,46 @@ export const LanguageProvider: React.FC<React.PropsWithChildren> = ({ children }
   useEffect(() => {
     const fetchInitialLocales = async () => {
       const codeFromStorage = getLanguageCodeFromLS()
-
+      const lang = languages[codeFromStorage] || EN
       if (codeFromStorage !== EN.locale) {
         const currentLocale = await fetchLocale(codeFromStorage)
         if (currentLocale) {
           languageMap.set(codeFromStorage, currentLocale)
-          refresh()
+          i18n.addResourceBundle(codeFromStorage, 'translation', currentLocale, true, true)
         }
       }
-
-      setState((prevState) => ({
-        ...prevState,
-        isFetching: false,
-      }))
+      await i18n.changeLanguage(lang.locale)
+      setState((prev) => ({ ...prev, isFetching: false, currentLanguage: lang }))
     }
 
     fetchInitialLocales()
-  }, [refresh])
+  }, [])
 
   const setLanguage = useCallback(async (language: Language) => {
     if (!languageMap.has(language.locale)) {
-      setState((prevState) => ({
-        ...prevState,
-        isFetching: true,
-      }))
-
+      setState((prev) => ({ ...prev, isFetching: true }))
       const locale = await fetchLocale(language.locale)
       if (locale) {
         languageMap.set(language.locale, locale)
-        localStorage?.setItem(LS_KEY, language.locale)
-        setState((prevState) => ({
-          ...prevState,
-          isFetching: false,
-          currentLanguage: language,
-        }))
-      } else {
-        setState((prevState) => ({
-          ...prevState,
-          isFetching: false,
-        }))
+        i18n.addResourceBundle(language.locale, 'translation', locale, true, true)
       }
-    } else {
-      localStorage?.setItem(LS_KEY, language.locale)
-      setState((prevState) => ({
-        ...prevState,
-        isFetching: false,
-        currentLanguage: language,
-      }))
     }
+    localStorage?.setItem(LS_KEY, language.locale)
+    await i18n.changeLanguage(language.locale)
+    setState((prev) => ({ ...prev, isFetching: false, currentLanguage: language }))
   }, [])
 
-  const translate: TranslateFunction = useCallback(
-    (key, data) => {
-      const translationSet = languageMap.get(currentLanguage.locale) ?? {}
-      const translatedText = translationSet?.[key] || key
-
-      if (data) {
-        // Check the existence of at least one combination of %%, separated by 1 or more non space characters
-        const includesVariable = translatedTextIncludesVariable(key)
-        if (includesVariable) {
-          return Object.entries(data)
-            .filter(([, value]) => value !== undefined && value !== null)
-            .reduce((result, [key, value]) => {
-              if (value !== undefined && value !== null) {
-                // explicitly narrow the type
-                const regex = getRegExpForDataKey(key)
-                return result.replace(regex, value.toString())
-              }
-              return result
-            }, translatedText)
-        }
-      }
-
-      return translatedText
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentLanguage, lastUpdated],
-  )
+  const translate: TranslateFunction = useCallback((key, data) => {
+    return i18n.t(key as string, data)
+  }, [])
 
   const providerValue = useMemo(() => {
     return { ...state, setLanguage, t: translate }
   }, [state, setLanguage, translate])
 
-  return <LanguageContext.Provider value={providerValue}>{children}</LanguageContext.Provider>
+  return (
+    <I18nextProvider i18n={i18n}>
+      <LanguageContext.Provider value={providerValue}>{children}</LanguageContext.Provider>
+    </I18nextProvider>
+  )
 }

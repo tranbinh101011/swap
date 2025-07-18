@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { Box, Message, MessageText, Text, Link } from '@pancakeswap/uikit'
 import { usePotteryFetch } from 'state/pottery/hook'
 import Pot from 'views/Pottery/components/Pot/index'
-import { useTranslation } from '@pancakeswap/localization'
+import { useTranslation, Trans } from '@pancakeswap/localization'
 import SubgraphHealthIndicator from 'components/SubgraphHealthIndicator'
 import { ChainId } from '@pancakeswap/chains'
 
@@ -25,16 +25,17 @@ const Pottery: React.FC<React.PropsWithChildren> = () => {
       <Box padding="0 16px" margin="10px auto" width={['100%', '100%', '100%', '800px']}>
         <Message variant="warning">
           <MessageText>
-            <Text as="span">{t('Pancakeswap Pottery (BETA) is indefinitely halted. Please refer')}</Text>
-            <Link
-              style={{ display: 'inline-block' }}
-              m="0 4px"
-              external
-              href="https://blog.pancakeswap.finance/articles/idefinitely-halt-of-pancake-swap-pottery-beta-product"
-            >
-              {t('here')}
-            </Link>
-            <Text as="span">{t('for more details')}</Text>
+            <Trans
+              i18nKey="Pancakeswap Pottery (BETA) is indefinitely halted. Please refer <0>here</0> for more details"
+              components={[
+                <Link
+                  style={{ display: 'inline-block' }}
+                  m="0 4px"
+                  external
+                  href="https://blog.pancakeswap.finance/articles/idefinitely-halt-of-pancake-swap-pottery-beta-product"
+                />,
+              ]}
+            />
           </MessageText>
         </Message>
       </Box>

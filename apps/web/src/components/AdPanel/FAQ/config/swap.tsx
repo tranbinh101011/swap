@@ -1,4 +1,5 @@
 import { Box, FlexGap, Link, Text } from '@pancakeswap/uikit'
+import { Trans } from '@pancakeswap/localization'
 import { getImageUrl } from 'components/AdPanel/utils'
 import { styled } from 'styled-components'
 import { FAQConfig } from '../types'
@@ -85,13 +86,15 @@ export const swapFAQConfig: FAQConfig = (t) => ({
           </ul>
 
           <FlexGap gap="5px" flexGrow={0}>
-            {t('For more details,')}{' '}
-            <Link
-              href="https://docs.pancakeswap.finance/products/pancakeswap-exchange/faq"
-              style={{ textDecoration: 'underline' }}
-            >
-              {t('read here.')}
-            </Link>
+            <Trans
+              i18nKey="For more details, <0>read here.</0>"
+              components={[
+                <Link
+                  href="https://docs.pancakeswap.finance/products/pancakeswap-exchange/faq"
+                  style={{ textDecoration: 'underline' }}
+                />,
+              ]}
+            />
           </FlexGap>
         </Box>
       ),

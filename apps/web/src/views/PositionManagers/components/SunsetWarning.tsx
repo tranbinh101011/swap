@@ -1,4 +1,4 @@
-import { useTranslation } from '@pancakeswap/localization'
+import { useTranslation, Trans } from '@pancakeswap/localization'
 import { Link, Message, MessageText, Text } from '@pancakeswap/uikit'
 
 const SunsetWarning = () => {
@@ -21,29 +21,21 @@ const SunsetWarning = () => {
         )}
         <br />
         <br />
-        {t('For more details, read the')}{' '}
-        <Link
-          style={{
-            display: 'inline',
-            fontSize: '14px',
-          }}
-          external
-          href="https://blog.pancakeswap.finance/articles/action-required-retirement-of-position-managers-bril-defiedge-teahouse-range-and-alpaca"
-        >
-          {t('official blog post')}
-        </Link>{' '}
-        {t('or view the')}{' '}
-        <Link
-          external
-          href="https://x.com/PancakeSwap/status/1925120544396963964"
-          style={{
-            display: 'inline',
-            fontSize: '14px',
-          }}
-        >
-          {t('announcement on X')}
-        </Link>
-        .
+        <Trans
+          i18nKey="For more details, read the <0>official blog post</0> or view the <1>announcement on X</1>."
+          components={[
+            <Link
+              style={{ display: 'inline', fontSize: '14px' }}
+              external
+              href="https://blog.pancakeswap.finance/articles/action-required-retirement-of-position-managers-bril-defiedge-teahouse-range-and-alpaca"
+            />,
+            <Link
+              external
+              href="https://x.com/PancakeSwap/status/1925120544396963964"
+              style={{ display: 'inline', fontSize: '14px' }}
+            />,
+          ]}
+        />
       </MessageText>
     </Message>
   )

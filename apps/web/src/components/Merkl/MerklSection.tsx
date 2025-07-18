@@ -1,4 +1,4 @@
-import { useTranslation } from '@pancakeswap/localization'
+import { Trans, useTranslation } from '@pancakeswap/localization'
 import {
   AutoRow,
   Button,
@@ -14,10 +14,9 @@ import {
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { LightGreyCard } from 'components/Card'
 
-import { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
-import { useMemo } from 'react'
-import { getMerklLink } from 'utils/getMerklLink'
 import { ChainId } from '@pancakeswap/chains'
+import { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
+import { getMerklLink } from 'utils/getMerklLink'
 import useMerkl from '../../hooks/useMerkl'
 
 function TextWarning({ tokenAmount }: { tokenAmount: CurrencyAmount<Currency> }) {
@@ -114,21 +113,22 @@ export function MerklSection({
       ) : hasMerkl ? (
         <Message variant={notEnoughLiquidity ? 'warning' : 'primary'}>
           <MessageText color={notEnoughLiquidity ? 'textSubtle' : ''}>
-            {notEnoughLiquidity
-              ? t(
-                  'This liquidity position will NOT earn any rewards on Merkl due to its total USD value being less than $20.',
-                )
-              : t('This liquidity position is currently earning rewards on Merkl.')}{' '}
-            {t('Details')}{' '}
-            <Link
-              fontSize="md"
-              external
-              color="currentColor"
-              style={{ display: 'inline-flex' }}
-              href={merklLink ?? 'https://app.merkl.xyz/?protocol=pancake-swap'}
-            >
-              {t('here')}
-            </Link>
+            <Trans
+              i18nKey={
+                notEnoughLiquidity
+                  ? 'This liquidity position will NOT earn any rewards on Merkl due to its total USD value being less than $20. Details <0>here</0>'
+                  : 'This liquidity position is currently earning rewards on Merkl. Details <0>here</0>'
+              }
+              components={[
+                <Link
+                  fontSize="md"
+                  external
+                  color="currentColor"
+                  style={{ display: 'inline-flex' }}
+                  href={merklLink ?? 'https://merkl.angle.money/?search=PancakeSwap&status=live%2Csoon'}
+                />,
+              ]}
+            />
             <br />
             <LearnMoreLink />
           </MessageText>

@@ -2,7 +2,7 @@ import { useMemo, useContext } from 'react'
 import { Currency, CurrencyAmount, Pair, Percent } from '@pancakeswap/sdk'
 import { Text, Card, CardBody, Flex, CardProps, TooltipText, useTooltip, Link, AutoColumn } from '@pancakeswap/uikit'
 import { styled } from 'styled-components'
-import { useTranslation } from '@pancakeswap/localization'
+import { useTranslation, Trans } from '@pancakeswap/localization'
 import useTotalSupply from 'hooks/useTotalSupply'
 import { useStablecoinPriceAmount } from 'hooks/useStablecoinPrice'
 import { useAccount } from 'wagmi'
@@ -234,17 +234,17 @@ function MinimalPositionCardView({
             </span>{' '}
             {isStableLP ? (
               <>
-                {t(
-                  'By adding liquidity, you’ll earn 50% from the fees of all trades on this pair, proportional to your share in the trading pair. Fees are added to the pair, accrue in real time, and can be claimed by withdrawing your liquidity. For more information on Stableswap fees click',
-                )}
-                <Link
-                  style={{ display: 'inline' }}
-                  ml="4px"
-                  external
-                  href="https://docs.pancakeswap.finance/products/stableswap#stableswap-fees"
-                >
-                  {t('here.')}
-                </Link>
+                <Trans
+                  i18nKey="By adding liquidity, you’ll earn 50% from the fees of all trades on this pair, proportional to your share in the trading pair. Fees are added to the pair, accrue in real time, and can be claimed by withdrawing your liquidity. For more information on Stableswap fees click <0>here.</0>"
+                  components={[
+                    <Link
+                      style={{ display: 'inline' }}
+                      ml="4px"
+                      external
+                      href="https://docs.pancakeswap.finance/products/stableswap#stableswap-fees"
+                    />,
+                  ]}
+                />
               </>
             ) : (
               t(
