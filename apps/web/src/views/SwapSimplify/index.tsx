@@ -1,6 +1,7 @@
 import { BottomDrawer, Box, Flex, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
+import { useAtom } from 'jotai'
 
 import { MobileCard } from 'components/AdPanel/MobileCard'
 import { useCurrency } from 'hooks/Tokens'
@@ -15,6 +16,7 @@ import Page from '../Page'
 import { StyledSwapContainer } from '../Swap/styles'
 import { SwapFeaturesContext } from '../Swap/SwapFeaturesContext'
 import { InfinitySwapForm } from './InfinitySwap'
+import { chartDisplayAtom } from './InfinitySwap/atoms'
 
 const ChartWithPriceHeader = dynamic(() => import('components/Chart/ChartWithPriceHeader'), { ssr: false })
 
@@ -28,7 +30,8 @@ const Wrapper = styled(Box)`
 const InfinitySwapInner = () => {
   const { query } = useRouter()
   const { isMobile, isDesktop } = useMatchBreakpoints()
-  const { isChartExpanded, isChartDisplayed, setIsChartDisplayed } = useContext(SwapFeaturesContext)
+  const { isChartExpanded } = useContext(SwapFeaturesContext)
+  const [isChartDisplayed, setIsChartDisplayed] = useAtom(chartDisplayAtom)
   const [isSwapHotTokenDisplay, setIsSwapHotTokenDisplay] = useSwapHotTokenDisplay()
   // const { t } = useTranslation()
   const [firstTime, setFirstTime] = useState(true)
@@ -47,7 +50,7 @@ const InfinitySwapInner = () => {
       setIsSwapHotTokenDisplay(true)
 
       if (!isSwapHotTokenDisplay && isChartDisplayed) {
-        setIsChartDisplayed?.((currentIsChartDisplayed) => !currentIsChartDisplayed)
+        setIsChartDisplayed((currentIsChartDisplayed) => !currentIsChartDisplayed)
       }
     }
   }, [firstTime, isChartDisplayed, isSwapHotTokenDisplay, query, setIsSwapHotTokenDisplay, setIsChartDisplayed])
@@ -84,7 +87,7 @@ const InfinitySwapInner = () => {
               />
             }
             isOpen={isChartDisplayed}
-            setIsOpen={(isOpen) => setIsChartDisplayed?.(isOpen)}
+            setIsOpen={(isOpen) => setIsChartDisplayed(isOpen)}
             hideCloseButton
           />
         )}

@@ -14,11 +14,13 @@ import {
 } from '@pancakeswap/uikit'
 import GlobalSettings from 'components/Menu/GlobalSettings'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useAtom } from 'jotai'
 import { useRouter } from 'next/router'
 import { useCallback, useContext, useMemo } from 'react'
 import { styled } from 'styled-components'
 import { SettingsMode } from '../../../components/Menu/GlobalSettings/types'
 import { SwapFeaturesContext } from '../../Swap/SwapFeaturesContext'
+import { chartDisplayAtom } from './atoms'
 
 import { SwapType } from '../../Swap/types'
 import { isTwapSupported } from '../../Swap/utils'
@@ -113,10 +115,11 @@ export const SwapSelection = ({
     { placement: 'top' },
   )
 
-  const { isChartSupported, isChartDisplayed, setIsChartDisplayed } = useContext(SwapFeaturesContext)
+  const { isChartSupported } = useContext(SwapFeaturesContext)
+  const [isChartDisplayed, setIsChartDisplayed] = useAtom(chartDisplayAtom)
 
   const toggleChartDisplayed = () => {
-    setIsChartDisplayed?.((currentIsChartDisplayed) => !currentIsChartDisplayed)
+    setIsChartDisplayed((currentIsChartDisplayed) => !currentIsChartDisplayed)
   }
 
   const { theme } = useTheme()

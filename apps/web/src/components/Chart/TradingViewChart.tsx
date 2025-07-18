@@ -7,6 +7,7 @@ import React, { useEffect, useRef } from 'react'
 import { styled } from 'styled-components'
 import type { TradingViewWidget, TradingViewWidgetOptions } from './lib/pancakeswap-charting-library.d.ts'
 import { createTradingViewWidget, loadTradingViewLibrary } from './lib/pancakeswap-charting-library.es.js'
+import { AggregatePricingModal } from './AggregatePricingModal'
 
 interface TradingViewChartProps {
   symbol?: string
@@ -77,7 +78,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   currency0,
   currency1,
   on24HPriceDataChange,
-  onLiveDataChanges,
+  onLiveDataChanges: _onLiveDataChanges,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const widgetRef = useRef<TradingViewWidget | null>(null)
@@ -87,14 +88,42 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   const currentCurrency0Address = useRef<string | undefined>(undefined)
   const currentCurrency1Address = useRef<string | undefined>(undefined)
   const initializationTimeout = useRef<NodeJS.Timeout | null>(null)
+  const customButtonRef = useRef<HTMLButtonElement | null>(null)
   const { isDark, theme } = useTheme()
   const { chainId } = useActiveChainId()
+  const modalRef = useRef<HTMLButtonElement | null>(null)
 
   // Debounce currency changes to prevent frequent widget recreation
   const debouncedCurrency0 = useDebounce(currency0, 300)
   const debouncedCurrency1 = useDebounce(currency1, 300)
   const symbol =
     debouncedCurrency0 && debouncedCurrency1 ? `${debouncedCurrency0?.symbol}/${debouncedCurrency1?.symbol}` : ''
+
+  // Function to create custom button in TradingView toolbar
+  const createCustomButton = () => {
+    if (!widgetRef.current || !isWidgetReady.current) return
+
+    try {
+      // Check if widget has createButton method
+      if (widgetRef.current && typeof widgetRef.current.createButton === 'function') {
+        const button = widgetRef.current.createButton()
+        if (button) {
+          button.innerHTML = `<span style="color: ${theme.colors.text}; font-weight: 500; cursor: pointer;">Aggregate Pricing</span>`
+          button.setAttribute('title', 'Chart Information')
+          button.classList.add('aggregate-pricing-button')
+          button.addEventListener('click', () => {
+            // Trigger the hidden modal button
+            if (modalRef.current) {
+              modalRef.current.click()
+            }
+          })
+          customButtonRef.current = button
+        }
+      }
+    } catch (error) {
+      console.error('Error creating custom button:', error)
+    }
+  }
 
   useEffect(() => {
     const symbolChanged = symbol !== currentSymbol.current
@@ -135,7 +164,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
 
       // Only try to update existing widget if we have one and it's ready
       if (widgetRef.current && isInitialized.current && isWidgetReady.current) {
-        setSymbolInfo(debouncedCurrency0, debouncedCurrency1, on24HPriceDataChange, onLiveDataChanges)
+        setSymbolInfo(debouncedCurrency0, debouncedCurrency1, on24HPriceDataChange, _onLiveDataChanges)
 
         try {
           // Check if widget has activeChart method
@@ -195,14 +224,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
         const shouldDelay = !debouncedCurrency0 || !debouncedCurrency1
 
         const doInitialization = () => {
-          if (
-            containerRef.current &&
-            !widgetRef.current &&
-            symbol &&
-            debouncedCurrency0 &&
-            debouncedCurrency1 &&
-            chainId
-          ) {
+          if (containerRef.current && !widgetRef.current && symbol && debouncedCurrency0 && debouncedCurrency1) {
             const options: TradingViewWidgetOptions = {
               symbol,
               theme: isDark ? 'Dark' : 'Light',
@@ -318,18 +340,26 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
                 { text: '1d', resolution: '1D' },
               ],
             }
-            setSymbolInfo(debouncedCurrency0, debouncedCurrency1, on24HPriceDataChange, onLiveDataChanges)
+            setSymbolInfo(debouncedCurrency0, debouncedCurrency1, on24HPriceDataChange, _onLiveDataChanges)
             widgetRef.current = createTradingViewWidget(containerRef.current, options)
 
             // Wait for widget to be ready
             if (widgetRef.current && widgetRef.current.onChartReady) {
               widgetRef.current.onChartReady(() => {
                 isWidgetReady.current = true
+                // Create custom button after widget is ready
+                setTimeout(() => {
+                  createCustomButton()
+                }, 300)
               })
             } else {
               // If no onChartReady method, set as ready after delay
               setTimeout(() => {
                 isWidgetReady.current = true
+                // Create custom button after widget is ready
+                setTimeout(() => {
+                  createCustomButton()
+                }, 300)
               }, 1000)
             }
 
@@ -410,10 +440,22 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
         widgetRef.current.remove()
       }
       widgetRef.current = null
+
+      // Clean up custom button
+      if (customButtonRef.current) {
+        customButtonRef.current = null
+      }
     }
   }, [])
 
-  return <ChartContainer id="swap-chart" ref={containerRef} />
+  return (
+    <>
+      <ChartContainer id="swap-chart" ref={containerRef} />
+      <AggregatePricingModal>
+        <button ref={modalRef} style={{ display: 'none' }} type="button" />
+      </AggregatePricingModal>
+    </>
+  )
 }
 
 export default TradingViewChart
