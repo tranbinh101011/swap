@@ -202,7 +202,7 @@ describe('PancakeSwap Universal Router Infinity-Cl Pool Command Generation Test'
       testInfinityTakeAction(actions[2], ETHER, ACTION_CONSTANTS.ADDRESS_THIS, ACTION_CONSTANTS.OPEN_DELTA)
 
       // CMD#1: WRAP
-      testWrapETHCommand(decodedCommands[1], ACTION_CONSTANTS.ADDRESS_THIS, minOut.quotient)
+      testWrapETHCommand(decodedCommands[1], ACTION_CONSTANTS.ADDRESS_THIS, BigInt(ACTION_CONSTANTS.CONTRACT_BALANCE))
 
       // CMD#2: SWEEP
       testSweepCommand(decodedCommands[2], ETHER.wrapped.address, ACTION_CONSTANTS.MSG_SENDER, minOut.quotient)

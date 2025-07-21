@@ -316,7 +316,7 @@ export class TradePlanner extends RoutePlanner {
   private addWrapOut(recipient: Address, amountMinimum: bigint, currency: Currency) {
     // Since wrap doesn't support slippage check and unwrap does.
     // We need add an additional sweep command to handle the slippage check.
-    this.addCommand(CommandType.WRAP_ETH, [ADDRESS_THIS, amountMinimum])
+    this.addCommand(CommandType.WRAP_ETH, [ADDRESS_THIS, BigInt(ACTION_CONSTANTS.CONTRACT_BALANCE)])
     this.addSweepCommand(currency.wrapped, recipient, amountMinimum)
   }
 
