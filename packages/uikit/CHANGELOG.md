@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.68.5
+
+### Patch Changes
+
+- Updated dependencies [b6d0d74]
+- Updated dependencies [e4bbcc7]
+  - @pancakeswap/localization@6.0.4
+  - @pancakeswap/hooks@0.0.41
+
 ## 0.68.4
 
 ### Patch Changes

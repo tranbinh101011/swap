@@ -1,5 +1,12 @@
 # @pancakeswap/localization
 
+## 6.0.4
+
+### Patch Changes
+
+- b6d0d74: Re-enable CAKE bridging on Polygon zkEVM and remove the Scheduled Maintenance banners
+- e4bbcc7: Temporarily disable CAKE bridging during upgrade
+
 ## 6.0.3
 
 ### Patch Changes

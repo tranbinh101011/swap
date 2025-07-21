@@ -1,5 +1,14 @@
 # @pancakeswap/universal-router-sdk
 
+## 1.4.7
+
+### Patch Changes
+
+- e6c8008: Update Wrap Output Behavior
+  - @pancakeswap/infinity-sdk@1.0.2
+  - @pancakeswap/smart-router@7.2.5
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 1.4.6
 
 ### Patch Changes

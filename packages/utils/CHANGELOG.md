@@ -1,5 +1,14 @@
 # @pancakeswap/utils
 
+## 6.1.5
+
+### Patch Changes
+
+- 0bc1b53: Remove lodash deps for @pancakeswap/farms to support edge api env.
+- Updated dependencies [b6d0d74]
+- Updated dependencies [e4bbcc7]
+  - @pancakeswap/localization@6.0.4
+
 ## 6.1.4
 
 ### Patch Changes

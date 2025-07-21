@@ -1,5 +1,22 @@
 # @pancakeswap/widgets-internal
 
+## 0.4.7
+
+### Patch Changes
+
+- Updated dependencies [b6d0d74]
+- Updated dependencies [e4bbcc7]
+- Updated dependencies [0bc1b53]
+  - @pancakeswap/localization@6.0.4
+  - @pancakeswap/farms@1.2.7
+  - @pancakeswap/utils@6.1.5
+  - @pancakeswap/uikit@0.68.5
+  - @pancakeswap/hooks@0.0.41
+  - @pancakeswap/infinity-sdk@1.0.2
+  - @pancakeswap/pools@5.1.43
+  - @pancakeswap/tokens@0.7.5
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 0.4.6
 
 ### Patch Changes
