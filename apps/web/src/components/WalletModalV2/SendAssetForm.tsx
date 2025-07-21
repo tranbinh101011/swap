@@ -34,6 +34,7 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { checksumAddress, formatUnits, isAddress, zeroAddress } from 'viem'
 import { CreateGiftView } from 'views/Gift/components/CreateGiftView'
 import { SendGiftToggle } from 'views/Gift/components/SendGiftToggle'
+import { CHAINS_WITH_GIFT_CLAIM } from 'views/Gift/constants'
 import { SendGiftContext, useSendGiftContext } from 'views/Gift/providers/SendGiftProvider'
 import { useUserInsufficientBalanceLight } from 'views/SwapSimplify/hooks/useUserInsufficientBalance'
 import { useAccount, usePublicClient, useSendTransaction } from 'wagmi'
@@ -93,6 +94,8 @@ export interface SendAssetFormProps {
 
 export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewStateChange, viewState }) => {
   const { isSendGift } = useContext(SendGiftContext)
+  const isGiftSupported = useMemo(() => CHAINS_WITH_GIFT_CLAIM.includes(asset.chainId), [asset.chainId])
+  const isSendGiftSupported = isSendGift && isGiftSupported
 
   const { t } = useTranslation()
   const [address, setAddress] = useState<string | null>(null)
@@ -283,7 +286,7 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
 
   // if gift, tokenAmount must be greater than $1
   const isGiftTokenAmountValid = useMemo(() => {
-    if (isSendGift && amount && !isInsufficientBalance) {
+    if (isSendGiftSupported && amount && !isInsufficientBalance) {
       const valueInUsd = parseFloat(amount) * price
       // NOTE: user can only send gift with amount greater than $1
       const LIMIT_AMOUNT_USD = 1
@@ -294,7 +297,7 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
     }
 
     return true
-  }, [isSendGift, amount, isInsufficientBalance, price])
+  }, [isSendGiftSupported, amount, isInsufficientBalance, price])
 
   // Effect to estimate fee when address and amount are valid
   useEffect(() => {
@@ -307,10 +310,10 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
 
   const isValidAddress = useMemo(() => {
     // send gift doesn't need to check address
-    return isSendGift ? true : address && !addressError
-  }, [address, addressError, isSendGift])
+    return isSendGiftSupported ? true : address && !addressError
+  }, [address, addressError, isSendGiftSupported])
 
-  if (viewState === ViewState.CONFIRM_TRANSACTION && isSendGift) {
+  if (viewState === ViewState.CONFIRM_TRANSACTION && isSendGiftSupported) {
     return <CreateGiftView key={viewState} tokenAmount={tokenAmount} />
   }
 
@@ -340,7 +343,8 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
     )
   }
 
-  const isValidGasSponsor = includeStarterGas ? nativeAmount?.greaterThan(0) && !isUserInsufficientBalance : true
+  const isValidGasSponsor =
+    includeStarterGas && isSendGiftSupported ? nativeAmount?.greaterThan(0) && !isUserInsufficientBalance : true
 
   return (
     <FormContainer>
@@ -447,7 +451,7 @@ export const SendAssetForm: React.FC<SendAssetFormProps> = ({ asset, onViewState
           id="send-gift-confirm-button"
           width="100%"
           onClick={() => {
-            if (isSendGift) {
+            if (isSendGiftSupported) {
               logGTMGiftPreviewEvent(asset.chainId)
             }
             onViewStateChange(ViewState.CONFIRM_TRANSACTION)
