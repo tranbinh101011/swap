@@ -1,5 +1,11 @@
 # @pancakeswap/universal-router-sdk
 
+## 1.4.9
+
+### Patch Changes
+
+- 8fe32db: Update Base Address
+
 ## 1.4.8
 
 ### Patch Changes
