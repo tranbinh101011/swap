@@ -53,6 +53,10 @@
     },
     "clean": {
       "cache": false
+    },
+    "test:translations": {
+      "outputs": [],
+      "dependsOn": ["build"]
     }
   }
 }

@@ -2,6 +2,7 @@
   "name": "@pancakeswap/solana-core-sdk",
   "version": "0.1.139-alpha",
   "description": "An SDK for building applications fork from Raydium.",
+  "private": true,
   "license": "GPL-3.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,9 +15,6 @@
     "type": "git",
     "url": "https://github.com/pancakeswap/pancake-frontend.git",
     "directory": "packages/solana-core-sdk"
-  },
-  "publishConfig": {
-    "access": "private"
   },
   "keywords": [
     "pancakeswap",
