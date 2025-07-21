@@ -422,6 +422,28 @@ describe('PancakeSwap Universal Router Infinity-Cl Pool Command Generation Test'
       testInfinitySingleSwapAction(POOL_TYPE.CLAMM, actions[1], ETHER, CAKE, maxIn, minOut, true)
       testInfinityTakeAction(actions[2], CAKE, MSG_SENDER, ACTION_CONSTANTS.OPEN_DELTA)
     })
+
+    it('should wrap return changes for exactOutput WETH->USDC swap', async () => {
+      const inputAmount = CurrencyAmount.fromRawAmount(ETHER.wrapped, 50n)
+      const outputAmount = CurrencyAmount.fromRawAmount(USDC, 1000n)
+      const trade = buildInfinityTrade(TradeType.EXACT_OUTPUT, inputAmount, outputAmount, [ETH_USDC_CL_INFI])
+
+      const options = swapOptions({})
+      const { calldata, value } = PancakeSwapUniversalRouter.swapERC20CallParameters(trade, options)
+      expect(calldata).toMatchSnapshot()
+      const maxIn = SmartRouter.maximumAmountIn(trade, options.slippageTolerance).quotient
+
+      expect(BigInt(value)).toEqual(0n)
+
+      const decodedCommands = decodeUniversalCalldata(calldata)
+
+      expect(decodedCommands.length).toEqual(4)
+
+      testPerm2TransferFromCommand(decodedCommands[0], ETHER.wrapped, ACTION_CONSTANTS.ADDRESS_THIS, maxIn)
+      testUnwrapCommand(decodedCommands[1], ACTION_CONSTANTS.ADDRESS_THIS, maxIn)
+      expect(decodedCommands[2].command).toEqual(CommandType[CommandType.INFI_SWAP])
+      testWrapETHCommand(decodedCommands[3], MSG_SENDER, BigInt(ACTION_CONSTANTS.CONTRACT_BALANCE))
+    })
   })
 
   describe('Infinity-CL-advanced', () => {

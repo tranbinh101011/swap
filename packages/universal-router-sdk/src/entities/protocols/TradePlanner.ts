@@ -380,8 +380,12 @@ export class TradePlanner extends RoutePlanner {
     const { returnChanges, user } = this.context
     if (returnChanges) {
       const { wrap } = returnChanges
-      const cmd = wrap ? CommandType.WRAP_ETH : CommandType.UNWRAP_WETH
-      this.addCommand(cmd, [user, 0n])
+      if (wrap) {
+        this.addCommand(CommandType.WRAP_ETH, [user, BigInt(ACTION_CONSTANTS.CONTRACT_BALANCE)])
+      } else {
+        // Unwrap WETH does not support ACTION_CONSTANTS.CONTRACT_BALANCE
+        this.addCommand(CommandType.UNWRAP_WETH, [user, 0n])
+      }
     }
   }
 

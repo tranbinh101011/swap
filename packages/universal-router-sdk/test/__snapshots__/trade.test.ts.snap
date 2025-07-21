@@ -2654,56 +2654,6 @@ exports[`PancakeSwap Universal Router Trade > v2 > should encode exactOutput USD
 ]
 `;
 
-exports[`PancakeSwap Universal Router Trade > v3 > label: should encode a single exactInput ETH->USDC swap (payerIsUser = false) 1`] = `
-[
-  {
-    "command": "WRAP_ETH",
-    "args": [
-      {
-        "type": "address",
-        "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000002"
-      },
-      {
-        "type": "uint256",
-        "name": "amountMin",
-        "value": "1000000000000000000"
-      }
-    ]
-  },
-  {
-    "command": "V3_SWAP_EXACT_IN",
-    "args": [
-      {
-        "type": "address",
-        "name": "recipient",
-        "value": "0x0000000000000000000000000000000000000001"
-      },
-      {
-        "type": "uint256",
-        "name": "amountIn",
-        "value": "1000000000000000000"
-      },
-      {
-        "type": "uint256",
-        "name": "amountOutMin",
-        "value": "949053319313984300"
-      },
-      {
-        "type": "bytes",
-        "name": "path",
-        "value": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc20009c4a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
-      },
-      {
-        "type": "bool",
-        "name": "payerIsUser",
-        "value": false
-      }
-    ]
-  }
-]
-`;
-
 exports[`PancakeSwap Universal Router Trade > v3 > should encode a exactInput ETH->USDC->USDT swap 1`] = `
 [
   {
