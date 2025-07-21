@@ -1,5 +1,11 @@
 # @pancakeswap/universal-router-sdk
 
+## 1.4.8
+
+### Patch Changes
+
+- 174f538: Handle WrapEth when give user changes
+
 ## 1.4.7
 
 ### Patch Changes
