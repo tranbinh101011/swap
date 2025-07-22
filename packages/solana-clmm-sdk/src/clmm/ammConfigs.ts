@@ -234,6 +234,28 @@ const mainnetAmmConfigs: Record<string, AmmConfig> = {
     defaultRange: 0.1,
     defaultRangePoint: [0.01, 0.05, 0.1, 0.2, 0.5],
   },
+  '4LTiLQbjodjCy8dFWqgUx6fzQ93Pq37c5jWGX9jRsRtC': {
+    id: '4LTiLQbjodjCy8dFWqgUx6fzQ93Pq37c5jWGX9jRsRtC',
+    index: 20,
+    protocolFeeRate: 160000,
+    tradeFeeRate: 3000,
+    tickSpacing: 60,
+    fundFeeRate: 0,
+    fundOwner: 'DmwXqqK5Zuj619au6q2Jx3TMr9ZV1837uxJcEwyvXVtV',
+    defaultRange: 0.1,
+    defaultRangePoint: [0.01, 0.05, 0.1, 0.2, 0.5],
+  },
+  '9rrh2c8w15HExZnLFzcEgkvHg846TBBFEPUuFG7RMGmm': {
+    id: '9rrh2c8w15HExZnLFzcEgkvHg846TBBFEPUuFG7RMGmm',
+    index: 21,
+    protocolFeeRate: 160000,
+    tradeFeeRate: 800,
+    tickSpacing: 1,
+    fundFeeRate: 0,
+    fundOwner: 'DmwXqqK5Zuj619au6q2Jx3TMr9ZV1837uxJcEwyvXVtV',
+    defaultRange: 0.1,
+    defaultRangePoint: [0.01, 0.05, 0.1, 0.2, 0.5],
+  },
 }
 
 const devnetAmmConfigs: Record<string, AmmConfig> = {
