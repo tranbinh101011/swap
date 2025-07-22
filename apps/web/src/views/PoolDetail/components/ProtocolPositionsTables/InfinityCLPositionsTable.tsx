@@ -13,6 +13,7 @@ import { PERSIST_CHAIN_KEY } from 'config/constants'
 import dayjs from 'dayjs'
 import { useUnclaimedFarmRewardsUSDByPoolId } from 'hooks/infinity/useFarmReward'
 import { usePoolById } from 'hooks/infinity/usePool'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useCurrencyUsdPrice } from 'hooks/useCurrencyUsdPrice'
 import { $path } from 'next-typesafe-url'
 import router from 'next/router'
@@ -39,7 +40,6 @@ import { InfinityPositionActions } from 'views/universalFarms/components/Positio
 import { useInfinityPositions } from 'views/universalFarms/hooks/useInfinityPositions'
 import { useInfinityCLPositionApr } from 'views/universalFarms/hooks/usePositionAPR'
 import { formatDollarAmount } from 'views/V3Info/utils/numbers'
-import { useAccount } from 'wagmi'
 import { ActionButton } from '../styles'
 import { InfinityCLEarningsCell } from './PoolEarningsCells'
 import { PositionsTable } from './PositionsTable'
@@ -350,7 +350,7 @@ const InfinityCLPositionRow: React.FC<{
 }
 
 export const InfinityCLPositionsTable: React.FC<InfinityCLPositionsTableProps> = ({ poolInfo }) => {
-  const { address: account } = useAccount()
+  const { account } = useAccountActiveChain()
   const chainId = useChainIdByQuery()
 
   const [flipCurrentPrice] = useFlipCurrentPrice()

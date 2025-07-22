@@ -36,7 +36,10 @@ export const InfinityPositionActions = ({
   const [, setLatestTxReceipt] = useLatestTxReceipt()
   const modalState = useModalV2()
 
-  const pos = pos_ ?? positionList?.[0] ?? {}
+  const pos =
+    pos_ ??
+    positionList?.find((x) => x.chainId === chainId_) ??
+    ({} as InfinityCLPositionDetail | InfinityBinPositionDetail)
 
   const { chainId: chainIdPos, poolKey } = pos
 
@@ -58,23 +61,24 @@ export const InfinityPositionActions = ({
   const currency1 = useCurrencyByChainId(pos?.poolKey?.currency1, chainId) ?? undefined
 
   const harvestList = useMemo(() => {
-    const filtered = positionList.filter(
-      (p) =>
-        !(
-          p === pos ||
-          (p.chainId === pos?.chainId &&
-            p.protocol === pos?.protocol &&
-            (p.protocol === Protocol.InfinityCLAMM
-              ? p.tokenId === (pos as InfinityCLPositionDetail).tokenId
-              : (p as InfinityBinPositionDetail).activeId === (pos as InfinityBinPositionDetail).activeId))
-        ),
-    )
-    // Only show the current chain's positions and prioritize the clicked position
+    const isSamePosition = (p: InfinityCLPositionDetail | InfinityBinPositionDetail) => {
+      if (!pos) return false
+      if (p.chainId !== pos.chainId || p.protocol !== pos.protocol) return false
+      return p.protocol === Protocol.InfinityCLAMM
+        ? p.tokenId === (pos as InfinityCLPositionDetail).tokenId
+        : (p as InfinityBinPositionDetail).activeId === (pos as InfinityBinPositionDetail).activeId
+    }
+
+    const filtered = positionList
+      .filter((p) => p.chainId === chainId) // Filter by chainId
+      .filter((p) => p !== pos && !isSamePosition(p)) // Exclude the current position and same position
+
     if (pos) {
       filtered.unshift(pos)
     }
+
     return filtered
-  }, [positionList, pos])
+  }, [positionList, pos, chainId])
 
   const handleCollect = useCallback(() => {
     if (pos?.protocol !== Protocol.InfinityCLAMM) {
@@ -113,6 +117,7 @@ export const InfinityPositionActions = ({
           positionList={harvestList}
           currency0={currency0}
           currency1={currency1}
+          chainId={chainId}
           onHarvest={onHarvest}
           onCollect={handleCollect}
           pos={pos}

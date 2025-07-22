@@ -11,6 +11,7 @@ import { useHookByPoolId } from 'hooks/infinity/useHooksList'
 import { useMemo } from 'react'
 import { usePoolInfo } from 'state/farmsV4/hooks'
 import { useInverted } from 'state/infinity/shared'
+import { getMultiChainName } from 'state/info/utils'
 import styled from 'styled-components'
 import { chainNameConverter } from 'utils/chainNameConverter'
 import { getCurrencyAddress } from 'utils/getCurrencyAddress'
@@ -72,6 +73,7 @@ export const InfoPanel = ({ poolId, chainId }: InfoPanelProps) => {
             <Flex flexDirection="column">
               <Flex alignItems="center">
                 <DoubleCurrencyLogoV2
+                  chainName={getMultiChainName(chainId)}
                   address0={getCurrencyAddress(currency0)}
                   address1={getCurrencyAddress(currency1)}
                   size={32}

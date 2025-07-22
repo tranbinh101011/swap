@@ -17,6 +17,8 @@ export const CROSSCHAIN_SUPPORTED_CHAINS = [
   ChainId.ZKSYNC,
 ]
 
+export const CROSSCHAIN_INFINITY_SWAP_SUPPORTED_CHAINS = [ChainId.BSC]
+
 // OriginChainId -> TokenAddress[]
 export const WHITELIST_TOKEN_MAP = {
   [ChainId.BSC.toString()]: [

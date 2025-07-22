@@ -22,6 +22,7 @@ import { useV2CakeEarning } from 'views/universalFarms/hooks/useCakeEarning'
 import { useV2FarmActions } from 'views/universalFarms/hooks/useV2FarmActions'
 import { sumApr } from 'views/universalFarms/utils/sumApr'
 import { useAccount } from 'wagmi'
+import { getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
 import { fetchAllUniversalFarmsMap } from '@pancakeswap/farms'
 import { StopPropagation } from '../StopPropagation'
 import { DepositStakeAction, HarvestAction, ModifyStakeActions } from './StakeActions'
@@ -145,12 +146,12 @@ const useDepositModal = (props: V2PositionActionsProps) => {
 
   const addLiquidityUrl = useMemo(() => {
     const liquidityUrlPathParts = getLiquidityUrlPathParts({
-      quoteTokenAddress: poolInfo.token0.wrapped.address,
-      tokenAddress: poolInfo.token1.address,
+      quoteTokenAddress: getCurrencyAddress(poolInfo.token0),
+      tokenAddress: getCurrencyAddress(poolInfo.token1),
       chainId: poolInfo.chainId,
     })
     return `/add/${liquidityUrlPathParts}`
-  }, [poolInfo.chainId, poolInfo.token0.wrapped.address, poolInfo.token1.address])
+  }, [poolInfo.chainId, poolInfo.token0, poolInfo.token1])
 
   const [onPresentDeposit] = useModal(
     <FarmWidget.DepositModal

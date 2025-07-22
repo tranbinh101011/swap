@@ -11,6 +11,7 @@ import { useAccountPositionDetailByPool } from 'state/farmsV4/hooks'
 import { useStableSwapPairsByChainId } from 'state/farmsV4/state/accountPositions/hooks'
 import { StablePoolInfo, V2PoolInfo } from 'state/farmsV4/state/type'
 import { isAddressEqual } from 'utils'
+import { getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
 import getLiquidityUrlPathParts from 'utils/getLiquidityUrlPathParts'
 import { Address } from 'viem'
 import { useMasterChefV2Data } from 'views/Farms/hooks/useMasterChefV2Data'
@@ -61,12 +62,12 @@ const AprModal: React.FC<Omit<V2PoolAprModalProps, 'modal'>> = ({ poolInfo, comb
 
   const addLiquidityUrl = useMemo(() => {
     const liquidityUrlPathParts = getLiquidityUrlPathParts({
-      quoteTokenAddress: poolInfo.token0.wrapped.address,
-      tokenAddress: poolInfo.token1.address,
+      quoteTokenAddress: getCurrencyAddress(poolInfo.token0),
+      tokenAddress: getCurrencyAddress(poolInfo.token1),
       chainId: poolInfo.chainId,
     })
     return `/add/${liquidityUrlPathParts}`
-  }, [poolInfo.chainId, poolInfo.token0.wrapped.address, poolInfo.token1.address])
+  }, [poolInfo.chainId, poolInfo.token0, poolInfo.token1])
 
   const stableConfig = useMemo((): LegacyStableSwapPair | undefined => {
     if (poolInfo.protocol === 'stable') {

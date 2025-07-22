@@ -920,6 +920,10 @@ export const useConfirmModalState = (
       if (!walletClient?.transport || !spender) {
         return false
       }
+      // Disable batching for Base chain
+      if (chainId === ChainId.BASE) {
+        return false
+      }
       if (eip5792Status === 'unsupported' || steps.length <= 1) {
         return false
       }
@@ -929,7 +933,7 @@ export const useConfirmModalState = (
       }
       return true
     },
-    [eip5792Status, getBatchedTransaction, walletClient?.transport, spender],
+    [eip5792Status, getBatchedTransaction, walletClient?.transport, spender, chainId],
   )
 
   const callActionBatched = useCallback(

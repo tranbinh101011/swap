@@ -6,13 +6,14 @@ import { getAddInfinityLiquidityURL } from 'config/constants/liquidity'
 import type { InfinityPoolInfo, PoolInfo } from 'state/farmsV4/state/type'
 import { multiChainPaths } from 'state/info/constant'
 import type { Address } from 'viem'
+import { getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
 import { addQueryToPath } from './addQueryToPath'
 import { isAddressEqual } from './safeGetAddress'
 
 export function getPoolAddLiquidityLink(pool: PoolInfo): string {
   const { chainId, protocol, lpAddress, feeTier } = pool
-  const token0Address = pool.token0?.wrapped.address as Address | undefined
-  const token1Address = pool.token1?.address as Address | undefined
+  const token0Address = pool.token0 ? (getCurrencyAddress(pool.token0) as Address) : undefined
+  const token1Address = pool.token1 ? (getCurrencyAddress(pool.token1) as Address) : undefined
   const tokenPath = token0Address && token1Address ? `${token0Address}/${token1Address}` : ''
   const poolId = (pool as Partial<InfinityPoolInfo>).poolId
 

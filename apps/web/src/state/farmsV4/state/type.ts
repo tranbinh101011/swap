@@ -1,6 +1,6 @@
 import { Protocol } from '@pancakeswap/farms'
 import { HookData } from '@pancakeswap/infinity-sdk'
-import { Currency, Token } from '@pancakeswap/swap-sdk-core'
+import { Currency } from '@pancakeswap/swap-sdk-core'
 import { Address } from 'viem'
 import { FarmInfo } from '../search/farm.util'
 
@@ -17,7 +17,7 @@ export type BasePoolInfo = {
   stableSwapAddress?: Address
   protocol: Protocol
   token0: Currency
-  token1: Token
+  token1: Currency
   token0Price?: `${number}`
   token1Price?: `${number}`
   tvlToken0?: `${number}`

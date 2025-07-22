@@ -1,7 +1,8 @@
 import { Protocol, fetchAllUniversalFarms } from '@pancakeswap/farms'
 import { BinPoolManagerAbi } from '@pancakeswap/infinity-sdk'
+import { Native } from '@pancakeswap/sdk'
 import { LegacyRouter } from '@pancakeswap/smart-router/legacy-router'
-import { Token } from '@pancakeswap/swap-sdk-core'
+import { Token, ZERO_ADDRESS } from '@pancakeswap/swap-sdk-core'
 import { getTokenByAddress } from '@pancakeswap/tokens'
 import BN from 'bignumber.js'
 import { paths } from 'state/info/api/schema'
@@ -67,14 +68,21 @@ export const parseFarmPools = async (
         // eslint-disable-next-line prefer-destructuring
         pid = Number(localFarm.pid) ?? undefined
       }
-      const token0Address = safeGetAddress(pool.token0.id)!
-      const token0 =
-        getTokenByAddress(pool.chainId, token0Address) ??
-        new Token(pool.chainId, token0Address, pool.token0.decimals, pool.token0.symbol, pool.token0.name)
-      const token1Address = safeGetAddress(pool.token1.id)!
-      const token1 =
-        getTokenByAddress(pool.chainId, token1Address) ??
-        new Token(pool.chainId, token1Address, pool.token1.decimals, pool.token1.symbol, pool.token1.name)
+      const token0 = getCurrency(
+        pool.chainId,
+        pool.token0.id,
+        pool.token0.decimals,
+        pool.token0.symbol,
+        pool.token0.name,
+      )
+      const token1 = getCurrency(
+        pool.chainId,
+        pool.token1.id,
+        pool.token1.decimals,
+        pool.token1.symbol,
+        pool.token1.name,
+      )
+
       return {
         chainId: pool.chainId,
         pid,
@@ -116,4 +124,17 @@ export const getPoolMultiplier = (allocPoint: bigint) => {
     return `0X`
   }
   return `${+new BN(allocPoint.toString()).div(10).toString()}X`
+}
+
+function getCurrency(chainId: number, address: Address, decimals: number, symbol: string, name?: string) {
+  const tokenAddress = safeGetAddress(address)!
+
+  const token = getTokenByAddress(chainId, tokenAddress)
+  if (token) {
+    return token
+  }
+  if (tokenAddress === ZERO_ADDRESS) {
+    return Native.onChain(chainId)
+  }
+  return new Token(chainId, tokenAddress, decimals, symbol, name)
 }

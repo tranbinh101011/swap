@@ -20,6 +20,8 @@ import {
 import truncateHash from '@pancakeswap/utils/truncateHash'
 import { Liquidity } from '@pancakeswap/widgets-internal'
 import { PropsWithChildren, useMemo } from 'react'
+import { getBlockExploreLink } from 'utils'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 
 const HookInfoItem = ({
   label,
@@ -60,6 +62,7 @@ export const PoolFeaturesModal = ({ hookData, children }: PropsWithChildren<Pool
 
   const forwardIcon = useMemo(() => <OpenNewIcon ml="8px" width="24px" color="primary60" />, [])
   const githubIcon = useMemo(() => <GithubIconComponent ml="8px" width="24px" color="primary60" />, [])
+  const { chainId } = useActiveChainId()
 
   if (!hookData) {
     return null
@@ -103,7 +106,7 @@ export const PoolFeaturesModal = ({ hookData, children }: PropsWithChildren<Pool
                 text={truncateHash(hookData.address)}
                 icon={forwardIcon}
                 external
-                href={`https://bscscan.com/address/${hookData.address}`}
+                href={getBlockExploreLink(hookData.address, 'address', chainId)}
               />
             )}
             {hookData.github && (

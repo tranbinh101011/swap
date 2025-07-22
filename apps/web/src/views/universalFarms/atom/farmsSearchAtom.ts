@@ -24,6 +24,7 @@ import { farmFilters } from 'state/farmsV4/search/filters'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import { listsAtom } from 'state/lists/lists'
 import { userShowTestnetAtom } from 'state/user/hooks/useUserShowTestnet'
+import { HIDE_POOLS } from 'config/constants/hidePools'
 
 async function fetchFarmList({
   extend = false,
@@ -111,7 +112,7 @@ const searchAtom = atomFamily((query: FarmQuery) => {
           for (const token of relatedTokens) {
             if (supportedChainIdV4.includes(token.chainId)) {
               if (token.address === ZERO_ADDRESS) {
-                const wrapped = Native.onChain(token.chainId).wrapped
+                const { wrapped } = Native.onChain(token.chainId)
                 const extendToken = get(
                   extendListAtom({
                     protocols,
@@ -257,11 +258,20 @@ export const farmsSearchAtom = atomFamily((query) => {
   return atom((get) => {
     const sliced = get(farmsWithPagingAtom(query))
     const withFilledData = get(farmsWithFilledDataAtom(query))
+    const filterHidden = (pools?: PoolInfo[]) => {
+      if (!pools) return []
+      return pools.filter((pool) => {
+        const list = HIDE_POOLS[pool.chainId]
+        const poolId = pool.farm?.id.toLocaleLowerCase()
+        if (!list || !poolId) return true
+        return !list.includes(poolId)
+      })
+    }
 
     if (withFilledData.isPending()) {
-      return sliced
+      return sliced.map(filterHidden)
     }
-    return withFilledData
+    return withFilledData.map(filterHidden)
   })
 }, isEqual)
 
@@ -331,7 +341,7 @@ const tokensMapAtom = atom((get) => {
 
   for (const native of nativeTokens) {
     records[`${native.chainId}:${ZERO_ADDRESS}`.toLowerCase()] = native
-    const wrapped = Native.onChain(native.chainId).wrapped
+    const { wrapped } = Native.onChain(native.chainId)
     addToSymbolsMap(native)
     addToSymbolsMap(native, wrapped.symbol.toLowerCase())
   }

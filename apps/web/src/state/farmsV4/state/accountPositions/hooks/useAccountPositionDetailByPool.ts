@@ -3,6 +3,7 @@ import { getPoolId } from '@pancakeswap/infinity-sdk'
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import { usePositionsWithFarming } from 'hooks/infinity/useIsFarming'
 import { useCallback, useMemo } from 'react'
+import { getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
 import { isAddressEqual } from 'utils'
 import { isInfinityProtocol } from 'utils/protocols'
 import { Address, Hex } from 'viem'
@@ -99,10 +100,10 @@ export const useAccountPositionDetailByPool = <TProtocol extends keyof PoolPosit
           const d = data.filter((position) => {
             const { token0, token1, fee } = position as PositionDetail
             return (
-              poolInfo?.token0.wrapped.address &&
-              isAddressEqual(token0, poolInfo?.token0.wrapped.address as Address) &&
-              poolInfo?.token1.address &&
-              isAddressEqual(token1, poolInfo?.token1.wrapped.address as Address) &&
+              poolInfo?.token0 &&
+              isAddressEqual(token0, getCurrencyAddress(poolInfo.token0) as Address) &&
+              poolInfo?.token1 &&
+              isAddressEqual(token1, getCurrencyAddress(poolInfo.token1) as Address) &&
               fee === poolInfo?.feeTier
             )
           })

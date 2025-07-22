@@ -1,6 +1,6 @@
 import { Protocol } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
-import { Percent, Token } from '@pancakeswap/swap-sdk-core'
+import { Percent, Token, getCurrencyAddress } from '@pancakeswap/swap-sdk-core'
 import {
   AutoColumn,
   Box,
@@ -91,9 +91,9 @@ export const PoolInfo = () => {
   const [tab, setTab] = useState(PoolDetailTab.MyPositions)
 
   const currency0 =
-    useCurrencyByChainId(poolInfo?.token0.isNative ? zeroAddress : (poolInfo?.token0 as Token)?.address, chainId) ??
-    undefined
-  const currency1 = useCurrencyByChainId(poolInfo?.token1.address, chainId) ?? undefined
+    useCurrencyByChainId(poolInfo?.token0 ? getCurrencyAddress(poolInfo.token0) : undefined, chainId) ?? undefined
+  const currency1 =
+    useCurrencyByChainId(poolInfo?.token1 ? getCurrencyAddress(poolInfo.token1) : undefined, chainId) ?? undefined
 
   const fee = useMemo(() => {
     return new Percent(poolInfo?.feeTier ?? 0n, poolInfo?.feeTierBase)
