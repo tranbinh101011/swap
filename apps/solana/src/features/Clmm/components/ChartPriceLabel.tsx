@@ -28,7 +28,7 @@ export default function ChartPriceLabel({ currentPrice, currentPriceLabel, timeP
       <Flex gap="2">
         <Flex flexDirection={['row', 'column']} gap={[2, 2]}>
           <Flex flexDirection="row" gap="4px" alignItems="center">
-            <Box width="8px" height="8px" bg={colors.secondary} rounded="full" />
+            <Box width="8px" height="8px" bg={colors.textSubtle} rounded="full" />
             <Text fontSize="xs" color={colors.textSubtle}>
               {t('Current Price')}
             </Text>
@@ -45,7 +45,7 @@ export default function ChartPriceLabel({ currentPrice, currentPriceLabel, timeP
       <Flex gap="2">
         <Flex flexDirection={['row', 'column']} gap={[2, 2]}>
           <Flex flexDirection="row" gap="4px" alignItems="center">
-            <Box width="8px" height="8px" bg={colors.textSubtle} rounded="full" />
+            <Box width="8px" height="8px" bg={colors.secondary} rounded="full" />
             <Text fontSize="xs" color={colors.textSubtle}>
               {t('%time% Price Range', {
                 time: timeLabel

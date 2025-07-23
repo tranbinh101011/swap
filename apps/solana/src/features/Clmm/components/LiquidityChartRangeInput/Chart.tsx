@@ -237,14 +237,14 @@ export function Chart({
           />
         </g>
         {/* current price line */}
-        <Line value={current} y1={10} color={colors.secondary} xScale={xScale} innerHeight={innerHeight + 10} />
+        <Line value={current} y1={10} color={colors.textSubtle} xScale={xScale} innerHeight={innerHeight + 10} />
 
         {/* 24 price range line */}
         {Number.isNaN(Number(priceMin)) ? null : (
-          <Line value={priceMin as number} y1={10} color={colors.textSubtle} xScale={xScale} innerHeight={innerHeight + 10} />
+          <Line value={priceMin as number} y1={10} color={colors.secondary} xScale={xScale} innerHeight={innerHeight + 10} />
         )}
         {Number.isNaN(Number(priceMax)) ? null : (
-          <Line value={priceMax as number} y1={10} color={colors.textSubtle} xScale={xScale} innerHeight={innerHeight + 10} />
+          <Line value={priceMax as number} y1={10} color={colors.secondary} xScale={xScale} innerHeight={innerHeight + 10} />
         )}
       </svg>
     </>
