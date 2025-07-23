@@ -39,6 +39,7 @@ catalogs:
 
 overrides:
   supports-color: ^8.1.1
+  stylus: 0.0.1-security
 
 patchedDependencies:
   '@ledgerhq/connect-kit-loader@1.1.2':
@@ -79,7 +80,7 @@ importers:
         version: 6.10.0(eslint@8.53.0)(typescript@5.7.3)
       '@vitest/coverage-v8':
         specifier: ^2.1.4
-        version: 2.1.9(vitest@2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 2.1.9(vitest@2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(terser@5.39.0))
       eslint:
         specifier: ^8.32.0
         version: 8.53.0
@@ -133,7 +134,7 @@ importers:
         version: 5.7.3
       vitest:
         specifier: ^2.1.4
-        version: 2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+        version: 2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(terser@5.39.0)
       wrangler:
         specifier: 'catalog:'
         version: 3.81.0(@cloudflare/workers-types@3.19.0)(bufferutil@4.0.8)(utf-8-validate@6.0.3)
@@ -334,7 +335,7 @@ importers:
         version: 1.14.0
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       '@vanilla-extract/recipes':
         specifier: ^0.5.0
         version: 0.5.1(@vanilla-extract/css@1.14.0)
@@ -404,10 +405,10 @@ importers:
         version: 18.0.7
       '@vanilla-extract/vite-plugin':
         specifier: ^3.8.0
-        version: 3.9.0(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(ts-node@10.9.1(@types/node@18.0.4)(typescript@5.7.3))(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 3.9.0(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)(ts-node@10.9.1(@types/node@18.0.4)(typescript@5.7.3))(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0))
       '@vitejs/plugin-react':
         specifier: 4.2.1
-        version: 4.2.1(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0))
       eslint:
         specifier: ^8.32.0
         version: 8.53.0
@@ -416,10 +417,10 @@ importers:
         version: 13.3.8
       vite-tsconfig-paths:
         specifier: ^4.0.3
-        version: 4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0))
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.98.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.98.0)
 
   apps/blog:
     dependencies:
@@ -443,16 +444,16 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       next:
         specifier: 'catalog:'
-        version: 15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
+        version: 15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
       next-seo:
         specifier: ^5.15.0
-        version: 5.15.0(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 5.15.0(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       next-themes:
         specifier: ^0.2.1
-        version: 0.2.1(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 0.2.1(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       qs:
         specifier: ^6.0.0
         version: 6.11.2
@@ -504,7 +505,7 @@ importers:
         version: 8.53.0
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.98.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.98.0)
 
   apps/bridge:
     dependencies:
@@ -531,7 +532,7 @@ importers:
         version: link:../../packages/utils
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       '@wagmi/core':
         specifier: ^0.10.11
         version: 0.10.17(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
@@ -595,7 +596,7 @@ importers:
         version: 8.53.0
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.98.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.98.0)
 
   apps/e2e:
     dependencies:
@@ -635,7 +636,7 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       dayjs:
         specifier: ^1.11.10
         version: 1.11.10
@@ -711,7 +712,7 @@ importers:
         version: 7.4.0(eslint@8.53.0)
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.98.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.98.0)
 
   apps/gamification:
     dependencies:
@@ -789,7 +790,7 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       '@wagmi/core':
         specifier: 2.10.5
         version: 2.10.5(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
@@ -949,7 +950,7 @@ importers:
         version: 0.1.1
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.98.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.98.0)
 
   apps/solana:
     dependencies:
@@ -1024,7 +1025,7 @@ importers:
         version: 0.13.65(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)
       '@sentry/nextjs':
         specifier: ^8.26.0
-        version: 8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0)
       '@solana/buffer-layout':
         specifier: ^4.0.1
         version: 4.0.1
@@ -1319,10 +1320,10 @@ importers:
         version: 9.0.8
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.7.23)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.7.23)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       '@vanilla-extract/vite-plugin':
         specifier: ^4.0.2
-        version: 4.0.2(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.0.2(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0))
       '@vercel/flags':
         specifier: ^2.3.0
         version: 2.3.0(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1331,7 +1332,7 @@ importers:
         version: 0.1.13(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)
       '@vitejs/plugin-react':
         specifier: 4.2.1
-        version: 4.2.1(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0))
       eslint:
         specifier: ^8.22.0
         version: 8.53.0
@@ -1403,10 +1404,10 @@ importers:
         version: 5.7.3
       vite-tsconfig-paths:
         specifier: ^4.0.3
-        version: 4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0))
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.98.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.98.0)
 
   apps/ton:
     dependencies:
@@ -1587,7 +1588,7 @@ importers:
         version: 1.9.7(react-redux@8.1.3(@types/react-dom@18.0.7)(@types/react@18.2.37)(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)(redux@4.2.1))(react@18.2.0)
       '@sentry/nextjs':
         specifier: ^9.6.0
-        version: 9.6.1(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 9.6.1(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0)
       '@snapshot-labs/snapshot.js':
         specifier: ^0.4.40
         version: 0.4.110(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -1596,7 +1597,7 @@ importers:
         version: 5.52.1(react@18.2.0)
       '@vanilla-extract/next-plugin':
         specifier: ^2.3.0
-        version: 2.3.2(@types/node@18.19.75)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 2.3.2(@types/node@18.19.75)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       '@vercel/functions':
         specifier: 'catalog:'
         version: 2.0.0(@aws-sdk/credential-provider-web-identity@3.797.0)
@@ -1885,7 +1886,7 @@ importers:
         version: 8.3.4
       '@vanilla-extract/vite-plugin':
         specifier: ^4.0.2
-        version: 4.0.2(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.0.2(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0))
       '@vercel/flags':
         specifier: ^2.3.0
         version: 2.3.0(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1894,7 +1895,7 @@ importers:
         version: 0.1.13(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)
       '@vitejs/plugin-react':
         specifier: 4.2.1
-        version: 4.2.1(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0))
       concurrently:
         specifier: ^9.0.1
         version: 9.1.2
@@ -1960,10 +1961,10 @@ importers:
         version: 5.7.3
       vite-tsconfig-paths:
         specifier: ^4.0.3
-        version: 4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0))
       webpack-retry-chunk-load-plugin:
         specifier: 3.1.1
-        version: 3.1.1(webpack@5.98.0(esbuild@0.17.19))
+        version: 3.1.1(webpack@5.98.0)
 
   examples/playground:
     dependencies:
@@ -2097,7 +2098,7 @@ importers:
     dependencies:
       '@bnb-chain/canonical-bridge-widget':
         specifier: 0.6.1
-        version: 0.6.1(b1400bb0b37bd8584efadbe44fd26501)
+        version: 0.6.1(11038eed055c208d4aa134cde648a7f1)
       '@emotion/react':
         specifier: ^11
         version: 11.11.4(@types/react@18.2.37)(react@18.2.0)
@@ -2155,7 +2156,7 @@ importers:
         version: 4.4.10
       '@vitejs/plugin-react':
         specifier: 4.2.1
-        version: 4.2.1(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -2167,10 +2168,10 @@ importers:
         version: 2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
       vite:
         specifier: 5.0.12
-        version: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+        version: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
       vite-plugin-dts:
         specifier: ^3.5.3
-        version: 3.6.3(@types/node@22.7.5)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 3.6.3(@types/node@22.7.5)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       wagmi:
         specifier: 'catalog:'
         version: 2.14.11(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.69.0)(@tanstack/react-query@5.52.1(react@18.2.0))(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
@@ -2370,7 +2371,7 @@ importers:
         version: 2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
       wagmi:
         specifier: 'catalog:'
-        version: 2.14.11(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.69.0)(@tanstack/react-query@5.52.1(react@18.2.0))(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
+        version: 2.14.11(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.69.0)(@tanstack/react-query@5.52.1(react@18.2.0))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
 
   packages/infinity-sdk:
     dependencies:
@@ -2595,9 +2596,6 @@ importers:
       style-loader:
         specifier: ^3.3.4
         version: 3.3.4(webpack@5.98.0)
-      stylus:
-        specifier: ^0.59.0
-        version: 0.59.0
       svg-inline-loader:
         specifier: ^0.8.2
         version: 0.8.2
@@ -3590,13 +3588,13 @@ importers:
         version: 7.5.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/builder-vite':
         specifier: ^7.0.7
-        version: 7.5.3(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 7.5.3(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       '@storybook/react':
         specifier: ^7.0.7
         version: 7.5.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.7.3)
       '@storybook/react-vite':
         specifier: ^7.0.7
-        version: 7.5.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 7.5.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       '@testing-library/jest-dom':
         specifier: ^5.11.6
         version: 5.17.0
@@ -3629,10 +3627,10 @@ importers:
         version: 5.1.4
       '@vanilla-extract/vite-plugin':
         specifier: ^3.8.0
-        version: 3.9.0(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.7.3))(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 3.9.0(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.7.3))(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       '@vitejs/plugin-react':
         specifier: 4.2.1
-        version: 4.2.1(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       babel-loader:
         specifier: ^9.1.2
         version: 9.1.3(@babel/core@7.23.9)(webpack@5.98.0(esbuild@0.18.20))
@@ -3698,13 +3696,13 @@ importers:
         version: 6.0.7(babel-plugin-styled-components@1.13.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       vite:
         specifier: 5.0.12
-        version: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+        version: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
       vite-plugin-dts:
         specifier: ^3.5.3
-        version: 3.6.3(@types/node@22.7.5)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 3.6.3(@types/node@22.7.5)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       vite-tsconfig-paths:
         specifier: ^4.0.3
-        version: 4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+        version: 4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
 
   packages/universal-router-sdk:
     dependencies:
@@ -3968,7 +3966,7 @@ importers:
     devDependencies:
       '@sentry/nextjs':
         specifier: ^9.6.0
-        version: 9.6.1(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0(esbuild@0.17.19))
+        version: 9.6.1(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0)
       '@types/d3':
         specifier: ^7.4.0
         version: 7.4.3
@@ -22503,9 +22501,6 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  sax@1.2.4:
-    resolution: {integrity: sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==}
-
   saxes@5.0.1:
     resolution: {integrity: sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==}
     engines: {node: '>=10'}
@@ -23210,10 +23205,6 @@ packages:
 
   stylis@4.3.0:
     resolution: {integrity: sha512-E87pIogpwUsUwXw7dNyU4QDjdgVMy52m+XEOPEKUn161cCzWjjhPSQhByfd1CcNvrOLnXQ6OnnZDwnJrz/Z4YQ==}
-
-  stylus@0.59.0:
-    resolution: {integrity: sha512-lQ9w/XIOH5ZHVNuNbWW8D822r+/wBSO/d6XvtyHLF7LW4KaCIDeVbvn5DF8fGCJAUCwVhVi/h6J0NUcnylUEjg==}
-    hasBin: true
 
   sucrase@3.34.0:
     resolution: {integrity: sha512-70/LQEZ07TEcxiU2dz51FKaE6hCTWC6vr7FOk3Gr0U60C3shtAN+H+BFr9XlYe5xqf3RA8nrc+VIwzCfnxuXJw==}
@@ -24461,7 +24452,7 @@ packages:
       '@types/node': '>= 14'
       less: '*'
       sass: '*'
-      stylus: '*'
+      stylus: 0.0.1-security
       sugarss: '*'
       terser: ^5.4.0
     peerDependenciesMeta:
@@ -24487,7 +24478,7 @@ packages:
       less: '*'
       lightningcss: ^1.21.0
       sass: '*'
-      stylus: '*'
+      stylus: 0.0.1-security
       sugarss: '*'
       terser: ^5.4.0
     peerDependenciesMeta:
@@ -27195,7 +27186,7 @@ snapshots:
       axios: 1.6.8(debug@4.4.0)
       viem: 2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
 
-  '@bnb-chain/canonical-bridge-widget@0.6.1(b1400bb0b37bd8584efadbe44fd26501)':
+  '@bnb-chain/canonical-bridge-widget@0.6.1(11038eed055c208d4aa134cde648a7f1)':
     dependencies:
       '@bnb-chain/canonical-bridge-sdk': 0.5.0(axios@1.6.8)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))
       '@emotion/react': 11.11.4(@types/react@18.2.37)(react@18.2.0)
@@ -31236,13 +31227,13 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@joshwooding/vite-plugin-react-docgen-typescript@0.3.0(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@joshwooding/vite-plugin-react-docgen-typescript@0.3.0(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       glob: 7.2.3
       glob-promise: 4.2.2(glob@7.2.3)
       magic-string: 0.27.0
       react-docgen-typescript: 2.2.2(typescript@5.7.3)
-      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     optionalDependencies:
       typescript: 5.7.3
 
@@ -32271,7 +32262,7 @@ snapshots:
     dependencies:
       '@types/apple-signin-api': 1.5.3
       '@types/google-one-tap': 1.2.6
-      '@wagmi/connectors': 5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
+      '@wagmi/connectors': 5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
       '@wagmi/core': 2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))
       react-apple-signin-auth: 1.1.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       viem: 2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
@@ -35299,7 +35290,7 @@ snapshots:
       tslib: 1.14.1
     optional: true
 
-  '@sentry/nextjs@8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@sentry/nextjs@8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.30.0
@@ -35310,7 +35301,7 @@ snapshots:
       '@sentry/opentelemetry': 8.55.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.30.0)
       '@sentry/react': 8.55.0(react@18.2.0)
       '@sentry/vercel-edge': 8.55.0
-      '@sentry/webpack-plugin': 2.22.7(webpack@5.98.0(esbuild@0.17.19))
+      '@sentry/webpack-plugin': 2.22.7(webpack@5.98.0)
       chalk: 3.0.0
       next: 15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
       resolve: 1.22.8
@@ -35326,7 +35317,7 @@ snapshots:
       - supports-color
       - webpack
 
-  '@sentry/nextjs@9.6.1(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@sentry/nextjs@9.6.1(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.30.0
@@ -35337,7 +35328,7 @@ snapshots:
       '@sentry/opentelemetry': 9.6.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.30.0)
       '@sentry/react': 9.6.1(react@18.2.0)
       '@sentry/vercel-edge': 9.6.1
-      '@sentry/webpack-plugin': 3.2.2(webpack@5.98.0(esbuild@0.17.19))
+      '@sentry/webpack-plugin': 3.2.2(webpack@5.98.0)
       chalk: 3.0.0
       next: 15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
       resolve: 1.22.8
@@ -35353,7 +35344,7 @@ snapshots:
       - supports-color
       - webpack
 
-  '@sentry/nextjs@9.6.1(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@sentry/nextjs@9.6.1(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(react@18.2.0)(webpack@5.98.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.30.0
@@ -35364,7 +35355,7 @@ snapshots:
       '@sentry/opentelemetry': 9.6.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.30.0)
       '@sentry/react': 9.6.1(react@18.2.0)
       '@sentry/vercel-edge': 9.6.1
-      '@sentry/webpack-plugin': 3.2.2(webpack@5.98.0(esbuild@0.17.19))
+      '@sentry/webpack-plugin': 3.2.2(webpack@5.98.0)
       chalk: 3.0.0
       next: 15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
       resolve: 1.22.8
@@ -35536,22 +35527,22 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@sentry/core': 9.6.1
 
-  '@sentry/webpack-plugin@2.22.7(webpack@5.98.0(esbuild@0.17.19))':
+  '@sentry/webpack-plugin@2.22.7(webpack@5.98.0)':
     dependencies:
       '@sentry/bundler-plugin-core': 2.22.7
       unplugin: 1.0.1
       uuid: 9.0.1
-      webpack: 5.98.0(esbuild@0.17.19)
+      webpack: 5.98.0
     transitivePeerDependencies:
       - encoding
       - supports-color
 
-  '@sentry/webpack-plugin@3.2.2(webpack@5.98.0(esbuild@0.17.19))':
+  '@sentry/webpack-plugin@3.2.2(webpack@5.98.0)':
     dependencies:
       '@sentry/bundler-plugin-core': 3.2.2
       unplugin: 1.0.1
       uuid: 9.0.1
-      webpack: 5.98.0(esbuild@0.17.19)
+      webpack: 5.98.0
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -40018,7 +40009,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/builder-vite@7.5.3(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@storybook/builder-vite@7.5.3(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       '@storybook/channels': 7.5.3
       '@storybook/client-logger': 7.5.3
@@ -40036,7 +40027,7 @@ snapshots:
       fs-extra: 11.1.1
       magic-string: 0.30.5
       rollup: 2.79.1
-      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     optionalDependencies:
       typescript: 5.7.3
     transitivePeerDependencies:
@@ -40322,18 +40313,18 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  '@storybook/react-vite@7.5.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@storybook/react-vite@7.5.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
-      '@joshwooding/vite-plugin-react-docgen-typescript': 0.3.0(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+      '@joshwooding/vite-plugin-react-docgen-typescript': 0.3.0(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       '@rollup/pluginutils': 5.0.5(rollup@4.35.0)
-      '@storybook/builder-vite': 7.5.3(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+      '@storybook/builder-vite': 7.5.3(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       '@storybook/react': 7.5.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.7.3)
-      '@vitejs/plugin-react': 3.1.0(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+      '@vitejs/plugin-react': 3.1.0(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))
       magic-string: 0.30.5
       react: 18.2.0
       react-docgen: 6.0.4
       react-dom: 18.2.0(react@18.2.0)
-      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@preact/preset-vite'
       - encoding
@@ -42281,7 +42272,7 @@ snapshots:
       modern-ahocorasick: 1.0.1
       outdent: 0.8.0
 
-  '@vanilla-extract/integration@6.2.3(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)':
+  '@vanilla-extract/integration@6.2.3(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
@@ -42294,8 +42285,8 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.4.2
       outdent: 0.8.0
-      vite: 4.3.9(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite-node: 0.28.5(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 4.3.9(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)
+      vite-node: 0.28.5(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42305,7 +42296,7 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/integration@6.2.3(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)':
+  '@vanilla-extract/integration@6.2.3(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
@@ -42318,8 +42309,8 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.4.2
       outdent: 0.8.0
-      vite: 4.3.9(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite-node: 0.28.5(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 4.3.9(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
+      vite-node: 0.28.5(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42329,7 +42320,7 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/integration@6.2.3(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)':
+  '@vanilla-extract/integration@6.2.3(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
@@ -42342,8 +42333,8 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.4.2
       outdent: 0.8.0
-      vite: 4.3.9(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite-node: 0.28.5(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 4.3.9(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
+      vite-node: 0.28.5(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42353,7 +42344,7 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/integration@6.2.3(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)':
+  '@vanilla-extract/integration@6.2.3(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
@@ -42366,8 +42357,8 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.4.2
       outdent: 0.8.0
-      vite: 4.3.9(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite-node: 0.28.5(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 4.3.9(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
+      vite-node: 0.28.5(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42377,7 +42368,7 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/integration@6.5.0(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)':
+  '@vanilla-extract/integration@6.5.0(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
@@ -42390,8 +42381,8 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.4.2
       outdent: 0.8.0
-      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite-node: 1.2.2(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
+      vite-node: 1.2.2(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42402,7 +42393,7 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/integration@6.5.0(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)':
+  '@vanilla-extract/integration@6.5.0(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
@@ -42415,8 +42406,8 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.4.2
       outdent: 0.8.0
-      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite-node: 1.2.2(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
+      vite-node: 1.2.2(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42427,9 +42418,9 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)':
     dependencies:
-      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       next: 15.2.3(@babel/core@7.23.3)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -42441,9 +42432,9 @@ snapshots:
       - terser
       - webpack
 
-  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.0.4)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)':
     dependencies:
-      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       next: 15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -42455,9 +42446,9 @@ snapshots:
       - terser
       - webpack
 
-  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.19.75)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.19.75)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)':
     dependencies:
-      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       next: 15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -42469,9 +42460,9 @@ snapshots:
       - terser
       - webpack
 
-  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.7.23)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@vanilla-extract/next-plugin@2.3.2(@types/node@18.7.23)(next@15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0))(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)':
     dependencies:
-      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))
+      '@vanilla-extract/webpack-plugin': 2.3.1(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)
       next: 15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -42493,13 +42484,13 @@ snapshots:
     dependencies:
       '@vanilla-extract/css': 1.14.0
 
-  '@vanilla-extract/vite-plugin@3.9.0(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(ts-node@10.9.1(@types/node@18.0.4)(typescript@5.7.3))(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vanilla-extract/vite-plugin@3.9.0(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)(ts-node@10.9.1(@types/node@18.0.4)(typescript@5.7.3))(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
-      '@vanilla-extract/integration': 6.2.3(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      '@vanilla-extract/integration': 6.2.3(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)
       outdent: 0.8.0
       postcss: 8.4.31
       postcss-load-config: 3.1.4(postcss@8.4.31)(ts-node@10.9.1(@types/node@18.0.4)(typescript@5.7.3))
-      vite: 5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42510,13 +42501,13 @@ snapshots:
       - terser
       - ts-node
 
-  '@vanilla-extract/vite-plugin@3.9.0(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.7.3))(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vanilla-extract/vite-plugin@3.9.0(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.7.3))(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
-      '@vanilla-extract/integration': 6.2.3(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      '@vanilla-extract/integration': 6.2.3(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
       outdent: 0.8.0
       postcss: 8.4.31
       postcss-load-config: 3.1.4(postcss@8.4.31)(ts-node@10.9.1(@types/node@22.7.5)(typescript@5.7.3))
-      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42527,10 +42518,10 @@ snapshots:
       - terser
       - ts-node
 
-  '@vanilla-extract/vite-plugin@4.0.2(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vanilla-extract/vite-plugin@4.0.2(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
-      '@vanilla-extract/integration': 6.5.0(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      '@vanilla-extract/integration': 6.5.0(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42541,10 +42532,10 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/vite-plugin@4.0.2(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vanilla-extract/vite-plugin@4.0.2(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
-      '@vanilla-extract/integration': 6.5.0(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      '@vanilla-extract/integration': 6.5.0(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42555,13 +42546,13 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)':
     dependencies:
-      '@vanilla-extract/integration': 6.2.3(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      '@vanilla-extract/integration': 6.2.3(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)
       chalk: 4.1.2
       debug: 4.3.4(supports-color@8.1.1)
       loader-utils: 2.0.4
-      webpack: 5.98.0(esbuild@0.17.19)
+      webpack: 5.98.0
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42571,13 +42562,13 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)':
     dependencies:
-      '@vanilla-extract/integration': 6.2.3(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      '@vanilla-extract/integration': 6.2.3(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
       chalk: 4.1.2
       debug: 4.3.4(supports-color@8.1.1)
       loader-utils: 2.0.4
-      webpack: 5.98.0(esbuild@0.17.19)
+      webpack: 5.98.0
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42587,13 +42578,13 @@ snapshots:
       - supports-color
       - terser
 
-  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)(webpack@5.98.0(esbuild@0.17.19))':
+  '@vanilla-extract/webpack-plugin@2.3.1(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)(webpack@5.98.0)':
     dependencies:
-      '@vanilla-extract/integration': 6.2.3(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      '@vanilla-extract/integration': 6.2.3(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
       chalk: 4.1.2
       debug: 4.3.4(supports-color@8.1.1)
       loader-utils: 2.0.4
-      webpack: 5.98.0(esbuild@0.17.19)
+      webpack: 5.98.0
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -42626,62 +42617,62 @@ snapshots:
       next: 15.2.3(@babel/core@7.23.9)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.86.0)
       react: 18.2.0
 
-  '@vitejs/plugin-react@3.1.0(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vitejs/plugin-react@3.1.0(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.23.9)
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.9)
       magic-string: 0.27.0
       react-refresh: 0.14.0
-      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.2.1(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vitejs/plugin-react@4.2.1(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.23.9)
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.9)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.2.1(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vitejs/plugin-react@4.2.1(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.23.9)
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.9)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.2.1(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vitejs/plugin-react@4.2.1(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.23.9)
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.9)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.2.1(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vitejs/plugin-react@4.2.1(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.23.9)
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.9)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@2.1.9(vitest@2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vitest/coverage-v8@2.1.9(vitest@2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -42695,7 +42686,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vitest: 2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -42706,13 +42697,13 @@ snapshots:
       chai: 5.2.0
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.9(vite@5.0.12(@types/node@18.18.9)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))':
+  '@vitest/mocker@2.1.9(vite@5.0.12(@types/node@18.18.9)(sass@1.86.0)(terser@5.39.0))':
     dependencies:
       '@vitest/spy': 2.1.9
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      vite: 5.0.12(@types/node@18.18.9)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.18.9)(sass@1.86.0)(terser@5.39.0)
 
   '@vitest/pretty-format@2.1.9':
     dependencies:
@@ -42921,7 +42912,39 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@wagmi/connectors@5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)':
+  '@wagmi/connectors@5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)':
+    dependencies:
+      '@coinbase/wallet-sdk': 4.3.0
+      '@metamask/sdk': 0.32.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@safe-global/safe-apps-provider': 0.18.5(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
+      '@safe-global/safe-apps-sdk': 9.1.0(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
+      '@wagmi/core': 2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))
+      '@walletconnect/ethereum-provider': 2.17.0(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)
+      cbw-sdk: '@coinbase/wallet-sdk@3.9.3'
+      viem: 2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
+    optionalDependencies:
+      typescript: 5.7.3
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@planetscale/database'
+      - '@react-native-async-storage/async-storage'
+      - '@types/react'
+      - '@upstash/redis'
+      - '@vercel/kv'
+      - bufferutil
+      - encoding
+      - react
+      - supports-color
+      - utf-8-validate
+      - zod
+
+  '@wagmi/connectors@5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)':
     dependencies:
       '@coinbase/wallet-sdk': 4.3.0
       '@metamask/sdk': 0.32.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -56183,8 +56206,6 @@ snapshots:
     optionalDependencies:
       '@parcel/watcher': 2.5.1
 
-  sax@1.2.4: {}
-
   saxes@5.0.1:
     dependencies:
       xmlchars: 2.2.0
@@ -57122,16 +57143,6 @@ snapshots:
 
   stylis@4.3.0: {}
 
-  stylus@0.59.0:
-    dependencies:
-      '@adobe/css-tools': 4.3.1
-      debug: 4.3.4(supports-color@8.1.1)
-      glob: 7.2.3
-      sax: 1.2.4
-      source-map: 0.7.4
-    transitivePeerDependencies:
-      - supports-color
-
   sucrase@3.34.0:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.3
@@ -57390,17 +57401,6 @@ snapshots:
       ansi-escapes: 4.3.2
       supports-hyperlinks: 2.3.0
 
-  terser-webpack-plugin@5.3.14(esbuild@0.17.19)(webpack@5.98.0(esbuild@0.17.19)):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.25
-      jest-worker: 27.5.1
-      schema-utils: 4.3.0
-      serialize-javascript: 6.0.2
-      terser: 5.39.0
-      webpack: 5.98.0(esbuild@0.17.19)
-    optionalDependencies:
-      esbuild: 0.17.19
-
   terser-webpack-plugin@5.3.14(esbuild@0.18.20)(webpack@5.98.0(esbuild@0.18.20)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
@@ -57422,6 +57422,15 @@ snapshots:
       webpack: 5.98.0(esbuild@0.23.1)(webpack-cli@4.10.0)
     optionalDependencies:
       esbuild: 0.23.1
+
+  terser-webpack-plugin@5.3.14(webpack@5.98.0):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.25
+      jest-worker: 27.5.1
+      schema-utils: 4.3.0
+      serialize-javascript: 6.0.2
+      terser: 5.39.0
+      webpack: 5.98.0
 
   terser@5.39.0:
     dependencies:
@@ -58636,7 +58645,7 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  vite-node@0.28.5(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite-node@0.28.5(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@8.1.1)
@@ -58645,7 +58654,7 @@ snapshots:
       picocolors: 1.0.0
       source-map: 0.6.1
       source-map-support: 0.5.21
-      vite: 4.3.9(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 4.3.9(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -58655,7 +58664,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@0.28.5(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite-node@0.28.5(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@8.1.1)
@@ -58664,7 +58673,7 @@ snapshots:
       picocolors: 1.0.0
       source-map: 0.6.1
       source-map-support: 0.5.21
-      vite: 4.3.9(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 4.3.9(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -58674,7 +58683,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@0.28.5(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite-node@0.28.5(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@8.1.1)
@@ -58683,7 +58692,7 @@ snapshots:
       picocolors: 1.0.0
       source-map: 0.6.1
       source-map-support: 0.5.21
-      vite: 4.3.9(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 4.3.9(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -58693,7 +58702,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@0.28.5(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite-node@0.28.5(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@8.1.1)
@@ -58702,7 +58711,7 @@ snapshots:
       picocolors: 1.0.0
       source-map: 0.6.1
       source-map-support: 0.5.21
-      vite: 4.3.9(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 4.3.9(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -58712,13 +58721,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@1.2.2(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite-node@1.2.2(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@8.1.1)
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -58729,13 +58738,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@1.2.2(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite-node@1.2.2(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@8.1.1)
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -58746,13 +58755,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@2.1.9(@types/node@18.18.9)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite-node@2.1.9(@types/node@18.18.9)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@8.1.1)
       es-module-lexer: 1.7.0
       pathe: 1.1.2
-      vite: 5.0.12(@types/node@18.18.9)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.18.9)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -58763,7 +58772,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-dts@3.6.3(@types/node@22.7.5)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)):
+  vite-plugin-dts@3.6.3(@types/node@22.7.5)(rollup@4.35.0)(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)):
     dependencies:
       '@microsoft/api-extractor': 7.38.3(@types/node@22.7.5)
       '@rollup/pluginutils': 5.0.5(rollup@4.35.0)
@@ -58773,57 +58782,57 @@ snapshots:
       typescript: 5.7.3
       vue-tsc: 1.8.22(typescript@5.7.3)
     optionalDependencies:
-      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - '@types/node'
       - rollup
       - supports-color
 
-  vite-tsconfig-paths@4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)):
+  vite-tsconfig-paths@4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)):
     dependencies:
       debug: 4.3.4(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 2.1.2(typescript@5.7.3)
     optionalDependencies:
-      vite: 5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite-tsconfig-paths@4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)):
+  vite-tsconfig-paths@4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)):
     dependencies:
       debug: 4.3.4(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 2.1.2(typescript@5.7.3)
     optionalDependencies:
-      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite-tsconfig-paths@4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)):
+  vite-tsconfig-paths@4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)):
     dependencies:
       debug: 4.3.4(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 2.1.2(typescript@5.7.3)
     optionalDependencies:
-      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite-tsconfig-paths@4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)):
+  vite-tsconfig-paths@4.2.1(typescript@5.7.3)(vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)):
     dependencies:
       debug: 4.3.4(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 2.1.2(typescript@5.7.3)
     optionalDependencies:
-      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@4.3.9(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@4.3.9(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.17.19
       postcss: 8.5.3
@@ -58832,10 +58841,9 @@ snapshots:
       '@types/node': 18.0.4
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vite@4.3.9(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@4.3.9(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.17.19
       postcss: 8.5.3
@@ -58844,10 +58852,9 @@ snapshots:
       '@types/node': 18.19.75
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vite@4.3.9(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@4.3.9(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.17.19
       postcss: 8.5.3
@@ -58856,10 +58863,9 @@ snapshots:
       '@types/node': 18.7.23
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vite@4.3.9(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@4.3.9(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.17.19
       postcss: 8.5.3
@@ -58868,10 +58874,9 @@ snapshots:
       '@types/node': 22.7.5
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@5.0.12(@types/node@18.0.4)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.19.12
       postcss: 8.4.33
@@ -58880,10 +58885,9 @@ snapshots:
       '@types/node': 18.0.4
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vite@5.0.12(@types/node@18.18.9)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@5.0.12(@types/node@18.18.9)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.19.12
       postcss: 8.4.33
@@ -58892,10 +58896,9 @@ snapshots:
       '@types/node': 18.18.9
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@5.0.12(@types/node@18.19.75)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.19.12
       postcss: 8.4.33
@@ -58904,10 +58907,9 @@ snapshots:
       '@types/node': 18.19.75
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@5.0.12(@types/node@18.7.23)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.19.12
       postcss: 8.4.33
@@ -58916,10 +58918,9 @@ snapshots:
       '@types/node': 18.7.23
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vite@5.0.12(@types/node@22.7.5)(sass@1.86.0)(terser@5.39.0):
     dependencies:
       esbuild: 0.19.12
       postcss: 8.4.33
@@ -58928,13 +58929,12 @@ snapshots:
       '@types/node': 22.7.5
       fsevents: 2.3.3
       sass: 1.86.0
-      stylus: 0.59.0
       terser: 5.39.0
 
-  vitest@2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0):
+  vitest@2.1.9(@types/node@18.18.9)(happy-dom@17.4.4)(jsdom@16.7.0(bufferutil@4.0.8)(utf-8-validate@6.0.3))(sass@1.86.0)(terser@5.39.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.0.12(@types/node@18.18.9)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0))
+      '@vitest/mocker': 2.1.9(vite@5.0.12(@types/node@18.18.9)(sass@1.86.0)(terser@5.39.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
@@ -58950,8 +58950,8 @@ snapshots:
       tinyexec: 0.3.2
       tinypool: 1.0.2
       tinyrainbow: 1.2.0
-      vite: 5.0.12(@types/node@18.18.9)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
-      vite-node: 2.1.9(@types/node@18.18.9)(sass@1.86.0)(stylus@0.59.0)(terser@5.39.0)
+      vite: 5.0.12(@types/node@18.18.9)(sass@1.86.0)(terser@5.39.0)
+      vite-node: 2.1.9(@types/node@18.18.9)(sass@1.86.0)(terser@5.39.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 18.18.9
@@ -59036,7 +59036,7 @@ snapshots:
   wagmi@2.14.11(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.69.0)(@tanstack/react-query@4.36.1(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0))(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4):
     dependencies:
       '@tanstack/react-query': 4.36.1(react-dom@18.2.0(react@18.2.0))(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10))(react@18.2.0)
-      '@wagmi/connectors': 5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
+      '@wagmi/connectors': 5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
       '@wagmi/core': 2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))
       react: 18.2.0
       use-sync-external-store: 1.4.0(react@18.2.0)
@@ -59067,7 +59067,38 @@ snapshots:
   wagmi@2.14.11(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.69.0)(@tanstack/react-query@5.52.1(react@18.2.0))(@types/react@18.2.37)(bufferutil@4.0.8)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4):
     dependencies:
       '@tanstack/react-query': 5.52.1(react@18.2.0)
-      '@wagmi/connectors': 5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
+      '@wagmi/connectors': 5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@types/react@18.2.37)(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
+      '@wagmi/core': 2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))
+      react: 18.2.0
+      use-sync-external-store: 1.4.0(react@18.2.0)
+      viem: 2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)
+    optionalDependencies:
+      typescript: 5.7.3
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@planetscale/database'
+      - '@react-native-async-storage/async-storage'
+      - '@tanstack/query-core'
+      - '@types/react'
+      - '@upstash/redis'
+      - '@vercel/kv'
+      - bufferutil
+      - encoding
+      - immer
+      - supports-color
+      - utf-8-validate
+      - zod
+
+  wagmi@2.14.11(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.69.0)(@tanstack/react-query@5.52.1(react@18.2.0))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4):
+    dependencies:
+      '@tanstack/react-query': 5.52.1(react@18.2.0)
+      '@wagmi/connectors': 5.7.7(@react-native-async-storage/async-storage@1.24.0(react-native@0.73.6(@babel/core@7.23.9)(@babel/preset-env@7.23.3(@babel/core@7.23.9))(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)))(@wagmi/core@2.16.4(@tanstack/query-core@5.69.0)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4)))(bufferutil@4.0.8)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
       '@wagmi/core': 2.16.4(@tanstack/query-core@5.69.0)(@types/react@18.2.37)(immer@9.0.21)(react@18.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.31.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.22.4))
       react: 18.2.0
       use-sync-external-store: 1.4.0(react@18.2.0)
@@ -59405,16 +59436,16 @@ snapshots:
       flat: 5.0.2
       wildcard: 2.0.1
 
-  webpack-retry-chunk-load-plugin@3.1.1(webpack@5.98.0(esbuild@0.17.19)):
+  webpack-retry-chunk-load-plugin@3.1.1(webpack@5.98.0):
     dependencies:
       prettier: 2.8.8
-      webpack: 5.98.0(esbuild@0.17.19)
+      webpack: 5.98.0
 
   webpack-sources@3.2.3: {}
 
   webpack-virtual-modules@0.5.0: {}
 
-  webpack@5.98.0(esbuild@0.17.19):
+  webpack@5.98.0:
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.6
@@ -59436,7 +59467,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.14(esbuild@0.17.19)(webpack@5.98.0(esbuild@0.17.19))
+      terser-webpack-plugin: 5.3.14(webpack@5.98.0)
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     transitivePeerDependencies:

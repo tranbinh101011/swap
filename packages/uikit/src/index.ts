@@ -19,6 +19,7 @@ export * from "./contexts";
 export * from "./widgets/Ifo";
 export * from "./widgets/Menu";
 export * from "./widgets/Modal";
+export * from "./widgets/SimpleMenu";
 
 // Theme
 export { default as ResetCSS } from "./ResetCSS";

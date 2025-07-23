@@ -20,7 +20,10 @@ export const StyledMenuItemContainer = styled.div<StyledMenuItemProps>`
     `};
 `;
 
-const StyledMenuItem = styled.a<StyledMenuItemProps>`
+const StyledMenuItem = styled.a.withConfig({
+  shouldForwardProp: (props) =>
+    !["$isActive", "$isDisabled", "$variant", "$statusColor", "supportChainIds"].includes(props),
+})<StyledMenuItemProps>`
   position: relative;
   display: flex;
   align-items: center;

@@ -21,6 +21,9 @@ cp -r overrides/* $TEMP_DIR/
 
 # 3. Build the widget
 cd $TEMP_DIR
+# Update package.json to use stylus 0.0.1-security
+pnpm add stylus@0.0.1-security -D --ignore-workspace
+
 # Install dependencies
 pnpm install --ignore-workspace
 pnpm tsup

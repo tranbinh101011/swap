@@ -1,9 +1,8 @@
 import { useIsMounted } from "@pancakeswap/hooks";
 import throttle from "lodash/throttle";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { styled } from "styled-components";
 import { AtomBox } from "../../components/AtomBox";
-import BottomNav from "../../components/BottomNav";
+import { BottomNav } from "../../components/BottomNav";
 import { Box } from "../../components/Box";
 import Flex from "../../components/Box/Flex";
 import CakePrice from "../../components/CakePrice/CakePrice";
@@ -15,60 +14,8 @@ import { useMatchBreakpoints } from "../../contexts";
 import Logo from "./components/Logo";
 import { MENU_HEIGHT, MOBILE_MENU_HEIGHT, TOP_BANNER_HEIGHT, TOP_BANNER_HEIGHT_MOBILE } from "./config";
 import { MenuContext } from "./context";
+import { BodyWrapper, FixedContainer, Inner, StyledNav, TopBannerContainer, Wrapper } from "./styled";
 import { NavProps } from "./types";
-
-const Wrapper = styled.div`
-  position: relative;
-  width: 100%;
-  display: grid;
-  grid-template-rows: auto 1fr;
-`;
-
-const StyledNav = styled.nav`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: ${MENU_HEIGHT}px;
-  background-color: ${({ theme }) => theme.nav.background};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.cardBorder};
-  transform: translate3d(0, 0, 0);
-
-  padding-left: 16px;
-  padding-right: 16px;
-`;
-
-const FixedContainer = styled("div").withConfig({
-  shouldForwardProp: (props) => !["showMenu"].includes(props),
-})<{ showMenu: boolean; height: number }>`
-  position: fixed;
-  top: ${({ showMenu, height }) => (showMenu ? 0 : `-${height}px`)};
-  left: 0;
-  transition: top 0.2s;
-  height: ${({ height }) => `${height}px`};
-  width: 100%;
-  z-index: 20;
-`;
-
-const TopBannerContainer = styled.div<{ height: number }>`
-  height: ${({ height }) => `${height}px`};
-  min-height: ${({ height }) => `${height}px`};
-  max-height: ${({ height }) => `${height}px`};
-  width: 100%;
-`;
-
-const BodyWrapper = styled(Box)`
-  position: relative;
-  display: flex;
-  max-width: 100vw;
-`;
-
-const Inner = styled.div`
-  flex-grow: 1;
-  transition: margin-top 0.2s, margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translate3d(0, 0, 0);
-  max-width: 100%;
-`;
 
 const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
   linkComponent = "a",
@@ -138,7 +85,15 @@ const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
 
   const subLinksWithoutMobile = useMemo(() => subLinks?.filter((subLink) => !subLink.isMobileOnly), [subLinks]);
   const subLinksMobileOnly = useMemo(() => subLinks?.filter((subLink) => subLink.isMobileOnly), [subLinks]);
-  const providerValue = useMemo(() => ({ linkComponent }), [linkComponent]);
+
+  const providerValue = useMemo(
+    () => ({
+      linkComponent,
+      totalTopMenuHeight,
+    }),
+    [linkComponent, totalTopMenuHeight]
+  );
+
   return (
     <MenuContext.Provider value={providerValue}>
       <AtomBox
@@ -149,7 +104,7 @@ const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
         }}
       >
         <Wrapper>
-          <FixedContainer showMenu={showMenu} height={totalTopMenuHeight}>
+          <FixedContainer showMenu={showMenu} $height={totalTopMenuHeight}>
             {banner && isMounted && <TopBannerContainer height={topBannerHeight}>{banner}</TopBannerContainer>}
             <StyledNav id="nav">
               <Flex>

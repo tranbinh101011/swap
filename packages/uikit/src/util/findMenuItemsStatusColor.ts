@@ -1,4 +1,4 @@
-import { DropdownMenuItems } from "../components";
+import { DropdownMenuItems } from "../components/DropdownMenu/types";
 import { Colors } from "../theme";
 
 export const findMenuItemsStatusColor = (items: DropdownMenuItems[] = []): keyof Colors | undefined => {

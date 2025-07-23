@@ -12,7 +12,13 @@ export default defineConfig({
       formats: ["cjs", "es"],
     },
     rollupOptions: {
-      external: [...Object.keys(pkg.peerDependencies), ...Object.keys(pkg.dependencies), "crypto"],
+      external: [
+        ...Object.keys(pkg.peerDependencies),
+        ...Object.keys(pkg.dependencies),
+        "crypto",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+      ],
     },
   },
   plugins: [

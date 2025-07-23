@@ -95,7 +95,8 @@
       "@ledgerhq/connect-kit-loader@1.1.2": "patches/@ledgerhq__connect-kit-loader@1.1.2.patch"
     },
     "overrides": {
-      "supports-color": "^8.1.1"
+      "supports-color": "^8.1.1",
+      "stylus": "0.0.1-security"
     }
   }
 }
