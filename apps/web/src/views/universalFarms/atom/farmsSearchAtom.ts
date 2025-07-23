@@ -24,7 +24,6 @@ import { farmFilters } from 'state/farmsV4/search/filters'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import { listsAtom } from 'state/lists/lists'
 import { userShowTestnetAtom } from 'state/user/hooks/useUserShowTestnet'
-import { HIDE_POOLS } from 'config/constants/hidePools'
 
 async function fetchFarmList({
   extend = false,
@@ -89,12 +88,15 @@ const searchAtom = atomFamily((query: FarmQuery) => {
     const { protocols, chains: _chains, sortBy, activeChainId, keywords } = query
     const useShowTestnet = get(userShowTestnetAtom)
     const { tokensMap, symbolsMap } = get(tokensMapAtom)
-    const chains = _chains.filter((chain) => {
+    const queryChains = _chains.filter((chain) => {
       if (isTestnetChainId(chain) && !useShowTestnet) {
         return false
       }
       return true
     })
+    if (queryChains.length === 0 && activeChainId) {
+      queryChains.push(activeChainId)
+    }
 
     const lists = [get(farmListAtom)]
     if (activeChainId) {
@@ -146,13 +148,14 @@ const searchAtom = atomFamily((query: FarmQuery) => {
           ),
         )
       }
+    }
 
-      // default extend for active chain
+    if (queryChains.length) {
       lists.push(
         get(
           extendListAtom({
             protocols,
-            chains: [activeChainId],
+            chains: queryChains,
           }),
         ),
       )
@@ -180,7 +183,7 @@ const searchAtom = atomFamily((query: FarmQuery) => {
 
     const filtered = farmFilters.search(
       farms
-        .filter(farmFilters.chainFilter(chains))
+        .filter(farmFilters.chainFilter(queryChains))
         .filter(farmFilters.protocolFilter(protocols))
         .filter(filterTokens(tokensMap)),
       query.keywords,
@@ -258,20 +261,11 @@ export const farmsSearchAtom = atomFamily((query) => {
   return atom((get) => {
     const sliced = get(farmsWithPagingAtom(query))
     const withFilledData = get(farmsWithFilledDataAtom(query))
-    const filterHidden = (pools?: PoolInfo[]) => {
-      if (!pools) return []
-      return pools.filter((pool) => {
-        const list = HIDE_POOLS[pool.chainId]
-        const poolId = pool.farm?.id.toLocaleLowerCase()
-        if (!list || !poolId) return true
-        return !list.includes(poolId)
-      })
-    }
 
     if (withFilledData.isPending()) {
-      return sliced.map(filterHidden)
+      return sliced
     }
-    return withFilledData.map(filterHidden)
+    return withFilledData
   })
 }, isEqual)
 
