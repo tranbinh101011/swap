@@ -100,9 +100,14 @@ const whitelist = [
 ]
 
 describe.concurrent('Check translations integrity', () => {
-  it.each(allTranslationKeys)('Translation key value should be equal', (key) => {
-    expect(key).toEqual(translations[key])
-  })
+  const scope = ['solana']
+  const skipEqualTestRegex = new RegExp(`^(${scope.join('|')})\\.[a-z][a-z0-9_]*$`, 'i')
+  it.each(allTranslationKeys.filter((key) => !skipEqualTestRegex.test(key)))(
+    'Translation key value should be equal',
+    (key) => {
+      expect(key).toEqual(translations[key])
+    },
+  )
 })
 
 describe('Check translations available', () => {

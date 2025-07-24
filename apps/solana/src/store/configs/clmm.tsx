@@ -1,4 +1,4 @@
-import { Trans, TranslateFunction } from '@pancakeswap/localization'
+import { Trans } from '@pancakeswap/localization'
 
 export const CLMM_FEE_CONFIGS = {
   '9iFER3bpjf1PTTCQCfTRu17EJgvsxo9pVyA9QWwEuX4x': {
@@ -53,100 +53,77 @@ export const CLMM_FEE_CONFIGS = {
 
 export const CREATE_POS_DEVIATION = 0.985 // ask Rudy for detail
 
-type localeProps = Record<string, unknown>
-
 const CLMM_TX_MSG = {
   harvest: {
-    titleKey: 'Harvest Rewards',
-    title: <Trans>Harvest Rewards</Trans>,
-    desc: () => <Trans>Harvest Clmm Rewards</Trans>,
-    txHistoryTitle: <Trans>Harvest Rewards</Trans>,
-    txHistoryDesc: () => <Trans>Harvest Clmm Rewards</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvest_rewards" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvest_clmm_rewards" values={values} />,
+    txHistoryTitle: 'solana.harvest_rewards',
+    txHistoryDesc: 'solana.harvest_clmm_rewards'
   },
   openPosition: {
-    titleKey: 'Add Liquidity',
-    title: <Trans>Add Liquidity</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Added %amountA% %symbolA% and %amountB% %symbolB%.</Trans>,
-    txHistoryTitle: <Trans>Add Liquidity</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Added %amountA% %symbolA% and %amountB% %symbolB%.</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.add_liquidity" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.added_liquidity_desc" values={values} />,
+    txHistoryTitle: 'solana.add_liquidity',
+    txHistoryDesc: 'solana.added_liquidity_desc'
   },
   closePosition: {
-    titleKey: 'Position Closed',
-    title: <Trans>Position Closed</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Close %mint% position.</Trans>,
-    txHistoryTitle: <Trans>Position Closed</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Close %mint% position.</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.position_closed" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.close_mint_position" values={values} />,
+    txHistoryTitle: 'solana.position_closed',
+    txHistoryDesc: 'solana.close_mint_position'
   },
   increaseLiquidity: {
-    titleKey: 'Add Liquidity',
-    title: <Trans>Add Liquidity</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Added %amountA% %symbolA% and %amountB% %symbolB%.</Trans>,
-    txHistoryTitle: <Trans>Add Liquidity</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Added %amountA% %symbolA% and %amountB% %symbolB%.</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.add_liquidity" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.added_liquidity_desc" values={values} />,
+    txHistoryTitle: 'solana.add_liquidity',
+    txHistoryDesc: 'solana.added_liquidity_desc'
   },
   removeLiquidity: {
-    titleKey: 'Remove Liquidity',
-    title: <Trans>Remove Liquidity</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Removed %amountA% %symbolA% and %amountB% %symbolB%.</Trans>,
-    txHistoryTitle: <Trans>Remove Liquidity</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Removed %amountA% %symbolA% and %amountB% %symbolB%.</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.remove_liquidity" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.removed_liquidity_desc" values={values} />,
+    txHistoryTitle: 'solana.remove_liquidity',
+    txHistoryDesc: 'solana.removed_liquidity_desc'
   },
   updateRewards: {
-    titleKey: 'Update rewards',
-    title: <Trans>Update rewards</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Update rewards in %pool%.</Trans>,
-    txHistoryTitle: <Trans>Update rewards</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Update rewards in %pool%.</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.update_rewards" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.update_rewards_in_pool" values={values} />,
+    txHistoryTitle: 'solana.update_rewards',
+    txHistoryDesc: 'solana.update_rewards_in_pool'
   },
   createPool: {
-    titleKey: 'Create Pool',
-    title: <Trans>Create Pool</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Create V3 pool</Trans>,
-    txHistoryTitle: <Trans>Create Pool</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Create V3 pool</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.create_pool" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.create_v3_pool" values={values} />,
+    txHistoryTitle: 'solana.create_pool',
+    txHistoryDesc: 'solana.create_v3_pool'
   },
   createFarm: {
-    titleKey: 'Create new farm',
-    title: <Trans>Create new farm</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>ID: %poolId%</Trans>,
-    txHistoryTitle: <Trans>Create new farm</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>ID: %poolId%</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.create_new_farm" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.farm_id" values={values} />,
+    txHistoryTitle: 'solana.create_new_farm',
+    txHistoryDesc: 'solana.farm_id'
   },
   harvestAll: {
-    titleKey: 'Harvest Rewards',
-    title: <Trans>Harvest Rewards</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Harvested: %symbol%</Trans>,
-    txHistoryTitle: <Trans>Harvest Rewards</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Harvested: %symbol%</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvest_rewards" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvested_symbol" values={values} />,
+    txHistoryTitle: 'solana.harvest_rewards',
+    txHistoryDesc: 'solana.harvested_symbol'
   },
   lockPosition: {
-    titleKey: 'Lock Position',
-    title: <Trans>Lock Position</Trans>,
-    desc: (props: localeProps) => <Trans {...props}>Position %position% locked</Trans>,
-    txHistoryTitle: <Trans>Lock Position</Trans>,
-    txHistoryDesc: (props: localeProps) => <Trans {...props}>Position %position% locked</Trans>
+    title: (values: Record<string, unknown>) => <Trans i18nKey="solana.lock_position" values={values} />,
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.position_locked" values={values} />,
+    txHistoryTitle: 'solana.lock_position',
+    txHistoryDesc: 'solana.position_locked'
   }
 }
 
-export const getTxMeta = ({
-  action,
-  values,
-  t
-}: {
-  action: keyof typeof CLMM_TX_MSG
-  values: Record<string, unknown>
-  t?: TranslateFunction
-}) => {
+export const getTxMeta = ({ action, values }: { action: keyof typeof CLMM_TX_MSG; values: Record<string, unknown> }) => {
   const meta = CLMM_TX_MSG[action]
 
-  // Use titleKey for string representation, with translation if available
-  const stringTitle = t ? t(meta.titleKey) : meta.titleKey
-
   return {
-    title: stringTitle,
+    title: meta.title(values),
     description: meta.desc(values),
-    txHistoryTitle: meta.txHistoryTitle || meta.title,
-    txHistoryDesc: meta.txHistoryDesc ? meta.txHistoryDesc(values) : meta.desc(values),
+    txHistoryTitle: meta.txHistoryTitle,
+    txHistoryDesc: meta.txHistoryDesc,
     txValues: values
   }
 }
