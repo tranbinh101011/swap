@@ -53,66 +53,109 @@ export const CLMM_FEE_CONFIGS = {
 
 export const CREATE_POS_DEVIATION = 0.985 // ask Rudy for detail
 
-const CLMM_TX_MSG = {
+const i18n = {
   harvest: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvest_rewards" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvest_clmm_rewards" values={values} />,
-    txHistoryTitle: 'solana.harvest_rewards',
-    txHistoryDesc: 'solana.harvest_clmm_rewards'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvest_clmm_rewards" values={values} />
   },
   openPosition: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.add_liquidity" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.added_liquidity_desc" values={values} />,
-    txHistoryTitle: 'solana.add_liquidity',
-    txHistoryDesc: 'solana.added_liquidity_desc'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.added_liquidity_desc" values={values} />
   },
   closePosition: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.position_closed" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.close_mint_position" values={values} />,
-    txHistoryTitle: 'solana.position_closed',
-    txHistoryDesc: 'solana.close_mint_position'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.close_mint_position" values={values} />
   },
   increaseLiquidity: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.add_liquidity" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.added_liquidity_desc" values={values} />,
-    txHistoryTitle: 'solana.add_liquidity',
-    txHistoryDesc: 'solana.added_liquidity_desc'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.added_liquidity_desc" values={values} />
   },
   removeLiquidity: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.remove_liquidity" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.removed_liquidity_desc" values={values} />,
-    txHistoryTitle: 'solana.remove_liquidity',
-    txHistoryDesc: 'solana.removed_liquidity_desc'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.removed_liquidity_desc" values={values} />
   },
   updateRewards: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.update_rewards" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.update_rewards_in_pool" values={values} />,
-    txHistoryTitle: 'solana.update_rewards',
-    txHistoryDesc: 'solana.update_rewards_in_pool'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.update_rewards_in_pool" values={values} />
   },
   createPool: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.create_pool" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.create_v3_pool" values={values} />,
-    txHistoryTitle: 'solana.create_pool',
-    txHistoryDesc: 'solana.create_v3_pool'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.create_v3_pool" values={values} />
   },
   createFarm: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.create_new_farm" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.farm_id" values={values} />,
-    txHistoryTitle: 'solana.create_new_farm',
-    txHistoryDesc: 'solana.farm_id'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.farm_id" values={values} />
   },
   harvestAll: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvest_rewards" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvested_symbol" values={values} />,
-    txHistoryTitle: 'solana.harvest_rewards',
-    txHistoryDesc: 'solana.harvested_symbol'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.harvested_symbol" values={values} />
   },
   lockPosition: {
     title: (values: Record<string, unknown>) => <Trans i18nKey="solana.lock_position" values={values} />,
-    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.position_locked" values={values} />,
-    txHistoryTitle: 'solana.lock_position',
-    txHistoryDesc: 'solana.position_locked'
+    desc: (values: Record<string, unknown>) => <Trans i18nKey="solana.position_locked" values={values} />
+  }
+}
+
+const CLMM_TX_MSG = {
+  harvest: {
+    title: i18n.harvest.title,
+    desc: i18n.harvest.desc,
+    txHistoryTitle: i18n.harvest.title,
+    txHistoryDesc: i18n.harvest.desc
+  },
+  openPosition: {
+    title: i18n.openPosition.title,
+    desc: i18n.openPosition.desc,
+    txHistoryTitle: i18n.openPosition.title,
+    txHistoryDesc: i18n.openPosition.desc
+  },
+  closePosition: {
+    title: i18n.closePosition.title,
+    desc: i18n.closePosition.desc,
+    txHistoryTitle: i18n.closePosition.title,
+    txHistoryDesc: i18n.closePosition.desc
+  },
+  increaseLiquidity: {
+    title: i18n.increaseLiquidity.title,
+    desc: i18n.increaseLiquidity.desc,
+    txHistoryTitle: i18n.increaseLiquidity.title,
+    txHistoryDesc: i18n.increaseLiquidity.desc
+  },
+  removeLiquidity: {
+    title: i18n.removeLiquidity.title,
+    desc: i18n.removeLiquidity.desc,
+    txHistoryTitle: i18n.removeLiquidity.title,
+    txHistoryDesc: i18n.removeLiquidity.desc
+  },
+  updateRewards: {
+    title: i18n.updateRewards.title,
+    desc: i18n.updateRewards.desc,
+    txHistoryTitle: i18n.updateRewards.title,
+    txHistoryDesc: i18n.updateRewards.desc
+  },
+  createPool: {
+    title: i18n.createPool.title,
+    desc: i18n.createPool.desc,
+    txHistoryTitle: i18n.createPool.title,
+    txHistoryDesc: i18n.createPool.desc
+  },
+  createFarm: {
+    title: i18n.createFarm.title,
+    desc: i18n.createFarm.desc,
+    txHistoryTitle: i18n.createFarm.title,
+    txHistoryDesc: i18n.createFarm.desc
+  },
+  harvestAll: {
+    title: i18n.harvestAll.title,
+    desc: i18n.harvestAll.desc,
+    txHistoryTitle: i18n.harvestAll.title,
+    txHistoryDesc: i18n.harvestAll.desc
+  },
+  lockPosition: {
+    title: i18n.lockPosition.title,
+    desc: i18n.lockPosition.desc,
+    txHistoryTitle: i18n.lockPosition.title,
+    txHistoryDesc: i18n.lockPosition.desc
   }
 }
 
@@ -122,8 +165,8 @@ export const getTxMeta = ({ action, values }: { action: keyof typeof CLMM_TX_MSG
   return {
     title: meta.title(values),
     description: meta.desc(values),
-    txHistoryTitle: meta.txHistoryTitle,
-    txHistoryDesc: meta.txHistoryDesc,
+    txHistoryTitle: meta.txHistoryTitle(values),
+    txHistoryDesc: meta.txHistoryDesc(values),
     txValues: values
   }
 }

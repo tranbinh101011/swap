@@ -212,7 +212,7 @@ function useTxStatus() {
               toastSubject.next({
                 id: txId,
                 update: true,
-                title: isMultisigWallet ? t('Transaction initiated.') : `${title || t('Transaction')} ${t('Confirmed')}`,
+                title: isMultisigWallet ? t('Transaction initiated.') : title || `${t('Transaction')} ${t('Confirmed')}`,
                 description: isMultisigWallet
                   ? t('You can now cast votes for this proposal on the Squads app.')
                   : description || `${explorerUrl}/tx/${txId}`,
