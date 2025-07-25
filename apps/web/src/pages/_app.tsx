@@ -39,6 +39,7 @@ import { useVercelFeatureFlagOverrides } from 'hooks/useVercelToolbar'
 import { useWalletConnectRouterSync } from 'hooks/useWalletConnectRouterSync'
 import { useWeb3WalletView } from 'hooks/useWeb3WalletView'
 import { useInitGlobalWorker } from 'hooks/useWorker'
+import { useSecurityBlocking } from 'hooks/useSecurityBlocking'
 import { persistor, useStore } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
 import { Blocklist, Updaters } from '..'
@@ -145,6 +146,12 @@ type AppPropsWithLayout = AppProps & {
 const ProductionErrorBoundary = process.env.NODE_ENV === 'production' ? SentryErrorBoundary : Fragment
 
 const App = ({ Component, pageProps }: AppPropsWithLayout) => {
+  const blocking = useSecurityBlocking()
+
+  if (blocking) {
+    return null
+  }
+
   if (Component.pure) {
     return <Component {...pageProps} />
   }
