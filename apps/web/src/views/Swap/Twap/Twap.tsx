@@ -140,6 +140,14 @@ const useTwapToast = () => {
   return useCallback(
     (props: ToastProps) => {
       const toast = props.variant === 'error' ? toastError : props.variant === 'warning' ? toastWarning : toastSuccess
+
+      // Log TWAP errors to console for debugging
+      if (props.variant === 'error') {
+        console.error('[TWAP Error]', props.title, props.message)
+      } else if (props.variant === 'warning') {
+        console.warn('[TWAP Warning]', props.title, props.message)
+      }
+
       toast(props.title, props.message, { duration: props.autoCloseMillis })
     },
     [toastError, toastSuccess, toastWarning],

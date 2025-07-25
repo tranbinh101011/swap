@@ -4,7 +4,7 @@
 /* eslint-disable import/no-unresolved */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render as rtlRender } from '@testing-library/react'
-import Provider from 'Providers'
+import { TestProviders } from 'Providers'
 import { Provider as JotaiProvider } from 'jotai'
 import { useHydrateAtoms } from 'jotai/utils'
 import noop from 'lodash/noop'
@@ -54,9 +54,9 @@ export function renderWithProvider(
   function Wrapper({ children }) {
     return (
       <RouterContext.Provider value={{ ...mockRouter, ...router }}>
-        <Provider store={store} dehydratedState={{}}>
+        <TestProviders store={store} dehydratedState={{}}>
           {children}
-        </Provider>
+        </TestProviders>
       </RouterContext.Provider>
     )
   }
@@ -73,20 +73,20 @@ export const createJotaiWrapper =
   (reduxState = undefined, testAtom, initState = undefined) =>
   ({ children }) =>
     (
-      <Provider store={makeStore(reduxState)} dehydratedState={{}}>
+      <TestProviders store={makeStore(reduxState)} dehydratedState={{}}>
         <JotaiProvider>
           {initState ? <HydrateAtoms initialValues={[[testAtom, initState]]}>{children}</HydrateAtoms> : children}
         </JotaiProvider>
-      </Provider>
+      </TestProviders>
     )
 
 export const createReduxWrapper =
   (initState = undefined) =>
   ({ children }) =>
     (
-      <Provider store={makeStore(initState)} dehydratedState={{}}>
+      <TestProviders store={makeStore(initState)} dehydratedState={{}}>
         {children}
-      </Provider>
+      </TestProviders>
     )
 
 export const createQueryClientWrapper =

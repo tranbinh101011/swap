@@ -38,12 +38,13 @@ function sortByTransactionTime(a: TransactionItem, b: TransactionItem) {
 }
 
 export function RecentTransactions() {
-  const { address: account, chainId } = useAccount()
+  const { address, chainId } = useAccount()
+
   const dispatch = useAppDispatch()
 
   const { data: recentXOrders } = useRecentXOrders({
     chainId,
-    address: account,
+    address,
     refetchInterval: 10_000,
   })
 
@@ -53,7 +54,7 @@ export function RecentTransactions() {
     isFetching: isRecentBridgeOrdersLoading,
     fetchNextPage,
   } = useRecentBridgeOrders({
-    address: account,
+    address,
   })
 
   const hasMoreCrossChainOrders = Boolean(
@@ -110,7 +111,7 @@ export function RecentTransactions() {
 
   return (
     <Box onClick={(e) => e.stopPropagation()}>
-      {account ? (
+      {address ? (
         xOrders.length > 0 || hasTransactions || recentCrossChainOrders.length > 0 ? (
           <>
             <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }}>

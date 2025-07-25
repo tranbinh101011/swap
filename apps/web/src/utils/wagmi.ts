@@ -3,6 +3,7 @@ import { cyberWalletConnector as createCyberWalletConnector, isCyberWallet } fro
 import { blocto } from '@pancakeswap/wagmi/connectors/blocto'
 import { CHAINS } from 'config/chains'
 import { PUBLIC_NODES } from 'config/nodes'
+import { ConnectorNames } from 'config/wallet'
 import memoize from 'lodash/memoize'
 import { Transport } from 'viem'
 import { createConfig, http } from 'wagmi'
@@ -35,7 +36,7 @@ export const walletConnectNoQrCodeConnector = walletConnect({
 })
 
 export const metaMaskConnector = injected({ target: 'metaMask', shimDisconnect: false })
-export const trustConnector = injected({ target: 'trust', shimDisconnect: false })
+export const trustConnector = injected({ target: 'trust', shimDisconnect: true })
 
 const bloctoConnector = blocto({
   appId: 'e2f2f0cd-3ceb-4dec-b293-bb555f2ed5af',
@@ -79,6 +80,31 @@ export const cyberWalletConnector = isCyberWallet()
     })
   : undefined
 
+export const CONNECTOR_MAP = {
+  [ConnectorNames.MetaMask]: metaMaskConnector,
+  [ConnectorNames.Injected]: injectedConnector,
+  //  [ConnectorNames.Safe]: safe(),
+  [ConnectorNames.WalletLink]: coinbaseConnector,
+  [ConnectorNames.WalletConnect]: walletConnectConnector,
+  [ConnectorNames.Blocto]: bloctoConnector,
+  [ConnectorNames.TrustWallet]: trustConnector,
+  [ConnectorNames.BinanceW3W]: binanceWeb3WalletConnector(),
+  [ConnectorNames.CyberWallet]: cyberWalletConnector,
+}
+
+export const CONNECTORS = [
+  metaMaskConnector,
+  injectedConnector,
+  safe(),
+  coinbaseConnector,
+  walletConnectConnector,
+  bloctoConnector,
+  // ledgerConnector,
+  trustConnector,
+  binanceWeb3WalletConnector(),
+  ...(cyberWalletConnector ? [cyberWalletConnector as any] : []),
+]
+
 export function createWagmiConfig() {
   return createConfig({
     chains,
@@ -86,20 +112,7 @@ export function createWagmiConfig() {
     syncConnectedChain: true,
     transports,
     ...CLIENT_CONFIG,
-
-    connectors: [
-      metaMaskConnector,
-      injectedConnector,
-      safe(),
-      coinbaseConnector,
-      walletConnectConnector,
-      bloctoConnector,
-      // ledgerConnector,
-      trustConnector,
-      binanceWeb3WalletConnector(),
-
-      ...(cyberWalletConnector ? [cyberWalletConnector as any] : []),
-    ],
+    connectors: [...CONNECTORS],
   })
 }
 

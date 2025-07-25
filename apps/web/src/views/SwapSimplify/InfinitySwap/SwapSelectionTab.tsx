@@ -14,6 +14,7 @@ import {
 } from '@pancakeswap/uikit'
 import GlobalSettings from 'components/Menu/GlobalSettings'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/router'
 import { useCallback, useContext, useMemo } from 'react'
@@ -105,12 +106,15 @@ export const SwapSelection = ({
   )
   const { chainId } = useActiveChainId()
   const { isMobile } = useMatchBreakpoints()
+  const isSmartAccount = useIsSmartAccount()
 
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     <Text>
-      {t(
-        'TWAP (Time-Weighted Average Price) helps minimises market impact from large orders by averaging the asset price over a set time period.',
-      )}
+      {isSmartAccount
+        ? t('TWAP and Limit orders are currently not supported for Smart Account wallets.')
+        : t(
+            'TWAP (Time-Weighted Average Price) helps minimises market impact from large orders by averaging the asset price over a set time period.',
+          )}
     </Text>,
     { placement: 'top' },
   )
@@ -124,7 +128,7 @@ export const SwapSelection = ({
 
   const { theme } = useTheme()
   const tSwapProps = useMemo(() => {
-    const isTSwapSupported = isTwapSupported(chainId)
+    const isTSwapSupported = isTwapSupported(chainId) && !isSmartAccount
     return {
       disabled: !isTSwapSupported,
       style: {
@@ -134,7 +138,20 @@ export const SwapSelection = ({
         userSelect: 'none',
       } as React.CSSProperties,
     }
-  }, [chainId, theme.colors.textDisabled])
+  }, [chainId, theme.colors.textDisabled, isSmartAccount])
+
+  const limitProps = useMemo(() => {
+    const isLimitSupported = !isSmartAccount
+    return {
+      disabled: !isLimitSupported,
+      style: {
+        cursor: isLimitSupported ? 'pointer' : 'not-allowed',
+        pointerEvents: isLimitSupported ? 'auto' : 'none',
+        color: !isLimitSupported ? theme.colors.textDisabled : undefined,
+        userSelect: 'none',
+      } as React.CSSProperties,
+    }
+  }, [theme.colors.textDisabled, isSmartAccount])
 
   return (
     <SwapSelectionWrapper style={style}>
@@ -156,7 +173,7 @@ export const SwapSelection = ({
           </StyledButtonMenuItemTooltip>
         )}
 
-        <StyledButtonMenuItem {...tSwapProps}>{t('Limit')}</StyledButtonMenuItem>
+        <StyledButtonMenuItem {...limitProps}>{t('Limit')}</StyledButtonMenuItem>
       </ButtonMenu>
       {/* NOTE: Commented out until charts are supported again */}
       {withToolkit && (

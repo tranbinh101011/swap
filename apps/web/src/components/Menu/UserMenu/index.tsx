@@ -1,5 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Box, UserMenu as UIKitUserMenu, useMatchBreakpoints, UserMenuVariant } from '@pancakeswap/uikit'
+import { usePrivy } from '@privy-io/react-auth'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import Trans from 'components/Trans'
 import { WalletContent, WalletModalV2 } from 'components/WalletModalV2'
@@ -9,6 +10,7 @@ import {
   useWalletModalV2ViewState,
   WalletModalV2ViewStateProvider,
 } from 'components/WalletModalV2/WalletModalV2ViewStateProvider'
+import { usePrivyWalletAddress } from 'contexts/Privy/hooks'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useDomainNameForAddress } from 'hooks/useDomain'
@@ -24,10 +26,10 @@ import { UnclaimedOnlyProvider } from 'views/Gift/providers/UnclaimedOnlyProvide
 import { useAccount } from 'wagmi'
 import { MenuTabProvider, useMenuTab, WalletView } from './providers/MenuTabProvider'
 
-const UserMenuItems = ({ onReceiveClick }: { onReceiveClick: () => void }) => {
+const UserMenuItems = ({ onReceiveClick, account }: { onReceiveClick: () => void; account: string | undefined }) => {
   const { chainId } = useActiveChainId()
   const { logout } = useAuth()
-  const { address: account, connector } = useAccount()
+  const { connector } = useAccount()
 
   const handleClickDisconnect = useCallback(() => {
     logGTMDisconnectWalletEvent(chainId, connector?.name, account)
@@ -67,8 +69,16 @@ const ClickablePopover = styled.div<{ isOpen: boolean }>`
 const UserMenu = () => {
   const { t } = useTranslation()
   const { address: account, connector } = useAccount()
+  const { ready, authenticated, user } = usePrivy()
+
+  // Use new Privy wallet address hook to prevent flickering
+  const { address: privyAddress, isLoading: isPrivyAddressLoading, addressType } = usePrivyWalletAddress()
+
+  // Determine which address to use: if Privy login use privyAddress, otherwise use account
+  const finalAddress = ready && authenticated && user ? privyAddress : account
+  const shouldShowLoading = ready && authenticated && user ? isPrivyAddressLoading : false
   const { chainId, isWrongNetwork } = useActiveChainId()
-  const { domainName, avatar } = useDomainNameForAddress(account)
+  const { domainName, avatar } = useDomainNameForAddress(finalAddress)
   const { logout } = useAuth()
   const { hasPendingTransactions, pendingNumber } = usePendingTransactions()
   const { profile } = useProfile()
@@ -146,16 +156,38 @@ const UserMenu = () => {
   }, [hasPendingTransactions, pendingNumber, t])
 
   const handleClickDisconnect = useCallback(() => {
-    logGTMDisconnectWalletEvent(chainId, connector?.name, account)
+    logGTMDisconnectWalletEvent(chainId, connector?.name, finalAddress)
     logout()
-  }, [logout, connector?.name, account, chainId])
+  }, [logout, connector?.name, finalAddress, chainId])
 
-  if (account || giftCode) {
+  if (shouldShowLoading) {
+    return (
+      <ClickableUserMenu ref={menuRef}>
+        <UIKitUserMenu
+          account={t('Loading...')}
+          ellipsis={false}
+          avatarSrc={avatarSrc}
+          text=""
+          variant="default"
+          popperStyle={{
+            minWidth: '380px',
+          }}
+          onClick={() => {
+            // Don't allow clicking during loading
+          }}
+        >
+          {undefined}
+        </UIKitUserMenu>
+      </ClickableUserMenu>
+    )
+  }
+
+  if (finalAddress || giftCode) {
     return (
       <>
         <ClickableUserMenu ref={menuRef}>
           <UIKitUserMenu
-            account={domainName || account}
+            account={domainName || finalAddress}
             ellipsis={!domainName}
             avatarSrc={avatarSrc}
             text={userMenuText}
@@ -179,14 +211,16 @@ const UserMenu = () => {
           {/* Custom click-based menu for desktop */}
           {!isMobile && (
             <ClickablePopover isOpen={isMenuOpen}>
-              {isMenuOpen && showDesktopPopup && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />}
+              {isMenuOpen && showDesktopPopup && (
+                <UserMenuItems account={finalAddress} onReceiveClick={() => setIsReceiveModalOpen(true)} />
+              )}
             </ClickablePopover>
           )}
         </ClickableUserMenu>
 
         <WalletModalV2
           isOpen={showMobileWalletModal}
-          account={account}
+          account={finalAddress}
           onReceiveClick={() => setIsReceiveModalOpen(true)}
           onDisconnect={handleClickDisconnect}
           onDismiss={() => {
@@ -194,8 +228,12 @@ const UserMenu = () => {
             resetViewState()
           }}
         />
-        {account && (
-          <ReceiveModal account={account} onDismiss={() => setIsReceiveModalOpen(false)} isOpen={isReceiveModalOpen} />
+        {finalAddress && (
+          <ReceiveModal
+            account={finalAddress}
+            onDismiss={() => setIsReceiveModalOpen(false)}
+            isOpen={isReceiveModalOpen}
+          />
         )}
       </>
     )
@@ -214,14 +252,15 @@ const UserMenu = () => {
           }}
         >
           {!isMobile && !isMenuOpen
-            ? ({ isOpen }) => isOpen && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />
+            ? ({ isOpen }) =>
+                isOpen && <UserMenuItems account={finalAddress} onReceiveClick={() => setIsReceiveModalOpen(true)} />
             : undefined}
         </UIKitUserMenu>
 
         {/* Custom click-based menu for desktop */}
         {!isMobile && (
           <ClickablePopover isOpen={isMenuOpen}>
-            {isMenuOpen && <UserMenuItems onReceiveClick={() => setIsReceiveModalOpen(true)} />}
+            {isMenuOpen && <UserMenuItems account={finalAddress} onReceiveClick={() => setIsReceiveModalOpen(true)} />}
           </ClickablePopover>
         )}
       </ClickableUserMenu>

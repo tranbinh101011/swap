@@ -163,7 +163,7 @@ export const bestSameChainWithoutPlaceHolderAtom = atomFamily((_option: QuoteQue
       return Loadable.Nothing<InterfaceOrder>()
     } catch (ex) {
       // eslint-disable-next-line no-console
-      console.warn(`[quote]`, ex)
+      console.error(`[quote] Error getting quote:`, ex)
       return Loadable.Fail<InterfaceOrder>(ex)
     }
   })

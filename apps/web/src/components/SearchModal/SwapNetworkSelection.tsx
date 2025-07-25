@@ -16,7 +16,7 @@ import drop from 'lodash/drop'
 import take from 'lodash/take'
 import { CROSSCHAIN_SUPPORTED_CHAINS } from 'quoter/utils/crosschain-utils/config'
 import { useMemo, useRef } from 'react'
-import { styled } from 'styled-components'
+import { css, styled } from 'styled-components'
 import { chainNameConverter } from 'utils/chainNameConverter'
 import { chains as evmChains } from 'utils/wagmi'
 import { useBridgeAvailableChains } from 'views/Swap/Bridge/hooks'
@@ -30,7 +30,10 @@ const NetworkMenuColumn = styled(Flex)`
   border: 1px solid ${({ theme }) => theme.colors.cardBorder};
   border-radius: ${({ theme }) => theme.radii.card};
 
-  animation: ${appearAnimation} 0.2s ease;
+  animation: ${() =>
+    css`
+      ${appearAnimation} 0.2s ease
+    `};
 `
 
 // Constants for width calculations

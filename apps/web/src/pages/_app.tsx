@@ -31,6 +31,7 @@ import { layoutDesktopAdIgnoredPages, layoutMobileAdIgnoredPages } from 'compone
 import { shouldRenderOnPages } from 'components/AdPanel/renderConditions'
 import { Cb1Membership } from 'components/Cb1/Cb1Membership'
 import { ZKSyncAirdropModalWithAutoPopup } from 'components/ClaimZksyncAirdropModal'
+import { useEmbeddedSmartAccountConnectorV2 } from 'contexts/Privy/hooks/usePrivySmartAccountConnector'
 import { useDataDogRUM } from 'hooks/useDataDogRUM'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
 import useInitNotificationsClient from 'hooks/useInitNotificationsClient'
@@ -70,6 +71,7 @@ function GlobalHooks() {
   useLockedEndNotification()
   useInitNotificationsClient()
   useWalletConnectRouterSync()
+  useEmbeddedSmartAccountConnectorV2()
   return null
 }
 

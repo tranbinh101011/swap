@@ -1,5 +1,5 @@
 import { appearAnimation } from '@pancakeswap/uikit'
-import { keyframes, styled } from 'styled-components'
+import { css, keyframes, styled } from 'styled-components'
 import 'swiper/css'
 import 'swiper/css/effect-fade'
 import 'swiper/css/pagination'
@@ -15,7 +15,10 @@ export const StyledSwiper = styled(Swiper)<{ $showPagination?: boolean }>`
   overflow: visible;
   opacity: 0;
   margin: 0;
-  animation: ${appearAnimation} 0.2s ease-in-out 0.1s forwards;
+  animation: ${() =>
+    css`
+      ${appearAnimation} 0.2s ease-in-out 0.1s forwards
+    `};
 
   .swiper-pagination {
     position: absolute;

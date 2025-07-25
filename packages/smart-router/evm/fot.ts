@@ -37,7 +37,7 @@ const AMOUNT = 100_000n
 export async function fetchTokenFeeOnTransfer<TPublicClient extends PublicClient>(
   publicClient: TPublicClient,
   tokenAddress: Address,
-) {
+): Promise<{ result: { buyFeeBps: bigint; sellFeeBps: bigint } }> {
   if (!publicClient.chain) {
     throw new Error('Chain not found')
   }
@@ -63,7 +63,9 @@ export async function fetchTokenFeeOnTransferBatch<TPublicClient extends PublicC
   tokens: {
     address: Address
   }[],
-) {
+): Promise<
+  Array<{ error?: Error; result?: { buyFeeBps: bigint; sellFeeBps: bigint }; status: 'success' | 'failure' }>
+> {
   if (!publicClient.chain) {
     throw new Error('Chain not found')
   }

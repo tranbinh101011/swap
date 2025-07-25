@@ -1,10 +1,12 @@
 import { appearAnimation, Box, FlexProps } from '@pancakeswap/uikit'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { ExpandButton } from '../Button'
 import { ActionContainer } from './styles'
 
 const StyledBox = styled(Box)`
-  animation: ${appearAnimation} 0.3s ease-in-out;
+  ${() => css`
+    animation: ${appearAnimation} 0.3s ease-in-out;
+  `}
 `
 
 interface ExpandableActionsProps extends FlexProps {

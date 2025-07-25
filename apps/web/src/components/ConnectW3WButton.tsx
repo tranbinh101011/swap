@@ -100,7 +100,6 @@ export const DisconnectW3WButton: React.FC<ButtonProps> = (props) => {
       if (window.ethereum) {
         await window.ethereum.request?.({
           method: 'eth_requestAccounts',
-          params: [{ eth_accounts: {} }],
         })
       }
     } catch (error) {

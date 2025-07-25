@@ -1,5 +1,3 @@
-import { isMobile as isMobileDevice } from 'react-device-detect'
-import { styled } from 'styled-components'
 import { usePreloadImages, useTheme } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import {
@@ -25,7 +23,9 @@ import {
   WarningIcon,
 } from '@pancakeswap/uikit'
 import { useAtom } from 'jotai'
-import { MouseEvent, PropsWithChildren, Suspense, lazy, useCallback, useMemo, useState } from 'react'
+import { lazy, MouseEvent, PropsWithChildren, Suspense, useCallback, useMemo, useState } from 'react'
+import { isMobile as isMobileDevice } from 'react-device-detect'
+import { styled } from 'styled-components'
 import {
   desktopWalletSelectionClass,
   fullSizeModalWrapperClass,
@@ -35,11 +35,16 @@ import {
   walletSelectWrapperClass,
 } from './WalletModal.css'
 import { errorAtom, lastUsedWalletNameAtom, previouslyUsedWalletsAtom, selectedWalletAtom } from './atom'
+import SocialLoginButton from './components/SocialLoginButton'
 import { ConnectData, LinkOfDevice, WalletConfigV2, WalletModalV2Props } from './types'
+
+export const ASSET_CDN = 'https://assets.pancakeswap.finance'
 
 const StepIntro = lazy(() => import('./components/Intro'))
 
 const Qrcode = lazy(() => import('./components/QRCode'))
+
+const SocialLoginModal = lazy(() => import('./components/SocialLoginModal'))
 
 export class WalletConnectorNotFoundError extends Error {}
 
@@ -131,9 +136,11 @@ function MobileModal<T>({
   previouslyUsedWallets,
   connectWallet,
   mevDocLink,
+  onOpenSocialLoginModal,
 }: Pick<WalletModalV2Props<T>, 'wallets' | 'topWallets' | 'docLink' | 'docText' | 'mevDocLink'> & {
   connectWallet: (wallet: WalletConfigV2<T>) => void
   previouslyUsedWallets: WalletConfigV2<T>[]
+  onOpenSocialLoginModal: () => void
 }) {
   const [selected] = useSelectedWallet()
   const [error] = useAtom(errorAtom)
@@ -177,8 +184,10 @@ function MobileModal<T>({
         </AtomBox>
       ) : null}
       <AtomBox display="flex" flexDirection="column" gap="16px" justifyContent="space-between">
+        <SocialLoginButton onClick={onOpenSocialLoginModal} assetCdn={ASSET_CDN} style={{ marginBottom: '8px' }} />
+
         <WalletSelect
-          style={{ height: `calc(100vh - 150px)` }}
+          style={{ height: `calc(100vh - 200px)` }}
           displayCount="all"
           wallets={walletsToShow}
           topWallets={topWalletsToShow}
@@ -371,10 +380,12 @@ function DesktopModal<T>({
   docLink,
   docText,
   mevDocLink,
+  onOpenSocialLoginModal,
 }: Pick<WalletModalV2Props<T>, 'wallets' | 'topWallets' | 'docLink' | 'docText' | 'mevDocLink'> & {
   connectWallet: (wallet: WalletConfigV2<T>) => void
   onWalletConnected: (wallet: WalletConfigV2<T>, connectData?: ConnectData) => void
   previouslyUsedWallets: WalletConfigV2<T>[]
+  onOpenSocialLoginModal: () => void
 }) {
   const wallets: WalletConfigV2<T>[] = useMemo(
     () =>
@@ -439,6 +450,9 @@ function DesktopModal<T>({
         <Heading color="color" as="h4">
           {t('Connect Wallet')}
         </Heading>
+
+        <SocialLoginButton onClick={onOpenSocialLoginModal} assetCdn={ASSET_CDN} />
+
         <WalletSelect
           wallets={wallets}
           topWallets={topWallets}
@@ -487,12 +501,14 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
     topWallets: topWallets_,
     login,
     docLink,
-    mevDocLink,
     docText,
     onWalletConnectCallBack,
     fullSize,
+    mevDocLink,
     ...rest
   } = props
+
+  const [isSocialLoginModalOpen, setIsSocialLoginModalOpen] = useState(false)
 
   const { isMobile } = useMatchBreakpoints()
   const [previouslyUsedWalletsId] = useAtom(previouslyUsedWalletsAtom)
@@ -573,41 +589,89 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
 
   const mobileContainerStyle: React.CSSProperties = isMobile ? { height: '100%', borderRadius: 0 } : {}
 
+  const handleOpenSocialLoginModal = () => {
+    setIsSocialLoginModalOpen(true)
+    // Keep the main modal open to maintain BodyLock
+  }
+
+  const handleCloseSocialLoginModal = () => {
+    setIsSocialLoginModalOpen(false)
+    // Main modal content will automatically show again due to conditional display: none
+    // This maintains the BodyLock properly
+  }
+
+  const handleBackToWeb3Wallet = () => {
+    // Close social login modal to return to wallet modal
+    setIsSocialLoginModalOpen(false)
+  }
+
+  // Wrap social login callbacks to ensure proper modal cleanup
+  const handleSocialLoginWithCleanup = (originalCallback?: () => void) => {
+    return () => {
+      // Close both modals when social login is initiated
+      setIsSocialLoginModalOpen(false)
+      props.onDismiss?.()
+
+      // Execute the original callback
+      originalCallback?.()
+    }
+  }
+
   return (
-    <ModalV2 closeOnOverlayClick disableOutsidePointerEvents={false} {...rest}>
-      <ModalWrapper
-        onDismiss={props.onDismiss}
-        containerStyle={{ border: 'none', ...mobileContainerStyle }}
-        style={{ overflow: 'visible', border: 'none', ...mobileContainerStyle }}
-      >
-        <AtomBox position="relative">
-          <TabContainer docLink={docLink} docText={docText} fullSize={fullSize} onDismiss={props.onDismiss}>
-            {isMobile ? (
-              <MobileModal
-                mevDocLink={mevDocLink}
-                connectWallet={connectWallet}
-                topWallets={topWallets}
-                previouslyUsedWallets={previouslyUsedWallets}
-                wallets={wallets}
-                docLink={docLink}
-                docText={docText}
-              />
-            ) : (
-              <DesktopModal
-                mevDocLink={mevDocLink}
-                connectWallet={connectWallet}
-                onWalletConnected={handleWalletConnected}
-                topWallets={topWallets}
-                previouslyUsedWallets={previouslyUsedWallets}
-                wallets={wallets}
-                docLink={docLink}
-                docText={docText}
-              />
-            )}
-          </TabContainer>
-        </AtomBox>
-      </ModalWrapper>
-    </ModalV2>
+    <>
+      <Suspense>
+        <SocialLoginModal
+          isOpen={isSocialLoginModalOpen}
+          onDismiss={handleCloseSocialLoginModal}
+          onGoogleLogin={handleSocialLoginWithCleanup(props.onGoogleLogin)}
+          onXLogin={handleSocialLoginWithCleanup(props.onXLogin)}
+          onTelegramLogin={handleSocialLoginWithCleanup(props.onTelegramLogin)}
+          onDiscordLogin={handleSocialLoginWithCleanup(props.onDiscordLogin)}
+          onBackToWeb3Wallet={handleBackToWeb3Wallet}
+        />
+      </Suspense>
+      <ModalV2 closeOnOverlayClick disableOutsidePointerEvents={false} {...rest}>
+        <ModalWrapper
+          onDismiss={props.onDismiss}
+          containerStyle={{ border: 'none', ...mobileContainerStyle }}
+          style={{
+            overflow: 'visible',
+            border: 'none',
+            ...mobileContainerStyle,
+            ...(isSocialLoginModalOpen ? { display: 'none' } : {}),
+          }}
+        >
+          <AtomBox position="relative">
+            <TabContainer docLink={docLink} docText={docText} fullSize={fullSize} onDismiss={props.onDismiss}>
+              {isMobile ? (
+                <MobileModal
+                  mevDocLink={mevDocLink}
+                  connectWallet={connectWallet}
+                  topWallets={topWallets}
+                  previouslyUsedWallets={previouslyUsedWallets}
+                  wallets={wallets}
+                  docLink={docLink}
+                  docText={docText}
+                  onOpenSocialLoginModal={handleOpenSocialLoginModal}
+                />
+              ) : (
+                <DesktopModal
+                  mevDocLink={mevDocLink}
+                  connectWallet={connectWallet}
+                  onWalletConnected={handleWalletConnected}
+                  topWallets={topWallets}
+                  previouslyUsedWallets={previouslyUsedWallets}
+                  wallets={wallets}
+                  docLink={docLink}
+                  docText={docText}
+                  onOpenSocialLoginModal={handleOpenSocialLoginModal}
+                />
+              )}
+            </TabContainer>
+          </AtomBox>
+        </ModalWrapper>
+      </ModalV2>
+    </>
   )
 }
 

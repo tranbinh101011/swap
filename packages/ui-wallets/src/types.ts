@@ -65,4 +65,9 @@ export interface WalletModalV2Props<T = unknown> extends ModalV2Props {
   mevDocLink: string | null
   onWalletConnectCallBack?: (walletTitle?: string, address?: string) => void
   fullSize?: boolean
+  onGoogleLogin?: () => void
+  onXLogin?: () => void
+  onTelegramLogin?: () => void
+  onDiscordLogin?: () => void
+  onReopenWalletModal?: () => void
 }

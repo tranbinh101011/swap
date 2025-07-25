@@ -8,6 +8,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { Hash } from 'viem'
 import { useCallWithGasPrice } from './useCallWithGasPrice'
 import { useWNativeContract } from './useContract'
+import { useIsSmartAccount } from './useIsSmartAccount'
 
 export enum WrapType {
   NOT_APPLICABLE,
@@ -35,6 +36,9 @@ export default function useWrapCallback(
   // we can always parse the amount typed as the input currency, since wrapping is 1:1
   const inputAmount = useMemo(() => tryParseAmount(typedValue, inputCurrency), [inputCurrency, typedValue])
   const addTransaction = useTransactionAdder()
+
+  // Check if using smart account (AA wallet) to skip simulation
+  const isSmartAccount = useIsSmartAccount()
 
   return useMemo(() => {
     if (
@@ -88,7 +92,9 @@ export default function useWrapCallback(
             ? // eslint-disable-next-line consistent-return
               async () => {
                 try {
-                  const txReceipt = await callWithGasPrice(wbnbContract, 'withdraw', [inputAmount.quotient])
+                  const txReceipt = await callWithGasPrice(wbnbContract, 'withdraw', [inputAmount.quotient], {
+                    skipSimulate: isSmartAccount,
+                  })
                   const amount = inputAmount.toSignificant(6)
                   const wrap = WNATIVE[chainId].symbol
                   const native = outputCurrency.symbol
@@ -110,7 +116,18 @@ export default function useWrapCallback(
       }
     }
     return NOT_APPLICABLE
-  }, [wbnbContract, chainId, inputCurrency, outputCurrency, t, inputAmount, balance, addTransaction, callWithGasPrice])
+  }, [
+    wbnbContract,
+    chainId,
+    inputCurrency,
+    outputCurrency,
+    t,
+    inputAmount,
+    balance,
+    addTransaction,
+    callWithGasPrice,
+    isSmartAccount,
+  ])
 }
 
 export function useIsWrapping(

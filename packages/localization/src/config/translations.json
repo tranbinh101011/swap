@@ -4364,5 +4364,12 @@
   "solana.farm_id": "ID: %poolId%",
   "solana.harvested_symbol": "Harvested: %symbol%",
   "solana.lock_position": "Lock Position",
-  "solana.position_locked": "Position %position% locked"
+  "solana.position_locked": "Position %position% locked",
+  "Connect with social login": "Connect with social login",
+  "Social Login": "Social Login",
+  "Connect with your social account for a seamless experience": "Connect with your social account for a seamless experience",
+  "Continue with Google": "Continue with Google",
+  "X Login": "X Login",
+  "Continue with Web3 Wallet": "Continue with Web3 Wallet",
+  "TWAP and Limit orders are currently not supported for Smart Account wallets.": "TWAP and Limit orders are currently not supported for Smart Account wallets."
 }

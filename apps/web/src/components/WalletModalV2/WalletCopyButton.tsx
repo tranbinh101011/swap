@@ -4,10 +4,12 @@ import { useQuery } from '@tanstack/react-query'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { walletsConfig } from 'config/wallet'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import { useAtom } from 'jotai'
 import { useMemo } from 'react'
 import { styled } from 'styled-components'
 import { Connector, useAccount, useConnect } from 'wagmi'
+import { useSocialLoginProviderAtom } from '../../contexts/Privy/atom'
 
 interface CopyAddressProps extends FlexProps {
   account: string | undefined
@@ -32,6 +34,18 @@ const WalletIcon = styled(Box)`
   flex-shrink: 0;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+`
+
+const SocialIconWrapper = styled.div<{ $needsWhiteBg?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: ${({ $needsWhiteBg }) => ($needsWhiteBg ? 'white' : 'transparent')};
+  padding: ${({ $needsWhiteBg }) => ($needsWhiteBg ? '4px' : '0')};
 `
 
 const AddressBox = styled(Box)`
@@ -104,6 +118,13 @@ const useDappIcon = () => {
   return { dappIcon }
 }
 
+const SOCIAL_LOGIN_ICONS = {
+  google: `${ASSET_CDN}/web/wallets/social-login/google.jpg`,
+  x: `${ASSET_CDN}/web/wallets/social-login/x.svg`,
+  telegram: `${ASSET_CDN}/web/wallets/social-login/telegram.svg`,
+  discord: `${ASSET_CDN}/web/wallets/social-login/discord.svg`,
+}
+
 export const CopyAddress: React.FC<React.PropsWithChildren<CopyAddressProps>> = ({
   account,
   tooltipMessage,
@@ -111,13 +132,23 @@ export const CopyAddress: React.FC<React.PropsWithChildren<CopyAddressProps>> = 
 }) => {
   const { connectAsync } = useConnect()
   const { chainId } = useActiveChainId()
+  const isSmartAccount = useIsSmartAccount()
 
   const [previouslyUsedWalletsId] = useAtom(previouslyUsedWalletsAtom)
+  const [socialProvider] = useSocialLoginProviderAtom()
 
   const walletConfig = walletsConfig({ chainId, connect: connectAsync })
 
   const wallet = useMemo(() => walletConfig.find((w) => w.id === previouslyUsedWalletsId[0]), [walletConfig])
   const { dappIcon } = useDappIcon()
+
+  const socialIcon = useMemo(() => {
+    return socialProvider && isSmartAccount ? SOCIAL_LOGIN_ICONS[socialProvider] : null
+  }, [socialProvider, isSmartAccount])
+
+  const needsWhiteBackground = useMemo(() => {
+    return Boolean(socialProvider && isSmartAccount && ['x', 'discord', 'telegram'].includes(socialProvider))
+  }, [socialProvider, isSmartAccount])
 
   // Format the address to show only the first 6 and last 4 characters
   const formatAddress = (address: string | undefined) => {
@@ -129,8 +160,14 @@ export const CopyAddress: React.FC<React.PropsWithChildren<CopyAddressProps>> = 
     <Box position="relative" {...props} onClick={(e) => e.stopPropagation()}>
       <Wrapper>
         <WalletIcon>
-          {wallet?.icon || dappIcon ? (
-            <Image src={(wallet?.icon as string) || dappIcon} width={40} height={40} alt="Wallet" />
+          {socialIcon ? (
+            <SocialIconWrapper $needsWhiteBg={needsWhiteBackground}>
+              <Image src={socialIcon} width={32} height={32} alt="Social Login" />
+            </SocialIconWrapper>
+          ) : wallet?.icon ? (
+            <Image src={wallet?.icon as string} width={40} height={40} alt="Wallet" />
+          ) : dappIcon ? (
+            <Image src={dappIcon} width={40} height={40} alt="Wallet" />
           ) : (
             <WalletFilledV2Icon width={28} height={28} color="primary" />
           )}

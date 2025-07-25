@@ -21,11 +21,14 @@ import { fetchRiskToken } from 'components/AccessRisk/utils/fetchTokenRisk'
 import { useEffect, useMemo, useState } from 'react'
 import { useAllLists } from 'state/lists/hooks'
 import { useUserTokenRisk } from 'state/user/hooks/useUserTokenRisk'
-import { styled } from 'styled-components'
+import { css, styled } from 'styled-components'
 import { isAddressEqual } from 'utils'
 
 const AnimatedButton = styled(Button)`
-  animation: ${promotedGradient} 1.5s ease infinite;
+  animation: ${() =>
+    css`
+      ${promotedGradient} 1.5s ease infinite
+    `};
   background-size: 1000% 1000%;
 `
 

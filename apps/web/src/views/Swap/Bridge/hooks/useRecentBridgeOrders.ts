@@ -17,7 +17,6 @@ export const useRecentBridgeOrders = ({ address }: UseRecentBridgeOrdersParamete
       if (!address) {
         throw new Error("No address provided for user's bridge orders")
       }
-
       return getUserBridgeOrders(address, pageParam)
     },
     enabled: !!address,

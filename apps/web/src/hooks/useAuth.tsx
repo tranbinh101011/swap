@@ -1,12 +1,15 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { WalletConnectorNotFoundError, WalletSwitchChainError } from '@pancakeswap/ui-wallets'
+import { usePrivy } from '@privy-io/react-auth'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { ConnectorNames } from 'config/wallet'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { useAppDispatch } from 'state'
+import { CONNECTOR_MAP } from 'utils/wagmi'
 import { ConnectorNotFoundError, SwitchChainNotSupportedError, useAccount, useConnect, useDisconnect } from 'wagmi'
+import { useFirebaseAuth } from '../contexts/Privy/firebase'
 import { clearUserStates } from '../utils/clearUserStates'
 import { queryChainIdAtom, useActiveChainId } from './useActiveChainId'
 
@@ -19,10 +22,12 @@ const useAuth = () => {
   const [, setQueryChainId] = useAtom(queryChainIdAtom)
   const { t } = useTranslation()
   const router = useRouter()
+  const { logout: privyLogout, ready, authenticated } = usePrivy()
+  const { signOutAndClearUserStates } = useFirebaseAuth()
 
   const login = useCallback(
     async (connectorID: ConnectorNames) => {
-      const findConnector = connectors.find((c) => c.id === connectorID)
+      const findConnector = CONNECTOR_MAP[connectorID] || undefined
       try {
         if (!findConnector) return undefined
 
@@ -64,13 +69,21 @@ const useAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      await disconnectAsync()
+      if (authenticated && ready) {
+        await signOutAndClearUserStates()
+        await privyLogout()
+      } else await disconnectAsync()
     } catch (error) {
       console.error(error)
     } finally {
       clearUserStates(dispatch, { chainId: chain?.id })
+      // Clear wagmi storage to prevent auto-reconnect for wallets like Trust Wallet
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem('wagmi.recentConnectorId')
+        window.localStorage.removeItem('wagmi.store')
+      }
     }
-  }, [disconnectAsync, dispatch, chain?.id])
+  }, [disconnectAsync, dispatch, chain?.id, authenticated, ready, signOutAndClearUserStates, privyLogout])
 
   return { login, logout }
 }
