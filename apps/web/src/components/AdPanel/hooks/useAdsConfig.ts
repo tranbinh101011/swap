@@ -6,6 +6,7 @@ import { AdsCampaignConfig, Priority } from '../types'
 import { getImageUrl } from '../utils'
 
 export enum AdsIds {
+  PANCAKE_SOCIAL_LOGIN = 'pancake-social-login',
   PANCAKE_GIFT = 'pancake-gift',
   BINANCE_ALPHA = 'binance-alpha',
   BINANCE_ALPHA_V2 = 'binance-alpha-v2',
@@ -18,6 +19,23 @@ type AdsConfigMap = {
 const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig[] => {
   const now = Date.now()
   return [
+    {
+      id: AdsIds.PANCAKE_SOCIAL_LOGIN,
+      priority: Priority.HIGH,
+      ad: {
+        img: getImageUrl(isMobile ? 'social-login-mobile' : 'social-login'),
+        texts: [
+          {
+            text: t('Create your Wallet with Social Login'),
+          },
+        ],
+        btn: {
+          text: t('Learn More'),
+          link: 'https://blog.pancakeswap.finance/articles/sociallogin',
+          mt: !isMobile ? '8px' : undefined,
+        },
+      },
+    },
     {
       id: AdsIds.PANCAKE_GIFT,
       priority: Priority.HIGH,
