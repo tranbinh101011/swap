@@ -29,8 +29,8 @@ const ConnectWalletButton = ({ children, withIcon, ...props }: ConnectWalletButt
       </Button>
       <style jsx global>{`
         w3m-modal {
-          position: relative;
-          z-index: 99;
+          position: fixed;
+          z-index: 100000000;
         }
       `}</style>
       <WalletModalManager isOpen={open} onDismiss={handleOnDismiss} />

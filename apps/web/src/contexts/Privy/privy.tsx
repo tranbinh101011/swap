@@ -60,7 +60,11 @@ export function PrivyProvider({ children }: PropsWithChildren) {
         mfa: {
           noPromptOnMfaRequired: false,
         },
-        externalWallets: {},
+        externalWallets: {
+          walletConnect: {
+            enabled: false,
+          },
+        },
       }}
     >
       <SmartWalletsProvider>{children}</SmartWalletsProvider>
