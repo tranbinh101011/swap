@@ -53,12 +53,33 @@ const formatDataFn = async ({
                 liquidity: t.liquidityActive,
               })
             : undefined
+
         const nextSqrtX96 = poolTickData.ticksProcessed[i - 1]
           ? TickMath.getSqrtRatioAtTick(poolTickData.ticksProcessed[i - 1].tickIdx)
           : undefined
+
         const maxAmountToken0 = token0 ? CurrencyAmount.fromRawAmount(token0, maxUint128) : undefined
-        const outputRes0 =
-          pool && maxAmountToken0 ? await pool.getOutputAmount(maxAmountToken0, nextSqrtX96) : undefined
+
+        // Add validation for the price limit to prevent RATIO_CURRENT invariant failure
+        // For token0 -> token1 swap (zeroForOne = true), sqrtPriceLimitX96 must be < pool current price
+        let outputRes0: Awaited<ReturnType<Pool['getOutputAmount']>> | undefined
+        try {
+          if (pool && maxAmountToken0 && nextSqrtX96) {
+            // Validate that nextSqrtX96 is less than current price for token0 -> token1 swap
+            if (nextSqrtX96 < sqrtPriceX96) {
+              outputRes0 = await pool.getOutputAmount(maxAmountToken0, nextSqrtX96)
+            } else {
+              // If nextSqrtX96 is not valid, try without price limit
+              outputRes0 = await pool.getOutputAmount(maxAmountToken0)
+            }
+          } else if (pool && maxAmountToken0) {
+            // If no nextSqrtX96, try without price limit
+            outputRes0 = await pool.getOutputAmount(maxAmountToken0)
+          }
+        } catch (error) {
+          console.warn('Error calculating output amount for liquidity chart:', error)
+          outputRes0 = undefined
+        }
 
         const token1Amount = outputRes0?.[0] as CurrencyAmount<Token> | undefined
 
