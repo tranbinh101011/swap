@@ -41,10 +41,6 @@ export function withWebSecurityHeaders(config: NextConfig): NextConfig {
             key: 'Cross-Origin-Opener-Policy',
             value: 'same-origin',
           },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
           // createCSP(),
         ],
       },
