@@ -77,7 +77,7 @@ const getAdsConfigs = (t: ContextApi['t'], isMobile: boolean): AdsCampaignConfig
           mt: !isMobile ? '8px' : undefined,
         },
       },
-      deadline: 1753660799000,
+      deadline: 1754438399000,
     },
     {
       id: AdsIds.BINANCE_ALPHA,
