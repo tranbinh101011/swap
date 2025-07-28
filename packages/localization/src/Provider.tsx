@@ -11,7 +11,7 @@ const initialState: ProviderState = {
   currentLanguage: EN,
 }
 
-const languageMap = new Map<Language['locale'], Record<string, string>>()
+export const languageMap = new Map<Language['locale'], Record<string, string>>()
 languageMap.set(EN.locale, translations as Record<string, string>)
 
 export const LanguageContext = createContext<ContextApi | undefined>(undefined)
@@ -24,7 +24,6 @@ export const LanguageProvider: React.FC<React.PropsWithChildren> = ({ children }
       currentLanguage: languages[codeFromStorage] || EN,
     }
   })
-  const { currentLanguage } = state
 
   useEffect(() => {
     const fetchInitialLocales = async () => {
