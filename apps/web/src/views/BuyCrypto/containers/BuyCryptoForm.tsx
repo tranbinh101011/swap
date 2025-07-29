@@ -252,7 +252,6 @@ export function BuyCryptoForm({ providerAvailabilities }: { providerAvailabiliti
             resetBuyCryptoState={resetBuyCryptoState}
             btcAddress={debouncedQuery}
             errorText={quotesError ? t('No Quotes') : amountError}
-            onRampUnit={unit}
           />
           <Flex alignItems="center" justifyContent="center">
             <Text color="textSubtle" fontSize="14px" px="4px" textAlign="center">

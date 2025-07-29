@@ -23,7 +23,7 @@ import OnRampProviderLogo from 'views/BuyCrypto/components/OnRampProviderLogo/On
 import { useIsBtc } from 'views/BuyCrypto/hooks/useIsBtc'
 import { useOnRampSignature } from 'views/BuyCrypto/hooks/useOnRampSignature'
 import { IFrameWrapper, StyledBackArrowContainer } from 'views/BuyCrypto/styles'
-import type { OnRampProviderQuote, OnRampUnit } from 'views/BuyCrypto/types'
+import { OnRampProviderQuote, OnRampUnit } from 'views/BuyCrypto/types'
 import { ErrorText } from 'views/Swap/components/styleds'
 import { useAccount } from 'wagmi'
 import { logGTMFiatOnRampModalEvent } from 'utils/customGTMEventTracking'
@@ -45,13 +45,11 @@ export const FiatOnRampModalButton = ({
   btcAddress,
   resetBuyCryptoState,
   errorText,
-  onRampUnit,
 }: FiatOnRampProps & {
   disabled: boolean
   loading: boolean
   btcAddress: string
   errorText: string | undefined
-  onRampUnit: OnRampUnit
 }) => {
   const { address: account } = useAccount()
   const { t } = useTranslation()
@@ -67,7 +65,7 @@ export const FiatOnRampModalButton = ({
     quote: selectedQuote,
     externalTransactionId: externalTxIdRef.current,
     btcAddress,
-    onRampUnit,
+    onRampUnit: OnRampUnit.Fiat,
   })
 
   const [onPresentConfirmModal] = useModal(
