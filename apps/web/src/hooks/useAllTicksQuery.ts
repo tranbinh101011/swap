@@ -117,6 +117,7 @@ export async function getPoolTicks({
   if (!chainName) {
     return []
   }
+  const pool = poolAddress.toLowerCase()
 
   let max = 10
   let after: string | undefined
@@ -124,9 +125,6 @@ export async function getPoolTicks({
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    if (max <= 0) {
-      break
-    }
     if (!after && max < 10) {
       break
     }
@@ -151,7 +149,7 @@ export async function getPoolTicks({
         path: {
           protocol,
           chainName,
-          pool: poolAddress.toLowerCase(),
+          pool,
         },
         query: {
           after,
@@ -159,10 +157,7 @@ export async function getPoolTicks({
       },
     })
 
-    if (!resp.data) {
-      break
-    }
-    if (resp.data.rows.length === 0) {
+    if (!resp.data || resp.data.rows.length === 0) {
       break
     }
     if (resp.data.hasNextPage && resp.data.endCursor) {
