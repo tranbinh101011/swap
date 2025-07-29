@@ -41,6 +41,7 @@ import { styled } from 'styled-components'
 import { getTokenNameAlias, getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import useCMCLink from 'views/Info/hooks/useCMCLink'
+import { DISABLED_ADD_LIQUIDITY_CHAINS } from 'config/constants/liquidity'
 import BarChart from '../components/BarChart/alt'
 import { LocalLoader } from '../components/Loader'
 import Percent from '../components/Percent'
@@ -223,7 +224,7 @@ const TokenPage: React.FC<{ address: string; chain?: string }> = ({ address, cha
             </Flex>
             <Flex>
               <NextLinkFromReactRouter to={`/add/${address}?chain=${CHAIN_QUERY_NAME[chainId!]}`}>
-                <Button mr="8px" variant="secondary">
+                <Button mr="8px" variant="secondary" disabled={!!DISABLED_ADD_LIQUIDITY_CHAINS[chainId]}>
                   {t('Add Liquidity')}
                 </Button>
               </NextLinkFromReactRouter>

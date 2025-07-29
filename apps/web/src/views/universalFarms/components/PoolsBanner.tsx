@@ -16,6 +16,7 @@ import {
 } from '@pancakeswap/uikit'
 import { VerticalDivider } from '@pancakeswap/widgets-internal'
 import { PickAdSlides } from 'components/AdPanel/PickAdSlides'
+import LiquiditySunsetWarning from 'components/Liquidity/LiquiditySunsetWarning'
 import { Suspense, useCallback } from 'react'
 import { useUserPancakePicks } from 'state/user/hooks/useUserPancakePicks'
 import styled from 'styled-components'
@@ -136,6 +137,7 @@ export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }
           </Box>
         </FarmFlexWrapper>
       </Column>
+      <LiquiditySunsetWarning />
     </StyledPageHeader>
   )
 }

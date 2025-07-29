@@ -1,4 +1,4 @@
-import { chainNames } from '@pancakeswap/chains'
+import { ChainId, chainNames } from '@pancakeswap/chains'
 import { Protocol } from '@pancakeswap/farms'
 import { $path } from 'next-typesafe-url'
 import { Address, Hex } from 'viem'
@@ -11,6 +11,16 @@ export const LIQUIDITY_PAGES = {
     POSITION_DETAIL: '/liquidity/position',
   },
   POSITIONS: '/liquidity/positions',
+}
+
+export const DISABLED_ADD_LIQUIDITY_CHAINS: {
+  [chainId in ChainId]?: {
+    sunsetDate: number
+  }
+} = {
+  [ChainId.POLYGON_ZKEVM]: {
+    sunsetDate: 1759183200,
+  },
 }
 
 export const getCreateInfinityPoolPageURL = ({

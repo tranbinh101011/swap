@@ -2,6 +2,7 @@ import { INFINITY_SUPPORTED_CHAINS } from '@pancakeswap/infinity-sdk'
 import { isStableSwapSupported } from '@pancakeswap/stable-swap-sdk'
 import { Select } from '@pancakeswap/uikit'
 import { ASSET_CDN } from 'config/constants/endpoints'
+import { DISABLED_ADD_LIQUIDITY_CHAINS } from 'config/constants/liquidity'
 import { useMemo } from 'react'
 import { useUserShowTestnet } from 'state/user/hooks/useUserShowTestnet'
 import { LiquidityType } from 'utils/types'
@@ -26,6 +27,7 @@ export const NetworkSelector = ({
   const chainList = useMemo(
     () =>
       chains
+        .filter((chain) => !DISABLED_ADD_LIQUIDITY_CHAINS[chain.id])
         .filter((chain) => version !== 'infinity' || INFINITY_SUPPORTED_CHAINS.includes(chain.id))
         .filter((chain) => version !== 'stableSwap' || isStableSwapSupported(chain.id))
         .filter((chain) => {

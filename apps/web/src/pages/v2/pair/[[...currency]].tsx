@@ -40,6 +40,7 @@ import { usePoolInfo } from 'state/farmsV4/state/extendPools/hooks'
 import { useLPApr } from 'state/swap/useLPApr'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { useAccount } from 'wagmi'
+import { DISABLED_ADD_LIQUIDITY_CHAINS } from 'config/constants/liquidity'
 
 export const BodyWrapper = styled(Card)`
   border-radius: 24px;
@@ -157,7 +158,7 @@ export default function PoolV2Page() {
             !isMobile && (
               <>
                 <NextLinkFromReactRouter to={`/v2/add/${pair?.token0.address}/${pair?.token1.address}?increase=1`}>
-                  <Button width="100%" disabled={!pair}>
+                  <Button width="100%" disabled={!pair || !!DISABLED_ADD_LIQUIDITY_CHAINS[chainId]}>
                     {t('Add')}
                   </Button>
                 </NextLinkFromReactRouter>
@@ -184,7 +185,7 @@ export default function PoolV2Page() {
           {isMobile && (
             <>
               <NextLinkFromReactRouter to={`/v2/add/${pair?.token0.address}/${pair?.token1.address}?increase=1`}>
-                <Button width="100%" mb="8px" disabled={!pair}>
+                <Button width="100%" mb="8px" disabled={!pair || !!DISABLED_ADD_LIQUIDITY_CHAINS[chainId]}>
                   {t('Add')}
                 </Button>
               </NextLinkFromReactRouter>

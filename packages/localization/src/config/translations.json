@@ -4350,7 +4350,6 @@
   "solana.add_liquidity": "Added %amountA% %symbolA% and %amountB% %symbolB%.",
   "solana.harvest_rewards": "Harvest Rewards",
   "solana.harvest_clmm_rewards": "Harvest CLMM Rewards",
-  "solana.add_liquidity": "Add Liquidity",
   "solana.added_liquidity_desc": "Added %amountA% %symbolA% and %amountB% %symbolB%.",
   "solana.position_closed": "Position Closed",
   "solana.close_mint_position": "Close %mint% position.",
@@ -4372,5 +4371,7 @@
   "X Login": "X Login",
   "Continue with Web3 Wallet": "Continue with Web3 Wallet",
   "TWAP and Limit orders are currently not supported for Smart Account wallets.": "TWAP and Limit orders are currently not supported for Smart Account wallets.",
-  "Create your Wallet with Social Login": "Create your Wallet with Social Login"
+  "Create your Wallet with Social Login": "Create your Wallet with Social Login",
+  "Important Notice: %chain% Sunset": "Important Notice: %chain% Sunset",
+  "%chain% will be sunset on %date%. Please make sure to remove your liquidity from all pools before deadline.": "%chain% will be sunset on %date%. Please make sure to remove your liquidity from all pools before deadline."
 }

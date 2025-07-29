@@ -3,6 +3,8 @@ import { Currency, CurrencyAmount } from '@pancakeswap/sdk'
 import { AutoColumn, Button } from '@pancakeswap/uikit'
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import { DISABLED_ADD_LIQUIDITY_CHAINS } from 'config/constants/liquidity'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { ReactNode, useMemo } from 'react'
 import { CurrencyField as Field } from 'utils/types'
@@ -69,6 +71,7 @@ export function V3SubmitButton({
   depositBDisabled,
 }: V3SubmitButtonProps) {
   const { t } = useTranslation()
+  const { chainId } = useActiveChainId()
 
   const shouldShowApprovalGroup = useMemo(
     () =>
@@ -118,7 +121,8 @@ export function V3SubmitButton({
             !isValid ||
             attemptingTxn ||
             (approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
-            (approvalB !== ApprovalState.APPROVED && !depositBDisabled)
+            (approvalB !== ApprovalState.APPROVED && !depositBDisabled) ||
+            !!DISABLED_ADD_LIQUIDITY_CHAINS[chainId]
           }
         >
           {errorMessage || buttonText}

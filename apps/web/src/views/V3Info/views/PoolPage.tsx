@@ -30,6 +30,7 @@ import { formatAmount } from 'utils/formatInfoNumbers'
 
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { CurrencyLogo, DoubleCurrencyLogo } from 'views/Info/components/CurrencyLogo'
+import { DISABLED_ADD_LIQUIDITY_CHAINS } from 'config/constants/liquidity'
 import BarChart from '../components/BarChart/alt'
 import { GreyBadge } from '../components/Card'
 import DensityChart from '../components/DensityChart'
@@ -233,7 +234,11 @@ const PoolPage: React.FC<{ address: string }> = ({ address }) => {
                     CHAIN_QUERY_NAME[multiChainId[chainName]]
                   }`}
                 >
-                  <Button mr="8px" variant="secondary">
+                  <Button
+                    mr="8px"
+                    variant="secondary"
+                    disabled={!!DISABLED_ADD_LIQUIDITY_CHAINS[multiChainId[chainName]]}
+                  >
                     {t('Add Liquidity')}
                   </Button>
                 </NextLinkFromReactRouter>

@@ -9,6 +9,8 @@ import { useV2Pair } from 'hooks/usePairs'
 import { useLPApr } from 'state/swap/useLPApr'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { useAccount } from 'wagmi'
+import { DISABLED_ADD_LIQUIDITY_CHAINS } from 'config/constants/liquidity'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { AppHeader } from '../../components/App'
 import { CommonBasesType } from '../../components/SearchModal/types'
 import { useCurrencySelectRoute } from './useCurrencySelectRoute'
@@ -25,6 +27,7 @@ export function ChoosePair({
   onNext?: () => void
 }) {
   const { address: account } = useAccount()
+  const { chainId } = useActiveChainId()
   const { t } = useTranslation()
   const isValid = !error
   const { handleCurrencyASelect, handleCurrencyBSelect } = useCurrencySelectRoute()
@@ -91,7 +94,7 @@ export function ChoosePair({
             width="100%"
             variant={!isValid ? 'danger' : 'primary'}
             onClick={onNext}
-            disabled={!isValid}
+            disabled={!isValid || !!DISABLED_ADD_LIQUIDITY_CHAINS[chainId]}
           >
             {error ?? t('Add Liquidity')}
           </CommitButton>

@@ -46,6 +46,7 @@ import { Tooltips } from 'views/CakeStaking/components/Tooltips'
 import { getRewardProvider } from 'views/universalFarms/components/FarmStatusDisplay/hooks'
 import { PoolGlobalAprButtonV3 } from 'views/universalFarms/components/PoolAprButtonV3'
 import { RewardInfoCard } from 'views/universalFarms/components/RewardInfoCard'
+import LiquiditySunsetWarning from 'components/Liquidity/LiquiditySunsetWarning'
 import { usePoolInfoByQuery } from '../hooks/usePoolInfo'
 import { usePoolSymbol } from '../hooks/usePoolSymbol'
 import { useFlipCurrentPrice } from '../state/flipCurrentPrice'
@@ -111,6 +112,8 @@ export const PoolInfo = () => {
 
   return (
     <AutoColumn gap={['16px', null, null, '48px']}>
+      <LiquiditySunsetWarning overrideChainId={poolInfo?.chainId} />
+
       <NextSeo title={poolSymbol} />
       <Card>
         <CardBody>

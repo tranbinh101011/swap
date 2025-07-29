@@ -86,6 +86,7 @@ import { hexToBigInt } from 'viem'
 import { AprCalculatorV2 } from 'views/AddLiquidityV3/components/AprCalculatorV2'
 import RateToggle from 'views/AddLiquidityV3/formViews/V3FormView/components/RateToggle'
 import { useSendTransaction, useWalletClient } from 'wagmi'
+import { DISABLED_ADD_LIQUIDITY_CHAINS } from 'config/constants/liquidity'
 
 export const BodyWrapper = styled(Card)`
   border-radius: 24px;
@@ -605,7 +606,12 @@ export const LiquidityView = () => {
                     <NextLinkFromReactRouter
                       to={`/increase/${currencyId(currencyBase)}/${currencyId(currencyQuote)}/${feeAmount}/${tokenId}`}
                     >
-                      <Button disabled={!isOwnNFT} width="100%">
+                      <Button
+                        disabled={
+                          !isOwnNFT || Boolean(poolInfo?.chainId && DISABLED_ADD_LIQUIDITY_CHAINS[poolInfo?.chainId])
+                        }
+                        width="100%"
+                      >
                         {t('Add')}
                       </Button>
                     </NextLinkFromReactRouter>
@@ -626,7 +632,13 @@ export const LiquidityView = () => {
                   <NextLinkFromReactRouter
                     to={`/increase/${currencyId(currencyBase)}/${currencyId(currencyQuote)}/${feeAmount}/${tokenId}`}
                   >
-                    <Button disabled={!isOwnNFT} width="100%" mb="8px">
+                    <Button
+                      disabled={
+                        !isOwnNFT || Boolean(poolInfo?.chainId && DISABLED_ADD_LIQUIDITY_CHAINS[poolInfo?.chainId])
+                      }
+                      width="100%"
+                      mb="8px"
+                    >
                       {t('Add')}
                     </Button>
                   </NextLinkFromReactRouter>

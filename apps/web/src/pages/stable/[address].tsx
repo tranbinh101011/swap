@@ -41,6 +41,7 @@ import currencyId from 'utils/currencyId'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { useAccount } from 'wagmi'
+import { DISABLED_ADD_LIQUIDITY_CHAINS } from 'config/constants/liquidity'
 
 export const BodyWrapper = styled(Card)`
   border-radius: 24px;
@@ -165,7 +166,9 @@ function StablePoolPage() {
             !isMobile && (
               <>
                 <NextLinkFromReactRouter to={`/stable/add/${currencyIdA}/${currencyIdB}`}>
-                  <Button width="100%">{t('Add')}</Button>
+                  <Button width="100%" disabled={!!DISABLED_ADD_LIQUIDITY_CHAINS[chainId]}>
+                    {t('Add')}
+                  </Button>
                 </NextLinkFromReactRouter>
                 <NextLinkFromReactRouter to={`/stable/remove/${currencyIdA}/${currencyIdB}`}>
                   <Button ml="16px" variant="secondary" width="100%" disabled={isFullyStaked}>
@@ -180,7 +183,7 @@ function StablePoolPage() {
           {isMobile && (
             <>
               <NextLinkFromReactRouter to={`/stable/add/${currencyIdA}/${currencyIdB}`}>
-                <Button mb="8px" width="100%">
+                <Button mb="8px" width="100%" disabled={!!DISABLED_ADD_LIQUIDITY_CHAINS[chainId]}>
                   {t('Add')}
                 </Button>
               </NextLinkFromReactRouter>
