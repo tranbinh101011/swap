@@ -68,7 +68,7 @@ interface OnRampCurrencySelectPopOverProps {
   isError: boolean
   setSelectedQuote: (quote: OnRampProviderQuote) => void
   setShowProvidersPopOver: Dispatch<SetStateAction<boolean>>
-  showProivdersPopOver: boolean
+  showProvidersPopOver: boolean
 }
 type InputEvent = ChangeEvent<HTMLInputElement>
 
@@ -80,7 +80,7 @@ export function BuyCryptoForm({ providerAvailabilities }: { providerAvailabiliti
   const theme = useTheme()
 
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const [showProivdersPopOver, setShowProvidersPopOver] = useState<boolean>(false)
+  const [showProvidersPopOver, setShowProvidersPopOver] = useState<boolean>(false)
   const [showNotificationsPopOver, setShowNotificationsPopOver] = useState<boolean>(false)
   const [selectedQuote, setSelectedQuote] = useState<OnRampProviderQuote | undefined>(undefined)
   const [unit, setUnit] = useState<OnRampUnit>(OnRampUnit.Fiat)
@@ -174,7 +174,7 @@ export function BuyCryptoForm({ providerAvailabilities }: { providerAvailabiliti
         isFetching={isLoading}
         setSelectedQuote={setSelectedQuote}
         setShowProvidersPopOver={setShowProvidersPopOver}
-        showProivdersPopOver={showProivdersPopOver}
+        showProvidersPopOver={showProvidersPopOver}
       />
       <NotificationsOnboardPopover
         setShowNotificationsPopOver={setShowNotificationsPopOver}
@@ -195,9 +195,9 @@ export function BuyCryptoForm({ providerAvailabilities }: { providerAvailabiliti
           disableInput={false}
           unit={unit}
         />
-        <Box width="100%" position="absolute" zIndex="100" left="45%" top="53px">
+        <Flex width="100%" zIndex="100" justifyContent="center" alignItems="center">
           <SwapUI.SwitchButton onClick={onFlip} />
-        </Box>
+        </Flex>
         <BuyCryptoSelector
           id={isFiat(unit) ? 'onramp-crypto' : 'onramp-fiat'}
           inputLoading={Boolean(isLoading || inputError || quotesError)}
@@ -305,7 +305,7 @@ const OnRampCurrencySelectPopOver = ({
   isError,
   setSelectedQuote,
   setShowProvidersPopOver,
-  showProivdersPopOver,
+  showProvidersPopOver,
 }: OnRampCurrencySelectPopOverProps) => {
   const { t } = useTranslation()
 
@@ -321,7 +321,7 @@ const OnRampCurrencySelectPopOver = ({
     [showProvidersOnClick, setSelectedQuote],
   )
   return (
-    <PopOverScreenContainer showPopover={showProivdersPopOver} onClick={showProvidersOnClick}>
+    <PopOverScreenContainer showPopover={showProvidersPopOver} onClick={showProvidersOnClick}>
       <AutoRow borderBottom="1" borderColor="cardBorder" paddingX="24px" py="16px">
         <Text fontSize="20px" fontWeight="600">
           {t('Choose a provider')}

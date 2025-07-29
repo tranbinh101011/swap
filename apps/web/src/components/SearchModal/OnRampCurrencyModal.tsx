@@ -108,7 +108,7 @@ const SearchModalNetworkPopOver = ({
           <>
             {[chains[0], ...chains]
               .filter((chain) => {
-                if (('testnet' in chain && chain.testnet) || chain.id === 204) return false
+                if (('testnet' in chain && chain.testnet) || chain.id === 204 || chain.id === 1101) return false
                 return true
               })
               .map((chain, index: number) => {

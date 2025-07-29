@@ -243,7 +243,7 @@ export const onRampCurrenciesMap: { [tokenSymbol: string]: Currency } = {
   ETH_1: Native.onChain(OnRampChainId.ETHEREUM),
   BNB_56: Native.onChain(OnRampChainId.BSC),
   ETH_42161: Native.onChain(OnRampChainId.ARBITRUM_ONE),
-  ETH_1101: Native.onChain(OnRampChainId.POLYGON_ZKEVM),
+  // ETH_1101: Native.onChain(OnRampChainId.POLYGON_ZKEVM),
   ETH_324: Native.onChain(OnRampChainId.ZKSYNC),
   ETH_59144: Native.onChain(OnRampChainId.LINEA),
   ETH_8453: Native.onChain(OnRampChainId.BASE),
