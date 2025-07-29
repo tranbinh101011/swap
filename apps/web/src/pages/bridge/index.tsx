@@ -1,3 +1,4 @@
+import { ChainId } from '@pancakeswap/chains'
 import { Flex, useMatchBreakpoints } from '@pancakeswap/uikit'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { PUBLIC_NODES } from 'config/nodes'
@@ -56,6 +57,8 @@ function usePortalConflictFix() {
   }, [])
 }
 
+const DISABLED_TO_CHAINS = [ChainId.POLYGON_ZKEVM]
+
 const BridgePage = () => {
   const { isMobile } = useMatchBreakpoints()
 
@@ -81,6 +84,7 @@ const BridgePage = () => {
             supportedChainIds={CHAIN_IDS}
             // @ts-ignore
             rpcConfig={PUBLIC_NODES}
+            disabledToChains={DISABLED_TO_CHAINS}
           />
         </Suspense>
       </Flex>
