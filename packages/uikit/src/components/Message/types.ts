@@ -6,6 +6,7 @@ export const variants = {
   DANGER: "danger",
   SUCCESS: "success",
   PRIMARY: "primary",
+  PRIMARY60: "primary60",
   SECONDARY: "secondary",
 } as const;
 

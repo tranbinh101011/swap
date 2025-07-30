@@ -58,6 +58,5 @@ const Page = dynamic(() => Promise.resolve(AddLiquidityPage), { ssr: false }) as
 
 Page.chains = CHAIN_IDS
 Page.screen = true
-Page.Layout = PageWithoutFAQ
 
 export default Page

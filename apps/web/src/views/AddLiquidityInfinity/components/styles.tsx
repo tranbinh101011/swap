@@ -11,7 +11,7 @@ export const ResponsiveColumns = styled(Box)`
   grid-auto-flow: row;
 
   ${({ theme }) => theme.mediaQueries.xl} {
-    grid-template-columns: 3fr 5fr;
+    grid-template-columns: 5fr 3fr;
   }
 `
 export const TokenFilterContainer = styled(Grid)`

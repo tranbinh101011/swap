@@ -110,21 +110,12 @@ export const TransactionConfirmSwapContentV3 = memo<TransactionConfirmSwapConten
           outputAmount={order.trade.outputAmount}
           priceBreakdown={priceBreakdown}
           disabledConfirm={showAcceptChanges}
-          allowedSlippage={allowedSlippage}
           slippageAdjustedAmounts={slippageAdjustedAmounts ?? undefined}
           isEnoughInputBalance={isEnoughInputBalance ?? undefined}
           onConfirm={onConfirm}
         />
       ) : null
-    }, [
-      order,
-      priceBreakdown,
-      showAcceptChanges,
-      allowedSlippage,
-      slippageAdjustedAmounts,
-      isEnoughInputBalance,
-      onConfirm,
-    ])
+    }, [order, priceBreakdown, showAcceptChanges, slippageAdjustedAmounts, isEnoughInputBalance, onConfirm])
 
     return <ConfirmationModalContent topContent={modalHeader} bottomContent={modalBottom} />
   },

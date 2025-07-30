@@ -2,7 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Pair, Percent, Price, Token } from '@pancakeswap/sdk'
 import { useModal } from '@pancakeswap/uikit'
 import { useUserSlippage } from '@pancakeswap/utils/user'
-import { ReactElement, useCallback, useMemo, useState } from 'react'
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { V2_ROUTER_ADDRESS } from 'config/constants/exchange'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
@@ -13,6 +13,7 @@ import { isUserRejected, logError } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { Address, Hash } from 'viem'
 import { useWalletClient } from 'wagmi'
+import { useCurrencyInversionEvent } from 'views/AddLiquidityV3/hooks/useHeaderInvertCurrencies'
 
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -121,6 +122,24 @@ export default function AddLiquidity({
   const poolData = useLPApr('v2', pair)
 
   const { onFieldAInput, onFieldBInput } = useMintActionHandlers(noLiquidity)
+
+  const inversionEvent = useCurrencyInversionEvent()
+
+  // Interchange input values on flipping currencies from the header
+  useEffect(() => {
+    if (inversionEvent) {
+      const { currencyIdA: newCurrencyIdA, currencyIdB: newCurrencyIdB } = inversionEvent
+      if (
+        newCurrencyIdA &&
+        newCurrencyIdB &&
+        newCurrencyIdA !== currencyId(currencyA ?? undefined) &&
+        newCurrencyIdB !== currencyId(currencyB ?? undefined)
+      ) {
+        onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
+        onFieldBInput(formattedAmounts[Field.CURRENCY_A] ?? '')
+      }
+    }
+  }, [inversionEvent])
 
   // modal and loading
   const [{ attemptingTxn, liquidityErrorMessage, txHash }, setLiquidityState] = useState<{

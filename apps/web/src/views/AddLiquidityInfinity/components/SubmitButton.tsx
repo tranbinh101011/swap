@@ -1,6 +1,6 @@
 import { BinPool } from '@pancakeswap/infinity-sdk'
 import { useTranslation } from '@pancakeswap/localization'
-import { AddIcon, AutoColumn, Text, usePrompt } from '@pancakeswap/uikit'
+import { AddIcon, AtomBoxProps, AutoColumn, Text, usePrompt } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import PageLoader from 'components/Loader/PageLoader'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
@@ -31,7 +31,7 @@ import { useAddFormSubmitEnabled } from '../hooks/useAddFormSubmitEnabled'
 import { useBinIdRange } from '../hooks/useBinIdRange'
 import { usePool } from '../hooks/usePool'
 
-export const SubmitButton = () => {
+export const SubmitButton = (props: AtomBoxProps) => {
   const { t } = useTranslation()
   const { isWrongNetwork } = useActiveChainId()
   const { address: account } = useAccount()
@@ -223,7 +223,7 @@ export const SubmitButton = () => {
   }
 
   return (
-    <AutoColumn mt="24px" gap="8px">
+    <AutoColumn gap="8px" {...props}>
       {displayMarketPriceSlippageWarning ? (
         <MarketPriceSlippageWarning slippage={`${marketPriceSlippage?.toFixed(0)} %`} />
       ) : null}

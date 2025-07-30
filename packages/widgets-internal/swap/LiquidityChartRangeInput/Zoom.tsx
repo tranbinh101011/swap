@@ -107,7 +107,7 @@ export default function Zoom({
           }}
         >
           <AutoRenewIcon
-            color="primary"
+            color="primary60"
             width={20}
             onClick={() => {
               resetBrush();
@@ -121,14 +121,14 @@ export default function Zoom({
           cursor: "pointer",
         }}
       >
-        <ZoomInIcon width={24} onClick={zoomIn} color="primary" />
+        <ZoomInIcon width={24} onClick={zoomIn} color="primary60" />
       </Box>
       <Box
         style={{
           cursor: "pointer",
         }}
       >
-        <ZoomOutIcon width={24} onClick={zoomOut} color="primary" />
+        <ZoomOutIcon width={24} onClick={zoomOut} color="primary60" />
       </Box>
     </Wrapper>
   );

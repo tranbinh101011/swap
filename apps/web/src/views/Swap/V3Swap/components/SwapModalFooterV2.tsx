@@ -73,7 +73,6 @@ export const SwapModalFooterV2 = memo(function SwapModalFooterV2({
   outputAmount,
   order,
   tradeType,
-  allowedSlippage,
   slippageAdjustedAmounts,
   isEnoughInputBalance,
   onConfirm,
@@ -86,7 +85,6 @@ export const SwapModalFooterV2 = memo(function SwapModalFooterV2({
   inputAmount: CurrencyAmount<Currency>
   outputAmount: CurrencyAmount<Currency>
   priceImpact?: Percent
-  allowedSlippage: number | ReactElement
   slippageAdjustedAmounts: SlippageAdjustedAmounts | undefined | null
   isEnoughInputBalance?: boolean
   swapErrorMessage?: string | undefined
@@ -179,7 +177,7 @@ export const SwapModalFooterV2 = memo(function SwapModalFooterV2({
                 <DottedHelpText fontSize="14px">{t('Slippage Tolerance')}</DottedHelpText>
               </QuestionHelperV2>
             </RowFixed>
-            <SlippageButton slippage={allowedSlippage} />
+            <SlippageButton enableAutoSlippage />
           </RowBetween>
         )}
         <RowBetween mb="8px">

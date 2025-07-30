@@ -4,14 +4,18 @@ import React, { useMemo } from 'react'
 import { usePoolApr } from 'state/farmsV4/hooks'
 import { useAccountV3Position } from 'state/farmsV4/state/accountPositions/hooks/useAccountV3Position'
 import { PoolInfo } from 'state/farmsV4/state/type'
-import { PoolGlobalAprButton, V3PoolDerivedAprButton, V3PoolPositionAprButton } from 'views/universalFarms/components'
+import { PoolGlobalAprButton, V3PoolPositionAprButton } from 'views/universalFarms/components'
+import { V3PoolDerivedAprButton } from 'views/universalFarms/components/PoolAprButtonV3'
 
 interface AprCalculatorV2Props {
   pool?: PoolInfo | null
   tokenId?: bigint
-  showTitle?: boolean
   derived?: boolean
   inverted?: boolean
+  showTitle?: boolean
+  showApyText?: boolean
+  showApyButton?: boolean
+  fontSize?: string
 }
 
 const WithTitle = ({ children, pool }: { children: React.ReactNode; pool: PoolInfo }) => {
@@ -29,9 +33,27 @@ const WithTitle = ({ children, pool }: { children: React.ReactNode; pool: PoolIn
   )
 }
 
-export function AprCalculatorV2({ pool, tokenId, showTitle = true, derived, inverted }: AprCalculatorV2Props) {
+export function AprCalculatorV2({
+  pool,
+  tokenId,
+  showTitle = true,
+  derived,
+  inverted,
+  showApyText,
+  showApyButton,
+  fontSize,
+}: AprCalculatorV2Props) {
   if (derived) {
-    return <DerivedAprCalculator pool={pool} showTitle={showTitle} inverted={inverted} />
+    return (
+      <DerivedAprCalculator
+        pool={pool}
+        showTitle={showTitle}
+        inverted={inverted}
+        showApyText={showApyText}
+        showApyButton={showApyButton}
+        fontSize={fontSize}
+      />
+    )
   }
 
   if (tokenId) {
@@ -54,17 +76,36 @@ const GlobalAprCalculator: React.FC<AprCalculatorV2Props> = ({ pool, showTitle }
   )
 }
 
-const DerivedAprCalculator: React.FC<AprCalculatorV2Props> = ({ pool, inverted, showTitle }) => {
+const DerivedAprCalculator: React.FC<AprCalculatorV2Props> = ({
+  pool,
+  inverted,
+  showTitle,
+  showApyText,
+  showApyButton,
+  fontSize,
+}) => {
   if (!pool) {
     return <Skeleton height="40px" />
   }
 
   return showTitle ? (
     <WithTitle pool={pool}>
-      <V3PoolDerivedAprButton pool={pool} inverted={inverted} />
+      <V3PoolDerivedAprButton
+        pool={pool}
+        inverted={inverted}
+        showApyText={showApyText}
+        showApyButton={showApyButton}
+        fontSize={fontSize}
+      />
     </WithTitle>
   ) : (
-    <V3PoolDerivedAprButton pool={pool} inverted={inverted} />
+    <V3PoolDerivedAprButton
+      pool={pool}
+      inverted={inverted}
+      showApyText={showApyText}
+      showApyButton={showApyButton}
+      fontSize={fontSize}
+    />
   )
 }
 

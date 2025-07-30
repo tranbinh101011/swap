@@ -42,7 +42,7 @@ const StyledVerticalDivider = styled(VerticalDivider).attrs(({ theme }) => ({ bg
   margin: 0 4px;
 `
 
-enum SlippageError {
+export enum SlippageError {
   InvalidInput = 'InvalidInput',
   RiskyLow = 'RiskyLow',
   RiskyHigh = 'RiskyHigh',

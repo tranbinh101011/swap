@@ -3,6 +3,7 @@ import { useTheme } from '@pancakeswap/hooks'
 import { getPoolId } from '@pancakeswap/infinity-sdk'
 import { useTranslation } from '@pancakeswap/localization'
 import { zeroAddress } from '@pancakeswap/price-api-sdk'
+import { SlippageButton } from 'views/Swap/components/SlippageButton'
 import { Percent } from '@pancakeswap/swap-sdk-core'
 import {
   ArrowDownIcon,
@@ -12,9 +13,7 @@ import {
   ErrorIcon,
   Flex,
   FlexGap,
-  IconButton,
   Message,
-  PencilIcon,
   PreTitle,
   Slider,
   Text,
@@ -347,12 +346,7 @@ export const RemoveClPosition = () => {
           </Flex>
           <Flex mt="24px" justifyContent="space-between" alignItems="center">
             <Text>{t('Slippage Tolerance')}</Text>
-            <IconButton scale="xs" height="32px" variant="tertiary" onClick={onPresentSettingsModal}>
-              <Text mx="4px" color="primary60">
-                {allowedSlippage / 100}%
-              </Text>
-              <PencilIcon mx="4px" color="primary60" width="10px" />
-            </IconButton>
+            <SlippageButton />
           </Flex>
 
           {showCollectAsWNative && (

@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Percent } from '@pancakeswap/swap-sdk-core'
 import { AutoColumn, Box, BoxProps, PreTitle } from '@pancakeswap/uikit'
-import CurrencyInputPanelV2 from 'components/CurrencyInputPanel/CurrencyInputPanelV2'
+import CurrencyInputPanelSimplify from 'components/CurrencyInputPanelSimplify'
 import { useMaxAmount } from 'hooks/useMaxAmount'
 import { useCallback, useMemo } from 'react'
 import { useInverted } from 'state/infinity/shared'
@@ -58,15 +58,18 @@ export const FieldDepositAmount: React.FC<FieldDepositAmountProps> = ({
     return inverted ? [inputValue1, inputValue0] : [inputValue0, inputValue1]
   }, [inverted, inputValue0, inputValue1])
 
+  const isDepositBaseDisabled = !isDepositEnabled || !isDepositBaseEnabled
+  const isDepositQuoteDisabled = !isDepositEnabled || !isDepositQuoteEnabled
+
   return (
     <Box {...boxProps}>
       <AutoColumn gap="8px">
-        <PreTitle>{t('Deposit Amount')}</PreTitle>
-        <CurrencyInputPanelV2
+        <CurrencyInputPanelSimplify
           id="infinity-add-liquidity-input-base-currency"
-          chainId={chainId}
+          title={<PreTitle>{t('Deposit Amount')}</PreTitle>}
           onUserInput={handleUserInputBaseCurrency}
-          value={
+          showMaxButton
+          defaultValue={
             isDepositEnabled
               ? isDepositBaseEnabled
                 ? inputValueBase ?? ''
@@ -77,23 +80,27 @@ export const FieldDepositAmount: React.FC<FieldDepositAmountProps> = ({
               ? t('Set price range first')
               : t('Set starting price and price range first')
           }
-          currency={baseCurrency}
           onPercentInput={(percent) =>
             handleUserInputBaseCurrency(maxAmountBase?.multiply(new Percent(percent, 100))?.toExact() ?? '')
           }
-          maxAmount={maxAmountBase}
-          onMax={() => handleUserInputBaseCurrency(maxAmountBase?.toExact() ?? '')}
+          currency={baseCurrency}
           showUSDPrice
-          showMaxButton
           showQuickInputButton
+          disabled={isDepositBaseDisabled}
+          showCommonBases
+          showSearchInput
           disableCurrencySelect
-          disabled={!isDepositEnabled || !isDepositBaseEnabled}
+          maxAmount={maxAmountBase}
+          onMax={() =>
+            isDepositBaseDisabled ? undefined : handleUserInputBaseCurrency(maxAmountBase?.toExact() ?? '')
+          }
         />
-        <CurrencyInputPanelV2
+        <CurrencyInputPanelSimplify
           id="infinity-add-liquidity-input-quote-currency"
-          chainId={chainId}
+          title={<>&nbsp;</>}
           onUserInput={handleUserInputQuoteCurrency}
-          value={
+          showMaxButton
+          defaultValue={
             isDepositEnabled
               ? isDepositQuoteEnabled
                 ? inputValueQuote ?? ''
@@ -104,17 +111,20 @@ export const FieldDepositAmount: React.FC<FieldDepositAmountProps> = ({
               ? t('Set price range first')
               : t('Set starting price and price range first')
           }
-          currency={quoteCurrency}
           onPercentInput={(percent) =>
             handleUserInputQuoteCurrency(maxAmountQuote?.multiply(new Percent(percent, 100))?.toExact() ?? '')
           }
-          maxAmount={maxAmountQuote}
-          onMax={() => handleUserInputQuoteCurrency(maxAmountQuote?.toExact() ?? '')}
+          currency={quoteCurrency}
           showUSDPrice
-          showMaxButton
           showQuickInputButton
+          disabled={isDepositQuoteDisabled}
+          showCommonBases
+          showSearchInput
+          maxAmount={maxAmountQuote}
+          onMax={() =>
+            isDepositQuoteDisabled ? undefined : handleUserInputQuoteCurrency(maxAmountQuote?.toExact() ?? '')
+          }
           disableCurrencySelect
-          disabled={!isDepositEnabled || !isDepositQuoteEnabled}
         />
       </AutoColumn>
     </Box>

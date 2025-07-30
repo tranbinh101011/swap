@@ -66,7 +66,7 @@ export const RangeSelectorV2: React.FC<RangeSelectorV2Props> = ({
         decrementDisabled={minPriceDecrementDisabled}
         onUserInput={onMinPriceUserInput}
         title={
-          <Text color="secondary" style={{ textTransform: 'uppercase' }} small bold>
+          <Text color="secondary" fontSize="12px" textTransform="uppercase" bold>
             {t('Min Price')}
           </Text>
         }
@@ -82,7 +82,7 @@ export const RangeSelectorV2: React.FC<RangeSelectorV2Props> = ({
         decrementDisabled={maxPriceDecrementDisabled}
         onUserInput={onMaxPriceUserInput}
         title={
-          <Text color="secondary" style={{ textTransform: 'uppercase' }} small bold>
+          <Text color="secondary" fontSize="12px" textTransform="uppercase" bold>
             {t('Max Price')}
           </Text>
         }

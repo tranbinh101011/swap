@@ -9,6 +9,7 @@ const wrongNetworkProps: ButtonProps = {
   variant: 'danger',
   disabled: false,
   children: <Trans>Wrong Network</Trans>,
+  width: '100%',
 }
 
 export const CommitButton = ({ checkChainId, ...props }: ButtonProps & { checkChainId?: number }) => {

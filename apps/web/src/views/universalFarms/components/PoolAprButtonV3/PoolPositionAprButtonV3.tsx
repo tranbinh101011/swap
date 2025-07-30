@@ -31,11 +31,15 @@ type PoolPositionAprButtonProps<TPosition, TPoolInfo = PoolInfo> = {
   pool: TPoolInfo
   userPosition: TPosition
   inverted?: boolean
+  showApyText?: boolean
+  showApyButton?: boolean
+  fontSize?: string
 }
 
 export const V2PoolPositionAprButton: React.FC<PoolPositionAprButtonProps<StableLPDetail | V2LPDetail>> = ({
   pool,
   userPosition,
+  fontSize,
 }) => {
   const { lpApr, cakeApr, merklApr, numerator, denominator } = useV2PositionApr(pool, userPosition)
   const { updateTotalApr } = useMyPositions()
@@ -45,12 +49,13 @@ export const V2PoolPositionAprButton: React.FC<PoolPositionAprButtonProps<Stable
       updateTotalApr(`${pool.chainId}:${pool.lpAddress}:${userPosition.isStaked}`, numerator, denominator)
   }, [denominator, numerator, pool.chainId, pool.lpAddress, updateTotalApr, userPosition.isStaked])
 
-  return <PoolAprButtonV3 pool={pool} lpApr={lpApr} cakeApr={cakeApr} merklApr={merklApr} />
+  return <PoolAprButtonV3 pool={pool} lpApr={lpApr} cakeApr={cakeApr} merklApr={merklApr} fontSize={fontSize} />
 }
 
 export const V3PoolPositionAprButton: React.FC<PoolPositionAprButtonProps<PositionDetail>> = ({
   pool,
   userPosition,
+  fontSize,
 }) => {
   const { lpApr, cakeApr, merklApr, numerator, denominator } = useV3PositionApr(pool, userPosition)
   const { updateTotalApr } = useMyPositions()
@@ -60,21 +65,30 @@ export const V3PoolPositionAprButton: React.FC<PoolPositionAprButtonProps<Positi
       updateTotalApr(`${pool.chainId}:${pool.lpAddress}:${userPosition.tokenId}`, numerator, denominator)
   }, [denominator, numerator, pool.chainId, pool.lpAddress, updateTotalApr, userPosition.tokenId])
 
-  return <PoolAprButtonV3 pool={pool} lpApr={lpApr} cakeApr={cakeApr} merklApr={merklApr} userPosition={userPosition} />
+  return (
+    <PoolAprButtonV3
+      pool={pool}
+      lpApr={lpApr}
+      cakeApr={cakeApr}
+      merklApr={merklApr}
+      userPosition={userPosition}
+      fontSize={fontSize}
+    />
+  )
 }
 
 export const InfinityCLPoolPositionAprButton: React.FC<
   PoolPositionAprButtonProps<InfinityCLPositionDetail, InfinityPoolInfo>
-> = ({ pool, userPosition }) => {
+> = ({ pool, userPosition, fontSize }) => {
   const apr = useInfinityCLPositionApr(pool, userPosition)
-  return <InfinityPoolPositionAprButton apr={apr} pool={pool} userPosition={userPosition} />
+  return <InfinityPoolPositionAprButton apr={apr} pool={pool} userPosition={userPosition} fontSize={fontSize} />
 }
 
 export const InfinityBinPoolPositionAprButton: React.FC<
   PoolPositionAprButtonProps<InfinityBinPositionDetail, InfinityPoolInfo>
-> = ({ pool, userPosition }) => {
+> = ({ pool, userPosition, fontSize }) => {
   const apr = useInfinityBinPositionApr(pool, userPosition)
-  return <InfinityPoolPositionAprButton apr={apr} pool={pool} userPosition={userPosition} />
+  return <InfinityPoolPositionAprButton apr={apr} pool={pool} userPosition={userPosition} fontSize={fontSize} />
 }
 
 type InfinityPoolPositionAprButtonProps<
@@ -84,12 +98,14 @@ type InfinityPoolPositionAprButtonProps<
   pool: TPoolInfo
   userPosition: TPosition
   apr: InfinityPositionAPR
+  fontSize?: string
 }
 
 export const InfinityPoolPositionAprButton = <T extends InfinityCLPositionDetail | InfinityBinPositionDetail>({
   pool,
   userPosition,
   apr,
+  fontSize,
 }: InfinityPoolPositionAprButtonProps<T>) => {
   const { lpApr, cakeApr, merklApr, numerator, denominator } = apr
   const { updateTotalApr } = useMyPositions()
@@ -124,6 +140,7 @@ export const InfinityPoolPositionAprButton = <T extends InfinityCLPositionDetail
         userPosition={userPosition}
         onAPRTextClick={APRBreakdownModalState.onOpen}
         showApyButton={false}
+        fontSize={fontSize}
       />
       {APRBreakdownModalState.isOpen ? (
         <APRBreakdownModal
@@ -143,13 +160,29 @@ export const InfinityPoolPositionAprButton = <T extends InfinityCLPositionDetail
 export const V3PoolDerivedAprButton: React.FC<Omit<PoolPositionAprButtonProps<PositionDetail>, 'userPosition'>> = ({
   pool,
   inverted,
+  showApyText,
+  showApyButton,
+  fontSize,
 }) => {
   const { lpApr, cakeApr, merklApr } = useV3FormDerivedApr(pool, inverted)
 
-  return <PoolAprButtonV3 pool={pool} lpApr={lpApr} cakeApr={cakeApr} merklApr={merklApr} />
+  return (
+    <PoolAprButtonV3
+      pool={pool}
+      lpApr={lpApr}
+      cakeApr={cakeApr}
+      merklApr={merklApr}
+      showApyText={showApyText}
+      showApyButton={showApyButton}
+      fontSize={fontSize}
+    />
+  )
 }
 
-export const InfinityCLPoolDerivedAprButton: React.FC<{ pool: InfinityCLPoolInfo }> = ({ pool }) => {
+export const InfinityCLPoolDerivedAprButton: React.FC<{ pool: InfinityCLPoolInfo; fontSize?: string }> = ({
+  pool,
+  fontSize,
+}) => {
   const { lpApr, cakeApr, merklApr } = useInfinityCLDerivedApr(pool)
 
   return (
@@ -160,11 +193,15 @@ export const InfinityCLPoolDerivedAprButton: React.FC<{ pool: InfinityCLPoolInfo
       cakeApr={cakeApr}
       merklApr={merklApr}
       onAPRTextClick={noop}
+      fontSize={fontSize}
     />
   )
 }
 
-export const InfinityBinPoolDerivedAprButton: React.FC<{ pool: InfinityBinPoolInfo }> = ({ pool }) => {
+export const InfinityBinPoolDerivedAprButton: React.FC<{ pool: InfinityBinPoolInfo; fontSize?: string }> = ({
+  pool,
+  fontSize,
+}) => {
   const { lpApr, cakeApr, merklApr } = useInfinityBinDerivedApr(pool)
 
   return (
@@ -175,6 +212,7 @@ export const InfinityBinPoolDerivedAprButton: React.FC<{ pool: InfinityBinPoolIn
       cakeApr={cakeApr}
       merklApr={merklApr}
       onAPRTextClick={noop}
+      fontSize={fontSize}
     />
   )
 }

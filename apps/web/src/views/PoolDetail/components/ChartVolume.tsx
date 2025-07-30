@@ -111,7 +111,7 @@ export const ChartVolume: React.FC<ChartVolumeProps> = ({ address, poolInfo, tim
           }}
         >
           <XAxis dataKey="formattedTime" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9383B4' }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} wrapperStyle={{ outline: 'none' }} />
           <Bar dataKey="value" radius={[16, 16, 16, 16]} maxBarSize={20}>
             {chartData.map((entry, index) => (
               <Cell

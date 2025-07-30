@@ -55,7 +55,7 @@ export default function useV3DerivedInfo(
   dependentField: Field
   parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
   position: Position | undefined
-  noLiquidity?: boolean
+  noLiquidity: boolean
   errorMessage?: ReactNode
   hasInsufficentBalance: boolean
   invalidPool: boolean
@@ -116,7 +116,7 @@ export default function useV3DerivedInfo(
 
   // pool
   const [poolState, pool] = usePool(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B], feeAmount)
-  const noLiquidity = poolState === PoolState.NOT_EXISTS
+  const noLiquidity = useMemo(() => Boolean(poolState === PoolState.NOT_EXISTS), [poolState])
 
   // note to parse inputs in reverse
   const invertPrice = Boolean(baseToken && token0 && !baseToken.equals(token0))

@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency } from '@pancakeswap/sdk'
-import { AtomBox, AutoColumn, Button, CircleLoader, Text } from '@pancakeswap/uikit'
+import { AtomBox, AutoColumn, Button, CircleLoader, FlexGap, Text } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -175,16 +175,18 @@ export default function FeeSelector({
       heading={
         feeAmount ? (
           <AutoColumn gap="8px">
-            <Text>
-              V3 LP - {FEE_AMOUNT_DETAIL[feeAmount].label}% {t('fee tier')}
-            </Text>
-            {distributions && (
-              <FeeTierPercentageBadge
-                distributions={distributions}
-                feeAmount={feeAmount}
-                poolState={poolsByFeeTier[feeAmount]}
-              />
-            )}
+            <FlexGap gap="4px" alignItems="center">
+              <Text fontSize={['12px', '16px']}>
+                {FEE_AMOUNT_DETAIL[feeAmount].label}% {t('fee tier')}
+              </Text>
+              {distributions && (
+                <FeeTierPercentageBadge
+                  distributions={distributions}
+                  feeAmount={feeAmount}
+                  poolState={poolsByFeeTier[feeAmount]}
+                />
+              )}
+            </FlexGap>
           </AutoColumn>
         ) : (
           <>

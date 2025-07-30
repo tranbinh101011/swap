@@ -72,6 +72,5 @@ const Page = dynamic(() => Promise.resolve(AddStableLiquidityPage), {
 }) as NextPageWithLayout
 
 Page.chains = CHAIN_IDS
-Page.Layout = PageWithoutFAQ
 
 export default Page

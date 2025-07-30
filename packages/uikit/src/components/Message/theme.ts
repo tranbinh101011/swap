@@ -19,6 +19,10 @@ const variants = {
     background: "#FFB23719",
     borderColor: "warning",
   },
+  primary60: {
+    background: "#EEFBFC",
+    borderColor: "#C1EDF0",
+  },
 };
 
 export default variants;

@@ -21,7 +21,7 @@ const StyledPositionCard = styled(Box)`
   }
 
   &:hover {
-    background: ${({ theme }) => theme.colors.backgroundHover};
+    background: ${({ theme }) => (theme.isDark ? theme.colors.backgroundDisabled : theme.colors.backgroundHover)};
   }
 
   &:active {

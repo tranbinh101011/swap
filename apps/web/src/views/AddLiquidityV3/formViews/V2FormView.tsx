@@ -3,36 +3,41 @@ import { Pair, Percent } from '@pancakeswap/sdk'
 import {
   AutoColumn,
   Box,
-  BunnyKnownPlaceholder,
   Button,
-  DynamicSection,
+  Card,
+  CardBody,
+  Column,
   Flex,
   LinkExternal,
   Message,
   MessageText,
+  PreTitle,
+  RowBetween,
   ScanLink,
   Text,
+  Toggle,
 } from '@pancakeswap/uikit'
 import { useIsExpertMode } from '@pancakeswap/utils/user'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { ChainLinkSupportChains } from 'state/info/constant'
+import useNativeCurrency from 'hooks/useNativeCurrency'
 
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { CommonBasesType } from 'components/SearchModal/types'
-import { Bound } from 'config/constants/types'
 import { getBlockExploreLink } from 'utils'
 import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
 import { CurrencyField as Field } from 'utils/types'
 import { LP2ChildrenProps } from 'views/AddLiquidity'
 
-import { InfoBox } from '@pancakeswap/widgets-internal'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
 import { MevProtectToggle } from 'views/Mev/MevProtectToggle'
-import { HideMedium, MediumOnly, RightContainer } from './V3FormView'
-import RangeSelector from './V3FormView/components/RangeSelector'
+import CurrencyInputPanelSimplify from 'components/CurrencyInputPanelSimplify'
+import { SlippageButton } from 'views/Swap/components/SlippageButton'
+import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
+import { formatDollarAmount } from 'views/V3Info/utils/numbers'
+import { useTotalUsdValue } from '../../AddLiquidity/hooks/useTotalUsdValue'
+import { useNativeCurrencyInstead } from '../hooks/useNativeCurrencyInstead'
 
 export default function V2FormView({
   formattedAmounts,
@@ -60,17 +65,41 @@ export default function V2FormView({
   isOneWeiAttack,
   pair,
 }: LP2ChildrenProps) {
-  const mockFn = useCallback(() => undefined, [])
-
-  const { account, chainId, isWrongNetwork } = useAccountActiveChain()
   const { t } = useTranslation()
+  const { account, chainId, isWrongNetwork } = useAccountActiveChain()
   const expertMode = useIsExpertMode()
+
+  const native = useNativeCurrency()
+
+  let buttons: ReactNode = null
+
+  // Parse formatted amounts to CurrencyAmount objects
+  const parsedAmountA = useMemo(
+    () => tryParseAmount(formattedAmounts[Field.CURRENCY_A], currencies[Field.CURRENCY_A]),
+    [formattedAmounts, currencies],
+  )
+  const parsedAmountB = useMemo(
+    () => tryParseAmount(formattedAmounts[Field.CURRENCY_B], currencies[Field.CURRENCY_B]),
+    [formattedAmounts, currencies],
+  )
+
+  const { canUseNativeCurrency, handleUseNative, useNativeInstead } = useNativeCurrencyInstead({
+    baseCurrency: currencies[Field.CURRENCY_A],
+    quoteCurrency: currencies[Field.CURRENCY_B],
+    feeAmount: 0,
+  })
+
+  // Get total USD Value of input amounts
+  const { totalUsdValue } = useTotalUsdValue({
+    parsedAmountA,
+    parsedAmountB,
+  })
+
   const pairExplorerLink = useMemo(
     () => (pair && getBlockExploreLink(Pair.getAddress(pair.token0, pair.token1), 'address', chainId)) || undefined,
     [pair, chainId],
   )
 
-  let buttons: ReactNode = null
   if (addIsUnsupported || addIsWarning) {
     buttons = (
       <Button disabled mb="4px">
@@ -138,84 +167,76 @@ export default function V2FormView({
   }
 
   return (
-    <>
-      <AutoColumn>
-        <Text mb="8px" bold fontSize="12px" textTransform="uppercase" color="secondary">
-          {t('Deposit Amount')}
-        </Text>
+    <Box mx="auto" pb="16px" width="100%" maxWidth={[null, null, null, null, '480px']}>
+      <Card>
+        <CardBody>
+          <AutoColumn>
+            <Box mb="8px">
+              <CurrencyInputPanelSimplify
+                maxAmount={maxAmounts[Field.CURRENCY_A]}
+                showUSDPrice
+                onMax={() => {
+                  onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+                }}
+                onPercentInput={(percent) => {
+                  if (maxAmounts[Field.CURRENCY_A]) {
+                    onFieldAInput(maxAmounts[Field.CURRENCY_A]?.multiply(new Percent(percent, 100)).toExact() ?? '')
+                  }
+                }}
+                disableCurrencySelect
+                defaultValue={formattedAmounts[Field.CURRENCY_A] ?? '0'}
+                onUserInput={onFieldAInput}
+                showQuickInputButton
+                showMaxButton
+                currency={currencies[Field.CURRENCY_A]}
+                id="v2-add-liquidity-input-tokena"
+                title={<PreTitle>{t('Deposit Amount')}</PreTitle>}
+              />
+            </Box>
 
-        <Box mb="8px">
-          <CurrencyInputPanel
-            maxAmount={maxAmounts[Field.CURRENCY_A]}
-            showUSDPrice
-            onMax={() => {
-              onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-            }}
-            onPercentInput={(percent) => {
-              if (maxAmounts[Field.CURRENCY_A]) {
-                onFieldAInput(maxAmounts[Field.CURRENCY_A]?.multiply(new Percent(percent, 100)).toExact() ?? '')
-              }
-            }}
-            disableCurrencySelect
-            value={formattedAmounts[Field.CURRENCY_A] ?? '0'}
-            onUserInput={onFieldAInput}
-            showQuickInputButton
-            showMaxButton
-            currency={currencies[Field.CURRENCY_A]}
-            id="add-liquidity-input-tokena"
-            showCommonBases
-            commonBasesType={CommonBasesType.LIQUIDITY}
-          />
-        </Box>
-
-        <CurrencyInputPanel
-          showUSDPrice
-          onPercentInput={(percent) => {
-            if (maxAmounts[Field.CURRENCY_B]) {
-              onFieldBInput(maxAmounts[Field.CURRENCY_B]?.multiply(new Percent(percent, 100)).toExact() ?? '')
-            }
-          }}
-          onMax={() => {
-            onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
-          }}
-          maxAmount={maxAmounts[Field.CURRENCY_B]}
-          disableCurrencySelect
-          value={formattedAmounts[Field.CURRENCY_B] ?? '0'}
-          onUserInput={onFieldBInput}
-          showQuickInputButton
-          showMaxButton
-          currency={currencies[Field.CURRENCY_B]}
-          id="add-liquidity-input-tokenb"
-          showCommonBases
-          commonBasesType={CommonBasesType.LIQUIDITY}
-        />
-        <MevProtectToggle size="sm" />
-      </AutoColumn>
-      <HideMedium>{buttons}</HideMedium>
-
-      <RightContainer>
-        <AutoColumn pt="12px" gap="24px">
-          <DynamicSection disabled gap="12px">
-            <InfoBox message={t('Your position will appear here.')} icon={<BunnyKnownPlaceholder />} />
-            <RangeSelector
-              getDecrementLower={mockFn}
-              getIncrementLower={mockFn}
-              getDecrementUpper={mockFn}
-              getIncrementUpper={mockFn}
-              onLeftRangeInput={mockFn}
-              onRightRangeInput={mockFn}
-              currencyA={currencies[Field.CURRENCY_A]}
-              currencyB={currencies[Field.CURRENCY_B]}
-              feeAmount={0}
-              ticksAtLimit={{
-                [Bound.LOWER]: false,
-                [Bound.UPPER]: false,
+            <CurrencyInputPanelSimplify
+              showUSDPrice
+              onPercentInput={(percent) => {
+                if (maxAmounts[Field.CURRENCY_B]) {
+                  onFieldBInput(maxAmounts[Field.CURRENCY_B]?.multiply(new Percent(percent, 100)).toExact() ?? '')
+                }
               }}
+              onMax={() => {
+                onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
+              }}
+              maxAmount={maxAmounts[Field.CURRENCY_B]}
+              disableCurrencySelect
+              defaultValue={formattedAmounts[Field.CURRENCY_B] ?? '0'}
+              onUserInput={onFieldBInput}
+              showQuickInputButton
+              showMaxButton
+              currency={currencies[Field.CURRENCY_B]}
+              id="v2-add-liquidity-input-tokenb"
+              title={<>&nbsp;</>}
             />
-          </DynamicSection>
-          <MediumOnly>{buttons}</MediumOnly>
-        </AutoColumn>
-      </RightContainer>
-    </>
+            <Column mt="16px" gap="16px">
+              {canUseNativeCurrency && (
+                <RowBetween>
+                  <Text color="textSubtle">Use {native.symbol} instead</Text>
+                  <Toggle scale="sm" checked={useNativeInstead} onChange={handleUseNative} />
+                </RowBetween>
+              )}
+              <RowBetween>
+                <Text color="textSubtle">Total</Text>
+                <Text>~{formatDollarAmount(totalUsdValue, 2, false)}</Text>
+              </RowBetween>
+              <RowBetween>
+                <Text color="textSubtle">Slippage Tolerance</Text>
+                <SlippageButton />
+              </RowBetween>
+            </Column>
+            <Box mt="8px">
+              <MevProtectToggle size="sm" />
+            </Box>
+            <Box mt="16px">{buttons}</Box>
+          </AutoColumn>
+        </CardBody>
+      </Card>
+    </Box>
   )
 }

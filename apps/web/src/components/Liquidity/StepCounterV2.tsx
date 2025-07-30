@@ -30,8 +30,11 @@ const StepCounterCard = styled(Card).withConfig({
   error?: boolean
 }>`
   box-shadow: ${({ theme, error }) => (error ? theme.shadows.danger : 'none')};
-  border: 1px solid ${({ theme, error }) => (error ? theme.colors.failure : theme.colors.inputSecondary)};
   background-color: ${({ theme }) => theme.colors.input};
+  border: 1px solid ${({ theme, error }) => (error ? theme.colors.failure : theme.colors.inputSecondary)};
+
+  display: flex;
+  align-items: center;
 `
 
 export const StepCounterV2 = ({
@@ -89,7 +92,7 @@ export const StepCounterV2 = ({
 
   return (
     <StepCounterCard error={error} padding="0" {...props}>
-      <AutoColumn py="12px" textAlign="center" gap="8px" width="100%" onFocus={handleOnFocus} onBlur={handleOnBlur}>
+      <AutoColumn py="12px" textAlign="center" gap="4px" width="100%" onFocus={handleOnFocus} onBlur={handleOnBlur}>
         {title}
         <AutoRow>
           {!locked && (
@@ -101,7 +104,7 @@ export const StepCounterV2 = ({
               ml="10px"
               style={{ width: 20, padding: 16 }}
             >
-              <RemoveIcon color="primary" width={20} height={20} />
+              <RemoveIcon color="primary60" width={20} height={20} />
             </IconButton>
           )}
           <NumericalInput
@@ -111,7 +114,7 @@ export const StepCounterV2 = ({
             align="center"
             disabled={locked}
             onUserInput={setLocalValue}
-            style={{ fontWeight: 600 }}
+            style={{ fontWeight: 600, fontSize: '20px' }}
           />
           {!locked && (
             <IconButton
@@ -122,7 +125,7 @@ export const StepCounterV2 = ({
               mr="10px"
               style={{ width: 20, padding: 16 }}
             >
-              <AddCircleIcon color="primary" width={20} height={20} />
+              <AddCircleIcon color="primary60" width={20} height={20} />
             </IconButton>
           )}
         </AutoRow>

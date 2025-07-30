@@ -6,6 +6,8 @@ import { styled } from "styled-components";
 const RateToggleButton = styled(Button)`
   border-radius: 8px;
   padding: 10px 6px;
+  border: 2px solid ${({ theme }) => theme.colors.primary60};
+  color: ${({ theme }) => theme.colors.primary60};
 `;
 
 interface RateToggleProps extends FlexGapProps {
@@ -27,7 +29,7 @@ export function RateToggle({ currencyA, handleRateToggle, showReset, handleReset
         variant="secondary"
         scale="xs"
         onClick={handleRateToggle}
-        startIcon={<SyncAltIcon color="primary" />}
+        startIcon={<SyncAltIcon color="primary60" />}
       >
         {currencyA?.symbol}
       </RateToggleButton>

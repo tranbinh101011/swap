@@ -1,12 +1,14 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Percent, Price, Token } from '@pancakeswap/sdk'
 import { useModal } from '@pancakeswap/uikit'
+import { useCurrencyInversionEvent } from 'views/AddLiquidityV3/hooks/useHeaderInvertCurrencies'
+import { currencyId } from 'utils/currencyId'
 import { useIsExpertMode, useUserSlippage } from '@pancakeswap/utils/user'
 import { ONE_HUNDRED_PERCENT } from 'config/constants/exchange'
 import { useStableSwapNativeHelperContract } from 'hooks/useContract'
 import { PairState } from 'hooks/usePairs'
 import { useStableSwapAPR } from 'hooks/useStableSwapAPR'
-import { Dispatch, ReactElement, SetStateAction, useCallback, useContext, useMemo, useState } from 'react'
+import { Dispatch, ReactElement, SetStateAction, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { logGTMAddLiquidityTxSentEvent, logGTMClickAddLiquidityConfirmEvent } from 'utils/customGTMEventTracking'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { isUserRejected, logError } from 'utils/sentry'
@@ -31,6 +33,7 @@ import ConfirmAddLiquidityModal from '../components/ConfirmAddLiquidityModal'
 import { useDerivedLPInfo } from './hooks/useDerivedLPInfo'
 import { StablePair, useStableLPDerivedMintInfo } from './hooks/useStableLPDerivedMintInfo'
 import { warningSeverity } from './utils/slippage'
+import { useTotalUsdValue } from '../hooks/useTotalUsdValue'
 
 export interface AddStableChildrenProps {
   noLiquidity?: boolean
@@ -73,6 +76,7 @@ export interface AddStableChildrenProps {
   >
   reserves: readonly [bigint, bigint]
   pair?: StablePair | null
+  inputAmountsTotalUsdValue?: number
 }
 
 export default function AddStableLiquidity({
@@ -113,6 +117,24 @@ export default function AddStableLiquidity({
   } = useStableLPDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined)
 
   const { onFieldAInput, onFieldBInput } = useMintActionHandlers(true)
+
+  const inversionEvent = useCurrencyInversionEvent()
+
+  // Interchange input values on flipping currencies from the header
+  useEffect(() => {
+    if (inversionEvent) {
+      const { currencyIdA: newCurrencyIdA, currencyIdB: newCurrencyIdB } = inversionEvent
+      if (
+        newCurrencyIdA &&
+        newCurrencyIdB &&
+        newCurrencyIdA !== currencyId(currencyA ?? undefined) &&
+        newCurrencyIdB !== currencyId(currencyB ?? undefined)
+      ) {
+        onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
+        onFieldBInput(formattedAmounts[Field.CURRENCY_A] ?? '')
+      }
+    }
+  }, [inversionEvent])
 
   const nativeHelperContract = useStableSwapNativeHelperContract()
 
@@ -368,6 +390,12 @@ export default function AddStableLiquidity({
 
   const shouldShowApprovalGroup = (showFieldAApproval || showFieldBApproval) && isValid
 
+  // Get total USD value of input amounts
+  const { totalUsdValue: inputAmountsTotalUsdValue } = useTotalUsdValue({
+    parsedAmountA,
+    parsedAmountB,
+  })
+
   return children({
     noLiquidity,
     formattedAmounts,
@@ -397,5 +425,6 @@ export default function AddStableLiquidity({
     setLiquidityState,
     reserves,
     pair,
+    inputAmountsTotalUsdValue,
   })
 }

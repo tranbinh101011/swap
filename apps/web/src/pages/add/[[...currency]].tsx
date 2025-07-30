@@ -13,7 +13,6 @@ import { AddLiquidityV3Layout, UniversalAddLiquidity } from 'views/AddLiquidityV
 import LiquidityFormProvider from 'views/AddLiquidityV3/formViews/V3FormView/form/LiquidityFormProvider'
 import { useCurrencyParams } from 'views/AddLiquidityV3/hooks/useCurrencyParams'
 import { SELECTOR_TYPE } from 'views/AddLiquidityV3/types'
-import { PageWithoutFAQ } from 'views/Page'
 
 const AddLiquidityPage = () => {
   const router = useRouter()
@@ -58,30 +57,14 @@ const AddLiquidityPage = () => {
       : undefined
   }, [farmsV2Public, farmV3Public?.farmsWithPrice, currencyA, currencyB, router])
 
-  const handleRefresh = useCallback(() => {
-    router.replace(
-      {
-        pathname: router.pathname,
-        query: {
-          currency: [currencyIdA!, currencyIdB!],
-        },
-      },
-      undefined,
-      { shallow: true },
-    )
-  }, [router, currencyIdA, currencyIdB])
-
   return (
     <AddLiquidityV2FormProvider>
       <LiquidityFormProvider>
-        <AddLiquidityV3Layout
-          handleRefresh={handleRefresh}
-          showRefreshButton={preferFarmType?.type === SELECTOR_TYPE.V3 && preferFarmType?.feeAmount !== feeAmount}
-        >
+        <AddLiquidityV3Layout>
           <UniversalAddLiquidity
             currencyIdA={currencyIdA}
             currencyIdB={currencyIdB}
-            preferredSelectType={!feeAmount ? preferFarmType?.type : undefined}
+            preferredSelectType={!feeAmount ? preferFarmType?.type : SELECTOR_TYPE.V3}
             preferredFeeAmount={!feeAmount ? preferFarmType?.feeAmount : undefined}
           />
         </AddLiquidityV3Layout>
@@ -94,6 +77,5 @@ const Page = dynamic(() => Promise.resolve(AddLiquidityPage), { ssr: false }) as
 
 Page.chains = CHAIN_IDS
 Page.screen = true
-Page.Layout = PageWithoutFAQ
 
 export default Page

@@ -17,10 +17,9 @@ export function FeeTierPercentageBadge({
 
   return (
     <Tag
-      variant="secondary"
-      outline
+      variant="tertiary"
       fontSize="10px"
-      padding="4px"
+      padding="4px 8px"
       style={{
         width: 'fit-content',
         justifyContent: 'center',

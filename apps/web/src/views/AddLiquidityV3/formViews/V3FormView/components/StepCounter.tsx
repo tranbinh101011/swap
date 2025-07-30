@@ -1,8 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Price } from '@pancakeswap/swap-sdk-core'
-import { AddCircleIcon, AutoColumn, AutoRow, IconButton, RemoveIcon } from '@pancakeswap/uikit'
+import { AddCircleIcon, AutoColumn, AutoRow, IconButton, RemoveIcon, Text } from '@pancakeswap/uikit'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
-import { NumericalInput } from '@pancakeswap/widgets-internal'
+import { LightSecondaryCard, NumericalInput } from '@pancakeswap/widgets-internal'
 import { LightGreyCard } from 'components/Card'
 import { tryParsePrice } from 'hooks/v3/utils'
 import { ReactNode, useCallback, useEffect, useState } from 'react'
@@ -86,8 +86,8 @@ const StepCounter = ({
   }, [localValue, useLocalValue, value])
 
   return (
-    <LightGreyCard padding="0">
-      <AutoColumn py="16px" textAlign="center" gap="8px" width="100%" onFocus={handleOnFocus} onBlur={handleOnBlur}>
+    <LightSecondaryCard padding="0">
+      <AutoColumn py="12px" textAlign="center" gap="4px" width="100%" onFocus={handleOnFocus} onBlur={handleOnBlur}>
         {title}
         <AutoRow>
           {!locked && (
@@ -98,17 +98,17 @@ const StepCounter = ({
               variant="text"
               style={{ width: 20, padding: 16 }}
             >
-              <RemoveIcon color="primary" width={20} height={20} />
+              <RemoveIcon color="primary60" width={20} height={20} />
             </IconButton>
           )}
 
           <NumericalInput
             value={localValue}
             maxDecimals={9}
-            fontSize="20px"
             align="center"
             disabled={locked}
             onUserInput={setLocalValue}
+            style={{ fontWeight: 600, fontSize: '20px' }}
           />
 
           {!locked && (
@@ -120,13 +120,17 @@ const StepCounter = ({
               variant="text"
               style={{ width: 20, padding: 16 }}
             >
-              <AddCircleIcon color="primary" width={20} height={20} />
+              <AddCircleIcon color="primary60" width={20} height={20} />
             </IconButton>
           )}
         </AutoRow>
-        {tokenA && tokenB && t('%assetA% per %assetB%', { assetA: tokenB?.symbol, assetB: tokenA?.symbol })}
+        {tokenA && tokenB && (
+          <Text color="textSubtle" small>
+            {t('%assetA% per %assetB%', { assetA: tokenB?.symbol, assetB: tokenA?.symbol })}
+          </Text>
+        )}
       </AutoColumn>
-    </LightGreyCard>
+    </LightSecondaryCard>
   )
 }
 

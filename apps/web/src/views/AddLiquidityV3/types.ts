@@ -36,19 +36,19 @@ export const QUICK_ACTION_CONFIGS: Record<FeeAmount, { [percentage: number]: Zoo
   [FeeAmount.LOW]: {
     5: {
       initialMin: 0.95,
-      initialMax: 1.054,
+      initialMax: 1.05,
       min: 0.00001,
       max: 1.5,
     },
     10: {
       initialMin: 0.9,
-      initialMax: 1.11,
+      initialMax: 1.1,
       min: 0.00001,
       max: 1.5,
     },
     20: {
       initialMin: 0.8,
-      initialMax: 1.25,
+      initialMax: 1.2,
       min: 0.00001,
       max: 1.5,
     },
@@ -56,13 +56,13 @@ export const QUICK_ACTION_CONFIGS: Record<FeeAmount, { [percentage: number]: Zoo
   [FeeAmount.MEDIUM]: {
     10: {
       initialMin: 0.9,
-      initialMax: 1.11,
+      initialMax: 1.1,
       min: 0.00001,
       max: 20,
     },
     20: {
       initialMin: 0.8,
-      initialMax: 1.25,
+      initialMax: 1.2,
       min: 0.00001,
       max: 20,
     },
@@ -77,7 +77,7 @@ export const QUICK_ACTION_CONFIGS: Record<FeeAmount, { [percentage: number]: Zoo
     },
     20: {
       initialMin: 0.8,
-      initialMax: 1.25,
+      initialMax: 1.2,
       min: 0.00001,
       max: 20,
     },

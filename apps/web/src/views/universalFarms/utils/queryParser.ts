@@ -24,7 +24,7 @@ export function getIndexByProtocols(protocols: Protocol[]): number {
 }
 
 export function parseUrlToSearchQuery(): FarmQuery {
-  const url = new URLSearchParams(window.location.search)
+  const url = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
   const selectedProtocolIndex = (() => {
     const type = url.get('type')
     return type ? Number(type) : 0

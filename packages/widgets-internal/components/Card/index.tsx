@@ -26,6 +26,13 @@ export const LightGreyCard = styled(Card)`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
+export const LightSecondaryCard = styled(Card)<{ $active?: boolean }>`
+  border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.inputSecondary};
+  background-color: ${({ theme, $active }) => ($active ? theme.colors.textSubtle : theme.colors.input)};
+  color: ${({ theme, $active }) => ($active ? theme.colors.invertedContrast : theme.colors.text)};
+`;
+
 export const CryptoCard = styled(Card)<{ isClicked: boolean; isDisabled: boolean; elementHeight: number }>`
   border: 1px solid ${({ theme }) => theme.colors.cardBorder};
   background-color: ${({ theme, isClicked }) => (isClicked ? theme.colors.input : theme.colors.background)};

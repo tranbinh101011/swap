@@ -14,6 +14,7 @@ const Icons = {
   danger: ErrorIcon,
   success: CheckmarkCircleIcon,
   primary: InfoFilledIcon,
+  primary60: InfoFilledIcon,
   secondary: ErrorIcon,
 };
 
@@ -35,10 +36,11 @@ const Flex = styled.div`
 
 const colors = {
   // these color names should be place in the theme once the palette is finalized
+  primary: "text",
+  primary60: "#280D5F",
   warning: "#D67E0A",
   success: "#129E7D",
   danger: "failure",
-  primary: "text",
   secondary: "#D67E0A",
 };
 

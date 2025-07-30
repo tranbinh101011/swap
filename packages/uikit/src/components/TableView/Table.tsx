@@ -74,9 +74,11 @@ const Row = styled.tr<{ $withLink?: boolean }>`
     $withLink &&
     `
     cursor: pointer;
+
     &:hover {
-      background: ${theme.colors.backgroundHover};
+      background: ${theme.isDark ? theme.colors.v2Disabled10 : theme.colors.backgroundHover};
     }
+
     &:active {
       background: ${theme.colors.backgroundTapped};
     }

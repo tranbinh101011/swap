@@ -99,7 +99,6 @@ export const BasicAPRModal: React.FC<PoolAprModalProps> = ({
       {...modal}
       isFarm={positionDetail?.isStaked || poolInfo.isFarming}
       maxLabel={positionDetail ? t('My Position') : undefined}
-      closeOnOverlayClick={false}
       depositAmountInUsd={depositUsdAsBN?.toString()}
       max={depositUsdAsBN?.toString()}
       price={price}
@@ -121,6 +120,7 @@ export const BasicAPRModal: React.FC<PoolAprModalProps> = ({
       priceSpan={priceTimeWindow}
       protocolFee={protocolFee}
       onPriceSpanChange={setPriceTimeWindow}
+      closeOnOverlayClick
     />
   )
 }

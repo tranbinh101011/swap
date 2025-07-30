@@ -8,6 +8,7 @@ import {
   MessageText,
   ModalContainer,
   ModalV2,
+  Text,
   useModal,
   useToast,
 } from '@pancakeswap/uikit'
@@ -16,7 +17,7 @@ import { ToastDescriptionWithTx } from 'components/Toast'
 import dynamic from 'next/dynamic'
 import { useCallback, useMemo, useState } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useTheme } from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import { getAddress } from 'viem'
 import { useWalletClient } from 'wagmi'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
@@ -25,6 +26,14 @@ import { isAddressEqual } from 'utils'
 import WalletModalManager from 'components/WalletModalManager'
 import { useMasterchefV3 } from 'hooks/useContract'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
+
+const ActionText = styled(Text)`
+  white-space: nowrap;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+`
 
 interface ZapLiquidityProps {
   tickLower?: number
@@ -201,21 +210,21 @@ export const ZapLiquidityWidget: React.FC<ZapLiquidityProps> = ({
 
   return (
     <>
-      <Message variant="primary" padding="8px" icon={<InfoFilledIcon color="secondary" />}>
+      <Message variant="primary60" padding="8px" icon={<InfoFilledIcon color="#02919D" />}>
         <Flex flexDirection="column" style={{ gap: 8 }}>
-          <MessageText lineHeight="120%" fontSize={16}>
-            {t('Try Zap to automatically balance and provide V3 liquidity in one click.')}
+          <MessageText lineHeight="120%" fontSize={16} style={{ lineHeight: '1.5' }}>
+            <ActionText
+              as="span"
+              color="#02919D"
+              onClick={handleOnClick}
+              role="presentation"
+              data-dd-action-name="Zap V3 Liquidity"
+              bold
+            >
+              {t('Try Zap')}{' '}
+            </ActionText>
+            {t('to automatically balance and provide V3 liquidity in one click.')}
           </MessageText>
-          <span
-            onClick={handleOnClick}
-            role="presentation"
-            style={{ whiteSpace: 'nowrap', textDecoration: 'underline', cursor: 'pointer' }}
-            data-dd-action-name="Zap V3 Liquidity"
-          >
-            <MessageText fontWeight={600} fontSize={16}>
-              {t('Click here to start')} {'>>'}
-            </MessageText>
-          </span>
         </Flex>
       </Message>
       <WalletModalManager isOpen={isWalletModalOpen} onDismiss={handleWalletModalOnDismiss} />

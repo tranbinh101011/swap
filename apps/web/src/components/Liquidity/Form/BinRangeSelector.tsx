@@ -253,9 +253,15 @@ export const BinRangeSelector: React.FC<BinRangeSelectorProps> = ({
   )
 }
 
+const StyledLightCard = styled(LightCard)`
+  padding: 12px;
+  background: ${({ theme }) => theme.colors.input};
+  border: 1px solid ${({ theme }) => theme.colors.inputSecondary};
+`
+
 const NumBinsInput = styled(NumericalInput)`
-  background: ${({ theme }) => theme.colors.background};
-  border: 1px solid ${({ theme }) => theme.colors.cardBorder};
+  background: ${({ theme }) => theme.colors.input};
+  border: 1px solid ${({ theme }) => theme.colors.inputSecondary};
   border-radius: 16px;
   font-weight: 600;
   width: 100%;
@@ -295,9 +301,9 @@ export const BinRangeNumBins = ({
   }, [binNum, updateBinNums, lowerBinId, upperBinId])
 
   return (
-    <LightCard>
+    <StyledLightCard>
       <AutoColumn gap="12px" width="100%" textAlign="center">
-        <Text color="secondary" textTransform="uppercase" small bold>
+        <Text color="secondary" textTransform="uppercase" fontSize="12px" bold>
           {t('num bins')}
         </Text>
         <NumBinsInput
@@ -308,6 +314,6 @@ export const BinRangeNumBins = ({
           disabled={disabled}
         />
       </AutoColumn>
-    </LightCard>
+    </StyledLightCard>
   )
 }

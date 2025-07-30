@@ -34,4 +34,9 @@ export const SelectContainer = styled.div`
   display: grid;
   grid-auto-flow: column;
   grid-gap: 4px;
+
+  @media (max-width: 410px) {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, 1fr);
+  }
 `

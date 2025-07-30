@@ -13,7 +13,7 @@ export const BreadcrumbNav: React.FC = () => {
     <Flex justifyContent="space-between">
       <Breadcrumbs mb="32px">
         <NextLinkFromReactRouter to="/liquidity/pools">
-          <Text color="primary">{t('Farms')}</Text>
+          <Text color="primary60">{t('Farms')}</Text>
         </NextLinkFromReactRouter>
         <Flex>
           <Text mr="8px">{poolSymbol}</Text>

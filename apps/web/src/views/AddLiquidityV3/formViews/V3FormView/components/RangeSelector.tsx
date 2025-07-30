@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Price, Token } from '@pancakeswap/sdk'
-import { FlexGap } from '@pancakeswap/uikit'
+import { FlexGap, Text } from '@pancakeswap/uikit'
 import { priceToClosestTick } from '@pancakeswap/v3-sdk'
 import { Bound } from 'config/constants/types'
 import { useMemo } from 'react'
@@ -93,7 +93,11 @@ export default function RangeSelector({
         incrementDisabled={ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER]}
         feeAmount={feeAmount}
         label={leftPrice ? `${currencyB?.symbol}` : '-'}
-        title={t('Min Price')}
+        title={
+          <Text color="secondary" textTransform="uppercase" small bold>
+            {t('Min Price')}
+          </Text>
+        }
         tokenA={currencyA}
         tokenB={currencyB}
       />
@@ -109,7 +113,11 @@ export default function RangeSelector({
         label={rightPrice ? `${currencyB?.symbol}` : '-'}
         tokenA={currencyA}
         tokenB={currencyB}
-        title={t('Max Price')}
+        title={
+          <Text color="secondary" textTransform="uppercase" small bold>
+            {t('Max Price')}
+          </Text>
+        }
       />
     </FlexGap>
   )
