@@ -1,13 +1,14 @@
 import { ChainId, getChainName } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { Token } from '@pancakeswap/sdk'
 import { Box, FlexGap, Skeleton, Text } from '@pancakeswap/uikit'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import { ASSET_CDN } from 'config/constants/endpoints'
+import { CurrencyLogo } from '@pancakeswap/widgets-internal'
+import { ZERO_ADDRESS } from '@pancakeswap/swap-sdk-core'
 import { BalanceData } from 'hooks/useAddressBalance'
 import React from 'react'
 import styled from 'styled-components'
+
 import { formatAmount } from 'utils/formatInfoNumbers'
+import { safeGetAddress } from 'utils/safeGetAddress'
 
 const SCROLLBAR_SHIFT_PX = 8
 
@@ -45,21 +46,6 @@ const TokenIcon = styled(Box)`
   position: relative;
 `
 
-const ChainIconWrapper = styled(Box)`
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  background: ${({ theme }) => theme.colors.background};
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-`
-
 interface AssetsListProps {
   assets: BalanceData[]
   isLoading: boolean
@@ -82,27 +68,24 @@ export const AssetsList: React.FC<AssetsListProps> = ({ assets, isLoading, onRow
         </FlexGap>
       ) : assets.length === 0 ? null : (
         assets.map((asset) => {
-          const token = new Token(
-            asset.chainId,
-            asset.token.address as `0x${string}`,
-            asset.token.decimals,
-            asset.token.symbol,
-            asset.token.name,
-          )
+          const address = safeGetAddress(asset.token.address)
+          const isNative = address === ZERO_ADDRESS
+          const tokenInfo = {
+            chainId: asset.chainId,
+            address: address === ZERO_ADDRESS ? undefined : address,
+            isNative,
+            isToken: !isNative,
+            decimals: asset.token.decimals,
+            symbol: asset.token.symbol,
+            name: asset.token.name,
+            logoURI: asset.token.logoURI,
+          }
           const chainName = asset.chainId === ChainId.BSC ? 'BNB' : getChainName(asset.chainId)
           return (
             <AssetItem key={asset.id} onClick={onRowClick ? () => onRowClick(asset) : undefined}>
               <FlexGap alignItems="center">
                 <TokenIcon>
-                  <CurrencyLogo currency={token} src={asset.token.logoURI} size="40px" />
-                  <ChainIconWrapper>
-                    <img
-                      src={`${ASSET_CDN}/web/chains/${asset.chainId}.png`}
-                      alt={`${chainName}-logo`}
-                      width="12px"
-                      height="12px"
-                    />
-                  </ChainIconWrapper>
+                  <CurrencyLogo showChainLogo currency={tokenInfo} size="40px" />
                 </TokenIcon>
                 <Box>
                   <FlexGap alignItems="center">

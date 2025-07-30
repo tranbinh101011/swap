@@ -1,7 +1,11 @@
 import { ChainId } from '@pancakeswap/chains'
+import { ZERO_ADDRESS } from '@pancakeswap/swap-sdk-core'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useCallback, useMemo } from 'react'
+
+import { useCombinedActiveList } from 'state/lists/hooks'
+import { safeGetAddress } from 'utils/safeGetAddress'
 
 export interface TokenData {
   address: string
@@ -37,11 +41,23 @@ interface UseAddressBalanceOptions {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_WALLET_API_BASE_URL || 'https://wallet-api.pancakeswap.com/v1/balances'
 
+function isNative(address: string): boolean {
+  return address === ZERO_ADDRESS
+}
+
 /**
  * Hook to fetch and manage token balances for a specific address using React Query
  */
 export const useAddressBalance = (address?: string, options: UseAddressBalanceOptions = {}) => {
   const { includeSpam = false, onlyWithPrice = false, filterByChainId, enabled = true } = options
+  const list = useCombinedActiveList()
+
+  const isListedToken = useCallback(
+    (chainId: ChainId, tokenAddress: string): boolean => {
+      return isNative(tokenAddress) || Boolean(list[chainId]?.[safeGetAddress(tokenAddress) ?? ''])
+    },
+    [list],
+  )
 
   // Fetch balances from the API
   const fetchBalances = useCallback(async (): Promise<BalanceData[]> => {
@@ -73,25 +89,40 @@ export const useAddressBalance = (address?: string, options: UseAddressBalanceOp
 
   // Filter balances based on options
   const filteredBalances = useMemo(() => {
-    return balances.filter((balance) => {
-      // Filter out spam tokens if includeSpam is false
-      if (!includeSpam && balance.token.isSpam) {
-        return false
-      }
+    return balances
+      .map((b) => ({
+        ...b,
+        token: {
+          ...b.token,
+          logoURI: b.token.logoURI ?? list[b.chainId]?.[safeGetAddress(b.token.address)]?.token.logoURI,
+        },
+      }))
+      .filter((balance) => {
+        // Filter out spam tokens if includeSpam is false
+        if (!includeSpam && balance.token.isSpam) {
+          return false
+        }
 
-      // Filter by chain ID if specified
-      if (filterByChainId !== undefined && balance.chainId !== filterByChainId) {
-        return false
-      }
+        // Filter by chain ID if specified
+        if (filterByChainId !== undefined && balance.chainId !== filterByChainId) {
+          return false
+        }
 
-      // Filter out tokens without price data if onlyWithPrice is true
-      if (onlyWithPrice && !balance.price?.usd) {
-        return false
-      }
+        // Filter out tokens without price data if onlyWithPrice is true
+        if (onlyWithPrice && !balance.price?.usd) {
+          return false
+        }
 
-      return true
-    })
-  }, [balances, includeSpam, filterByChainId, onlyWithPrice])
+        return true
+      })
+      .sort((a, b) => {
+        const aListed = isListedToken(a.chainId, a.token.address)
+        const bListed = isListedToken(b.chainId, b.token.address)
+        if (aListed && !bListed) return -1
+        if (!aListed && bListed) return 1
+        return (b.price?.totalUsd ?? 0) - (a.price?.totalUsd ?? 0)
+      })
+  }, [balances, includeSpam, filterByChainId, onlyWithPrice, isListedToken, list])
 
   // Calculate total balance in USD for all tokens
   const totalBalanceUsd = useMemo(() => {
@@ -106,12 +137,12 @@ export const useAddressBalance = (address?: string, options: UseAddressBalanceOp
   // Calculate total balance in USD for filtered tokens
   const filteredTotalBalanceUsd = useMemo(() => {
     return filteredBalances.reduce((sum, item) => {
-      if (item.price?.totalUsd) {
+      if (isListedToken(item.chainId, item.token.address) && item.price?.totalUsd) {
         return sum + item.price.totalUsd
       }
       return sum
     }, 0)
-  }, [filteredBalances])
+  }, [filteredBalances, isListedToken])
 
   // Get balances for a specific chain
   const getBalancesByChain = useCallback(
@@ -139,10 +170,7 @@ export const useAddressBalance = (address?: string, options: UseAddressBalanceOp
   // Get native token balance for a specific chain
   const getNativeBalance = useCallback(
     (chainId: ChainId | number) => {
-      return filteredBalances.find(
-        (balance) =>
-          balance.chainId === chainId && balance.token.address === '0x0000000000000000000000000000000000000000',
-      )
+      return filteredBalances.find((balance) => balance.chainId === chainId && isNative(balance.token.address))
     },
     [filteredBalances],
   )
