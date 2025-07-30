@@ -43,6 +43,7 @@ interface IFormPairSelector {
 }
 const FormPairSelector = ({ onSubmit, tokenInfos, onClose }: IFormPairSelector) => {
   const { tokenMap } = useTokenContext()
+  const { tokenList: pcsTokenList } = useTokenList()
   const { mutateAsync: performSearch, isLoading } = useMutation(async (value: string) => {
     const response = await searchService.search(value)
     return response
@@ -78,8 +79,17 @@ const FormPairSelector = ({ onSubmit, tokenInfos, onClose }: IFormPairSelector) 
         }
 
         const searchResult = await performSearch(value)
-        setSearchResult(searchResult)
-        searchResult.forEach((item) => tokenMap.set(item.address, item))
+        const pcsSearchResult = pcsTokenList.filter(
+          (token) =>
+            token.symbol.toLowerCase().includes(value.toLowerCase()) ||
+            token.name.toLowerCase().includes(value.toLowerCase()),
+        )
+        const result = [...pcsSearchResult, ...searchResult].reduce((acc, token) => {
+          acc.set(token.address, token)
+          return acc
+        }, new Map<string, TokenInfo>())
+        setSearchResult(Array.from(result.values()))
+        Array.from(result.values() as TokenInfo[]).forEach((item) => tokenMap.set(item.address, item))
       } catch (error) {
         console.error(error)
       }
