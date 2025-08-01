@@ -237,7 +237,6 @@ function WalletItem({
   onClick?: (wallet: Wallet) => void
   isCurrent?: boolean
 }) {
-  const { t } = useTranslation()
   const { colorMode } = useColorMode()
   const isLight = colorMode !== 'dark'
   return (
@@ -254,35 +253,6 @@ function WalletItem({
     >
       <Image src={wallet.adapter.icon} w={6} h={6} ml={1} />
       <Text bold>{wallet.adapter.name}</Text>
-      {wallet.adapter.name === 'Phantom' && (
-        <HStack gap={1} backgroundColor={colors.backgroundAlt} px={2} py={1} borderRadius="8px">
-          <Text fontSize="12px" color={colors.textPurple}>
-            {t('Auto Confirm')}
-          </Text>
-          <QuestionToolTip
-            label={
-              <>
-                {t('Auto-confirm is now available for all transactions on PancakeSwap.')}
-                <LinkExternal href="https://phantom.com/learn/blog/auto-confirm" color={colors.textPurple} fontWeight="bold">
-                  {t('Learn more')}
-                </LinkExternal>
-              </>
-            }
-            iconProps={{ color: colors.textPurple }}
-          />
-        </HStack>
-      )}
-      {wallet.adapter.name === 'Solflare' && (
-        <HStack gap={1} backgroundColor={colors.backgroundAlt} px={2} py={1} borderRadius="8px">
-          <Text fontSize="12px" color={colors.textPurple}>
-            {t('Auto Approve')}
-          </Text>
-          <QuestionToolTip
-            label={t('Auto-approve is now available for all transactions on PancakeSwap.')}
-            iconProps={{ color: colors.textPurple }}
-          />
-        </HStack>
-      )}
     </Flex>
   )
 }
