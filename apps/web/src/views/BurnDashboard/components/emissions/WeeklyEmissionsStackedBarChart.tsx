@@ -24,8 +24,6 @@ type CurrencyTab = 'CAKE' | 'USD'
 
 // Memoized tooltip component
 const CustomTooltip = ({ active, payload, isUSD }: { active?: boolean; payload?: any[]; isUSD: boolean }) => {
-  const { t } = useTranslation()
-
   if (!active || !payload?.length) return null
 
   const total = payload.reduce((acc, entry) => acc + entry.value, 0)
@@ -51,7 +49,7 @@ const CustomTooltip = ({ active, payload, isUSD }: { active?: boolean; payload?:
         <FlexGap justifyContent="space-between" gap="16px" key={entry.name}>
           <FlexGap alignItems="center" gap="6px" mb="4px">
             <DotIcon color={entry.color} width="8px" mt="2px" />
-            <Text small>{t(entry.name)}</Text>
+            <Text small>{entry.name}</Text>
           </FlexGap>
           <Text small bold>
             {isUSD
