@@ -1,5 +1,11 @@
 # @pancakeswap/localization
 
+## 6.1.0
+
+### Minor Changes
+
+- ea1da46: update zod package
+
 ## 6.0.4
 
 ### Patch Changes

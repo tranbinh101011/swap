@@ -1,5 +1,24 @@
 # @pancakeswap/smart-router
 
+## 7.3.0
+
+### Minor Changes
+
+- ea1da46: update zod package
+
+### Patch Changes
+
+- Updated dependencies [44601d1]
+- Updated dependencies [d182909]
+- Updated dependencies [ea1da46]
+  - @pancakeswap/multicall@3.7.0
+  - @pancakeswap/gauges@2.0.12
+  - @pancakeswap/infinity-sdk@1.0.2
+  - @pancakeswap/stable-swap-sdk@2.0.6
+  - @pancakeswap/token-lists@0.0.15
+  - @pancakeswap/tokens@0.7.5
+  - @pancakeswap/v3-sdk@3.9.3
+
 ## 7.2.5
 
 ### Patch Changes

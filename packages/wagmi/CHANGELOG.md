@@ -1,5 +1,11 @@
 # @pancakeswap/wagmi
 
+## 3.1.0
+
+### Minor Changes
+
+- ea1da46: update zod package
+
 ## 3.0.4
 
 ### Patch Changes

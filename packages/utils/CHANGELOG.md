@@ -1,5 +1,12 @@
 # @pancakeswap/utils
 
+## 7.0.0
+
+### Patch Changes
+
+- Updated dependencies [ea1da46]
+  - @pancakeswap/localization@6.1.0
+
 ## 6.1.5
 
 ### Patch Changes

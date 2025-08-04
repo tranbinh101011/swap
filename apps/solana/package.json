@@ -1,6 +1,6 @@
 {
   "name": "solana-frontend",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "author": "Solana Maintainers <maintainers@solana.foundation>",
   "repository": "https://github.com/solana-labs/wallet-adapter",

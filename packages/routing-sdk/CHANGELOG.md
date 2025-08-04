@@ -1,5 +1,11 @@
 # @pancakeswap/routing-sdk
 
+## 0.5.0
+
+### Minor Changes
+
+- ea1da46: update zod package
+
 ## 0.4.1
 
 ### Patch Changes
