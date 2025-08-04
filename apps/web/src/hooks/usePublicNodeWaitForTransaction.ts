@@ -95,7 +95,9 @@ export function usePublicNodeWaitForTransaction(chainId_?: number) {
             (error.details?.includes('Load failed') || error.details?.includes('Failed to fetch'))
           ) {
             // retry on network error
-            throw new RetryableError(`Network error: ${error.details}`)
+            throw new RetryableError(
+              `Network error when request to ${error.url} failed: ${error.status}, ${error.details}`,
+            )
           }
           throw error
         }

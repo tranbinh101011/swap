@@ -1,6 +1,9 @@
 import { TranslateFunction } from '@pancakeswap/localization'
+import { HttpRequestError } from 'viem'
 import { parseViemError } from './errors'
+import { getLogger } from './datadog'
 
+const logger = getLogger('tx-error')
 /**
  * This is hacking out the revert reason from the ethers provider thrown error however it can.
  * This object seems to be undocumented by ethers.
@@ -11,13 +14,30 @@ export function transactionErrorToUserReadableMessage(error: any, t: TranslateFu
   let reason: string | undefined
   const parsedError = parseViemError(error)
   if (parsedError) {
-    reason = parsedError.details || parsedError.shortMessage || parsedError.message
+    if (parsedError instanceof HttpRequestError) {
+      logger.info('Network request failed', {
+        url: parsedError.url,
+        status: parsedError.status,
+        cause: parsedError.cause,
+        stack: parsedError.stack,
+      })
+    } else {
+      reason = parsedError.details || parsedError.shortMessage || parsedError.message
+      logger.error('Viem error', {
+        reason,
+        cause: parsedError.cause,
+        stack: parsedError.stack,
+      })
+    }
   } else {
     while (error) {
       reason = error.reason ?? error.data?.message ?? error.message ?? reason
       // eslint-disable-next-line no-param-reassign
       error = error.error ?? error.data?.originalError
     }
+    logger.error('Other error', {
+      reason,
+    })
   }
 
   if (reason?.indexOf('execution reverted: ') === 0) reason = reason.substring('execution reverted: '.length)
