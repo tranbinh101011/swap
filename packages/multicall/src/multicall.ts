@@ -36,6 +36,7 @@ export async function multicallByGasLimit(
     signal,
     retryFailedCallsWithGreaterLimit,
     account,
+    blockConflictTolerance,
     ...rest
   }: CallByGasLimitParams,
 ) {
@@ -52,6 +53,7 @@ export async function multicallByGasLimit(
     dropUnexecutedCalls,
     signal,
     account,
+    blockConflictTolerance,
   })
   if (!retryFailedCallsWithGreaterLimit) {
     return callResult
@@ -89,6 +91,8 @@ export async function multicallByGasLimit(
       chainId,
       dropUnexecutedCalls,
       signal,
+      account,
+      blockConflictTolerance,
     })
     const resultsAfterRetry = [...result.results]
     for (const [retryIndex, originalIndex] of failedCallIndexes.entries()) {
