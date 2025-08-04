@@ -16,7 +16,7 @@ import { getFarmAprInfo, getFarmHookData } from 'state/farmsV4/search/farm.util'
 import { getCurrencySymbol } from 'utils/getTokenAlias'
 import { getChainFullName } from '../utils'
 import { RewardStatusDisplay } from './FarmStatusDisplay'
-import { checkHasReward, getRewardProvider } from './FarmStatusDisplay/hooks'
+import { checkHasReward, getRewardProvider, getRewardMultiplier } from './FarmStatusDisplay/hooks'
 import { PoolGlobalAprButton } from './PoolAprButton'
 import { PoolListItemAction } from './PoolListItemAction'
 
@@ -175,6 +175,7 @@ export const PoolTokenOverview = <T extends PoolInfo = PoolInfo>({ data }: { dat
   const token1 = useTokenByChainId(getCurrencyAddress(data.token1), data.chainId) || data.token1
 
   const provider = getRewardProvider(data.chainId, data.lpAddress)
+  const multiplier = getRewardMultiplier(data.chainId, data.lpAddress)
   const showReward = !!provider
 
   return (
@@ -188,7 +189,7 @@ export const PoolTokenOverview = <T extends PoolInfo = PoolInfo>({ data }: { dat
         getCurrencySymbol={getCurrencySymbol}
         icon={<TokenPairLogo width={44} height={44} variant="inverted" primaryToken={token0} secondaryToken={token1} />}
       />
-      {showReward && <RewardStatusDisplay provider={provider} />}
+      {showReward && <RewardStatusDisplay provider={provider} multiplier={multiplier} />}
     </div>
   )
 }

@@ -33,9 +33,10 @@ const StyledLink = styled(Link)`
 
 interface RewardInfoCardProps {
   provider?: RewardProvider
+  multiplier?: number
 }
 
-export const RewardInfoCard: React.FC<RewardInfoCardProps> = memo(({ provider }) => {
+export const RewardInfoCard: React.FC<RewardInfoCardProps> = memo(({ provider, multiplier = 40 }) => {
   const { t } = useTranslation()
 
   if (!provider) {
@@ -81,7 +82,8 @@ export const RewardInfoCard: React.FC<RewardInfoCardProps> = memo(({ provider })
         </FlexGap>
         <Text mb="8px">
           {t(
-            "LPs earns 40x Falcon's Miles based on total TVL contributed to the pool. Miles only accrue to positions within 0.95 to 1.05 range.",
+            "LPs earns %multiplier%x Falcon's Miles based on total TVL contributed to the pool. Miles only accrue to positions within 0.95 to 1.05 range.",
+            { multiplier },
           )}
         </Text>
         <StyledLink external href="https://app.falcon.finance/miles">

@@ -43,7 +43,7 @@ import { getBlockExploreLink } from 'utils'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { isInfinityProtocol } from 'utils/protocols'
 import { Tooltips } from 'views/CakeStaking/components/Tooltips'
-import { getRewardProvider } from 'views/universalFarms/components/FarmStatusDisplay/hooks'
+import { getRewardProvider, getRewardMultiplier } from 'views/universalFarms/components/FarmStatusDisplay/hooks'
 import { PoolGlobalAprButtonV3 } from 'views/universalFarms/components/PoolAprButtonV3'
 import { RewardInfoCard } from 'views/universalFarms/components/RewardInfoCard'
 import LiquiditySunsetWarning from 'components/Liquidity/LiquiditySunsetWarning'
@@ -64,11 +64,12 @@ enum PoolDetailTab {
 
 const RewardInfoCardContainer = ({ poolInfo }: { poolInfo: PoolInfoType }) => {
   const provider = getRewardProvider(poolInfo.chainId, poolInfo.lpAddress)
+  const multiplier = getRewardMultiplier(poolInfo.chainId, poolInfo.lpAddress)
   const hasPoolReward = !!provider
 
   if (!hasPoolReward) return null
 
-  return <RewardInfoCard provider={provider} />
+  return <RewardInfoCard provider={provider} multiplier={multiplier} />
 }
 
 export const PoolInfo = () => {

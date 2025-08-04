@@ -26,9 +26,10 @@ const StyledRewardIcon = styled(RewardIcon)`
 
 interface RewardStatusDisplayProps {
   provider?: RewardProvider
+  multiplier?: number
 }
 
-export const RewardStatusDisplay: React.FC<RewardStatusDisplayProps> = ({ provider }) => {
+export const RewardStatusDisplay: React.FC<RewardStatusDisplayProps> = ({ provider, multiplier = 40 }) => {
   const { t } = useTranslation()
   const { isMobile } = useMatchBreakpoints()
 
@@ -57,7 +58,8 @@ export const RewardStatusDisplay: React.FC<RewardStatusDisplayProps> = ({ provid
         </Box>
         <Text as="span">
           {t(
-            "LPs earns 40x Falcon's Miles based on total TVL contributed to the pool. Miles only accrue to positions within 0.95 to 1.05 range.",
+            "LPs earns %multiplier%x Falcon's Miles based on total TVL contributed to the pool. Miles only accrue to positions within 0.95 to 1.05 range.",
+            { multiplier },
           )}
         </Text>
         <FlexGap gap="4px" justifyContent="flex-start" display="inline-flex" alignItems="center" flexWrap="wrap">
