@@ -1,69 +1,59 @@
 import { I18nextProvider } from 'react-i18next'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useMemo } from 'react'
 import i18n from './i18n'
-import translations from './config/translations.json'
 import { EN, languages } from './config/languages'
-import { LS_KEY, fetchLocale, getLanguageCodeFromLS } from './helpers'
-import { ContextApi, Language, ProviderState, TranslateFunction } from './types'
-
-const initialState: ProviderState = {
-  isFetching: true,
-  currentLanguage: EN,
-}
-
-export const languageMap = new Map<Language['locale'], Record<string, string>>()
-languageMap.set(EN.locale, translations as Record<string, string>)
+import { LS_KEY } from './helpers'
+import { ContextApi, Language, TranslateFunction } from './types'
+import { useLocaleBundle } from './hooks/useLocaleBundle'
 
 export const LanguageContext = createContext<ContextApi | undefined>(undefined)
 
+const cache = new Map<string, string>()
+
 export const LanguageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [state, setState] = useState<ProviderState>(() => {
-    const codeFromStorage = getLanguageCodeFromLS()
-    return {
-      ...initialState,
-      currentLanguage: languages[codeFromStorage] || EN,
-    }
-  })
+  const { lang, bundle, ver, refresh, isFetching } = useLocaleBundle()
 
-  useEffect(() => {
-    const fetchInitialLocales = async () => {
-      const codeFromStorage = getLanguageCodeFromLS()
-      const lang = languages[codeFromStorage] || EN
-      if (codeFromStorage !== EN.locale) {
-        const currentLocale = await fetchLocale(codeFromStorage)
-        if (currentLocale) {
-          languageMap.set(codeFromStorage, currentLocale)
-          i18n.addResourceBundle(codeFromStorage, 'translation', currentLocale, true, true)
-        }
+  const setLanguage = useCallback(
+    async (language: Language) => {
+      localStorage?.setItem(LS_KEY, language.locale)
+      await i18n.changeLanguage(language.locale)
+      refresh()
+    },
+    [refresh],
+  )
+
+  const translate: TranslateFunction = useCallback(
+    (key, data) => {
+      if (isFetching) {
+        return ''
       }
-      await i18n.changeLanguage(lang.locale)
-      setState((prev) => ({ ...prev, isFetching: false, currentLanguage: lang }))
-    }
-
-    fetchInitialLocales()
-  }, [])
-
-  const setLanguage = useCallback(async (language: Language) => {
-    if (!languageMap.has(language.locale)) {
-      setState((prev) => ({ ...prev, isFetching: true }))
-      const locale = await fetchLocale(language.locale)
-      if (locale) {
-        languageMap.set(language.locale, locale)
-        i18n.addResourceBundle(language.locale, 'translation', locale, true, true)
+      const cacheKey = `${lang}:${ver}:${key}-${JSON.stringify(data)}`
+      if (cache.has(cacheKey)) {
+        return cache.get(cacheKey) || ''
       }
-    }
-    localStorage?.setItem(LS_KEY, language.locale)
-    await i18n.changeLanguage(language.locale)
-    setState((prev) => ({ ...prev, isFetching: false, currentLanguage: language }))
-  }, [])
+      function getTranslationValue() {
+        return bundle[key] || ''
+      }
 
-  const translate: TranslateFunction = useCallback((key, data) => {
-    return i18n.t(key as string, data)
-  }, [])
+      const value = getTranslationValue()
+
+      const interpolated = value.replace(/%([a-zA-Z0-9-_]+)%/g, (match, p1) => {
+        const replacement = data?.[p1] || ''
+        return (replacement === undefined ? match : replacement) as string
+      })
+      cache.set(cacheKey, interpolated)
+      return interpolated
+    },
+    [bundle, lang, ver, isFetching],
+  )
 
   const providerValue = useMemo(() => {
-    return { ...state, setLanguage, t: translate }
-  }, [state, setLanguage, translate])
+    const currentLanguage = languages[lang] || EN
+    return { currentLanguage, setLanguage, t: translate, isFetching: false }
+  }, [setLanguage, translate, lang])
+  if (isFetching) {
+    return null
+  }
 
   return (
     <I18nextProvider i18n={i18n}>
