@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Button, Card, FlexGap, Tab, TabMenu, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Button, FlexGap, Tab, TabMenu, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import Page_ from 'components/Layout/Page'
 import { useRouter } from 'next/router'
@@ -30,7 +30,6 @@ const ButtonContainer = styled.div`
 const PAGES_LINK = {
   POOLS: '/liquidity/pools',
   POSITIONS: '/liquidity/positions',
-  HISTORY: '/farms/history',
 }
 
 const usePageInfo = () => {
@@ -102,14 +101,6 @@ export const UniversalFarms: React.FC<PropsWithChildren> = () => {
           </StyledTab>
         ),
         page: () => <PositionPage />,
-      },
-      2: {
-        menu: () => (
-          <StyledTab key="history">
-            <NextLinkFromReactRouter to={PAGES_LINK.HISTORY}>{t('History')}</NextLinkFromReactRouter>
-          </StyledTab>
-        ),
-        page: () => <Card>History</Card>,
       },
     }
   }, [t])
