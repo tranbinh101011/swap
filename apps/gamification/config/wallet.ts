@@ -247,20 +247,6 @@ const walletsConfig = <config extends Config = Config, context = unknown>({
       qrCode,
     },
     {
-      id: WalletIds.Blocto,
-      title: 'Blocto',
-      icon: `${ASSET_CDN}/web/wallets/blocto.png`,
-      connectorId: ConnectorNames.Blocto,
-      get installed() {
-        try {
-          return (safeGetWindow()?.ethereum as ExtendEthereum)?.isBlocto ? true : undefined // undefined to show SDK
-        } catch (error) {
-          console.error('Error checking Blocto installation:', error)
-          return undefined
-        }
-      },
-    },
-    {
       id: WalletIds.Cyberwallet,
       title: 'CyberWallet',
       icon: `${ASSET_CDN}/web/wallets/cyberwallet.png`,

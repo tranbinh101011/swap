@@ -16,7 +16,6 @@ import {
   SafePalWalletAdapter,
   SolongWalletAdapter,
   TokenPocketWalletAdapter,
-  TorusWalletAdapter,
   TrustWalletAdapter
 } from '@solana/wallet-adapter-wallets'
 import { initialize, SolflareWalletAdapter } from '@solflare-wallet/wallet-adapter'
@@ -63,7 +62,6 @@ const App: FC<PropsWithChildren<any>> = ({ children }) => {
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
       new SlopeWalletAdapter({ endpoint }),
-      new TorusWalletAdapter(),
       ..._walletConnect,
       new GlowWalletAdapter(),
       new TrustWalletAdapter(),
