@@ -31,7 +31,7 @@
     "@pancakeswap/tsconfig": "workspace:*",
     "@pancakeswap/utils": "workspace:*",
     "@tanstack/react-query": "^5.52.1",
-    "@types/react": "^18.2.21",
+    "@types/react": "catalog:",
     "@types/use-sync-external-store": "^0.0.3",
     "aptos": "1.21.0",
     "happy-dom": "^13.3.8",

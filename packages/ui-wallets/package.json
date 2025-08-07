@@ -15,7 +15,7 @@
   "peerDependencies": {
     "react": "^18.2.0",
     "@vanilla-extract/css": "^1.13.0",
-    "@types/react": "^18.2.21",
+    "@types/react": "catalog:",
     "swiper": "*",
     "styled-components": "6.0.7",
     "react-device-detect": "^2.1.2",
