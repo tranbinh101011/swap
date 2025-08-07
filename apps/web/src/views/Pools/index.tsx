@@ -23,7 +23,6 @@ import PinnedFAQButton from 'components/PinnedFAQButton'
 import { TokenPairImage } from 'components/TokenImage'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { usePoolsPageFetch, usePools } from 'state/pools/hooks'
-import { StyledPageHeader } from 'views/CakeStaking'
 import { useAccount } from 'wagmi'
 import AprRow from './components/PoolCard/AprRow'
 import CardActions from './components/PoolCard/CardActions'
@@ -31,6 +30,20 @@ import CardFooter from './components/PoolCard/CardFooter'
 import PoolControls from './components/PoolControls'
 import PoolRow from './components/PoolsTable/PoolRow'
 import faqConfig from './faqConfig'
+
+const StyledPageHeader = styled(PageHeader)`
+  padding-top: 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+
+  ${({ theme }) => theme.mediaQueries.lg} {
+    padding-top: 56px;
+  }
+
+  ${({ theme }) => theme.mediaQueries.sm} {
+    padding-top: 32px;
+  }
+`
 
 const CardLayout = styled(FlexLayout)`
   justify-content: center;

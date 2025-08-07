@@ -21,7 +21,6 @@ export const config = {
     '/liquidity',
     '/pools',
     '/cake-staking',
-    '/gauges-voting',
     '/farms',
     '/add',
     '/ifo',

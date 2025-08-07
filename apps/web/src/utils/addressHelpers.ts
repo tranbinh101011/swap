@@ -197,14 +197,6 @@ export const getVeCakeAddressNoFallback = (chainId?: number) => {
   return getAddressFromMapNoFallback(addresses.veCake, chainId)
 }
 
-export const getGaugesVotingAddress = (chainId?: number) => {
-  return getAddressFromMap(addresses.gaugesVoting, chainId)
-}
-
-export const getCalcGaugesVotingAddress = (chainId?: number) => {
-  return getAddressFromMap(addresses.gaugesVotingCalc, chainId)
-}
-
 export const getRevenueSharingCakePoolAddress = (chainId?: number) => {
   return getAddressFromMap(addresses.revenueSharingCakePool, chainId)
 }

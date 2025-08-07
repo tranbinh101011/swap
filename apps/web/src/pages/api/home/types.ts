@@ -38,7 +38,6 @@ export type CakeRelatedFigures = {
     burnedBalance: number
     circulatingSupply: number
   }
-  gaugeTotalWeight: string
   weeklyReward: number
 }
 

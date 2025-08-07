@@ -51,7 +51,6 @@
     "@pancakeswap/canonical-bridge": "workspace:*",
     "@pancakeswap/chains": "workspace:*",
     "@pancakeswap/farms": "workspace:*",
-    "@pancakeswap/gauges": "workspace:*",
     "@pancakeswap/hooks": "workspace:*",
     "@pancakeswap/ifos": "workspace:*",
     "@pancakeswap/infinity-sdk": "workspace:*",

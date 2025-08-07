@@ -1,5 +1,4 @@
 import { ChainId } from '@pancakeswap/chains'
-import { calcGaugesVotingABI } from '@pancakeswap/gauges'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { cacheByLRU } from '@pancakeswap/utils/cacheByLRU'
 import BigNumber from 'bignumber.js'
@@ -8,13 +7,11 @@ import { veCakeABI } from 'config/abi/veCake'
 import { WEEK } from 'config/constants/veCake'
 import {
   getCakeVaultAddress,
-  getCalcGaugesVotingAddress,
   getRevenueSharingCakePoolAddress,
   getRevenueSharingVeCakeAddress,
   getVeCakeAddress,
 } from 'utils/addressHelpers'
 import { getViemClients } from 'utils/viem.server'
-import { formatEther } from 'viem/utils'
 import { BRIBE_APR, fetchCakePoolEmission } from 'views/CakeStaking/hooks/useAPR'
 import { PublicClient } from 'viem/_types/clients/createPublicClient'
 import { erc20Abi } from 'viem'
@@ -73,12 +70,11 @@ export async function fetchCakeStats(client: PublicClient) {
 export const queryCakeRelated = cacheByLRU(async () => {
   const veCakeTotalSupply = await getVeCakeTotalSupply()
 
-  const [revShareApr, cakePoolEmission, totalCakeDistributed, cakeStats, gaugeTotalWeight] = await Promise.all([
+  const [revShareApr, cakePoolEmission, totalCakeDistributed, cakeStats] = await Promise.all([
     getRevShareEmissionApr(veCakeTotalSupply),
     getCakePoolEmission(),
     getCakeDistributed(),
     getCakeStats(),
-    queryGaugeTotalVote(),
   ])
 
   const veCAKEApr = getVeCAKEPoolApr(cakePoolEmission, veCakeTotalSupply)
@@ -88,21 +84,9 @@ export const queryCakeRelated = cacheByLRU(async () => {
     totalCakeDistributed: parseFloat(totalCakeDistributed.toString()),
     burned: 16_000_000_000,
     cakeStats,
-    gaugeTotalWeight: gaugeTotalWeight.toString(),
     weeklyReward: 401644,
   } as CakeRelatedFigures
 }, getHomeCacheSettings('cake-related'))
-
-export const queryGaugeTotalVote = cacheByLRU(async () => {
-  const client = getViemClients({ chainId: ChainId.BSC })
-  const totalWeight = await client.readContract({
-    abi: calcGaugesVotingABI,
-    address: getCalcGaugesVotingAddress(ChainId.BSC),
-    functionName: 'getTotalWeight',
-    args: [true],
-  })
-  return formatEther(totalWeight)
-}, getHomeCacheSettings('gauge-total-vote'))
 
 async function getCakeStats() {
   const client = getViemClients({ chainId: ChainId.BSC })

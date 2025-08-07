@@ -21,7 +21,7 @@ import { useAccountPositionDetailByPool } from 'state/farmsV4/hooks'
 import { InfinityBinPositionDetail, POSITION_STATUS } from 'state/farmsV4/state/accountPositions/type'
 import { InfinityBinPoolInfo } from 'state/farmsV4/state/type'
 import { useChainIdByQuery } from 'state/info/hooks'
-import { Tooltips } from 'views/CakeStaking/components/Tooltips'
+import { Tooltips } from 'components/Tooltips'
 import { useFlipCurrentPrice } from 'views/PoolDetail/state/flipCurrentPrice'
 import {
   AprData,

@@ -24,7 +24,6 @@ declare module "@@@next-typesafe-url" {
     "/bridge": StaticRoute;
     "/burn-dashboard": StaticRoute;
     "/buy-crypto": StaticRoute;
-    "/cake-staking": StaticRoute;
     "/cake-staking/redeem": StaticRoute;
     "/competition/finished/[competition]": StaticRoute;
     "/competition/finished": StaticRoute;
@@ -33,7 +32,6 @@ declare module "@@@next-typesafe-url" {
     "/farms/history": StaticRoute;
     "/farms": StaticRoute;
     "/find": StaticRoute;
-    "/gauges-voting": StaticRoute;
     "/home": StaticRoute;
     "/ido/[ido]": StaticRoute;
     "/ido": StaticRoute;
@@ -112,9 +110,6 @@ declare module "@@@next-typesafe-url" {
     "/teams/[id]": StaticRoute;
     "/teams": StaticRoute;
     "/terms-of-service": StaticRoute;
-    "/trading-reward/cake-stakers": StaticRoute;
-    "/trading-reward": StaticRoute;
-    "/trading-reward/top-traders": StaticRoute;
     "/v2/add/[[...currency]]": StaticRoute;
     "/v2/migrate/[address]": StaticRoute;
     "/v2/pair/[[...currency]]": StaticRoute;

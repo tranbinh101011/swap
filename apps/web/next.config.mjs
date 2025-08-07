@@ -202,6 +202,16 @@ const config = {
         permanent: true,
       },
       {
+        source: '/cake-staking',
+        destination: '/cake-staking/redeem',
+        permanent: true,
+      },
+      {
+        source: '/gauges-voting',
+        destination: '/cake-staking/redeem',
+        permanent: true,
+      },
+      {
         source: '/syrup',
         destination: '/pools',
         permanent: true,

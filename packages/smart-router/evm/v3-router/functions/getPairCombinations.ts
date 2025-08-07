@@ -1,94 +1,12 @@
 import { ChainId } from '@pancakeswap/chains'
-import { GaugeType, safeGetGaugesByChain } from '@pancakeswap/gauges'
 import { Currency, Token } from '@pancakeswap/sdk'
-import { getTokensByChain } from '@pancakeswap/tokens'
 import memoize from '@pancakeswap/utils/memoize'
 import uniqBy from '@pancakeswap/utils/uniqBy'
-import { type Address } from 'viem'
 
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../../constants'
 import { wrappedCurrency } from '../../utils/currency'
 import { isCurrenciesSameChain, log } from '../utils'
 import { getAdditionalBases } from './getAdditionalBase'
-
-const getToken = memoize(
-  (chainId?: ChainId, address?: Address): Token | undefined => {
-    if (!chainId || !address) {
-      return undefined
-    }
-    const tokens = getTokensByChain(chainId)
-    for (const token of tokens) {
-      if (token.address.toLowerCase() === address.toLowerCase()) {
-        return token
-      }
-    }
-    return undefined
-  },
-  (chainId, address) => `${chainId}_${address}`,
-)
-
-function isTokenInCommonBases(token?: Token) {
-  return Boolean(token && BASES_TO_CHECK_TRADES_AGAINST[token.chainId as ChainId]?.find((t) => t.equals(token)))
-}
-
-function createTokenBasesFromGaugesGetter() {
-  const getCurrencyIdentifier = (c?: Currency) => `${c?.chainId}_${c?.wrapped.address}_${c?.isNative}`
-  const cache: { [key: string]: Token[] } = {}
-
-  return async function getTokenBasesFromGauges(currency?: Currency): Promise<Token[]> {
-    const id = getCurrencyIdentifier(currency)
-    if (!id) return []
-    if (cache[id]) return cache[id]
-
-    const chainId: ChainId | undefined = currency?.chainId
-    const address = currency?.wrapped.address
-    const gauges = await safeGetGaugesByChain(chainId)
-    const bases = new Set<Token>()
-    const addTokenToBases = (token?: Token) => token && !isTokenInCommonBases(token) && bases.add(token)
-    const addTokensToBases = (tokens: Token[]) => tokens.forEach(addTokenToBases)
-    const isCurrentToken = (addr: Address) => addr.toLowerCase() === address?.toLowerCase()
-
-    if (currency && chainId && isTokenInCommonBases(currency.wrapped)) {
-      cache[id] = []
-      return cache[id]
-    }
-    for (const gauge of gauges) {
-      const { type } = gauge
-      if (type === GaugeType.V2 || type === GaugeType.V3) {
-        const { token0Address, token1Address } = gauge
-        if (isCurrentToken(token0Address)) {
-          addTokenToBases(getToken(chainId, token1Address))
-        }
-        if (isCurrentToken(token1Address)) {
-          addTokenToBases(getToken(chainId, token0Address))
-        }
-        continue
-      }
-      if (type === GaugeType.StableSwap) {
-        const { tokenAddresses } = gauge
-        const index = tokenAddresses.findIndex(isCurrentToken)
-        if (index < 0) {
-          continue
-        }
-        addTokensToBases(
-          [...tokenAddresses.slice(0, index), ...tokenAddresses.slice(index + 1)]
-            .map((addr) => getToken(chainId, addr))
-            .filter((token?: Token): token is Token => Boolean(token)),
-        )
-      }
-    }
-    const baseList = Array.from(bases)
-    log(
-      `[ADDITIONAL_BASES] Token ${currency?.symbol}, bases from guages: [${baseList
-        .map((base) => base.symbol)
-        .join(',')}]`,
-    )
-    cache[id] = baseList
-    return baseList
-  }
-}
-
-const getTokenBasesFromGauges = createTokenBasesFromGaugesGetter()
 
 const resolver = (currencyA?: Currency, currencyB?: Currency) => {
   if (
@@ -109,16 +27,9 @@ async function getAdditionalCheckAgainstBaseTokens(currencyA?: Currency, currenc
   const chainId: ChainId | undefined = currencyA?.chainId
   const additionalBases = await getAdditionalBases(chainId)
   const uniq = (tokens: Token[]) => uniqBy(tokens, (t) => t.address)
-  const additionalA =
-    currencyA && chainId
-      ? uniq([...(additionalBases[currencyA.wrapped.address] || []), ...(await getTokenBasesFromGauges(currencyA))]) ??
-        []
-      : []
-  const additionalB =
-    currencyB && chainId
-      ? uniq([...(additionalBases[currencyB.wrapped.address] || []), ...(await getTokenBasesFromGauges(currencyB))]) ??
-        []
-      : []
+  const additionalA = currencyA && chainId ? uniq([...(additionalBases[currencyA.wrapped.address] || [])]) : []
+
+  const additionalB = currencyB && chainId ? uniq([...(additionalBases[currencyB.wrapped.address] || [])]) : []
 
   return [...additionalA, ...additionalB]
 }

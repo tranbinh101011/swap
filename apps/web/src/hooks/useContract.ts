@@ -21,14 +21,12 @@ import {
   getCakeFlexibleSideVaultV2Contract,
   getCakeVaultV1Contract,
   getCakeVaultV2Contract,
-  getCalcGaugesVotingContract,
   getChainlinkOracleContract,
   getContract,
   getCrossFarmingProxyContract,
   getCrossFarmingVaultContract,
   getFarmAuctionContract,
   getFixedStakingContract,
-  getGaugesVotingContract,
   getIfoCreditAddressContract,
   getInfinityBinPoolManagerContract,
   getInfinityBinPositionManagerContract,
@@ -590,22 +588,6 @@ export const usePancakeVeSenderV2Contract = (targetChainId?: ChainId) => {
     () => getPancakeVeSenderV2Contract(signer ?? undefined, targetChainId ?? chainId),
     [chainId, signer, targetChainId],
   )
-}
-
-export const useGaugesVotingContract = () => {
-  const { chainId } = useActiveChainId()
-
-  const { data: signer } = useWalletClient()
-
-  return useMemo(() => getGaugesVotingContract(signer ?? undefined, chainId), [chainId, signer])
-}
-
-export const useCalcGaugesVotingContract = () => {
-  const { chainId } = useActiveChainId()
-
-  const { data: signer } = useWalletClient()
-
-  return useMemo(() => getCalcGaugesVotingContract(signer ?? undefined, chainId), [chainId, signer])
 }
 
 export const useRevenueSharingCakePoolContract = () => {

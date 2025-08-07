@@ -21,13 +21,11 @@ import {
   getCakePoolAddress,
   getCakeVaultAddress,
   getCakeVaultV1Address,
-  getCalcGaugesVotingAddress,
   getCrossFarmingReceiverAddress,
   getCrossFarmingSenderAddress,
   getCrossFarmingVaultAddress,
   getFarmAuctionAddress,
   getFixedStakingAddress,
-  getGaugesVotingAddress,
   getInfinityPositionManagerAddress,
   getLotteryV2Address,
   getMasterChefV2Address,
@@ -71,7 +69,6 @@ import { stableSwapNativeHelperABI } from 'config/abi/stableSwapNativeHelper'
 import { bCakeFarmBoosterV3ABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterV3'
 import { bCakeFarmBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterVeCake'
 import { bCakeFarmWrapperBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmWrapperBoosterVeCake'
-import { calcGaugesVotingABI, gaugesVotingABI } from '@pancakeswap/gauges'
 import { getIfoCreditAddressContract as getIfoCreditAddressContract_ } from '@pancakeswap/ifos'
 import { cakeFlexibleSideVaultV2ABI, cakeVaultV1ABI, cakeVaultV2ABI } from '@pancakeswap/pools'
 import {
@@ -601,24 +598,6 @@ export const getPancakeVeSenderV2Contract = (signer?: WalletClient, chainId?: nu
   return getContract({
     abi: pancakeVeSenderV2ABI,
     address: getPancakeVeSenderV2Address(chainId) ?? getPancakeVeSenderV2Address(ChainId.BSC),
-    signer,
-    chainId,
-  })
-}
-
-export const getGaugesVotingContract = (signer?: WalletClient, chainId?: number) => {
-  return getContract({
-    abi: gaugesVotingABI,
-    address: getGaugesVotingAddress(chainId) ?? getGaugesVotingAddress(ChainId.BSC),
-    signer,
-    chainId,
-  })
-}
-
-export const getCalcGaugesVotingContract = (signer?: WalletClient, chainId?: number) => {
-  return getContract({
-    abi: calcGaugesVotingABI,
-    address: getCalcGaugesVotingAddress(chainId) ?? getCalcGaugesVotingAddress(ChainId.BSC),
     signer,
     chainId,
   })

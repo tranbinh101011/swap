@@ -26,7 +26,7 @@ import { getFarmAprInfo } from 'state/farmsV4/search/farm.util'
 import { PoolInfo } from 'state/farmsV4/state/type'
 import { getBlockExploreLink } from 'utils'
 import { isInfinityProtocol } from 'utils/protocols'
-import { Tooltips } from 'views/CakeStaking/components/Tooltips'
+import { Tooltips } from 'components/Tooltips'
 import { PoolFeaturesModal } from 'views/PoolDetail/components/PoolFeaturesModal'
 import { PoolGlobalAprButtonV3 } from 'views/universalFarms/components/PoolAprButtonV3'
 

@@ -14,7 +14,7 @@ import { useAccountPositionDetailByPool } from 'state/farmsV4/hooks'
 import { StableLPDetail, V2LPDetail } from 'state/farmsV4/state/accountPositions/type'
 import { StablePoolInfo, V2PoolInfo } from 'state/farmsV4/state/type'
 import { useChainIdByQuery } from 'state/info/hooks'
-import { Tooltips } from 'views/CakeStaking/components/Tooltips'
+import { Tooltips } from 'components/Tooltips'
 import {
   calculateTotalApr,
   calculateV2LiquidityUSD,
