@@ -1,5 +1,11 @@
 # @pancakeswap/canonical-bridge
 
+## 2.0.1
+
+### Patch Changes
+
+- @pancakeswap/uikit@0.69.1
+
 ## 2.0.0
 
 ### Patch Changes

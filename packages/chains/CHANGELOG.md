@@ -1,5 +1,11 @@
 # @pancakeswap/chains
 
+## 0.5.3
+
+### Patch Changes
+
+- 979f5e0: Remove BSC V2 subgraph usage in smart router.
+
 ## 0.5.2
 
 ### Patch Changes

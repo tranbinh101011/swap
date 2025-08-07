@@ -1,5 +1,23 @@
 # @pancakeswap/smart-router
 
+## 7.4.0
+
+### Minor Changes
+
+- 979f5e0: Remove BSC V2 subgraph usage in smart router.
+
+### Patch Changes
+
+- Updated dependencies [979f5e0]
+  - @pancakeswap/chains@0.5.3
+  - @pancakeswap/infinity-sdk@1.0.3
+  - @pancakeswap/multicall@3.7.1
+  - @pancakeswap/stable-swap-sdk@2.0.7
+  - @pancakeswap/sdk@5.8.15
+  - @pancakeswap/tokens@0.7.6
+  - @pancakeswap/v3-sdk@3.9.4
+  - @pancakeswap/token-lists@0.0.15
+
 ## 7.3.0
 
 ### Minor Changes

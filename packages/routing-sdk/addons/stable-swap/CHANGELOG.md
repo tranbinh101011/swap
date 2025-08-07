@@ -1,5 +1,14 @@
 # @pancakeswap/routing-sdk-addon-stable-swap
 
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies [979f5e0]
+  - @pancakeswap/chains@0.5.3
+  - @pancakeswap/routing-sdk@0.5.1
+  - @pancakeswap/stable-swap-sdk@2.0.7
+
 ## 5.0.0
 
 ### Patch Changes
