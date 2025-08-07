@@ -89,6 +89,7 @@ export function usePoolActiveLiquidity(
     pool,
     ticks,
   })
+
   return useMemo(() => {
     if (
       !currencyA ||
@@ -133,7 +134,7 @@ export function useActiveLiquidityByPool({
 } {
   const activeTick = useMemo(() => getActiveTick(pool?.tickCurrent, tickSpacing), [pool, tickSpacing])
   return useMemo(() => {
-    if (!currencyA || !currencyB || !ticks || !activeTick) {
+    if (!currencyA || !currencyB || !ticks || activeTick === undefined) {
       return {
         data: undefined,
         activeTick,

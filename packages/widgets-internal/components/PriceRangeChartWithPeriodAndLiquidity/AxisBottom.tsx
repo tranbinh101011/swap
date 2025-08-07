@@ -66,7 +66,7 @@ export const AxisBottom = <T extends ScaleTime<number, number>>({
   }, [xScale, ticks, tickFormat]);
 
   return (
-    <StyledGroup $isMobile={isMobile} transform={`translate(0, ${innerHeight + offset})`}>
+    <StyledGroup $isMobile={isMobile} transform={`translate(0, ${innerHeight + offset + (isMobile ? 5 : 0)})`}>
       <Axis axisGenerator={axisGenerator} />
     </StyledGroup>
   );

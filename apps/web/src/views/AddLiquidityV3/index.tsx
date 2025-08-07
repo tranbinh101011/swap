@@ -1,20 +1,20 @@
+import { Box, Breadcrumbs, Container, FlexGap, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
+
 import { Pair } from '@pancakeswap/sdk'
-import { Box, Breadcrumbs, Container, FlexGap, Text } from '@pancakeswap/uikit'
-
 import { FeeAmount, Pool } from '@pancakeswap/v3-sdk'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
-import { useRouter } from 'next/router'
 import { useV3FarmAPI } from 'hooks/useV3FarmAPI'
+import { useRouter } from 'next/router'
 
 import { atom, useAtom } from 'jotai'
 import { styled } from 'styled-components'
 
-import { useFeeTierDistribution } from 'hooks/v3/useFeeTierDistribution'
-import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { useTranslation } from '@pancakeswap/localization'
-import { getPoolDetailPageLink } from 'utils/getPoolLink'
+import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { useQuery } from '@tanstack/react-query'
+import { useFeeTierDistribution } from 'hooks/v3/useFeeTierDistribution'
+import { getPoolDetailPageLink } from 'utils/getPoolLink'
 
 import { usePreviousValue } from '@pancakeswap/hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -23,11 +23,11 @@ import AddStableLiquidity from 'views/AddLiquidity/AddStableLiquidity'
 import useWarningLiquidity from 'views/AddLiquidity/hooks/useWarningLiquidity'
 import useStableConfig, { StableConfigContext } from 'views/Swap/hooks/useStableConfig'
 
+import { PoolInfoHeader } from 'components/PoolInfoHeader'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { usePoolInfo } from 'state/farmsV4/state/extendPools/hooks'
 import { resetMintState } from 'state/mint/actions'
 import { useAddLiquidityV2FormDispatch } from 'state/mint/reducer'
-import { PoolInfoHeader } from 'components/PoolInfoHeader'
 
 import StableFormView from './formViews/StableFormView'
 import V2FormView from './formViews/V2FormView'
@@ -175,7 +175,7 @@ export function UniversalAddLiquidity({
 export function AddLiquidityV3Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
   const { chainId } = useActiveChainId()
-  const router = useRouter()
+  const { isMobile } = useMatchBreakpoints()
 
   const [selectType] = useAtom(selectTypeAtom)
   const { currencyIdA, currencyIdB, feeAmount } = useCurrencyParams()
@@ -293,7 +293,7 @@ export function AddLiquidityV3Layout({ children }: { children: React.ReactNode }
                     showTitle={false}
                     derived
                     showApyButton={false}
-                    fontSize="24px"
+                    fontSize={isMobile ? '20px' : '24px'}
                   />
                 ),
                 roiCalculator: (
@@ -303,7 +303,7 @@ export function AddLiquidityV3Layout({ children }: { children: React.ReactNode }
                     showTitle={false}
                     derived
                     showApyText={false}
-                    fontSize="24px"
+                    fontSize={isMobile ? '20px' : '24px'}
                   />
                 ),
               }

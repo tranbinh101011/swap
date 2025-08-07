@@ -19,6 +19,8 @@ export const ZoomOverlay = styled.rect`
   fill: transparent;
   cursor: grab;
 
+  z-index: 3;
+
   &:active {
     cursor: grabbing;
   }
@@ -46,7 +48,7 @@ export default function Zoom({
   const zoomBehavior = useRef<ZoomBehavior<Element, unknown>>();
   const { isMobile } = useMatchBreakpoints();
 
-  const [zoomIn, zoomOut, zoomInitial, zoomReset] = useMemo(
+  const [zoomIn, zoomOut, _zoomInitial, zoomReset] = useMemo(
     () => [
       () =>
         svg &&
@@ -90,11 +92,6 @@ export default function Zoom({
       select(svg as Element).call(zoomBehavior.current);
     }
   }, [height, width, setZoom, svg, xScale, zoomBehavior, zoomLevels, zoomLevels.max, zoomLevels.min]);
-
-  useEffect(() => {
-    // reset zoom to initial on zoomLevel change
-    zoomInitial();
-  }, [zoomInitial, zoomLevels]);
 
   return (
     <Wrapper $count={showResetButton ? 3 : 2} $isMobile={isMobile}>

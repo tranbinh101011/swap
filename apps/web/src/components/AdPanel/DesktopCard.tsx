@@ -27,7 +27,6 @@ export const DesktopCard = ({
 
   // Apply left class when chart is displayed and swap details are open
   const shouldApplyLeftClass = isChartDisplayed && isSwapDetailsOpen
-  console.log('shouldApplyLeftClass', { isChartDisplayed, isSwapDetailsOpen, shouldApplyLeftClass })
 
   return shouldRender && isDesktop && show ? (
     <FloatingContainer className={shouldApplyLeftClass ? 'left' : ''}>

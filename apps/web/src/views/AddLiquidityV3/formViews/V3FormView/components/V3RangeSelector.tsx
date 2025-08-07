@@ -234,7 +234,7 @@ export default function V3RangeSelector({
 
   return (
     <AutoColumn gap="8px">
-      <FlexGap gap="16px" width="100%">
+      <FlexGap gap="8px" width="100%" flexDirection={['column', null, null, 'row']}>
         <StepCounter
           value={leftValue}
           onUserInput={onLeftRangeInput}

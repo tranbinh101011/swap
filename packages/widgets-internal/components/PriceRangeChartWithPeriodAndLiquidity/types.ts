@@ -61,6 +61,7 @@ export interface ChartProps {
   zoomLevels: ZoomLevels;
   showZoomButtons?: boolean;
   axisTicks?: { bottomTicks?: TicksType; bottomFormat?: TickFormat };
+  showGridLines?: boolean;
 }
 
 export enum Bound {

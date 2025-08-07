@@ -38,6 +38,7 @@ export interface PricePeriodRangeChartProps {
   formattedData: LiquidityChartEntry[] | undefined;
   priceHistoryData?: PriceChartEntry[];
   axisTicks?: ChartProps["axisTicks"];
+  showGridLines?: boolean;
 }
 
 export function PricePeriodRangeChart({
@@ -57,6 +58,7 @@ export function PricePeriodRangeChart({
   formattedData,
   priceHistoryData,
   axisTicks,
+  showGridLines = true,
 }: PricePeriodRangeChartProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -80,6 +82,12 @@ export function PricePeriodRangeChart({
 
   const onBrushDomainChangeEnded = useCallback(
     (domain: BrushDomainType, mode: string | undefined) => {
+      // This prevents double inversion in V3's Add Liquidity when currencies change due to route updates,
+      // while still allowing to set the initial domain on load
+      if (mode === undefined && brushDomain) {
+        return;
+      }
+
       const { min, max } = brushDomain || {};
       const newMinPrice = domain.min <= 0 ? 1 / 10 ** 6 : domain.min;
       const newMaxPrice = domain.max;
@@ -147,7 +155,12 @@ export function PricePeriodRangeChart({
             key={baseCurrency.wrapped.address}
             data={{ liquiditySeries: formattedData, current: price, priceHistory: priceHistoryData }}
             dimensions={{ width: 400, height: 200 }}
-            margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
+            margins={{
+              top: 10,
+              right: 4,
+              bottom: 20,
+              left: 0,
+            }}
             styles={{
               area: {
                 selection: theme.colors.text,
@@ -160,6 +173,7 @@ export function PricePeriodRangeChart({
             zoomLevels={zoomLevel ?? ZOOM_LEVELS[TICK_SPACING_LEVEL.MEDIUM]}
             ticksAtLimit={ticksAtLimit}
             axisTicks={axisTicks}
+            showGridLines={showGridLines}
           />
         </ChartWrapper>
       )}

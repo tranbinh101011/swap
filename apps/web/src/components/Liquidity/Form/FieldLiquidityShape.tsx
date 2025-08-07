@@ -18,6 +18,7 @@ export const FieldLiquidityShape: React.FC<FieldLiquidityShapeProps> = ({ ...box
           href="https://docs.pancakeswap.finance/trade/pancakeswap-infinity/pool-types"
           fontSize="12px"
           textTransform="uppercase"
+          color="primary60"
         >
           {t('Learn More')}
         </ScanLink>

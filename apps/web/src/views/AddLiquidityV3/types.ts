@@ -66,7 +66,12 @@ export const QUICK_ACTION_CONFIGS: Record<FeeAmount, { [percentage: number]: Zoo
       min: 0.00001,
       max: 20,
     },
-    50: ZOOM_LEVELS[FeeAmount.MEDIUM],
+    50: {
+      initialMin: 0.5,
+      initialMax: 1.5,
+      min: 0.00001,
+      max: 20,
+    },
   },
   [FeeAmount.HIGH]: {
     10: {
@@ -81,7 +86,12 @@ export const QUICK_ACTION_CONFIGS: Record<FeeAmount, { [percentage: number]: Zoo
       min: 0.00001,
       max: 20,
     },
-    50: ZOOM_LEVELS[FeeAmount.HIGH],
+    50: {
+      initialMin: 0.5,
+      initialMax: 1.5,
+      min: 0.00001,
+      max: 20,
+    },
   },
 }
 

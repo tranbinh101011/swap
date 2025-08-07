@@ -1,23 +1,28 @@
-import { useTranslation } from "@pancakeswap/localization";
-import { ButtonMenu, ButtonMenuItem, FlexGap, Text } from "@pancakeswap/uikit";
+import { Button, ButtonMenu, ButtonMenuItem, FlexGap, Text, useMatchBreakpoints } from "@pancakeswap/uikit";
 import { useCallback, useMemo } from "react";
+import styled from "styled-components";
+
+const ButtonGroup = styled(FlexGap)``;
+
+const StyledButton = styled(Button)<{ $isActive: boolean }>`
+  color: ${({ $isActive, theme }) => ($isActive ? theme.colors.primary60 : theme.colors.textSubtle)};
+  font-weight: ${({ $isActive }) => ($isActive ? "600" : "400")};
+  padding: 0 14px;
+  transition: all 0.2s ease-out;
+`;
 
 export const PRESET_RANGE_ITEMS = [
   {
-    label: "1H",
-    value: "1H",
-  },
-  {
-    label: "1D",
-    value: "1D",
+    label: "1M",
+    value: "1M",
   },
   {
     label: "7D",
     value: "1W",
   },
   {
-    label: "1M",
-    value: "1M",
+    label: "1D",
+    value: "1D",
   },
 ] as const;
 
@@ -34,7 +39,7 @@ export const PriceRangeDatePicker = ({
   height,
   onChange,
 }: PriceRangeDatePickerProps) => {
-  const { t } = useTranslation();
+  const { isMobile } = useMatchBreakpoints();
 
   const activeIndex = useMemo(() => PRESET_RANGE_ITEMS.findIndex((item) => item.value === value.value), [value]);
 
@@ -46,16 +51,35 @@ export const PriceRangeDatePicker = ({
   );
   return (
     <FlexGap columnGap="12px" gap="12px" alignItems="center">
-      <Text color="secondary" small bold>
-        {t("PRICE RANGE")}
-      </Text>
-      <ButtonMenu variant="subtle" style={{ borderRadius: 30 }} activeIndex={activeIndex} onItemClick={onItemSelect}>
-        {PRESET_RANGE_ITEMS.map((item) => (
-          <ButtonMenuItem height={height || "36px"} px="16px" style={{ borderRadius: 30 }} key={item.value}>
-            {item.label}
-          </ButtonMenuItem>
-        ))}
-      </ButtonMenu>
+      {isMobile ? (
+        <ButtonMenu
+          variant="subtle"
+          style={{ borderRadius: 30, width: "100%" }}
+          activeIndex={activeIndex}
+          onItemClick={onItemSelect}
+        >
+          {PRESET_RANGE_ITEMS.map((item) => (
+            <ButtonMenuItem key={item.value} height={height || "36px"} px="16px" style={{ borderRadius: 30 }}>
+              {item.label}
+            </ButtonMenuItem>
+          ))}
+        </ButtonMenu>
+      ) : (
+        <ButtonGroup>
+          {PRESET_RANGE_ITEMS.map((item, index) => (
+            <StyledButton
+              variant="text"
+              scale="xs"
+              height={height || "24px"}
+              key={item.value}
+              onClick={() => onItemSelect(index)}
+              $isActive={activeIndex === index}
+            >
+              {item.label}
+            </StyledButton>
+          ))}
+        </ButtonGroup>
+      )}
     </FlexGap>
   );
 };

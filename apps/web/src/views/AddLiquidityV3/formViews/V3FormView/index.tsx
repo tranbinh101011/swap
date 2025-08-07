@@ -1,4 +1,7 @@
+import { Protocol } from '@pancakeswap/farms'
+import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
+import { Price } from '@pancakeswap/swap-sdk-core'
 import {
   AutoColumn,
   AutoRow,
@@ -8,78 +11,81 @@ import {
   CardBody,
   Column,
   DynamicSection,
+  FlexGap,
   Message,
   MessageText,
   PreTitle,
   RowBetween,
   Text,
   Toggle,
+  useMatchBreakpoints,
   useModal,
 } from '@pancakeswap/uikit'
+import { useIsExpertMode, useUserSlippage } from '@pancakeswap/utils/user'
+import { FeeAmount, NonfungiblePositionManager, Pool } from '@pancakeswap/v3-sdk'
 import {
   ConfirmationModalContent,
   Liquidity,
-  LiquidityChartRangeInput,
   NumericalInput,
+  PricePeriodRangeChart,
   ZOOM_LEVELS,
   ZoomLevels,
 } from '@pancakeswap/widgets-internal'
-import { tryParsePrice } from 'hooks/v3/utils'
-import { useCurrencyInversionEvent } from 'views/AddLiquidityV3/hooks/useHeaderInvertCurrencies'
+import BigNumber from 'bignumber.js'
+import CurrencyInputPanelSimplify from 'components/CurrencyInputPanelSimplify'
+import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import { ZapLiquidityWidget } from 'components/ZapLiquidityWidget'
+import { Bound } from 'config/constants/types'
+import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
+import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { useV3NFTPositionManagerContract } from 'hooks/useContract'
 import useNativeCurrency from 'hooks/useNativeCurrency'
+import { usePoolMarketPriceSlippage } from 'hooks/usePoolMarketPriceSlippage'
+import { useTransactionDeadline } from 'hooks/useTransactionDeadline'
+import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
+import { tryParsePrice } from 'hooks/v3/utils'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { styled } from 'styled-components'
+import { calculateGasMargin } from 'utils'
 import {
   logGTMAddLiquidityTxSentEvent,
   logGTMClickAddLiquidityConfirmEvent,
   logGTMClickAddLiquidityEvent,
 } from 'utils/customGTMEventTracking'
-import { formatDollarAmount } from 'views/V3Info/utils/numbers'
-import { useNativeCurrencyInstead } from 'views/AddLiquidityV3/hooks/useNativeCurrencyInstead'
-import { useIsExpertMode, useUserSlippage } from '@pancakeswap/utils/user'
-import { FeeAmount, NonfungiblePositionManager, Pool } from '@pancakeswap/v3-sdk'
-import { useTransactionDeadline } from 'hooks/useTransactionDeadline'
-import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { SlippageButton } from 'views/Swap/components/SlippageButton'
-import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { basisPointsToPercent } from 'utils/exchange'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { CurrencyField as Field } from 'utils/types'
-import { useTranslation } from '@pancakeswap/localization'
-import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
-import { Bound } from 'config/constants/types'
-import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
-import { useV3NFTPositionManagerContract } from 'hooks/useContract'
-import { useRouter } from 'next/router'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { styled } from 'styled-components'
-import { calculateGasMargin } from 'utils'
 import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmount'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { isUserRejected } from 'utils/sentry'
+import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
+import { CurrencyField as Field } from 'utils/types'
 import { getViemClients } from 'utils/viem'
 import { hexToBigInt } from 'viem'
+import { useTokenRateData } from 'views/AddLiquidityInfinity/components/useTokenToTokenRateData'
+import { getAxisTicks } from 'views/AddLiquidityInfinity/utils'
 import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
-import { HandleFeePoolSelectFn, QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
-import { useSendTransaction, useWalletClient } from 'wagmi'
-import { Price } from '@pancakeswap/swap-sdk-core'
-import BigNumber from 'bignumber.js'
-import { ZapLiquidityWidget } from 'components/ZapLiquidityWidget'
-import { ZAP_V3_POOL_ADDRESSES } from 'config/constants/zapV3'
-import CurrencyInputPanelSimplify from 'components/CurrencyInputPanelSimplify'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
-import { usePoolMarketPriceSlippage } from 'hooks/usePoolMarketPriceSlippage'
-import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
+import { useCurrencyInversionEvent } from 'views/AddLiquidityV3/hooks/useHeaderInvertCurrencies'
+import { useNativeCurrencyInstead } from 'views/AddLiquidityV3/hooks/useNativeCurrencyInstead'
+import { HandleFeePoolSelectFn, QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
 import { MarketPriceSlippageWarning } from 'views/CreateLiquidityPool/components/SubmitCreateButton'
 import { MevProtectToggle } from 'views/Mev/MevProtectToggle'
+import { Dot } from 'views/Notifications/styles'
+import { SlippageButton } from 'views/Swap/components/SlippageButton'
+import { formatDollarAmount } from 'views/V3Info/utils/numbers'
+import { useSendTransaction, useWalletClient } from 'wagmi'
+import { useTotalUsdValue } from '../../../AddLiquidity/hooks/useTotalUsdValue'
+import FeeSelector from './components/FeeSelector'
+import LockedDeposit from './components/LockedDeposit'
+import { PositionPreview } from './components/PositionPreview'
 import V3RangeSelector from './components/V3RangeSelector'
 import { useInitialRange } from './form/hooks/useInitialRange'
 import { useRangeHopCallbacks } from './form/hooks/useRangeHopCallbacks'
 import { useV3MintActionHandlers } from './form/hooks/useV3MintActionHandlers'
 import { useV3FormAddLiquidityCallback, useV3FormState } from './form/reducer'
-import FeeSelector from './components/FeeSelector'
-import LockedDeposit from './components/LockedDeposit'
-import { PositionPreview } from './components/PositionPreview'
-import { useTotalUsdValue } from '../../../AddLiquidity/hooks/useTotalUsdValue'
 
 const StyledInput = styled(NumericalInput)`
   background-color: ${({ theme }) => theme.colors.input};
@@ -113,6 +119,7 @@ export default function V3FormView({
   currencyIdB,
 }: V3FormViewPropsType) {
   const router = useRouter()
+  const { isMobile } = useMatchBreakpoints()
   const { data: signer } = useWalletClient()
   const { sendTransactionAsync } = useSendTransaction()
   const native = useNativeCurrency()
@@ -132,9 +139,20 @@ export default function V3FormView({
     feeAmount,
   })
 
+  // Negate the effect of useNativeCurrencyInstead when we need actual WNATIVE currency
+  const baseCurrencyWithoutNative = useMemo(() => {
+    return baseCurrency?.isNative ? (baseCurrency.wrapped as Currency) : baseCurrency
+  }, [baseCurrency])
+  const quoteCurrencyWithoutNative = useMemo(() => {
+    return quoteCurrency?.isNative ? (quoteCurrency.wrapped as Currency) : quoteCurrency
+  }, [quoteCurrency])
+
   const positionManager = useV3NFTPositionManagerContract()
   const { account, chainId, isWrongNetwork } = useAccountActiveChain()
   const addTransaction = useTransactionAdder()
+
+  const [pricePeriod, setPricePeriod] = useState<Liquidity.PresetRangeItem>(Liquidity.PRESET_RANGE_ITEMS[0])
+  const axisTicks = useMemo(() => getAxisTicks(pricePeriod.value, isMobile), [pricePeriod.value, isMobile])
 
   // mint state
   const formState = useV3FormState()
@@ -644,6 +662,16 @@ export default function V3FormView({
     feeAmount,
   })
 
+  // Price Rate Data
+  const { data: rateData } = useTokenRateData({
+    period: pricePeriod.value,
+    baseCurrency: baseCurrencyWithoutNative ?? undefined,
+    quoteCurrency: quoteCurrencyWithoutNative ?? undefined,
+    chainId: baseCurrency?.chainId,
+    protocol: Protocol.V3,
+    poolId: pool ? Pool.getAddress(pool.token0, pool.token1, pool.fee) : undefined,
+  })
+
   return (
     <>
       <LeftContainer>
@@ -681,81 +709,69 @@ export default function V3FormView({
                 </Box>
               )}
               <DynamicSection disabled={!feeAmount || invalidPool}>
-                <RowBetween mb="8px">
-                  <PreTitle>{t('Set Price Range')}</PreTitle>
-                  <Liquidity.RateToggle
-                    currencyA={baseCurrency}
-                    handleRateToggle={() => {
-                      invertRange()
+                <FlexGap gap="8px" justifyContent="space-between" alignItems="center" flexWrap="wrap">
+                  <PreTitle>{t('Set position range')}</PreTitle>
+                  <FlexGap gap="8px" alignItems="center" flexWrap="wrap">
+                    <FlexGap gap="8px" alignItems="center">
+                      <Dot color="primary" show />
+                      <Text color="textSubtle" small>
+                        {t('Current Price')}
+                      </Text>
+                    </FlexGap>
+                    <FlexGap gap="8px" alignItems="center">
+                      <Dot color="secondary" show />
+                      <Text color="textSubtle" small>
+                        {t('Position Range')}
+                      </Text>
+                    </FlexGap>
+                    <FlexGap gap="8px" alignItems="center">
+                      <Dot color="input" show />
+                      <Text color="textSubtle" small>
+                        {t('Liquidity Depth')}
+                      </Text>
+                    </FlexGap>
+                  </FlexGap>
+                </FlexGap>
 
-                      router.replace(
-                        {
-                          pathname: router.pathname,
-                          query: {
-                            ...router.query,
-                            currency: [currencyIdB!, currencyIdA!, feeAmount ? feeAmount.toString() : ''],
-                          },
-                        },
-                        undefined,
-                        {
-                          shallow: true,
-                        },
-                      )
-                    }}
-                  />
-                </RowBetween>
+                <Box mt="22px" border="1px solid" borderColor="cardBorder" borderRadius="24px" p="8px">
+                  <FlexGap
+                    flexDirection={isMobile ? 'column' : 'row'}
+                    justifyContent={isMobile ? 'flex-start' : 'space-between'}
+                    gap="16px"
+                    mb="24px"
+                  >
+                    <Liquidity.PriceRangeDatePicker onChange={setPricePeriod} value={pricePeriod} />
+                  </FlexGap>
 
-                {!noLiquidity && (
-                  <>
-                    {price && baseCurrency && quoteCurrency && !noLiquidity && (
-                      <AutoRow
-                        gap="4px"
-                        marginBottom={['24px', '0px']}
-                        justifyContent="center"
-                        style={{ marginTop: '0.5rem' }}
-                      >
-                        <Text fontWeight={500} textAlign="center" fontSize={12} color="text1">
-                          {t('Current Price')}:
-                        </Text>
-                        <Text fontWeight={500} textAlign="center" fontSize={12} color="text1">
-                          {invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
-                        </Text>
-                        <Text color="text2" fontSize={12}>
-                          {t('%assetA% per %assetB%', {
-                            assetA: quoteCurrency?.symbol ?? '',
-                            assetB: baseCurrency.symbol ?? '',
-                          })}
-                        </Text>
-                      </AutoRow>
-                    )}
-                    <LiquidityChartRangeInput
-                      zoomLevel={
-                        customZoomLevel ||
-                        (activeQuickAction && feeAmount
-                          ? QUICK_ACTION_CONFIGS?.[feeAmount]?.[activeQuickAction]
-                          : undefined)
-                      }
-                      key={baseCurrency?.wrapped?.address}
-                      currencyA={baseCurrency ?? undefined}
-                      currencyB={quoteCurrency ?? undefined}
-                      feeAmount={feeAmount}
-                      ticksAtLimit={ticksAtLimit}
-                      tickUpper={tickUpper}
-                      tickLower={tickLower}
-                      tickCurrent={pool?.tickCurrent}
-                      price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
-                      priceLower={priceLower}
-                      priceUpper={priceUpper}
-                      onBothRangeInput={onBothRangePriceInput}
-                      onLeftRangeInput={onLeftRangePriceInput}
-                      onRightRangeInput={onRightRangePriceInput}
-                      formattedData={formattedData}
-                      isLoading={isChartDataLoading}
-                      error={chartDataError}
-                      interactive
-                    />
-                  </>
-                )}
+                  {!noLiquidity && (
+                    <>
+                      <PricePeriodRangeChart
+                        isLoading={isChartDataLoading}
+                        key={baseCurrency?.wrapped.address}
+                        zoomLevel={
+                          customZoomLevel ||
+                          (activeQuickAction && feeAmount
+                            ? QUICK_ACTION_CONFIGS?.[feeAmount]?.[activeQuickAction]
+                            : undefined)
+                        }
+                        baseCurrency={baseCurrencyWithoutNative}
+                        quoteCurrency={quoteCurrencyWithoutNative}
+                        ticksAtLimit={ticksAtLimit}
+                        price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
+                        priceLower={priceLower}
+                        priceUpper={priceUpper}
+                        onBothRangeInput={onBothRangePriceInput}
+                        onMinPriceInput={onLeftRangePriceInput}
+                        onMaxPriceInput={onRightRangePriceInput}
+                        formattedData={formattedData}
+                        priceHistoryData={rateData}
+                        axisTicks={axisTicks}
+                        error={chartDataError}
+                        interactive
+                      />
+                    </>
+                  )}
+                </Box>
               </DynamicSection>
 
               <DynamicSection disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)} gap="16px">

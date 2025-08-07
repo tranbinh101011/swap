@@ -7,7 +7,6 @@ import {
   Box,
   BscScanIcon,
   Card,
-  CardBody,
   CopyButton,
   Flex,
   FlexGap,
@@ -260,8 +259,12 @@ export const PoolInfoHeader = ({
             </FlexGap>
           </FlexGap>
           {poolInfo && (
-            <FlexGap gap="16px" flexDirection={['column', null, 'row']}>
-              <Box p="8px 16px" width="100%">
+            <FlexGap
+              gap={isMobile ? '20px' : '16px'}
+              flexDirection={isMobile ? 'row-reverse' : 'row'}
+              alignItems="center"
+            >
+              <Box py="8px" width="100%">
                 <FlexGap gap="2px" alignItems="center">
                   <Text
                     fontSize={12}
@@ -277,7 +280,7 @@ export const PoolInfoHeader = ({
                 </FlexGap>
                 <FlexGap gap="8px" alignItems="center" width="100%">
                   {poolInfo && (
-                    <Text fontSize={24} bold width="max-content">
+                    <Text fontSize={isMobile ? 20 : 24} bold width="max-content">
                       {formatNumber(Number(isInverted ? poolInfo.token0Price : poolInfo.token1Price), {
                         maximumSignificantDigits: 6,
                         maxDecimalDisplayDigits: 6,
@@ -301,7 +304,7 @@ export const PoolInfoHeader = ({
                   </Text>
                 </FlexGap>
               </Box>
-              <Box padding="8px 16px">
+              <Box py="8px">
                 <AutoColumn rowGap="2px">
                   <FlexGap>
                     <Text fontSize={12} bold color="textSubtle" textTransform="uppercase" width="max-content">
@@ -313,7 +316,7 @@ export const PoolInfoHeader = ({
                         showApyText={false}
                         color="text"
                         aprInfo={getFarmAprInfo(poolInfo.farm)}
-                        fontSize="24px"
+                        fontSize={isMobile ? '20px' : '24px'}
                       />
                     )}
                   </FlexGap>
@@ -323,7 +326,7 @@ export const PoolInfoHeader = ({
                       showApyButton={false}
                       color="text"
                       aprInfo={getFarmAprInfo(poolInfo.farm)}
-                      fontSize="24px"
+                      fontSize={isMobile ? '20px' : '24px'}
                     />
                   )}
                 </AutoColumn>

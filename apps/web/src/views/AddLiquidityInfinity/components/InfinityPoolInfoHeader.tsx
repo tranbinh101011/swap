@@ -1,4 +1,5 @@
 import { Protocol } from '@pancakeswap/farms'
+import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import { PoolInfoHeader } from 'components/PoolInfoHeader'
 import { useInfinityPoolIdRouteParams } from 'hooks/dynamicRoute/usePoolIdRoute'
 import { useCurrencyByPoolId } from 'hooks/infinity/useCurrencyByPoolId'
@@ -14,7 +15,7 @@ import {
 
 export const InfinityPoolInfoHeader = () => {
   const { chainId, poolId } = useInfinityPoolIdRouteParams()
-
+  const { isMobile } = useMatchBreakpoints()
   const poolInfo = usePoolInfo({ poolAddress: poolId, chainId })
   const hookData = useHookByPoolId(chainId, poolId)
   const { currency0, currency1 } = useCurrencyByPoolId({ chainId, poolId })
@@ -46,9 +47,9 @@ export const InfinityPoolInfoHeader = () => {
       overrideAprDisplay={{
         aprDisplay: poolInfo ? (
           poolInfo.protocol === Protocol.InfinityCLAMM ? (
-            <InfinityCLPoolDerivedAprButton pool={poolInfo} fontSize="24px" />
+            <InfinityCLPoolDerivedAprButton pool={poolInfo} fontSize={isMobile ? '20px' : '24px'} />
           ) : poolInfo.protocol === Protocol.InfinityBIN ? (
-            <InfinityBinPoolDerivedAprButton pool={poolInfo} fontSize="24px" />
+            <InfinityBinPoolDerivedAprButton pool={poolInfo} fontSize={isMobile ? '20px' : '24px'} />
           ) : (
             '-'
           )

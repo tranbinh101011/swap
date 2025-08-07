@@ -1,3 +1,4 @@
+import { Protocol } from '@pancakeswap/farms'
 import { Currency, isCurrencySorted } from '@pancakeswap/swap-sdk-core'
 import { useQuery } from '@tanstack/react-query'
 import { QUERY_SETTINGS_IMMUTABLE, QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH } from 'config/constants'
@@ -13,7 +14,7 @@ import type { Address } from 'viem/accounts'
 interface IRateDataProps {
   period: APISchema['schemas']['ChartPeriod']
   poolId?: Address
-  protocol: InfinityProtocol
+  protocol: InfinityProtocol | Protocol.V3
   chainId?: number
 }
 
@@ -80,6 +81,7 @@ const generateDateSequence = (period: APISchema['schemas']['ChartPeriod']) => {
   }))
 }
 
+// Token Rate Data for Infinity and V3
 export const useTokenRateData = ({
   chainId,
   poolId,
@@ -89,6 +91,7 @@ export const useTokenRateData = ({
   quoteCurrency,
 }: ITokenRateProps) => {
   const { data: rateData, isLoading } = usePoolRateData({ chainId, poolId, protocol, period })
+
   const isSorted = useMemo(
     () => baseCurrency && quoteCurrency && isCurrencySorted(baseCurrency, quoteCurrency),
     [baseCurrency, quoteCurrency],
@@ -156,41 +159,61 @@ const usePoolRateData = ({ chainId, poolId, protocol, period }: IRateDataProps) 
       high: Number(d.high),
       low: Number(d.low),
     }))
-    return generateDateSequence(period).map((seqPoint) => {
-      const before = resp?.findLast((d) => +d.time <= +seqPoint.time)
-      const after = resp?.find((d) => +d.time > +seqPoint.time)
 
-      if (before && +before.time === +seqPoint.time) {
+    if (!resp || resp.length === 0) {
+      return generateDateSequence(period)
+    }
+
+    // Actual data range from API
+    const firstDataTime = Math.min(...resp.map((d) => +d.time))
+    const lastDataTime = Math.max(...resp.map((d) => +d.time))
+
+    return generateDateSequence(period).map((seqPoint) => {
+      const seqTime = +seqPoint.time
+
+      // If sequence point is outside API data range, return zero values
+      if (seqTime < firstDataTime || seqTime > lastDataTime) {
+        return seqPoint
+      }
+
+      const before = resp?.findLast((d) => +d.time <= seqTime)
+      const after = resp?.find((d) => +d.time > seqTime)
+
+      // Exact match
+      if (before && +before.time === seqTime) {
         return {
           ...before,
           time: seqPoint.time,
         }
       }
+
+      // In case no data available
       if (!before && !after) {
         return seqPoint
       }
-      if (!after) {
+
+      // Only delve between actual data points
+      if (before && after) {
+        const totalTimeDiff = +after.time - +before.time
+        const pointTimeDiff = seqTime - +before.time
+        const ratio = pointTimeDiff / totalTimeDiff
         return {
-          ...before,
           time: seqPoint.time,
+          open: before.open + (after.open - before.open) * ratio,
+          close: before.close + (after.close - before.close) * ratio,
+          high: before.high + (after.high - before.high) * ratio,
+          low: before.low + (after.low - before.low) * ratio,
         }
       }
-      if (!before) {
-        return {
-          ...after,
-          time: seqPoint.time,
-        }
-      }
-      const totalTimeDiff = +after.time - +before.time
-      const pointTimeDiff = +seqPoint.time - +before.time
-      const ratio = pointTimeDiff / totalTimeDiff
-      return {
-        time: seqPoint.time,
-        open: before.open + (after.open - before.open) * ratio,
-        close: before.close + (after.close - before.close) * ratio,
-        high: before.high + (after.high - before.high) * ratio,
-        low: before.low + (after.low - before.low) * ratio,
-      }
+
+      // Edge case: use closest available value
+      const closestPoint = before || after
+      return closestPoint
+        ? {
+            ...closestPoint,
+            time: seqPoint.time,
+          }
+        : seqPoint
     })
   }, [period, rateDataFromAPI?.data])
 

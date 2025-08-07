@@ -2,27 +2,38 @@ import { usePreviousValue, useTheme } from "@pancakeswap/hooks";
 import { BrushBehavior, brushY, D3BrushEvent, ScaleLinear, select } from "d3";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { styled } from "styled-components";
+import { useMatchBreakpoints } from "@pancakeswap/uikit";
 
-import { brushHandleAccentPath, brushHandlePath, OffScreenHandle } from "./svg";
-import { BrushDomainType } from "./types";
+import {
+  brushHandleAccentPath,
+  brushHandleAccentPathMobile,
+  brushHandlePath,
+  brushHandlePathMobile,
+  OffScreenHandle,
+} from "./svg";
 import { ToolTip } from "./ToolTip";
+import { BrushDomainType } from "./types";
 
 const Handle = styled.path<{ color: string; id: string }>`
   cursor: ew-resize;
   pointer-events: none;
 
   stroke-width: 1;
-  stroke: url(#${({ id }) => id});
+  stroke: transparent;
   fill: ${({ color }) => color};
+
+  z-index: 1;
 `;
 
 const HandleAccent = styled.path`
   cursor: ew-resize;
   pointer-events: none;
 
-  stroke-width: 1.5;
+  stroke-width: 0.5;
   stroke: ${({ theme }) => theme.colors.background};
   opacity: ${({ theme }) => theme.colors.background};
+
+  z-index: 1;
 `;
 
 // flips the handles draggers when close to the container edges
@@ -49,6 +60,7 @@ export const Brush = ({
   brushLabelValue,
   brushExtent,
   setBrushExtent,
+  setLocalBrushExtent: setLocalBrushExtentPropCallback,
   innerWidth,
   innerHeight,
   minHandleColor,
@@ -62,6 +74,7 @@ export const Brush = ({
   brushLabelValue: (d: "n" | "s", x: number) => string;
   brushExtent: BrushDomainType;
   setBrushExtent: (extent: BrushDomainType, mode: string | undefined) => void;
+  setLocalBrushExtent: (extent: BrushDomainType | null) => void;
   innerWidth: number;
   width: number;
   innerHeight: number;
@@ -70,15 +83,20 @@ export const Brush = ({
   current: number;
 }) => {
   const { theme } = useTheme();
+  const { isMobile } = useMatchBreakpoints();
+
   const brushRef = useRef<SVGGElement | null>(null);
   const brushBehavior = useRef<BrushBehavior<SVGGElement> | null>(null);
-
   // only used to drag the handles on brush for performance
   const [localBrushExtent, setLocalBrushExtent] = useState<BrushDomainType | null>(brushExtent);
   const [showLabels, setShowLabels] = useState(false);
   const [hovering, setHovering] = useState(false);
 
   const previousBrushExtent = usePreviousValue(brushExtent);
+
+  useEffect(() => {
+    setLocalBrushExtentPropCallback?.(localBrushExtent);
+  }, [localBrushExtent, setLocalBrushExtentPropCallback]);
 
   const brushed = useCallback(
     (event: D3BrushEvent<unknown>) => {
@@ -135,7 +153,7 @@ export const Brush = ({
       .attr("stroke", "none")
       .attr("fill-opacity", "0.05")
       .attr("fill", `url(#${id}-gradient-selection)`);
-  }, [brushExtent, brushed, id, innerHeight, innerWidth, interactive, previousBrushExtent, scale]);
+  }, [brushExtent, brushed, id, innerHeight, innerWidth, interactive, previousBrushExtent, scale, isMobile]);
 
   // respond to xScale changes only
   useEffect(() => {
@@ -201,8 +219,8 @@ export const Brush = ({
           <linearGradient id={`${id}-gradient-handle`} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style={{ stopColor: theme.colors.secondary, stopOpacity: 1 }} />
             <stop offset="68%" style={{ stopColor: theme.colors.secondary, stopOpacity: 1 }} />
-            <stop offset="71.8%" style={{ stopColor: theme.colors.secondary, stopOpacity: 0.4 }} />
-            <stop offset="81.7%" style={{ stopColor: theme.colors.secondary, stopOpacity: 0 }} />
+            <stop offset="71.8%" style={{ stopColor: theme.colors.secondary, stopOpacity: 1 }} />
+            <stop offset="81.7%" style={{ stopColor: theme.colors.secondary, stopOpacity: 1 }} />
           </linearGradient>
         </defs>
 
@@ -214,25 +232,9 @@ export const Brush = ({
           onMouseLeave={() => setHovering(false)}
         />
         {/* Top dashed line */}
-        <line
-          x1="0"
-          y1={scale(max)}
-          x2={innerWidth}
-          y2={scale(max)}
-          stroke={maxHandleColor}
-          strokeWidth="1"
-          strokeDasharray="1,3"
-        />
+        <line x1="0" y1={scale(max)} x2={innerWidth} y2={scale(max)} stroke={maxHandleColor} strokeWidth="1" />
         {/* bottom dashed line */}
-        <line
-          x1="0"
-          y1={scale(min)}
-          x2={innerWidth}
-          y2={scale(min)}
-          stroke={minHandleColor}
-          strokeWidth="1"
-          strokeDasharray="1,3"
-        />
+        <line x1="0" y1={scale(min)} x2={innerWidth} y2={scale(min)} stroke={minHandleColor} strokeWidth="1" />
 
         {localBrushExtent && (
           <>
@@ -243,8 +245,12 @@ export const Brush = ({
                 })`}
               >
                 <g>
-                  <Handle color={theme.colors.secondary} d={brushHandlePath(width)} id={`${id}-gradient-handle`} />
-                  <HandleAccent d={brushHandleAccentPath()} />
+                  <Handle
+                    color={theme.colors.secondary}
+                    d={isMobile ? brushHandlePathMobile(width) : brushHandlePath(width)}
+                    id={`${id}-gradient-handle`}
+                  />
+                  <HandleAccent d={isMobile ? brushHandleAccentPathMobile() : brushHandleAccentPath()} />
                 </g>
                 <ToolTip
                   width={toolTipWidth}
@@ -252,6 +258,7 @@ export const Brush = ({
                   flip={!flipMaxHandle}
                   text={brushLabelValue("n", localBrushExtent.max)}
                   visible={showLabels || hovering}
+                  isMobile={isMobile}
                 />
               </g>
             ) : null}
@@ -263,8 +270,12 @@ export const Brush = ({
                 })`}
               >
                 <g>
-                  <Handle color={theme.colors.secondary} d={brushHandlePath(width)} id={`${id}-gradient-handle`} />
-                  <HandleAccent d={brushHandleAccentPath()} />
+                  <Handle
+                    color={theme.colors.secondary}
+                    d={isMobile ? brushHandlePathMobile(width) : brushHandlePath(width)}
+                    id={`${id}-gradient-handle`}
+                  />
+                  <HandleAccent d={isMobile ? brushHandleAccentPathMobile() : brushHandleAccentPath()} />
                 </g>
 
                 <ToolTip
@@ -273,6 +284,7 @@ export const Brush = ({
                   flip={!flipMinHandle}
                   text={brushLabelValue("s", localBrushExtent.min)}
                   visible={showLabels || hovering}
+                  isMobile={isMobile}
                 />
               </g>
             ) : null}
@@ -315,6 +327,7 @@ export const Brush = ({
       minHandleInView,
       scale,
       width,
+      isMobile,
     ]
   );
 };

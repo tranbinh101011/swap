@@ -1,8 +1,9 @@
 import { Protocol } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
-import { Box, FlexGap, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Dot } from 'views/Notifications/styles'
+import { Box, FlexGap, PreTitle, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { getPriceOfCurrency } from '@pancakeswap/v3-sdk'
-import { Liquidity, PricePeriodRangeChart } from '@pancakeswap/widgets-internal'
+import { Card, Liquidity, PricePeriodRangeChart } from '@pancakeswap/widgets-internal'
 import { CLRangeSelector } from 'components/Liquidity/Form/CLRangeSelector'
 import { Bound } from 'config/constants/types'
 import { useInfinityPoolIdRouteParams } from 'hooks/dynamicRoute/usePoolIdRoute'
@@ -11,8 +12,6 @@ import { useCLPriceRangeCallback } from 'hooks/infinity/useCLPriceRangeCallback'
 import { useCurrencyByPoolId } from 'hooks/infinity/useCurrencyByPoolId'
 import { useCallback, useMemo, useState } from 'react'
 import { useInverted } from 'state/infinity/shared'
-
-import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { useCLDensityChartData } from '../hooks/useDensityChartData'
 import { usePool } from '../hooks/usePool'
 import { useTicksAtLimit } from '../hooks/useTicksAtLimit'
@@ -25,7 +24,7 @@ export const CLPriceRangePanel = () => {
   const { poolId, chainId } = useInfinityPoolIdRouteParams()
   const { currency0, currency1, baseCurrency, quoteCurrency } = useCurrencyByPoolId({ poolId, chainId })
   const pool = usePool<'CL'>()
-  const [inverted, setIsInverted] = useInverted()
+  const [inverted] = useInverted()
   const [pricePeriod, setPricePeriod] = useState<Liquidity.PresetRangeItem>(Liquidity.PRESET_RANGE_ITEMS[0])
   const { lowerPrice, upperPrice } = useCLPriceRange(currency0, currency1, pool?.tickSpacing ?? undefined)
 
@@ -116,8 +115,10 @@ export const CLPriceRangePanel = () => {
     if (ticksAtLimit[Bound.UPPER]) {
       return defaultZoom
     }
+
     const min = Number(lowerPrice?.divide(rawPrice ?? 1).toSignificant(6) ?? 1)
     const max = Number(upperPrice?.divide(rawPrice ?? 1).toSignificant(6) ?? 1)
+
     return {
       ...defaultZoom,
       initialMin: min * defaultZoom.initialMin,
@@ -126,63 +127,64 @@ export const CLPriceRangePanel = () => {
   }, [ticksAtLimit, quickAction, pool?.tickSpacing, lowerPrice, rawPrice, upperPrice])
 
   const axisTicks = useMemo(() => getAxisTicks(pricePeriod.value, isMobile), [pricePeriod.value, isMobile])
-  const symbol0 = useMemo(
-    () => getTokenSymbolAlias(currency0?.wrapped?.address, currency0?.chainId, currency0?.symbol),
-    [currency0],
-  )
-  const symbol1 = useMemo(
-    () => getTokenSymbolAlias(currency1?.wrapped?.address, currency1?.chainId, currency1?.symbol),
-    [currency1],
-  )
 
   return (
     <>
-      <FlexGap
-        flexDirection={isMobile ? 'column' : 'row'}
-        justifyContent={isMobile ? 'flex-start' : 'space-between'}
-        gap="16px"
-      >
-        <Liquidity.PriceRangeDatePicker onChange={setPricePeriod} value={pricePeriod} />
-        <Liquidity.RateToggle
-          currencyA={inverted ? currency1 : currency0}
-          handleRateToggle={() => {
-            setIsInverted(!inverted)
-          }}
-          showReset={false}
-        />
+      <FlexGap gap="8px" justifyContent="space-between" alignItems="center" flexWrap="wrap">
+        <PreTitle>{t('Set position range')}</PreTitle>
+        <FlexGap gap="8px" alignItems="center" flexWrap="wrap">
+          <FlexGap gap="8px" alignItems="center">
+            <Dot color="primary" show />
+            <Text color="textSubtle" small>
+              {t('Current Price')}
+            </Text>
+          </FlexGap>
+          <FlexGap gap="8px" alignItems="center">
+            <Dot color="secondary" show />
+            <Text color="textSubtle" small>
+              {t('Position Range')}
+            </Text>
+          </FlexGap>
+          <FlexGap gap="8px" alignItems="center">
+            <Dot color="input" show />
+            <Text color="textSubtle" small>
+              {t('Liquidity Depth')}
+            </Text>
+          </FlexGap>
+        </FlexGap>
       </FlexGap>
-      <FlexGap gap="2px" mt="8px" mb="-16px">
-        <Text color="textSubtle" small>
-          {t('Current Price')}: {price}
-        </Text>
-        <Text color="textSubtle" small>
-          {t('%assetA% per %assetB%', {
-            assetA: inverted ? symbol0 : symbol1,
-            assetB: inverted ? symbol1 : symbol0,
-          })}
-        </Text>
-      </FlexGap>
-      <Box mb="8px">
-        <PricePeriodRangeChart
-          isLoading={isChartDataLoading}
-          key={currency0?.wrapped.address}
-          zoomLevel={zoom}
-          baseCurrency={baseCurrency}
-          quoteCurrency={quoteCurrency}
-          ticksAtLimit={ticksAtLimit}
-          price={price}
-          priceLower={lowerPrice}
-          priceUpper={upperPrice}
-          onBothRangeInput={onChangeBothPrice}
-          onMinPriceInput={onChangeMinPrice}
-          onMaxPriceInput={onChangeMaxPrice}
-          formattedData={formattedData}
-          priceHistoryData={rateData}
-          axisTicks={axisTicks}
-          interactive
-        />
+      <Box mt="22px" border="1px solid" borderColor="cardBorder" borderRadius="24px" p="8px 8px 2px">
+        <FlexGap
+          flexDirection={isMobile ? 'column' : 'row'}
+          justifyContent={isMobile ? 'flex-start' : 'space-between'}
+          gap="16px"
+        >
+          <Liquidity.PriceRangeDatePicker onChange={setPricePeriod} value={pricePeriod} />
+        </FlexGap>
+
+        <Box mt="16px">
+          <PricePeriodRangeChart
+            isLoading={isChartDataLoading}
+            key={currency0?.wrapped.address}
+            zoomLevel={zoom}
+            baseCurrency={baseCurrency}
+            quoteCurrency={quoteCurrency}
+            ticksAtLimit={ticksAtLimit}
+            price={price}
+            priceLower={lowerPrice}
+            priceUpper={upperPrice}
+            onBothRangeInput={onChangeBothPrice}
+            onMinPriceInput={onChangeMinPrice}
+            onMaxPriceInput={onChangeMaxPrice}
+            formattedData={formattedData}
+            priceHistoryData={rateData}
+            axisTicks={axisTicks}
+            interactive
+          />
+        </Box>
       </Box>
-      <Box mb="8px">
+
+      <Box mt="22px" mb="8px">
         <CLRangeSelector
           currentPrice={rawPrice}
           baseCurrency={baseCurrency}
