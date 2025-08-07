@@ -8,7 +8,6 @@ import { getPoolAddress, logger } from '../../utils'
 import { CommonTokenPriceProvider, getCommonTokenPrices as defaultGetCommonTokenPrices } from '../getCommonTokenPrices'
 import { getV2PoolsOnChain } from './onChainPoolProviders'
 import { v2PoolTvlSelector } from './poolTvlSelectors'
-import { getV2PoolSubgraph } from './subgraphPoolProviders'
 
 export type GetV2PoolsParams = {
   currencyA?: Currency
@@ -18,15 +17,11 @@ export type GetV2PoolsParams = {
 
   // Only use this param if we want to specify pairs we want to get
   pairs?: [Currency, Currency][]
-  fallbackTimeout?: number
 }
 
-type SubgraphProviders = {
-  v2SubgraphProvider?: SubgraphProvider
+type Params = GetV2PoolsParams & {
   v3SubgraphProvider?: SubgraphProvider
 }
-
-type Params = GetV2PoolsParams & SubgraphProviders
 
 export function createV2PoolsProviderByCommonTokenPrices<T = any>(getCommonTokenPrices: CommonTokenPriceProvider<T>) {
   return async function getV2Pools({
@@ -104,15 +99,8 @@ export function createGetV2CandidatePools<T = any>(
 }
 
 export async function getV2CandidatePools(params: Params) {
-  const fallbacks: GetV2Pools[] = [
-    async ({ pairs: providedPairs, currencyA, currencyB, v2SubgraphProvider }) => {
-      const pairs = providedPairs || (await getPairCombinations(currencyA, currencyB))
-      return getV2PoolSubgraph({ provider: v2SubgraphProvider, pairs })
-    },
-  ]
-  const getV2PoolsWithFallbacks = createGetV2CandidatePools<SubgraphProviders>(getV2PoolsWithTvlByCommonTokenPrices, {
-    fallbacks,
-    fallbackTimeout: params.fallbackTimeout || 3000,
-  })
+  const getV2PoolsWithFallbacks = createGetV2CandidatePools<{
+    v3SubgraphProvider?: SubgraphProvider
+  }>(getV2PoolsWithTvlByCommonTokenPrices)
   return getV2PoolsWithFallbacks(params)
 }

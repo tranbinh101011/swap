@@ -13,7 +13,6 @@ export type GetCandidatePoolsParams = {
   pairs?: [Currency, Currency][]
 
   onChainProvider?: OnChainProvider
-  v2SubgraphProvider?: SubgraphProvider
   v3SubgraphProvider?: SubgraphProvider
   blockNumber?: BigintIsh
   protocols?: PoolType[]
@@ -21,7 +20,6 @@ export type GetCandidatePoolsParams = {
 
 export async function getCandidatePools({
   protocols = [PoolType.V3, PoolType.V2, PoolType.STABLE],
-  v2SubgraphProvider,
   v3SubgraphProvider,
   ...rest
 }: GetCandidatePoolsParams): Promise<Pool[]> {
@@ -34,7 +32,7 @@ export async function getCandidatePools({
   const poolSets = await Promise.all(
     protocols.map((protocol) => {
       if (protocol === PoolType.V2) {
-        return getV2CandidatePools({ ...rest, v2SubgraphProvider, v3SubgraphProvider })
+        return getV2CandidatePools({ ...rest, v3SubgraphProvider })
       }
       if (protocol === PoolType.V3) {
         return getV3CandidatePools({ ...rest, subgraphProvider: v3SubgraphProvider })

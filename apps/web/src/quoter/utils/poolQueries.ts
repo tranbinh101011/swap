@@ -9,7 +9,7 @@ import { POOLS_FAST_REVALIDATE } from 'config/pools'
 import { getPoolTicks } from 'hooks/useAllTicksQuery'
 import memoize from 'lodash/memoize'
 import { PoolQuery, PoolQueryOptions } from 'quoter/quoter.types'
-import { v2Clients, v3Clients } from 'utils/graphql'
+import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
 import { edgePoolQueryClient } from './edgePoolQueryClient'
 import { Protocol as EdgeProtocol } from './edgeQueries.util'
@@ -42,7 +42,6 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
       const pools = await SmartRouter.getV2CandidatePools({
         currencyA,
         currencyB,
-        v2SubgraphProvider: ({ chainId }) => (chainId ? v2Clients[chainId] : undefined),
         v3SubgraphProvider: ({ chainId }) => (chainId ? v3Clients[chainId] : undefined),
         onChainProvider: provider,
       })

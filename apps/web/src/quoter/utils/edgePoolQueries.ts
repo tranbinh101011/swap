@@ -22,7 +22,7 @@ import {
   RemotePoolCL,
 } from '@pancakeswap/smart-router/dist/evm/infinity-router/queries/remotePool.type'
 import { createAsyncCallWithFallbacks } from '@pancakeswap/utils/withFallback'
-import { v2Clients, v3Clients } from 'utils/graphql'
+import { v3Clients } from 'utils/graphql'
 import { mockCurrency } from 'utils/mockCurrency'
 import { Address } from 'viem/accounts'
 import { APIChain, getProvider, Protocol } from './edgeQueries.util'
@@ -112,8 +112,6 @@ const fetchV2Pools = async (addressA: Address, addressB: Address, chainId: Chain
     currencyB,
     onChainProvider: getProvider(),
     v3SubgraphProvider: v3Clients[chainId],
-    v2SubgraphProvider: v2Clients[chainId],
-    fallbackTimeout: 5_000,
   })
   return pools
 }
