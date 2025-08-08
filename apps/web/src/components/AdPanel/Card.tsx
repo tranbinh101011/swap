@@ -87,6 +87,7 @@ interface AdCardProps extends BoxProps {
   imageUrl?: string
   alt?: string
   imgPadding?: string
+  imgMargin?: string
 
   isExpanded?: boolean
 
@@ -99,7 +100,10 @@ interface AdCardProps extends BoxProps {
 }
 
 export const AdCard = forwardRef<HTMLDivElement, AdCardProps>(
-  ({ children, imageUrl, alt, isExpanded, forceMobile, isDismissible = true, imgPadding, ...props }, ref) => {
+  (
+    { children, imageUrl, alt, isExpanded, forceMobile, isDismissible = true, imgPadding, imgMargin, ...props },
+    ref,
+  ) => {
     const imageRef = useRef<HTMLImageElement>(null)
     const [isExpandTriggered, setIsExpandTriggered] = useState(false)
 
@@ -165,6 +169,7 @@ export const AdCard = forwardRef<HTMLDivElement, AdCardProps>(
             <ImgBox
               style={{
                 padding: imgPadding,
+                margin: imgMargin,
               }}
             >
               <img

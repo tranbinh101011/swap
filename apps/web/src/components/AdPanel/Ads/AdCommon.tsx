@@ -14,7 +14,7 @@ export const AdCommonRender = ({ config }: { config: AdsConfig }) => {
   const { img, texts, btn, options } = config
 
   return (
-    <AdCard imageUrl={img} imgPadding={options?.imagePadding}>
+    <AdCard imageUrl={img} imgPadding={options?.imagePadding} imgMargin={options?.imageMargin}>
       <BodyText mb="0">
         {texts.map((textConfig, i) => {
           const key = `${textConfig.text}-${i}`

@@ -42,6 +42,7 @@ export interface AdsConfig {
   btn: BtnConfig
   options?: {
     imagePadding?: string
+    imageMargin?: string
   }
 }
 
