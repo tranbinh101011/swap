@@ -1,6 +1,6 @@
 import { Button } from '@pancakeswap/uikit'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import { ApiV3PoolInfoConcentratedItem } from '@pancakeswap/solana-core-sdk'
 
 import { useTranslation } from '@pancakeswap/localization'
@@ -21,10 +21,11 @@ import { TickData } from './type'
 interface Props extends Required<TickData> {
   baseIn: boolean
   tempCreatedPool: ApiV3PoolInfoConcentratedItem
+  tokenPrices?: Record<string, { value: number }>
   onConfirm: (props: { inputA: boolean; amount1: string; amount2: string; liquidity: BN }) => void
 }
 
-export default function TokenAmountPairInputs({ tempCreatedPool, baseIn, onConfirm, ...tickData }: Props) {
+export default function TokenAmountPairInputs({ tempCreatedPool, baseIn, tokenPrices: propTokenPrices, onConfirm, ...tickData }: Props) {
   const isMobile = useAppStore((s) => s.isMobile)
   const computePairAmount = useClmmStore((s) => s.computePairAmount)
   const getTokenBalanceUiAmount = useTokenAccountStore((s) => s.getTokenBalanceUiAmount)
@@ -35,9 +36,10 @@ export default function TokenAmountPairInputs({ tempCreatedPool, baseIn, onConfi
   const computeDataRef = useRef<Awaited<ReturnType<typeof computePairAmount>> | undefined>(undefined)
 
   const [mintA, mintB] = [tempCreatedPool![baseIn ? 'mintA' : 'mintB'], tempCreatedPool![baseIn ? 'mintB' : 'mintA']]
-  const { data: tokenPrices } = useTokenPrice({
+  const { data: localTokenPrices } = useTokenPrice({
     mintList: [mintA.address, mintB.address]
   })
+  const tokenPrices = propTokenPrices || localTokenPrices
 
   const [priceLower, priceUpper] = baseIn
     ? [tickData.priceLower, tickData.priceUpper]
@@ -59,11 +61,11 @@ export default function TokenAmountPairInputs({ tempCreatedPool, baseIn, onConfi
           setTokenAmount((preValue) => {
             if (baseIn)
               return focusPoolARef.current
-                ? [preValue[0], props.amount ? trimTrailZero(res.amountSlippageB.toFixed(mintB.decimals))! : '']
-                : [props.amount ? trimTrailZero(res.amountSlippageA.toFixed(mintA.decimals))! : '', preValue[1]]
+                ? [preValue[0], props.amount ? trimTrailZero(res.amountB.toFixed(mintB.decimals))! : '']
+                : [props.amount ? trimTrailZero(res.amountA.toFixed(mintA.decimals))! : '', preValue[1]]
             return focusPoolARef.current
-              ? [props.amount ? trimTrailZero(res.amountSlippageB.toFixed(mintB.decimals))! : '', preValue[1]]
-              : [preValue[0], props.amount ? trimTrailZero(res.amountSlippageA.toFixed(mintA.decimals))! : '']
+              ? [props.amount ? trimTrailZero(res.amountB.toFixed(mintB.decimals))! : '', preValue[1]]
+              : [preValue[0], props.amount ? trimTrailZero(res.amountA.toFixed(mintA.decimals))! : '']
           })
         }
       })
@@ -128,8 +130,7 @@ export default function TokenAmountPairInputs({ tempCreatedPool, baseIn, onConfi
   const priceB = tokenPrices[mintB.address]?.value
   const validPriceA = priceA !== undefined && priceA >= 0 ? priceA : 0
   const validPriceB = priceB !== undefined && priceB >= 0 ? priceB : 0
-  const [mintAVolume, mintBVolume] = [new Decimal(tokenAmount[0] || 0).mul(validPriceA), new Decimal(tokenAmount[1] || 0).mul(validPriceB)]
-  const totalVolume = mintAVolume.add(mintBVolume)
+  const totalVolume = new Decimal(tokenAmount[0] || 0).mul(validPriceA).add(new Decimal(tokenAmount[1] || 0).mul(validPriceB))
   const { ratioA, ratioB } = calRatio({
     price: baseIn ? tempCreatedPool.price : 1 / tempCreatedPool.price,
     amountA: tokenAmount[0],

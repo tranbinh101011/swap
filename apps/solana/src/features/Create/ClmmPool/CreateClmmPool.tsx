@@ -318,6 +318,7 @@ export default function CreateClmmPool() {
                 <TokenAmountPairInputs
                   baseIn={baseIn}
                   tempCreatedPool={createPoolData!.extInfo.mockPoolInfo}
+                  tokenPrices={tokenPrices || {}}
                   priceLower={currentCreateInfo.current.priceLower!}
                   priceUpper={currentCreateInfo.current.priceUpper!}
                   tickLower={currentCreateInfo.current.tickLower!}
