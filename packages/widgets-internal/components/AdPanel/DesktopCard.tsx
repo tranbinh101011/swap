@@ -20,9 +20,9 @@ export const DesktopCard = ({
 
   return portalRoot && shouldRender && isDesktop && show
     ? createPortal(
-        <FloatingContainer>
-          <AdPlayer isDismissible={isDismissible} forceMobile={forceMobile} {...props} />
-        </FloatingContainer>,
+        // <FloatingContainer>
+        //   <AdPlayer isDismissible={isDismissible} forceMobile={forceMobile} {...props} />
+        // </FloatingContainer>,
         portalRoot
       )
     : null;

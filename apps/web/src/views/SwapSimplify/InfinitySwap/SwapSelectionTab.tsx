@@ -65,7 +65,7 @@ const SwapSelectionWrapper = styled.div`
   gap: 4px;
   padding: 16px;
   background-color: ${({ theme }) => theme.colors.backgroundAlt};
-  border-radius: 24px;
+  border-radius: 13px;
   border: 1px solid ${({ theme }) => theme.colors.cardBorder};
   ${({ theme }) => theme.mediaQueries.md} {
     gap: 16px;
@@ -164,7 +164,8 @@ export const SwapSelection = ({
         fullWidth
       >
         <StyledButtonMenuItem>{t('Swap')}</StyledButtonMenuItem>
-        {isMobile ? (
+        {/* Comment out TWAP and Limit buttons as requested */}
+        {/* {isMobile ? (
           <StyledButtonMenuItemTooltip {...tSwapProps}>{t('TWAP')}</StyledButtonMenuItemTooltip>
         ) : (
           <StyledButtonMenuItemTooltip {...tSwapProps}>
@@ -173,30 +174,33 @@ export const SwapSelection = ({
           </StyledButtonMenuItemTooltip>
         )}
 
-        <StyledButtonMenuItem {...limitProps}>{t('Limit')}</StyledButtonMenuItem>
+        <StyledButtonMenuItem {...limitProps}>{t('Limit')}</StyledButtonMenuItem> */}
       </ButtonMenu>
       {/* NOTE: Commented out until charts are supported again */}
       {withToolkit && (
-        <ColoredIconButton
-          onClick={() => {
-            toggleChartDisplayed()
-          }}
-          variant="text"
-          scale="sm"
-          data-dd-action-name="Price chart button"
-          width="24px"
-          p="0"
-        >
-          {isChartDisplayed ? (
-            <ChartDisableIcon width="24px" color="textSubtle" />
-          ) : (
-            <ChartIcon width="24px" color="textSubtle" />
-          )}
-        </ColoredIconButton>
-      )}
-      {withToolkit && (
         <FlexGap alignItems="center" gap="4px">
-          {/* <RecentTransactionsButton /> */}
+          <ColoredIconButton
+            onClick={() => {
+              toggleChartDisplayed()
+            }}
+            variant="text"
+            scale="sm"
+            data-dd-action-name="Price chart button"
+            width="24px"
+            p="0"
+          >
+            {isChartDisplayed ? (
+              <ChartDisableIcon width="24px" color="textSubtle" />
+            ) : (
+              <ChartIcon width="24px" color="textSubtle" />
+            )}
+          </ColoredIconButton>
+          <Text fontSize="14px" color="textSubtle">Chart</Text>
+        </FlexGap>
+      )}
+      {/* Comment out settings button as requested */}
+      {/* {withToolkit && (
+        <FlexGap alignItems="center" gap="4px">
           <GlobalSettings
             color="textSubtle"
             mr="0"
@@ -205,7 +209,7 @@ export const SwapSelection = ({
             width="24px"
           />
         </FlexGap>
-      )}
+      )} */}
     </SwapSelectionWrapper>
   )
 }

@@ -49,7 +49,7 @@ export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }
       {isPancakePicks && isMobile && (
         <FlexGap width="100%" justifyContent="center" alignItems="center" mb="12px">
           <Suspense>
-            <PickAdSlides isDismissible={false} />
+            {/* <PickAdSlides isDismissible={false} /> */}
           </Suspense>
         </FlexGap>
       )}
@@ -131,7 +131,7 @@ export const PoolsBanner = ({ additionLink }: { additionLink?: React.ReactNode }
           <Box>
             {!isMobile && (
               <Suspense>
-                <PickAdSlides isDismissible={false} />
+               {/* <PickAdSlides isDismissible={false} /> */}
               </Suspense>
             )}
           </Box>

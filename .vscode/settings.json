@@ -62,5 +62,6 @@
     "wbnb",
     "ZKEVM",
     "ZKSYNC"
-  ]
+  ],
+  "chat.agent.maxRequests": 30
 }

@@ -87,13 +87,26 @@ const WrapCommitButtonReplace: React.FC<React.PropsWithChildren> = ({ children }
   } = useWrapCallback(inputCurrency, outputCurrency, typedValue)
   const showWrap = wrapType !== WrapType.NOT_APPLICABLE
 
+  console.log('🔧 [WrapCommitButtonReplace] Checking wrap:', { 
+    wrapType, 
+    showWrap, 
+    inputCurrency: inputCurrency?.symbol, 
+    outputCurrency: outputCurrency?.symbol,
+    typedValue 
+  })
+
   const buttonText = useMemo(() => {
     return (
       wrapInputError ?? (wrapType === WrapType.WRAP ? t('Wrap') : wrapType === WrapType.UNWRAP ? t('Unwrap') : null)
     )
   }, [t, wrapInputError, wrapType])
-  if (!showWrap) return children
+  
+  if (!showWrap) {
+    console.log('✅ [WrapCommitButtonReplace] Not a wrap - passing to next component')
+    return children
+  }
 
+  console.log('🔄 [WrapCommitButtonReplace] Showing wrap button:', buttonText)
   return (
     <CommitButton width="100%" disabled={Boolean(wrapInputError)} onClick={onWrap}>
       {buttonText}
@@ -104,10 +117,16 @@ const WrapCommitButtonReplace: React.FC<React.PropsWithChildren> = ({ children }
 const ConnectButtonReplace = ({ children }) => {
   const { address: account } = useAccount()
 
-  if (!account) {
-    return <ConnectWalletButton width="100%" withIcon />
+  // Show children (Swap button) if wagmi account is connected
+  if (account) {
+    console.log('🔄 [ConnectButtonReplace] Wallet connected - showing swap button', { 
+      account: account || 'none'
+    })
+    return children
   }
-  return children
+
+  console.log('⚠️ [ConnectButtonReplace] No wallet connected - showing connect button')
+  return <ConnectWalletButton width="100%" withIcon />
 }
 
 const UnsupportedSwapButtonReplace = ({ children }) => {
@@ -115,17 +134,27 @@ const UnsupportedSwapButtonReplace = ({ children }) => {
   const { inputCurrency, outputCurrency } = useSwapCurrencies()
   const swapIsUnsupported = useIsTransactionUnsupported(inputCurrency, outputCurrency)
 
+  console.log('🔍 [UnsupportedSwapButtonReplace] Checking support:', { 
+    swapIsUnsupported, 
+    inputCurrency: inputCurrency?.symbol, 
+    outputCurrency: outputCurrency?.symbol 
+  })
+
   if (swapIsUnsupported) {
+    console.log('❌ [UnsupportedSwapButtonReplace] Swap is unsupported - showing disabled button')
     return (
       <Button width="100%" disabled>
         {t('Unsupported Asset')}
       </Button>
     )
   }
+  
+  console.log('✅ [UnsupportedSwapButtonReplace] Swap is supported - passing to next component')
   return children
 }
 
 const SwapCommitButtonComp: React.FC<SwapCommitButtonPropsType & CommitButtonProps> = (props) => {
+  console.log('🚀 [SwapCommitButtonComp] Starting button render flow:', { props })
   return (
     <UnsupportedSwapButtonReplace>
       <ConnectButtonReplace>
@@ -150,6 +179,12 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   beforeCommit,
   afterCommit,
 }: SwapCommitButtonPropsType & CommitButtonProps) {
+  console.log('🎯 [SwapCommitButtonInner] Starting inner component:', { 
+    order: order ? 'exists' : 'null', 
+    tradeError, 
+    tradeLoading 
+  })
+
   const { address: account } = useAccount()
   const { t } = useTranslation()
   const chainId = useChainId()
@@ -158,6 +193,10 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   const [inputCurrency, outputCurrency] = useSwapCurrency()
   const { isExpertMode } = useSwapConfig()
   const { isRecipientEmpty, isRecipientError } = useIsRecipientError()
+
+  console.log('💳 [SwapCommitButtonInner] Wallet status:', { 
+    account: account || 'none'
+  })
 
   const tradePriceBreakdown = useMemo(
     () =>
@@ -177,10 +216,21 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
       : undefined,
   )
 
-  const relevantTokenBalances = useCurrencyBalances(account ?? undefined, [
+  // Use wagmi account only
+  const activeAccount = account
+  console.log('💰 [SwapCommitButtonInner] Getting balances for account:', { 
+    account, 
+    activeAccount 
+  })
+
+  const relevantTokenBalances = useCurrencyBalances(activeAccount, [
     inputCurrency ?? undefined,
     outputCurrency ?? undefined,
   ])
+  
+  console.log('💰 [SwapCommitButtonInner] Token balances:', { 
+    relevantTokenBalances: relevantTokenBalances.map(b => b?.toExact() || 'null') 
+  })
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],
@@ -191,6 +241,13 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   const parsedAmounts = useParsedAmounts(order?.trade, currencyBalances, false)
   const parsedIndependentFieldAmount = parsedAmounts[independentField]
   const swapInputError = useSwapInputError(order, currencyBalances)
+  
+  console.log('🔍 [SwapCommitButtonInner] Critical variables:', { 
+    parsedAmounts: parsedAmounts ? Object.keys(parsedAmounts).map(k => `${k}: ${parsedAmounts[k]?.toExact() || 'null'}`) : 'null',
+    swapInputError: swapInputError || 'none',
+    orderExists: !!order,
+    currencyBalancesLoaded: !!currencyBalances
+  })
   const [tradeToConfirm, setTradeToConfirm] = useState<PriceOrder | undefined>(undefined)
   const [indirectlyOpenConfirmModalState, setIndirectlyOpenConfirmModalState] = useState(false)
 
@@ -238,23 +295,48 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   const hasBridgeTradeError = useMemo(() => Boolean(tradeError && tradeError instanceof BridgeTradeError), [tradeError])
 
   const isValid = useMemo(
-    () =>
-      !swapInputError &&
-      !tradeLoading &&
-      !hasBridgeTradeError &&
-      parsedAmounts[Field.OUTPUT]?.greaterThan(BIG_INT_ZERO),
+    () => {
+      const result = !swapInputError &&
+        !tradeLoading &&
+        !hasBridgeTradeError &&
+        parsedAmounts[Field.OUTPUT]?.greaterThan(BIG_INT_ZERO)
+      
+      console.log('🎯 [SwapCommitButtonInner] isValid calculation:', { 
+        swapInputError: swapInputError || 'none', 
+        tradeLoading, 
+        hasBridgeTradeError, 
+        outputAmount: parsedAmounts[Field.OUTPUT]?.toExact() || 'null',
+        outputGreaterThanZero: parsedAmounts[Field.OUTPUT]?.greaterThan(BIG_INT_ZERO) || false,
+        result 
+      })
+      
+      return result
+    },
     [swapInputError, tradeLoading, hasBridgeTradeError, parsedAmounts],
   )
 
   const { isLoading: isBridgeCheckApprovalLoading } = useBridgeCheckApproval(order)
 
   const disabled = useMemo(
-    () =>
-      isBridgeCheckApprovalLoading ||
-      !isValid ||
-      (priceImpactSeverity > 3 && !isExpertMode) ||
-      isRecipientEmpty ||
-      isRecipientError,
+    () => {
+      const result = isBridgeCheckApprovalLoading ||
+        !isValid ||
+        (priceImpactSeverity > 3 && !isExpertMode) ||
+        isRecipientEmpty ||
+        isRecipientError
+      
+      console.log('🔒 [SwapCommitButtonInner] disabled calculation:', { 
+        isBridgeCheckApprovalLoading, 
+        isValid, 
+        priceImpactSeverity, 
+        isExpertMode, 
+        isRecipientEmpty, 
+        isRecipientError,
+        result 
+      })
+      
+      return result
+    },
     [isExpertMode, isRecipientEmpty, isRecipientError, isValid, priceImpactSeverity, isBridgeCheckApprovalLoading],
   )
 
@@ -396,11 +478,27 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
   })
 
   const buttonText = useMemo(() => {
-    // NOTE: use if statement for readability
+    console.log('🔤 [SwapCommitButtonInner] Computing button text:', { 
+      isRecipientEmpty, 
+      isRecipientError, 
+      tradeError: tradeError ? tradeError.message : 'none',
+      swapInputError: swapInputError || 'none',
+      tradeLoading,
+      priceImpactSeverity,
+      isExpertMode
+    })
 
-    if (isRecipientEmpty) return t('Enter a recipient')
-    if (isRecipientError) return t('Invalid recipient')
+    // NOTE: use if statement for readability
+    if (isRecipientEmpty) {
+      console.log('❌ [SwapCommitButtonInner] Recipient empty')
+      return t('Enter a recipient')
+    }
+    if (isRecipientError) {
+      console.log('❌ [SwapCommitButtonInner] Recipient error')
+      return t('Invalid recipient')
+    }
     if (tradeError instanceof BridgeTradeError) {
+      console.log('❌ [SwapCommitButtonInner] Bridge trade error:', tradeError.message)
       if (tradeError.message.includes("doesn't have enough funds to support this deposit")) {
         return t('Retry with lower input amount!')
       }
@@ -411,16 +509,32 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
 
       return tradeError.message
     }
-    if (swapInputError) return swapInputError
+    if (swapInputError) {
+      console.log('❌ [SwapCommitButtonInner] Swap input error:', swapInputError)
+      return swapInputError
+    }
 
-    if (tradeLoading) return <Dots>{t('Searching For The Best Price')}</Dots>
+    if (tradeLoading) {
+      console.log('⏳ [SwapCommitButtonInner] Trade loading - showing dots')
+      return <Dots>{t('Searching For The Best Price')}</Dots>
+    }
 
-    if (isBridgeCheckApprovalLoading) return <Dots>{t('Checking for approval')}</Dots>
+    if (isBridgeCheckApprovalLoading) {
+      console.log('⏳ [SwapCommitButtonInner] Bridge approval loading')
+      return <Dots>{t('Checking for approval')}</Dots>
+    }
 
-    if (priceImpactSeverity > 3 && !isExpertMode) return t('Price Impact Too High')
+    if (priceImpactSeverity > 3 && !isExpertMode) {
+      console.log('❌ [SwapCommitButtonInner] Price impact too high')
+      return t('Price Impact Too High')
+    }
 
-    if (priceImpactSeverity > 2) return t('Swap Anyway')
+    if (priceImpactSeverity > 2) {
+      console.log('⚠️ [SwapCommitButtonInner] High price impact - swap anyway')
+      return t('Swap Anyway')
+    }
 
+    console.log('✅ [SwapCommitButtonInner] All checks passed - showing SWAP button')
     return t('Swap')
   }, [
     isExpertMode,
@@ -434,13 +548,35 @@ const SwapCommitButtonInner = memo(function SwapCommitButtonInner({
     isBridgeCheckApprovalLoading,
   ])
 
+  console.log('🔍 [SwapCommitButtonInner] Final render checks:', { 
+    noRoute, 
+    userHasSpecifiedInputOutput, 
+    tradeError: tradeError ? tradeError.constructor.name : 'none',
+    hasNoValidRouteError,
+    tradeLoading,
+    isValid,
+    disabled,
+    buttonText
+  })
+
   if (noRoute && userHasSpecifiedInputOutput && tradeError instanceof TimeoutError) {
+    console.log('⏰ [SwapCommitButtonInner] Timeout error - showing timeout button')
     return <TimeoutButton />
   }
 
   if (noRoute && userHasSpecifiedInputOutput && (hasNoValidRouteError || !tradeLoading)) {
+    console.log('🔄 [SwapCommitButtonInner] No route - showing reset button')
     return <ResetRoutesButton />
   }
+
+  console.log('🎯 [SwapCommitButtonInner] FINAL RENDER - Using Custom Wagmi Connector:', { 
+    buttonText, 
+    disabled, 
+    isValid,
+    inputCurrencyChainId: inputCurrency?.chainId,
+    checkChainIdValue: isValid ? inputCurrency?.chainId : undefined,
+    connectorType: 'Custom Private Key Connector'
+  })
 
   return (
     <Box mt="0.25rem">

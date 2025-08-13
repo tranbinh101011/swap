@@ -6,6 +6,7 @@ import { CHAIN_IDS } from 'utils/wagmi'
 import SwapLayout from 'views/Swap/SwapLayout'
 import SwapSimplify from 'views/SwapSimplify'
 import { useWallets } from '@privy-io/react-auth'
+import NoMenuLayout from 'components/Layout/NoMenuLayout'
 
 const StyledSkeleton = styled(Skeleton)`
   background: ${({ theme }) => theme.colors.backgroundBubblegum};
@@ -44,7 +45,9 @@ const SwapFallback = () => {
 const View = () => {
   const { isMobile } = useMatchBreakpoints()
   const { wallets } = useWallets()
-  console.info(wallets, 'wallets')
+  
+  console.log('🔗 [SwapPage] Privy wallets:', wallets)
+
   return (
     <SwapLayout>
       <Container isMobile={isMobile}>
@@ -61,5 +64,7 @@ const SwapPage = dynamic(() => Promise.resolve(View), {
 
 SwapPage.chains = CHAIN_IDS
 SwapPage.screen = true
+SwapPage.mp = true // Ẩn menu bằng flag mp
+// SwapPage.Layout = NoMenuLayout // Commented out due to type issue
 
 export default SwapPage

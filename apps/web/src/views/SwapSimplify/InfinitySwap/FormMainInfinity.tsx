@@ -156,7 +156,19 @@ export function FormMain({ inputAmount, outputAmount, tradeLoading, isUserInsuff
   const inputCurrency = useCurrency(inputCurrencyId, inputChainId)
   const outputCurrency = useCurrency(outputCurrencyId, outputChainId)
 
+  console.log('🔍 [FormMainInfinity] Component state:', {
+    account,
+    inputCurrency: inputCurrency?.symbol,
+    outputCurrency: outputCurrency?.symbol,
+    inputChainId,
+    outputChainId
+  })
+
   const [inputBalance] = useCurrencyBalances(account, [inputCurrency, outputCurrency])
+  
+  console.log('💰 [FormMainInfinity] Input balance:', {
+    inputBalance: inputBalance ? `${inputBalance.toExact()} ${inputBalance.currency.symbol}` : 'undefined'
+  })
 
   const maxAmountInput = useMemo(() => maxAmountSpend(inputBalance), [inputBalance])
 

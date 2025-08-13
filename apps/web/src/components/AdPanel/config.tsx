@@ -40,10 +40,10 @@ export const useAdConfig = () => {
         component: <ExpandableAd />,
         priority: Priority.FIRST_AD,
       },
-      {
-        id: 'ad-cross-chain',
-        component: <AdCrossChain />,
-      },
+      // {
+      //   id: 'ad-cross-chain',
+      //   component: <AdCrossChain />,
+      // },
       ...commonAdConfigs,
       {
         id: 'ad-solana',

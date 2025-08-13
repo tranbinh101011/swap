@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { WalletConnectorNotFoundError, WalletSwitchChainError } from '@pancakeswap/ui-wallets'
-import { usePrivy } from '@privy-io/react-auth'
+// import { usePrivy } from '@privy-io/react-auth' // Removed Privy dependency
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { ConnectorNames } from 'config/wallet'
 import { useAtom } from 'jotai'
@@ -9,7 +9,7 @@ import { useCallback } from 'react'
 import { useAppDispatch } from 'state'
 import { CONNECTOR_MAP } from 'utils/wagmi'
 import { ConnectorNotFoundError, SwitchChainNotSupportedError, useAccount, useConnect, useDisconnect } from 'wagmi'
-import { useFirebaseAuth } from '../contexts/Privy/firebase'
+// import { useFirebaseAuth } from '../contexts/Privy/firebase' // Removed Firebase dependency
 import { clearUserStates } from '../utils/clearUserStates'
 import { queryChainIdAtom, useActiveChainId } from './useActiveChainId'
 
@@ -22,8 +22,20 @@ const useAuth = () => {
   const [, setQueryChainId] = useAtom(queryChainIdAtom)
   const { t } = useTranslation()
   const router = useRouter()
-  const { logout: privyLogout, ready, authenticated } = usePrivy()
-  const { signOutAndClearUserStates } = useFirebaseAuth()
+  
+  // Remove Privy dependencies - use simple state instead
+  const ready = true
+  const authenticated = false
+  
+  // Simplified privyLogout function
+  const privyLogout = useCallback(async () => {
+    console.log('🔄 [useAuth] Simple logout (no Privy)')
+  }, [])
+
+  // Simplified signOutAndClearUserStates function  
+  const signOutAndClearUserStates = useCallback(async () => {
+    console.log('🔄 [useAuth] Simple sign out and clear states (no Firebase)')
+  }, [])
 
   const login = useCallback(
     async (connectorID: ConnectorNames) => {
@@ -69,12 +81,11 @@ const useAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      if (authenticated && ready) {
-        await signOutAndClearUserStates()
-        await privyLogout()
-      } else await disconnectAsync()
+      // Simplified logout without Privy/Firebase dependencies
+      console.log('🔄 [useAuth] Performing simple logout...')
+      await disconnectAsync()
     } catch (error) {
-      console.error(error)
+      console.error('❌ [useAuth] Logout error:', error)
     } finally {
       clearUserStates(dispatch, { chainId: chain?.id })
       // Clear wagmi storage to prevent auto-reconnect for wallets like Trust Wallet
@@ -82,8 +93,9 @@ const useAuth = () => {
         window.localStorage.removeItem('wagmi.recentConnectorId')
         window.localStorage.removeItem('wagmi.store')
       }
+      console.log('✅ [useAuth] Logout completed')
     }
-  }, [disconnectAsync, dispatch, chain?.id, authenticated, ready, signOutAndClearUserStates, privyLogout])
+  }, [disconnectAsync, dispatch, chain?.id])
 
   return { login, logout }
 }

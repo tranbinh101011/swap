@@ -6,7 +6,7 @@ import useAuth from 'hooks/useAuth'
 
 import { ChainId } from '@pancakeswap/chains'
 import { WalletConfigV2 } from '@pancakeswap/ui-wallets/src/types'
-import { useFirebaseAuth } from 'contexts/Privy/firebase'
+// import { useFirebaseAuth } from 'contexts/Privy/firebase' // Removed Firebase dependency
 import { useCallback, useMemo } from 'react'
 import { logGTMWalletConnectedEvent } from 'utils/customGTMEventTracking'
 import { useConnect } from 'wagmi'
@@ -40,7 +40,12 @@ const WalletModalManager: React.FC<{ isOpen: boolean; onDismiss?: () => void }> 
     [chainId],
   )
 
-  const { loginWithGoogle, loginWithX, isLoading, loginWithDiscord, loginWithTelegram } = useFirebaseAuth()
+  // Mock Firebase auth functions (removed dependency)
+  const loginWithGoogle = useCallback(() => console.log('🔄 Google login (disabled)'), [])
+  const loginWithX = useCallback(() => console.log('🔄 X login (disabled)'), [])
+  const loginWithDiscord = useCallback(() => console.log('🔄 Discord login (disabled)'), [])
+  const loginWithTelegram = useCallback(() => console.log('🔄 Telegram login (disabled)'), [])
+  const isLoading = false
 
   return (
     <WalletModalV2

@@ -115,7 +115,7 @@ const InfinitySwapInner = () => {
         </Flex>
       </Flex>
 
-      <MobileCard />
+      {/* <MobileCard /> */}
     </Page>
   )
 }

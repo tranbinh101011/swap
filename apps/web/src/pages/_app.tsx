@@ -8,6 +8,7 @@ import { NetworkModal } from 'components/NetworkModal'
 import { FixedSubgraphHealthIndicator } from 'components/SubgraphHealthIndicator/FixedSubgraphHealthIndicator'
 import TransactionsDetailModal from 'components/TransactionDetailModal'
 import { VercelToolbar } from 'components/VercelToolbar'
+import { AutoConnectPrivateKey, WalletConnectionStatus } from 'components/AutoConnectPrivateKey'
 import 'core-js/features/array/to-sorted'
 import 'core-js/features/string/replace-all'
 import { useAccountEventListener } from 'hooks/useAccountEventListener'
@@ -58,6 +59,8 @@ BigNumber.config({
 })
 
 function GlobalHooks() {
+  console.log('🔥 [GlobalHooks] Function called!')
+  
   useInitGlobalWorker()
   useDataDogRUM()
   useWeb3WalletView()
@@ -73,7 +76,15 @@ function GlobalHooks() {
   useInitNotificationsClient()
   useWalletConnectRouterSync()
   useEmbeddedSmartAccountConnectorV2()
-  return null
+  
+  console.log('🔥 [GlobalHooks] Before rendering AutoConnectPrivateKey')
+  
+  return (
+    <>
+      <AutoConnectPrivateKey />
+      <WalletConnectionStatus />
+    </>
+  )
 }
 
 function MPGlobalHooks() {
@@ -168,8 +179,8 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
         <ShowMenu>
           <Layout>
             <Component {...pageProps} />
-            <MobileCard shouldRender={!shouldRenderOnPages(layoutMobileAdIgnoredPages)} mt="4px" mb="12px" />
-            <DesktopCard shouldRender={!shouldRenderOnPages(layoutDesktopAdIgnoredPages)} />
+            {/* <MobileCard shouldRender={!shouldRenderOnPages(layoutMobileAdIgnoredPages)} mt="4px" mb="12px" /> */}
+            {/* <DesktopCard shouldRender={!shouldRenderOnPages(layoutDesktopAdIgnoredPages)} /> */}
           </Layout>
         </ShowMenu>
         <EasterEgg iterations={2} />

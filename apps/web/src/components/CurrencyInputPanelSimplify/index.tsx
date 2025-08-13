@@ -26,7 +26,7 @@ import { StablePair } from 'views/AddLiquidity/AddStableLiquidity/hooks/useStabl
 import { RiskInputPanelDisplay } from 'components/AccessRisk/SwapRevampRiskDisplay'
 import { FiatLogo } from 'components/Logo/CurrencyLogo'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useCurrencyBalance } from 'state/wallet/hooks'
+import { useCurrencyBalance, useCurrencyBalances } from 'state/wallet/hooks'
 import { getFullChainNameById } from 'utils/getFullChainNameById'
 import { getTokenSymbolAlias } from 'utils/getTokenAlias'
 import { useAccount } from 'wagmi'
@@ -227,7 +227,14 @@ const CurrencyInputPanelSimplify = memo(function CurrencyInputPanel({
   const [value, setValue] = useState<string | undefined>(defaultValue)
   const { chainId } = useActiveChainId()
 
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  // Use standard currency balances hook
+  const [selectedCurrencyBalance] = useCurrencyBalances(account ?? undefined, [currency ?? undefined])
+  
+  console.log('🔍 [CurrencyInputPanelSimplify] Balance info:', {
+    account,
+    currency: currency?.symbol,
+    balance: selectedCurrencyBalance ? `${selectedCurrencyBalance.toExact()} ${selectedCurrencyBalance.currency.symbol}` : 'undefined'
+  })
 
   const { t } = useTranslation()
 

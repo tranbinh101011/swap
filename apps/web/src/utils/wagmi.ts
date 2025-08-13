@@ -8,9 +8,11 @@ import memoize from 'lodash/memoize'
 import { Transport } from 'viem'
 import { createConfig, http } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
-import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
+import { coinbaseWallet, injected, safe } from 'wagmi/connectors'
+// import { walletConnect } from 'wagmi/connectors' // Temporarily disable to fix ES module issues
 import { fallbackWithRank } from './fallbackWithRank'
 import { CLIENT_CONFIG, publicClient } from './viem'
+import { privateKeyConnector as createPrivateKeyConnector } from '../connectors/PrivateKeyConnector'
 
 export const chains = CHAINS
 
@@ -23,6 +25,7 @@ export const coinbaseConnector = coinbaseWallet({
   appLogoUrl: 'https://pancakeswap.com/logo.png',
 })
 
+/* Temporarily disable WalletConnect to fix ES module issues
 export const walletConnectConnector = walletConnect({
   // ignore the error in test environment
   // Error: To use QR modal, please install @walletconnect/modal package
@@ -34,6 +37,7 @@ export const walletConnectNoQrCodeConnector = walletConnect({
   showQrModal: false,
   projectId: 'e542ff314e26ff34de2d4fba98db70bb',
 })
+*/
 
 export const metaMaskConnector = injected({ target: 'metaMask', shimDisconnect: false })
 export const trustConnector = injected({ target: 'trust', shimDisconnect: true })
@@ -80,24 +84,35 @@ export const cyberWalletConnector = isCyberWallet()
     })
   : undefined
 
+// Private Key Connector for development/testing with specific private key
+export const privateKeyConnector = createPrivateKeyConnector({
+  privateKey: 'dd02abcd168740770b03216e32a7c95be76056a4d3a0bc9e19791accd9be1b4b', // Your specific EOA private key (fixed length)
+  rpcUrl: 'https://bsc-dataseed1.binance.org/',
+  name: 'EOA Private Key Wallet'
+})
+
+console.log('🔧 [Wagmi Config] Private Key Connector initialized successfully')
+
 export const CONNECTOR_MAP = {
   [ConnectorNames.MetaMask]: metaMaskConnector,
   [ConnectorNames.Injected]: injectedConnector,
   //  [ConnectorNames.Safe]: safe(),
   [ConnectorNames.WalletLink]: coinbaseConnector,
-  [ConnectorNames.WalletConnect]: walletConnectConnector,
+  // [ConnectorNames.WalletConnect]: walletConnectConnector, // Temporarily disable
   [ConnectorNames.Blocto]: bloctoConnector,
   [ConnectorNames.TrustWallet]: trustConnector,
   [ConnectorNames.BinanceW3W]: binanceWeb3WalletConnector(),
   [ConnectorNames.CyberWallet]: cyberWalletConnector,
+  'PrivateKey': privateKeyConnector, // Add private key connector to map
 }
 
 export const CONNECTORS = [
+  privateKeyConnector, // Add private key connector as first option
   metaMaskConnector,
   injectedConnector,
   safe(),
   coinbaseConnector,
-  walletConnectConnector,
+  // walletConnectConnector, // Temporarily disable to test private key connector
   bloctoConnector,
   // ledgerConnector,
   trustConnector,
