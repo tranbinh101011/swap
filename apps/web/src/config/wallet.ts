@@ -5,7 +5,7 @@ import { WalletFilledIcon } from '@pancakeswap/uikit'
 import safeGetWindow from '@pancakeswap/utils/safeGetWindow'
 import { getTrustWalletProvider } from '@pancakeswap/wagmi/connectors/trustWallet'
 import type { ExtendEthereum } from 'global'
-import { chains, createWagmiConfig, walletConnectNoQrCodeConnector } from 'utils/wagmi'
+import { chains, createWagmiConfig } from 'utils/wagmi' // clear import walletConnectNoQrCodeConnector
 import { Config } from 'wagmi'
 import { ConnectMutateAsync } from 'wagmi/query'
 import { ASSET_CDN } from './constants/endpoints'
