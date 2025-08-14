@@ -17,7 +17,9 @@ import { useSingleTokenSwapInfo } from 'quoter/hook/useSingleTokenSwapInfo'
 import { SwapSelection } from '../../SwapSimplify/InfinitySwap/SwapSelectionTab'
 import { SwapFeaturesContext } from '../SwapFeaturesContext'
 import { SwapType } from '../types'
-import { OrderHistory, TWAPPanel } from './Twap'
+
+const TWAPPanel = dynamic(() => import('views/Swap/Twap/Twap').then((mod) => mod.TWAPPanel), { ssr: false })
+const OrderHistory = dynamic(() => import('views/Swap/Twap/Twap').then((mod) => mod.OrderHistory), { ssr: false })
 
 const ChartWithPriceHeader = dynamic(() => import('components/Chart/ChartWithPriceHeader'), { ssr: false })
 
