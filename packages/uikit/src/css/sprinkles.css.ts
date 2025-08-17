@@ -191,11 +191,6 @@ const unresponsiveProperties = defineProperties({
   },
 });
 
-// Create filtered colors object excluding backgroundBubblegum
-const filteredColors = Object.fromEntries(
-  Object.entries(vars.colors).filter(([key]) => key !== "backgroundBubblegum")
-);
-
 const interactiveProperties = defineProperties({
   conditions: {
     base: {},
@@ -205,7 +200,7 @@ const interactiveProperties = defineProperties({
   },
   defaultCondition: "base",
   properties: {
-    background: filteredColors,
+    background: vars.colors,
     backgroundColor: vars.colors,
     borderColor: vars.colors,
     color: vars.colors,

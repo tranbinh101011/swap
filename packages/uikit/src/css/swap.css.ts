@@ -109,7 +109,7 @@ export const pageVariants = recipe({
       alignItems: "center",
       width: "100%",
       height: "100%",
-      background: "backgroundBubblegum",
+      // background: "backgroundBubblegum", // ✅ REMOVED: Bubblegum background
       padding: "16px",
       paddingBottom: "0px",
     }),

@@ -17,6 +17,7 @@ declare module "@@@next-typesafe-url" {
     "/404": StaticRoute;
     "/451": StaticRoute;
     "/add/[[...currency]]": StaticRoute;
+    "/bridge": StaticRoute;
     "/create-profile": StaticRoute;
     "/find": StaticRoute;
     "/home": StaticRoute;

@@ -165,7 +165,7 @@ export const CanonicalBridge = (props: CanonicalBridgeProps) => {
       <CanonicalBridgeProvider config={config}>
         <Flex flexDirection="column" justifyContent="center" maxWidth="480px" width="100%">
           <BridgeTransfer />
-          <V1BridgeLink />
+          {/* <V1BridgeLink /> */}
         </Flex>
         <BridgeRoutes />
       </CanonicalBridgeProvider>
