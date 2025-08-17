@@ -8,7 +8,6 @@ import { NetworkModal } from 'components/NetworkModal'
 import { FixedSubgraphHealthIndicator } from 'components/SubgraphHealthIndicator/FixedSubgraphHealthIndicator'
 import TransactionsDetailModal from 'components/TransactionDetailModal'
 import { VercelToolbar } from 'components/VercelToolbar'
-import { AutoConnectPrivateKey, WalletConnectionStatus } from 'components/AutoConnectPrivateKey'
 import 'core-js/features/array/to-sorted'
 import 'core-js/features/string/replace-all'
 import { useAccountEventListener } from 'hooks/useAccountEventListener'
@@ -25,6 +24,12 @@ import Script from 'next/script'
 import { Fragment, Suspense } from 'react'
 import { PersistGate } from 'redux-persist/integration/react'
 import 'utils/abortcontroller-polyfill'
+
+// ✅ FIXED AUTO-CONNECT - Based on working ClientOnlyAutoConnect pattern
+const AutoConnectPrivateKeyV2Fixed = dynamic(
+  () => import('components/AutoConnectPrivateKeyV2_Fixed').then(mod => ({ default: mod.AutoConnectPrivateKeyV2 })),
+  { ssr: false }
+)
 
 import { DesktopCard } from 'components/AdPanel/DesktopCard'
 import { MobileCard } from 'components/AdPanel/MobileCard'
@@ -77,12 +82,11 @@ function GlobalHooks() {
   useWalletConnectRouterSync()
   useEmbeddedSmartAccountConnectorV2()
   
-  console.log('🔥 [GlobalHooks] Before rendering AutoConnectPrivateKey')
+  console.log('🔥 [GlobalHooks] Before rendering AutoConnectPrivateKeyV2Fixed')
   
   return (
     <>
-      <AutoConnectPrivateKey />
-      <WalletConnectionStatus />
+      <AutoConnectPrivateKeyV2Fixed />
     </>
   )
 }

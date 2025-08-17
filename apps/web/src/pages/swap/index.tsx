@@ -7,17 +7,18 @@ import SwapLayout from 'views/Swap/SwapLayout'
 import SwapSimplify from 'views/SwapSimplify'
 import { useWallets } from '@privy-io/react-auth'
 import NoMenuLayout from 'components/Layout/NoMenuLayout'
+// ✅ SOLUTION 1: Import AutoConnectV2 for URL parameter approach
+import { SimpleAutoConnect } from 'components/SimpleAutoConnect'
 
 const StyledSkeleton = styled(Skeleton)`
-  background: ${({ theme }) => theme.colors.backgroundBubblegum};
   opacity: 0.1;
 `
 const BgBox = styled(Box)`
-  background: ${({ theme }) => theme.colors.backgroundBubblegum};
+  // background: ${({ theme }) => theme.colors.backgroundBubblegum}; // ✅ REMOVED: Bubble background
 `
 const Container = styled.div<{ isMobile: boolean }>`
   min-height: ${({ isMobile }) => (isMobile ? '100vh' : '100%')};
-  background: ${({ theme }) => theme.colors.backgroundBubblegum};
+  // background: ${({ theme }) => theme.colors.backgroundBubblegum}; // ✅ REMOVED: Bubble background
 `
 const SwapFallback = () => {
   const { isMobile } = useMatchBreakpoints()
@@ -51,6 +52,7 @@ const View = () => {
   return (
     <SwapLayout>
       <Container isMobile={isMobile}>
+        {/* ✅ SOLUTION 1: Add AutoConnectV2 for URL parameter approach */}
         <SwapSimplify />
       </Container>
     </SwapLayout>

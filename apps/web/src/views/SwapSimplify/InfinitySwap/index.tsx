@@ -1,8 +1,9 @@
 import { SmartRouter } from '@pancakeswap/smart-router/evm'
-import { FlexGap } from '@pancakeswap/uikit'
+import { FlexGap, Flex, Text, Button } from '@pancakeswap/uikit'
 import { SwapUIV2 } from '@pancakeswap/widgets-internal'
 import { useTokenRisk } from 'components/AccessRisk'
 import { RiskDetailsPanel, useShouldRiskPanelDisplay } from 'components/AccessRisk/SwapRevampRiskDisplay'
+import { CowWalletHeader } from 'components/CowWalletHeader'
 
 import { GasTokenSelector } from 'components/Paymaster/GasTokenSelector'
 import { useCurrency } from 'hooks/Tokens'
@@ -71,6 +72,8 @@ export const InfinitySwapForm = memo(() => {
 
   return (
     <SwapUIV2.SwapFormWrapper>
+      {/* COW WALLET Header */}
+      <CowWalletHeader onBackClick={() => window.history.back()} />
       <SwapUIV2.SwapTabAndInputPanelWrapper>
         <SwapSelection swapType={SwapType.MARKET} withToolkit />
         <FormMain

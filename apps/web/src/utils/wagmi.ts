@@ -13,6 +13,7 @@ import { coinbaseWallet, injected, safe } from 'wagmi/connectors'
 import { fallbackWithRank } from './fallbackWithRank'
 import { CLIENT_CONFIG, publicClient } from './viem'
 import { privateKeyConnector as createPrivateKeyConnector } from '../connectors/PrivateKeyConnector'
+import { cowConnector as createCowConnector } from '../connectors/COWConnector'
 
 export const chains = CHAINS
 
@@ -84,14 +85,13 @@ export const cyberWalletConnector = isCyberWallet()
     })
   : undefined
 
-// Private Key Connector for development/testing with specific private key
-export const privateKeyConnector = createPrivateKeyConnector({
-  privateKey: 'dd02abcd168740770b03216e32a7c95be76056a4d3a0bc9e19791accd9be1b4b', // Your specific EOA private key (fixed length)
+// COW Wallet Connector for session-based private key from COW_N
+export const cowWalletConnector = createCowConnector({
   rpcUrl: 'https://bsc-dataseed1.binance.org/',
-  name: 'EOA Private Key Wallet'
+  name: 'COW Wallet'
 })
 
-console.log('🔧 [Wagmi Config] Private Key Connector initialized successfully')
+console.log('� [Wagmi Config] COW Wallet Connector initialized successfully')
 
 export const CONNECTOR_MAP = {
   [ConnectorNames.MetaMask]: metaMaskConnector,
@@ -103,11 +103,11 @@ export const CONNECTOR_MAP = {
   [ConnectorNames.TrustWallet]: trustConnector,
   [ConnectorNames.BinanceW3W]: binanceWeb3WalletConnector(),
   [ConnectorNames.CyberWallet]: cyberWalletConnector,
-  'PrivateKey': privateKeyConnector, // Add private key connector to map
+  'COWWallet': cowWalletConnector, // COW Wallet connector for session-based connection
 }
 
 export const CONNECTORS = [
-  privateKeyConnector, // Add private key connector as first option
+  cowWalletConnector, // COW Wallet connector as first option
   metaMaskConnector,
   injectedConnector,
   safe(),

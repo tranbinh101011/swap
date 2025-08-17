@@ -13,7 +13,6 @@ import { useMemo } from 'react'
 import { Provider } from 'react-redux'
 import { WagmiProvider } from 'wagmi'
 import { createWagmiConfig, createW3WWagmiConfig } from 'utils/wagmi'
-import { AutoConnectPrivateKey, WalletConnectionStatus } from 'components/AutoConnectPrivateKey'
 // Create a client
 const queryClient = new QueryClient()
 
@@ -40,8 +39,6 @@ const Providers: React.FC<
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={wagmiConfig}>
-        <AutoConnectPrivateKey />
-        <WalletConnectionStatus />
         <W3WConfigProvider value={isInBinance()}>
           <HydrationBoundary state={dehydratedState}>
             <Provider store={store}>
@@ -84,8 +81,6 @@ export const TestProviders: React.FC<
                 <LanguageProvider>
                   <StyledUIKitProvider>
                     <HistoryManagerProvider>
-                      <AutoConnectPrivateKey />
-                      <WalletConnectionStatus />
                       <ModalProvider portalProvider={DialogProvider}>{children}</ModalProvider>
                     </HistoryManagerProvider>
                   </StyledUIKitProvider>
