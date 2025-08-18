@@ -144,7 +144,7 @@ export const InfinitySwapForm = memo(() => {
         shouldRenderDetails={Boolean(executionPrice) && Boolean(bestOrder) && !isWrapping && !tradeError}
         mevToggleSlot={
           <Suspense>
-            <MevToggle />
+            {/* <MevToggle /> */}
           </Suspense>
         }
         gasTokenSelector={
