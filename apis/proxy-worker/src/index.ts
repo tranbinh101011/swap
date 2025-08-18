@@ -10,7 +10,7 @@ const router = Router()
 function createEndpoint(url: string) {
   return async (request: Request, _: any, headers: Headers) => {
     const ip = headers.get('X-Forwarded-For') || headers.get('Cf-Connecting-Ip') || ''
-    const isLocalHost = headers.get('origin') === 'http://localhost:3000'
+    const isLocalHost = headers.get('origin') === 'https://routes.coinofworld.com'
     const body = (await request.text?.()) as any
 
     if (!body) return error(400, 'Missing body')

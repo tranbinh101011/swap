@@ -70,13 +70,13 @@ const TabContainer = ({ children, docLink, docText, fullSize = true, onDismiss }
   const { isMobile } = useMatchBreakpoints()
 
   return (
-    <AtomBox position="relative" zIndex="modal" className={fullSize ? fullSizeModalWrapperClass : modalWrapperClass}>
+    <AtomBox position="relative" zIndex="modal" className={fullSize ? fullSizeModalWrapperClass : modalWrapperClass} width="100%">
       <AtomBox
         display="flex"
         position="relative"
         background={isMobile ? 'backgroundAlt' : 'gradientCardHeader'}
         borderRadius="card"
-        flexDirection={isMobile ? 'column' : 'row'}
+        flexDirection="column"
         px={isMobile ? '16px' : '0px'}
         py={isMobile ? '24px' : '0px'}
         borderBottomRadius={{
@@ -423,8 +423,10 @@ function DesktopModal<T>({
         px="48px"
         zIndex="modal"
         borderRadius="card"
-        className={desktopWalletSelectionClass}
         gap="20px"
+        width="100%"
+        maxWidth="none"
+        style={{ width: '100%', maxWidth: 'none' }}
       >
         <Heading color="color" as="h4">
           {t('Connect Wallet')}
@@ -440,35 +442,6 @@ function DesktopModal<T>({
           onClick={onWalletSelected}
         />
         {/* {mevDocLink ? <MEVSection mevDocLink={mevDocLink} /> : null} */}
-      </AtomBox>
-      <AtomBox
-        flex={1}
-        mx="24px"
-        display={{
-          xs: 'none',
-          sm: 'flex',
-        }}
-        justifyContent="center"
-        flexDirection="column"
-        alignItems="center"
-      >
-        <AtomBox display="flex" flexDirection="column" alignItems="center" style={{ gap: '24px' }} textAlign="center">
-          {!selected && <Intro docLink={docLink} docText={docText} />}
-          {selected && selected.installed !== false && (
-            <>
-              {typeof selected.icon === 'string' && <Image src={selected.icon} width={108} height={108} />}
-              <Heading as="h1" fontSize="20px" color="secondary">
-                {t('Opening')} {selected.title}
-              </Heading>
-              {error ? (
-                <ErrorContent message={error} onRetry={() => connectWallet(selected)} />
-              ) : (
-                <Text>{t('Please confirm in %wallet%', { wallet: selected.title })}</Text>
-              )}
-            </>
-          )}
-          {selected && selected.installed === false && <NotInstalled qrCode={qrCode} wallet={selected} />}
-        </AtomBox>
       </AtomBox>
     </>
   )
@@ -620,7 +593,7 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
             ...(isSocialLoginModalOpen ? { display: 'none' } : {}),
           }}
         >
-          <AtomBox position="relative">
+          <AtomBox position="relative" width="100%">
             <TabContainer docLink={docLink} docText={docText} fullSize={fullSize} onDismiss={props.onDismiss}>
               {isMobile ? (
                 <MobileModal
