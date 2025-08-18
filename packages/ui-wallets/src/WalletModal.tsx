@@ -35,12 +35,10 @@ import {
   walletSelectWrapperClass,
 } from './WalletModal.css'
 import { errorAtom, lastUsedWalletNameAtom, previouslyUsedWalletsAtom, selectedWalletAtom } from './atom'
-import SocialLoginButton from './components/SocialLoginButton'
+// import SocialLoginButton from './components/SocialLoginButton'
 import { ConnectData, LinkOfDevice, WalletConfigV2, WalletModalV2Props } from './types'
 
 export const ASSET_CDN = 'https://assets.pancakeswap.finance'
-
-const StepIntro = lazy(() => import('./components/Intro'))
 
 const Qrcode = lazy(() => import('./components/QRCode'))
 
@@ -68,20 +66,11 @@ type TabContainerProps = PropsWithChildren<{
 }>
 
 const TabContainer = ({ children, docLink, docText, fullSize = true, onDismiss }: TabContainerProps) => {
-  const [index, setIndex] = useState(0)
   const { t } = useTranslation()
   const { isMobile } = useMatchBreakpoints()
 
   return (
     <AtomBox position="relative" zIndex="modal" className={fullSize ? fullSizeModalWrapperClass : modalWrapperClass}>
-      {isMobile ? null : (
-        <AtomBox position="absolute" style={{ top: '-48px', left: '10px' }}>
-          <TabMenu activeIndex={index} onItemClick={setIndex} gap="16px" isColorInverse isShowBorderBottom={false}>
-            <StyledTab>{t('Connect Wallet')}</StyledTab>
-            <StyledTab>{t('What’s a Web3 Wallet?')}</StyledTab>
-          </TabMenu>
-        </AtomBox>
-      )}
       <AtomBox
         display="flex"
         position="relative"
@@ -99,11 +88,6 @@ const TabContainer = ({ children, docLink, docText, fullSize = true, onDismiss }
       >
         {isMobile ? (
           <Row mb="16px" gap="16px">
-            <ButtonMenu scale="md" activeIndex={index} onItemClick={setIndex} variant="subtle">
-              <ButtonMenuItem>{t('Connect Wallet')}</ButtonMenuItem>
-              <ButtonMenuItem minWidth="57%">{t('What’s a Web3 Wallet?')}</ButtonMenuItem>
-            </ButtonMenu>
-
             <IconButton
               mr="-6px"
               variant="text"
@@ -117,12 +101,7 @@ const TabContainer = ({ children, docLink, docText, fullSize = true, onDismiss }
             </IconButton>
           </Row>
         ) : null}
-        {index === 0 && children}
-        {index === 1 && (
-          <Suspense>
-            <StepIntro docLink={docLink} docText={docText} />
-          </Suspense>
-        )}
+        {children}
       </AtomBox>
     </AtomBox>
   )
@@ -184,7 +163,7 @@ function MobileModal<T>({
         </AtomBox>
       ) : null}
       <AtomBox display="flex" flexDirection="column" gap="16px" justifyContent="space-between">
-        <SocialLoginButton onClick={onOpenSocialLoginModal} assetCdn={ASSET_CDN} style={{ marginBottom: '8px' }} />
+        {/* <SocialLoginButton onClick={onOpenSocialLoginModal} assetCdn={ASSET_CDN} style={{ marginBottom: '8px' }} /> */}
 
         <WalletSelect
           style={{ height: `calc(100vh - 200px)` }}
@@ -199,7 +178,7 @@ function MobileModal<T>({
             }
           }}
         />
-        {mevDocLink ? <MEVSection mevDocLink={mevDocLink} /> : null}
+        {/* {mevDocLink ? <MEVSection mevDocLink={mevDocLink} /> : null} */}
       </AtomBox>
     </AtomBox>
   )
@@ -348,28 +327,28 @@ function sortWallets<T>(wallets: WalletConfigV2<T>[], lastUsedWalletName: string
   return [foundLastUsedWallet, ...sorted.filter((w) => w.id !== foundLastUsedWallet.id)]
 }
 
-const MEVSection = ({ mevDocLink }: { mevDocLink: string }) => {
-  const { t } = useTranslation()
-  const { theme, isDark } = useTheme()
-  return (
-    <Row
-      color="textSubtle"
-      fontSize="12px"
-      gap="4px"
-      width="100%"
-      padding="8px"
-      justifyContent="center"
-      alignItems="center"
-      style={{ borderRadius: '16px', background: isDark ? '#18171A' : theme.colors.background }}
-    >
-      <ShieldCheckIcon width={17} height={17} color={theme.colors.positive60} />
-      {t('Wallets with MEV Protection')}
-      <LinkExternal showExternalIcon={false} color="primary60" href={mevDocLink} fontSize="12px" fontWeight="400">
-        {t('Learn More')}
-      </LinkExternal>
-    </Row>
-  )
-}
+// const MEVSection = ({ mevDocLink }: { mevDocLink: string }) => {
+//   const { t } = useTranslation()
+//   const { theme, isDark } = useTheme()
+//   return (
+//     <Row
+//       color="textSubtle"
+//       fontSize="12px"
+//       gap="4px"
+//       width="100%"
+//       padding="8px"
+//       justifyContent="center"
+//       alignItems="center"
+//       style={{ borderRadius: '16px', background: isDark ? '#18171A' : theme.colors.background }}
+//     >
+//       <ShieldCheckIcon width={17} height={17} color={theme.colors.positive60} />
+//       {t('Wallets with MEV Protection')}
+//       <LinkExternal showExternalIcon={false} color="primary60" href={mevDocLink} fontSize="12px" fontWeight="400">
+//         {t('Learn More')}
+//       </LinkExternal>
+//     </Row>
+//   )
+// }
 
 function DesktopModal<T>({
   wallets: wallets_,
@@ -451,7 +430,7 @@ function DesktopModal<T>({
           {t('Connect Wallet')}
         </Heading>
 
-        <SocialLoginButton onClick={onOpenSocialLoginModal} assetCdn={ASSET_CDN} />
+        {/* <SocialLoginButton onClick={onOpenSocialLoginModal} assetCdn={ASSET_CDN} /> */}
 
         <WalletSelect
           wallets={wallets}
@@ -460,7 +439,7 @@ function DesktopModal<T>({
           displayCount="all"
           onClick={onWalletSelected}
         />
-        {mevDocLink ? <MEVSection mevDocLink={mevDocLink} /> : null}
+        {/* {mevDocLink ? <MEVSection mevDocLink={mevDocLink} /> : null} */}
       </AtomBox>
       <AtomBox
         flex={1}
@@ -679,13 +658,13 @@ const Intro = ({ docLink, docText }: { docLink: string; docText: string }) => {
   const { t } = useTranslation()
   return (
     <>
-      <Heading as="h1" fontSize="20px" color="secondary">
+      {/* <Heading as="h1" fontSize="20px" color="secondary">
         {t('Haven’t got a wallet yet?')}
       </Heading>
       <Image src="https://cdn.pancakeswap.com/wallets/wallet_intro.png" width={198} height={178} />
       <Button as={LinkExternal} color="backgroundAlt" variant="subtle" href={docLink}>
         {docText}
-      </Button>
+      </Button> */}
     </>
   )
 }
