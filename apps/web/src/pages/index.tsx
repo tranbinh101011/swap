@@ -6,4 +6,7 @@ const IndexPage = () => {
   )
 }
 
+// Remove menu by setting mp property
+IndexPage.mp = true
+
 export default IndexPage
