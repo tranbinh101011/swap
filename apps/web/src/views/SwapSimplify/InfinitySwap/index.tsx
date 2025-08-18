@@ -86,7 +86,7 @@ export const InfinitySwapForm = memo(() => {
           isUserInsufficientBalance={isUserInsufficientBalance}
         />
       </SwapUIV2.SwapTabAndInputPanelWrapper>
-      {shouldShowBuyCrypto && <BuyCryptoPanel link={buyCryptoLink} />}
+      {/* {shouldShowBuyCrypto && <BuyCryptoPanel link={buyCryptoLink} />} */}
       {(shouldRiskPanelDisplay || isPriceImpactTooHigh || isSlippageTooHigh) && (
         <RiskDetailsPanel
           isPriceImpactTooHigh={isPriceImpactTooHigh}
