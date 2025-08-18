@@ -11,7 +11,7 @@ const CanonicalBridge = lazy(() =>
   import('@pancakeswap/canonical-bridge').then((module) => ({ default: module.CanonicalBridge })),
 )
 
-// Global style to hide V1BridgeLink and top menu
+// Global style to hide V1BridgeLink, top menu, and bottom navigation
 const GlobalStyleForBridge = createGlobalStyle`
   /* Hide the top navigation menu using more specific selectors */
   [data-theme] > div:first-child {
@@ -23,6 +23,14 @@ const GlobalStyleForBridge = createGlobalStyle`
   }
   /* Hide header */
   header {
+    display: none !important;
+  }
+  /* Hide bottom navigation menu */
+  .bottom-nav,
+  .bottom-navigation,
+  .footer-menu,
+  [class*="BottomNav"],
+  [class*="bottomNav"] {
     display: none !important;
   }
   /* Hide elements with common menu class names */
@@ -204,5 +212,6 @@ const BridgePage = () => {
 
 BridgePage.chains = CHAIN_IDS
 BridgePage.screen = true
+BridgePage.mp = true // Hide menu
 
 export default BridgePage

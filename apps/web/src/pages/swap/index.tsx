@@ -1,6 +1,6 @@
 import { Box, Skeleton, useMatchBreakpoints } from '@pancakeswap/uikit'
 import dynamic from 'next/dynamic'
-import styled from 'styled-components'
+import styled, { createGlobalStyle } from 'styled-components'
 import { NextPageWithLayout } from 'utils/page.types'
 import { CHAIN_IDS } from 'utils/wagmi'
 import SwapLayout from 'views/Swap/SwapLayout'
@@ -9,6 +9,18 @@ import { useWallets } from '@privy-io/react-auth'
 import NoMenuLayout from 'components/Layout/NoMenuLayout'
 // ✅ SOLUTION 1: Import AutoConnectV2 for URL parameter approach
 import { SimpleAutoConnect } from 'components/SimpleAutoConnect'
+
+// Global style to hide bottom navigation menu
+const GlobalStyleForSwap = createGlobalStyle`
+  /* Hide bottom navigation menu */
+  .bottom-nav,
+  .bottom-navigation,
+  .footer-menu,
+  [class*="BottomNav"],
+  [class*="bottomNav"] {
+    display: none !important;
+  }
+`
 
 const StyledSkeleton = styled(Skeleton)`
   opacity: 0.1;
@@ -51,6 +63,7 @@ const View = () => {
 
   return (
     <SwapLayout>
+      <GlobalStyleForSwap />
       <Container isMobile={isMobile}>
         {/* ✅ SOLUTION 1: Add AutoConnectV2 for URL parameter approach */}
         <SwapSimplify />
